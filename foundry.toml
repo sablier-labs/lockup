@@ -2,12 +2,6 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   evm_version = "shanghai"
-  fs_permissions = [
-    { access = "read", path = "./out-optimized" },
-    { access = "read", path = "package.json" },
-    { access = "read-write", path = "./benchmark/results" },
-    { access = "read-write", path = "./script/"}
-  ]
   gas_limit = 9223372036854775807
   optimizer = true
   optimizer_runs = 570
@@ -15,67 +9,8 @@
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.26"
-  src = "src"
+  contracts = "contracts"
   test = "tests"
-
-[profile.default.fuzz]
-  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 50
-
-[profile.default.invariant]
-  call_override = false # Override unsafe external calls to perform reentrancy checks
-  depth = 20            # Number of calls executed in one run
-  fail_on_revert = true
-  runs = 20
-
-# Run only the code inside benchmark directory
-[profile.benchmark]
-  test = "benchmark"
-
-# Speed up compilation and tests during development
-[profile.lite]
-  optimizer = false
-
-# Compile only the production code and the test mocks with via IR
-[profile.optimized]
-  out = "out-optimized"
-  test = "tests/mocks"
-  via_ir = true
-
-
-# See "SMTChecker and Formal Verification" in the Solidity docs
-[profile.smt]
-  ignored_error_codes = [
-    7737, # Disable inline assembly warnings
-  ]
-  out = "out-optimized"
-  script = "src"
-  test = "src"
-  via_ir = true
-
-[profile.smt.model_checker]
-  engine = "chc" # constrained Horn clauses
-  invariants = ["contract", "reentrancy"]
-  show_proved_safe = true
-  show_unproved = true
-  show_unsupported = true
-  timeout = 100_000 # in milliseconds, per solving query
-  targets = [
-    "assert",
-    "constantCondition",
-    "divByZero",
-    "outOfBounds",
-    "overflow",
-    "underflow",
-  ]
-
-[profile.smt.model_checker.contracts]
-  "src/LockupNFTDescriptor.sol" = ["LockupNFTDescriptor"]
-  "src/SablierLockup.sol" = ["SablierLockup"]
-
-# Test the optimized contracts without re-compiling them
-[profile.test-optimized]
-  src = "tests"
 
 [doc]
   ignore = ["**/*.t.sol"]
