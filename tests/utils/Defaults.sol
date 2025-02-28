@@ -18,7 +18,7 @@ contract Defaults {
 
     uint64 public constant BATCH_SIZE = 10;
     uint128 public constant CLIFF_AMOUNT = 2500e18 + 2534;
-    uint128 public constant CLIFF_AMOUNT_6D = 2500e6 + 2534;
+    uint128 public constant CLIFF_AMOUNT_6D = CLIFF_AMOUNT / 1e12;
     uint40 public immutable CLIFF_TIME;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
