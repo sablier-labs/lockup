@@ -60,9 +60,9 @@ interface ISablierLockupBase is
     /// @param revertData The error data returned by the reverted withdraw.
     event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
 
-    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
     /// @param admin The address of the contract admin.
-    /// @param token The address of the ERC-20 token the surplus amount has been recovered for.
+    /// @param token The address of the ERC-20 token that has been recovered.
     /// @param to The address the surplus amount has been sent to.
     /// @param surplus The amount of surplus tokens recovered.
     event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
@@ -90,7 +90,9 @@ interface ISablierLockupBase is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the sum of balances of all streams.
+    /// @notice Retrieves the aggregate amount across all streams, denoted in units of the token's decimals.
+    /// @dev If tokens are directly transferred to the contract without using the stream creation functions, the
+    /// ERC-20 balance may be greater than the aggregate amount.
     /// @param token The ERC-20 token for the query.
     function aggregateBalance(IERC20 token) external view returns (uint256);
 

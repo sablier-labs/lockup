@@ -364,6 +364,8 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function recover(IERC20 token, address to) external override onlyAdmin {
+        // If tokens are directly transferred to the contract without using the stream creation functions, the
+        // ERC-20 balance may be greater than the aggregate amount.
         uint256 surplus = token.balanceOf(address(this)) - aggregateBalance[token];
 
         // Check: there is a surplus to recover.
@@ -372,9 +374,10 @@ abstract contract SablierLockupBase is
         }
 
         // Interaction: transfer the surplus to the provided address.
-        token.safeTransfer(to, surplus);
+        token.safeTransfer({ to: to, value: surplus });
 
-        emit Recover(msg.sender, token, to, surplus);
+        // Log the recover.
+        emit Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -563,7 +566,7 @@ abstract contract SablierLockupBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Calculates the streamed amount of the stream without looking up the stream's status.
-    /// @dev This function is implemented by child contracts, so the logic varies depending on the model.
+    /// @dev This function is implemented by child contracts. The logic varies according to the distribution model.
     function _calculateStreamedAmount(uint256 streamId) internal view virtual returns (uint128);
 
     /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party, when the
@@ -670,7 +673,7 @@ abstract contract SablierLockupBase is
         IERC20 token = _streams[streamId].token;
 
         unchecked {
-            // Effect: update the aggregate balance.
+            // Effect: decrease the aggregate amount.
             aggregateBalance[token] -= senderAmount;
         }
 
@@ -755,7 +758,7 @@ abstract contract SablierLockupBase is
         IERC20 token = _streams[streamId].token;
 
         unchecked {
-            // Effect: update the aggregate balance.
+            // Effect: decrease the aggregate amount.
             aggregateBalance[token] -= amount;
         }
 
