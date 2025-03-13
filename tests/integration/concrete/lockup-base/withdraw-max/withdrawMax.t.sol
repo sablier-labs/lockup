@@ -44,7 +44,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the not burned NFT.
+        // It should ensure that the not burned NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
@@ -75,7 +75,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         // It should return the withdrawable amount.
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream's status is still "STREAMING".
+        // It should ensure that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

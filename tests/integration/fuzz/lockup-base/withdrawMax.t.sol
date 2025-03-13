@@ -28,21 +28,21 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should ensure that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream's status is "DEPLETED".
+        // It should ensure that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should ensure that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the not burned NFT.
+        // It should ensure that the not burned NFT.
         address actualNFTowner = lockup.ownerOf({ tokenId: ids.defaultStream });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
@@ -72,7 +72,7 @@ contract WithdrawMax_Integration_Fuzz_Test is Integration_Test {
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should ensure that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");

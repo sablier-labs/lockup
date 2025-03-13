@@ -53,12 +53,12 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId), unlockAmounts);
 
-        // Assert that the stream's status is "STREAMING".
+        // It should ensure that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream ID has been bumped.
+        // It should ensure that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockup.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

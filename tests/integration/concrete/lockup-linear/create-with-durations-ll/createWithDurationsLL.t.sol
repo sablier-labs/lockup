@@ -75,7 +75,7 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         assertEq(lockup.getUnlockAmounts(streamId), _defaultParams.unlockAmounts);
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
-        // Assert that the stream's status is "STREAMING".
+        // It should ensure that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

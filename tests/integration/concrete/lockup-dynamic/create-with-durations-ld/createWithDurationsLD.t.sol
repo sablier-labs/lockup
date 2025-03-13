@@ -160,7 +160,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         // Create the stream.
         uint256 streamId = createDefaultStreamWithDurations();
 
-        // Assert that the stream has been created.
+        // It should ensure that the stream has been created.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
@@ -174,7 +174,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
-        // Assert that the stream's status is "STREAMING".
+        // It should ensure that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

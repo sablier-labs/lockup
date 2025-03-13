@@ -152,7 +152,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         // Create the stream.
         uint256 streamId = createDefaultStreamWithDurations(tranchesWithDurations);
 
-        // Assert that the stream has been created.
+        // It should ensure that the stream has been created.
         assertEq(lockup.getDepositedAmount(streamId), defaults.DEPOSIT_AMOUNT(), "depositedAmount");
         assertEq(lockup.getEndTime(streamId), timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
@@ -168,7 +168,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
 
         assertEq(lockup.getTranches(streamId), tranches);
 
-        // Assert that the stream's status is "STREAMING".
+        // It should ensure that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

@@ -28,12 +28,12 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Cancel the stream.
         uint128 refundedAmount = lockup.cancel(ids.defaultStream);
 
-        // Assert that the stream's status is "DEPLETED".
+        // It should ensure that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(ids.defaultStream);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should ensure that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
@@ -102,22 +102,22 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         // Cancel the stream.
         uint128 refundedAmount = lockup.cancel(ids.recipientGoodStream);
 
-        // Assert that the amount refunded matches the expected value.
+        // It should ensure that the amount refunded matches the expected value.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
-        // Assert that the stream's status is "CANCELED".
+        // It should ensure that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the stream is not cancelable anymore.
+        // It should ensure that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
 
         // It should update the aggrate balance.
         assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - refundedAmount, "aggregateBalance");
 
-        // Assert that the not burned NFT.
+        // It should ensure that the not burned NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });
         address expectedNFTOwner = address(recipientGood);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

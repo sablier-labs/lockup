@@ -67,7 +67,7 @@ abstract contract Lockup_Tranched_Fork_Test is Lockup_Fork_Test {
         // Create the stream.
         lockup.createWithTimestampsLT(params.create, params.tranches);
 
-        // Assert that the stream is created with the correct parameters.
+        // It should ensure that the stream is created with the correct parameters.
         assertEq({ streamId: vars.streamId, lockup: lockup, expectedLockup: params.create });
         assertEq(lockup.getTranches(vars.streamId), params.tranches);
 

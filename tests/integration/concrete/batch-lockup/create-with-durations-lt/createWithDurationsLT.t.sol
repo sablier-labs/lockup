@@ -36,7 +36,7 @@ contract CreateWithDurationsLT_Integration_Test is Integration_Test {
 
         uint256 firstStreamId = lockup.nextStreamId();
 
-        // Assert that the batch of streams has been created successfully.
+        // It should ensure that the batch of streams has been created successfully.
         uint256[] memory actualStreamIds =
             batchLockup.createWithDurationsLT(lockup, dai, defaults.batchCreateWithDurationsLT());
         uint256[] memory expectedStreamIds = defaults.incrementalStreamIds({ firstStreamId: firstStreamId });

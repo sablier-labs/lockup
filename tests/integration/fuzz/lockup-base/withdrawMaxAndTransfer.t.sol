@@ -53,12 +53,12 @@ contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is Integration_Test {
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: newRecipient });
 
-        // Assert that the withdrawn amount has been updated.
+        // It should ensure that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ids.defaultStream);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the fuzzed recipient is the new stream recipient (and NFT owner).
+        // It should ensure that the fuzzed recipient is the new stream recipient (and NFT owner).
         address actualRecipient = lockup.getRecipient(ids.defaultStream);
         address expectedRecipient = newRecipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");

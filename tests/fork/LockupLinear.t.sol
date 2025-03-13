@@ -68,7 +68,7 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
         // Create the stream.
         lockup.createWithTimestampsLL(params.create, params.unlockAmounts, params.cliffTime);
 
-        // Assert that the stream is created with the correct parameters.
+        // It should ensure that the stream is created with the correct parameters.
         assertEq({ lockup: lockup, streamId: vars.streamId, expectedLockup: params.create });
         assertEq(lockup.getCliffTime(vars.streamId), params.cliffTime, "cliffTime");
         assertEq(lockup.getUnlockAmounts(vars.streamId), params.unlockAmounts);
