@@ -19,6 +19,7 @@ vulnerability, it must adhere to these assumptions as well:
   an approved address. This excludes rebase tokens, interest-bearing tokens, and permissioned tokens where the admin can
   arbitrarily change balances.
 - The token contract does not allow callbacks (e.g. ERC-777 is not supported).
+- The token contract must not implement multiple entry points for transfers (i.e., no double entry-point mechanisms).
 - There is no need for exponents greater than ~18.44 in `LockupDynamic` segments.
 - Recipient contracts on the hook allowlist have gone through due diligence and are assumed to expose no risk to the
   Sablier protocol.

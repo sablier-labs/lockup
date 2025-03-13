@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-
 import { Lockup } from "../types/DataTypes.sol";
 
 /// @title Errors
@@ -13,13 +11,6 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     error SablierBatchLockup_BatchSizeZero();
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               LOCKUP-NFT-DESCRIPTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
-    error LockupNFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
