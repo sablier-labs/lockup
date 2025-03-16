@@ -136,7 +136,7 @@ library Helpers {
                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the user-provided cliff, end times, and unlock amounts of a LL stream.
+    /// @dev Checks the user-provided cliff, end times, and unlock amounts of an LL stream.
     function _checkTimestampsAndUnlockAmounts(
         uint128 depositAmount,
         Lockup.Timestamps memory timestamps,

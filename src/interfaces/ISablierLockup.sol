@@ -11,7 +11,7 @@ interface ISablierLockup is ISablierLockupBase {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a LD stream is created.
+    /// @notice Emitted when an LD stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
     /// @param segments The segments the protocol uses to compose the dynamic distribution function.
@@ -19,7 +19,7 @@ interface ISablierLockup is ISablierLockupBase {
         uint256 indexed streamId, Lockup.CreateEventCommon commonParams, LockupDynamic.Segment[] segments
     );
 
-    /// @notice Emitted when a LL stream is created.
+    /// @notice Emitted when an LL stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
     /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
@@ -32,7 +32,7 @@ interface ISablierLockup is ISablierLockupBase {
         LockupLinear.UnlockAmounts unlockAmounts
     );
 
-    /// @notice Emitted when a LT stream is created.
+    /// @notice Emitted when an LT stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
     /// @param tranches The tranches the protocol uses to compose the tranched distribution function.
@@ -54,19 +54,19 @@ interface ISablierLockup is ISablierLockupBase {
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
     /// @notice Retrieves the segments used to compose the dynamic distribution function.
-    /// @dev Reverts if `streamId` references either a null stream or a LD stream.
+    /// @dev Reverts if `streamId` references either a null stream or a non-LD stream.
     /// @param streamId The stream ID for the query.
     /// @return segments See the documentation in {DataTypes}.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
     /// @notice Retrieves the tranches used to compose the tranched distribution function.
-    /// @dev Reverts if `streamId` references either a null stream or a LT stream.
+    /// @dev Reverts if `streamId` references either a null stream or a non-LT stream.
     /// @param streamId The stream ID for the query.
     /// @return tranches See the documentation in {DataTypes}.
     function getTranches(uint256 streamId) external view returns (LockupTranched.Tranche[] memory tranches);
 
     /// @notice Retrieves the unlock amounts used to compose the linear distribution function.
-    /// @dev Reverts if `streamId` references either a null stream or a LL model.
+    /// @dev Reverts if `streamId` references either a null stream or a non-LL stream.
     /// @param streamId The stream ID for the query.
     /// @return unlockAmounts See the documentation in {DataTypes}.
     function getUnlockAmounts(uint256 streamId)
