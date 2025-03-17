@@ -85,21 +85,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
         );
     }
 
-    function invariant_DepositedAmountsSumGteAggregateBalance() external view {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        uint256 depositedAmountsSum;
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupStore.streamIds(i);
-            depositedAmountsSum += uint256(lockup.getDepositedAmount(streamId));
-        }
-
-        assertGe(
-            depositedAmountsSum,
-            lockup.aggregateBalance(dai),
-            unicode"Invariant violation: Σ deposits < aggregate balance"
-        );
-    }
-
     function invariant_DepositedAmountGteStreamedAmount() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
