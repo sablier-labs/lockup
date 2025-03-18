@@ -60,7 +60,7 @@ interface ISablierLockupBase is
     /// @param revertData The error data returned by the reverted withdraw.
     event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
 
-    /// @notice Emitted when the contract admin recovers the surplus amount of token.
+    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
     /// @param admin The address of the contract admin.
     /// @param token The address of the ERC-20 token that has been recovered.
     /// @param to The address the surplus amount has been sent to.
