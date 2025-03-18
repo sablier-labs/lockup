@@ -22,6 +22,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a non zero cliff unlock amount when the cliff time is zero.
     error SablierHelpers_CliffTimeZeroUnlockAmountNotZero(uint128 cliffUnlockAmount);
 
+    /// @notice Thrown when trying to create a stream with the native token.
+    error SablierHelpers_CreateNativeToken(address nativeToken);
+
     /// @notice Thrown when trying to create a dynamic stream with a deposit amount not equal to the sum of the segment
     /// amounts.
     error SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
@@ -90,6 +93,12 @@ library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-LOCKUP-BASE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to set native token address when it is already set.
+    error SablierLockupBase_NativeTokenSet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierLockupBase_ZeroAddress();
 
     /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
     error SablierLockupBase_AllowToHookUnsupportedInterface(address recipient);

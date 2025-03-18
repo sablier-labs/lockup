@@ -60,7 +60,7 @@ interface ISablierLockupBase is
     /// @param revertData The error data returned by the reverted withdraw.
     event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
 
-    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
+    /// @notice Emitted when the contract admin recovers the surplus amount of token.
     /// @param admin The address of the contract admin.
     /// @param token The address of the ERC-20 token that has been recovered.
     /// @param to The address the surplus amount has been sent to.
@@ -70,6 +70,9 @@ interface ISablierLockupBase is
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
+
+    /// @notice Emitted when the native token address is set by the admin.
+    event SetNativeToken(address indexed admin, address nativeToken);
 
     /// @notice Emitted when the admin sets a new NFT descriptor contract.
     /// @param admin The address of the current contract admin.
@@ -177,6 +180,10 @@ interface ISablierLockupBase is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function isWarm(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves the address of the native token.
+    /// @dev If the native token has implemented an ERC20 interface, it returns the token address.
+    function nativeToken() external view returns (address);
 
     /// @notice Counter for stream IDs, used in the create functions.
     function nextStreamId() external view returns (uint256);
@@ -335,6 +342,15 @@ interface ISablierLockupBase is
     ///
     /// @param streamIds An array of stream IDs to renounce.
     function renounceMultiple(uint256[] calldata streamIds) external payable;
+
+    /// @notice Sets the native token address, if its non-zero. Once set, it cannot be changed.
+    /// @dev Emits a {SetNativeToken} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - `tokenAddress` must not be zero address.
+    /// - `nativeToken` must not be set.
+    function setNativeToken(address tokenAddress) external;
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
