@@ -94,12 +94,6 @@ library Errors {
                                 SABLIER-LOCKUP-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to set native token address when it is already set.
-    error SablierLockupBase_NativeTokenSet(address nativeToken);
-
-    /// @notice Thrown when trying to set zero address as native token.
-    error SablierLockupBase_ZeroAddress();
-
     /// @notice Thrown when trying to allow to hook a contract that doesn't implement the interface correctly.
     error SablierLockupBase_AllowToHookUnsupportedInterface(address recipient);
 
@@ -111,6 +105,12 @@ library Errors {
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockupBase_InvalidHookSelector(address recipient);
+
+    /// @notice Thrown when trying to set native token address when it is already set.
+    error SablierLockupBase_NativeTokenSet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierLockupBase_NewNativeTokenZeroAddress();
 
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierLockupBase_NotTransferable(uint256 tokenId);

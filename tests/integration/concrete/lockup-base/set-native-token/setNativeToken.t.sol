@@ -17,7 +17,7 @@ contract SetNativeToken_Integration_Test is Integration_Test {
     function test_RevertWhen_ProvidedAddressZero() external whenCallerAdmin {
         address newNativeToken = address(0);
 
-        vm.expectRevert(Errors.SablierLockupBase_ZeroAddress.selector);
+        vm.expectRevert(Errors.SablierLockupBase_NewNativeTokenZeroAddress.selector);
         lockup.setNativeToken(newNativeToken);
     }
 
