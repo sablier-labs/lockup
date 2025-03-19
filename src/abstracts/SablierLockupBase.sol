@@ -419,15 +419,15 @@ abstract contract SablierLockupBase is
     function setNativeToken(address newNativeToken) external override onlyAdmin {
         // Check: provided token is not zero address.
         if (newNativeToken == address(0)) {
-            revert Errors.SablierLockupBase_NewNativeTokenZeroAddress();
+            revert Errors.SablierLockupBase_NativeTokenZeroAddress();
         }
 
         // Check: native token is not set.
         if (nativeToken != address(0)) {
-            revert Errors.SablierLockupBase_NativeTokenSet(nativeToken);
+            revert Errors.SablierLockupBase_NativeTokenAlreadySet(nativeToken);
         }
 
-        // Effect: update the native token.
+        // Effect: set the native token.
         nativeToken = newNativeToken;
 
         // Log the update.

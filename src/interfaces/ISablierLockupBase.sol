@@ -181,14 +181,12 @@ interface ISablierLockupBase is
     /// @param streamId The stream ID for the query.
     function isWarm(uint256 streamId) external view returns (bool result);
 
-    /// @notice Retrieves the address of the native token.
-    /// @dev If the native token has implemented an ERC-20 interface, it returns the token address.
-    ///
-    /// Notes:
-    /// - Some chains like Polygon, Metis, Celo have native tokens with the ERC-20 interface. As a result, a call to
-    /// `address(this).balance` would return the same result as a call to `balanceOf(address(this))` function. To avoid
-    /// any unintended behavior if someone uses the protocol with such tokens, the admin can block the use of protocol
-    /// with such tokens by setting the native token address in the contract state.
+    /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
+    /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token
+    /// is the native token and has an ERC-20 version at 0x0000000000000000000000000000000000001010. This means
+    /// that `address(this).balance` returns the same value as `balanceOf(address(this))`. To avoid any unintended
+    /// behavior, these tokens cannot be used in Sablier. As an alternative, users can use the Wrapped version of the
+    /// token, i.e. WMATIC, which is a standard ERC-20 token.
     function nativeToken() external view returns (address);
 
     /// @notice Counter for stream IDs, used in the create functions.
@@ -349,14 +347,17 @@ interface ISablierLockupBase is
     /// @param streamIds An array of stream IDs to renounce.
     function renounceMultiple(uint256[] calldata streamIds) external payable;
 
-    /// @notice Sets the native token address, if its non-zero. Once set, it cannot be changed.
-    /// @dev Emits a {SetNativeToken} event.
+    /// @notice Sets the native token address. Once set, it cannot be changed.
+    /// @dev For more information, see the documentation for {nativeToken}.
+    ///
+    /// Emits a {SetNativeToken} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
-    /// - `tokenAddress` must not be zero address.
-    /// - `nativeToken` must not be set.
-    function setNativeToken(address tokenAddress) external;
+    /// - `newNativeToken` must not be zero address.
+    /// - The native token must not be already set.
+    /// @param newNativeToken The address of the native token.
+    function setNativeToken(address newNativeToken) external;
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
