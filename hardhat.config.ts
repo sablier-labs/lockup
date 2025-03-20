@@ -12,12 +12,12 @@ if (!deployPrivateKey) {
 
 module.exports = {
   solidity: {
-    version: "0.8.23",
+    version: "0.8.26",
     evmVersion: "paris",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 10, // for iotex chain, tangle can use 200 && 0.8.26
+        runs: 100,
       },
       viaIR: true,
     },
@@ -34,11 +34,17 @@ module.exports = {
       url: "https://rpc.tangle.tools",
       accounts: [deployPrivateKey],
     },
+    ultra: {
+      chainId: 19991,
+      url: "https://evm.ultra.eosusa.io/",
+      accounts: [deployPrivateKey],
+    },
   },
   etherscan: {
     apiKey: {
       iotex: "empty",
       tangle: "empty",
+      ultra: "empty",
     },
     customChains: [
       {
@@ -55,6 +61,14 @@ module.exports = {
         urls: {
           apiURL: "https://explorer.tangle.tools/api",
           browserURL: "http://explorer.tangle.tools",
+        },
+      },
+      {
+        network: "ultra",
+        chainId: 19991,
+        urls: {
+          apiURL: "https://evmexplorer.ultra.io/api",
+          browserURL: "https://evmexplorer.ultra.io/",
         },
       },
     ],
