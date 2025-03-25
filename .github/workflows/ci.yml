@@ -21,12 +21,12 @@ jobs:
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@ci/proper-cache"
 
   test-bulloak:
-      needs: ["lint", "build"]
-      if: needs.build.outputs.cache-hit != 'true'
-      uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@ci/proper-cache"
-      with:
-        skip-modifiers: true
-        tree-path: "tests"
+    needs: ["lint", "build"]
+    if: needs.build.outputs.cache-hit != 'true'
+    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@ci/proper-cache"
+    with:
+      skip-modifiers: true
+      tree-path: "tests"
 
   test-unit:
     needs: ["lint", "build"]
