@@ -172,9 +172,9 @@ abstract contract Lockup_Fork_Test is Fork_Test {
 
         // Assert that the aggregate balance has been updated.
         assertEq(
-            lockup.aggregateBalance(FORK_TOKEN),
+            lockup.aggregateAmount(FORK_TOKEN),
             vars.initialLockupBalance + params.create.depositAmount,
-            "aggregateBalance"
+            "aggregateAmount"
         );
 
         // Store the post-create token balances of Lockup and Holder.
@@ -249,9 +249,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
 
             // Assert that the aggregate balance has been updated.
             assertEq(
-                lockup.aggregateBalance(FORK_TOKEN),
-                vars.initialLockupBalance - params.withdrawAmount,
-                "aggregateBalance"
+                lockup.aggregateAmount(FORK_TOKEN), vars.initialLockupBalance - params.withdrawAmount, "aggregateAmount"
             );
 
             // Load the post-withdraw token balances.
@@ -316,9 +314,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             assertEq(lockup.statusOf(vars.streamId), vars.expectedStatus, "post-cancel stream status");
 
             // Assert that the aggregate balance has been updated.
-            assertEq(
-                lockup.aggregateBalance(FORK_TOKEN), vars.initialLockupBalance - refundedAmount, "aggregateBalance"
-            );
+            assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.initialLockupBalance - refundedAmount, "aggregateAmount");
 
             // Load the post-cancel token balances.
             balances = getTokenBalances(

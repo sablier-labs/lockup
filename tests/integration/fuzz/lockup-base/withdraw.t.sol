@@ -113,7 +113,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
@@ -147,7 +147,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
 
         // It should update the aggregate balance.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - withdrawAmount, "aggregateAmount");
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -181,7 +181,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(ids.defaultStream);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Expect the tokens to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, value: withdrawAmount });
@@ -223,6 +223,6 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
 
         // It should update the aggregate balance.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount - withdrawAmount, "aggregateBalance");
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - withdrawAmount, "aggregateAmount");
     }
 }

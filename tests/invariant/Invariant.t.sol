@@ -71,16 +71,16 @@ contract Invariant_Test is Base_Test, StdInvariant {
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
-        uint256 aggregateBalance = depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum;
+        uint256 aggregateAmount = depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum;
         assertEq(
-            lockup.aggregateBalance(dai),
-            aggregateBalance,
+            lockup.aggregateAmount(dai),
+            aggregateAmount,
             unicode"Invariant violation: aggregate balance != Σ deposits - Σ refunds - Σ withdrawals"
         );
 
         assertGe(
             contractBalance,
-            aggregateBalance,
+            aggregateAmount,
             unicode"Invariant violation: contract balances < Σ deposits - Σ refunds - Σ withdrawals"
         );
     }

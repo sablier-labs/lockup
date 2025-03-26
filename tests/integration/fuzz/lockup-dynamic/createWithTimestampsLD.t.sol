@@ -178,7 +178,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         // If the shape exceeds 32 bytes, use the default value.
         if (bytes(params.shape).length > 32) params.shape = defaults.SHAPE();
 
-        uint256 previousAggregateAmount = lockup.aggregateBalance(dai);
+        uint256 previousAggregateAmount = lockup.aggregateAmount(dai);
 
         // Fuzz the segment amounts and calculate the deposit amount
         Vars memory vars;
@@ -251,6 +251,6 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Assert that the aggregate balance has been updated.
-        assertEq(lockup.aggregateBalance(dai), previousAggregateAmount + params.depositAmount);
+        assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + params.depositAmount);
     }
 }
