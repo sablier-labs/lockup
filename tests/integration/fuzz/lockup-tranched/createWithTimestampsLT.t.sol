@@ -258,7 +258,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
-        // Assert that the aggregate balance has been updated.
+        // Assert that the aggregate amount has been updated.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount + params.depositAmount);
     }
 }

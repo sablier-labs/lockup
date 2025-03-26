@@ -75,7 +75,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         assertEq(
             lockup.aggregateAmount(dai),
             aggregateAmount,
-            unicode"Invariant violation: aggregate balance != Σ deposits - Σ refunds - Σ withdrawals"
+            unicode"Invariant violation: aggregate amount != Σ deposits - Σ refunds - Σ withdrawals"
         );
 
         assertGe(

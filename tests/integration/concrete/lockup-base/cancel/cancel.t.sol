@@ -271,10 +271,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         uint128 expectedRefundedAmount = senderAmount;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
 
-        // It should update the aggregate balance.
-        uint256 actualaggregateAmount = lockup.aggregateAmount(dai);
-        uint256 expectedaggregateAmount = previousAggregateAmount - senderAmount;
-        assertEq(actualaggregateAmount, expectedaggregateAmount, "aggregateAmount");
+        // It should update the aggregate amount.
+        uint256 actualAggregateAmount = lockup.aggregateAmount(dai);
+        uint256 expectedAggregateAmount = previousAggregateAmount - senderAmount;
+        assertEq(actualAggregateAmount, expectedAggregateAmount, "aggregateAmount");
 
         // It should not burn the NFT.
         address actualNFTOwner = lockup.ownerOf({ tokenId: ids.recipientGoodStream });

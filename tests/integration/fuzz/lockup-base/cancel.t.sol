@@ -37,7 +37,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.defaultStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate balance has been updated.
+        // Assert that the aggregate amount has been updated.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
     }
 
@@ -114,7 +114,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
         bool isCancelable = lockup.isCancelable(ids.recipientGoodStream);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the aggregate balance has been updated.
+        // Assert that the aggregate amount has been updated.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - refundedAmount, "aggregateAmount");
 
         // Assert that the not burned NFT.

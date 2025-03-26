@@ -132,7 +132,7 @@ contract Withdraw_Lockup_Tranched_Integration_Fuzz_Test is
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the aggregate balance has been updated.
+        // Assert that the aggregate amount has been updated.
         assertEq(lockup.aggregateAmount(dai), previousAggregateAmount - vars.actualWithdrawnAmount, "aggregateAmount");
     }
 }
