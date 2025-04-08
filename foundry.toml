@@ -1,7 +1,7 @@
 [profile.default]
   auto_detect_solc = false
   bytecode_hash = "none"
-  evm_version = "shanghai"
+  evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
     { access = "read", path = "./out-optimized" },
     { access = "read", path = "package.json" }
@@ -128,4 +128,4 @@
   sepolia = "${SEPOLIA_RPC_URL}"
   superseed_sepolia = "https://sepolia.superseed.xyz"
   taiko_hekla = "https://rpc.hekla.taiko.xyz"
-  
+
