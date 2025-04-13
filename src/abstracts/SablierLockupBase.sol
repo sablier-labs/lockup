@@ -4,10 +4,11 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ILockupNFTDescriptor } from "./../interfaces/ILockupNFTDescriptor.sol";
@@ -20,10 +21,10 @@ import { Lockup } from "./../types/DataTypes.sol";
 /// @notice See the documentation in {ISablierLockupBase}.
 abstract contract SablierLockupBase is
     Batch, // 1 inherited components
+    ERC721, // 6 inherited components
+    ISablierLockupBase, // 7 inherited components
     NoDelegateCall, // 0 inherited components
-    Adminable, // 1 inherited components
-    ISablierLockupBase, // 6 inherited components
-    ERC721 // 6 inherited components
+    RoleAdminable // 6 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -55,7 +56,7 @@ abstract contract SablierLockupBase is
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
-    constructor(address initialAdmin, ILockupNFTDescriptor initialNFTDescriptor) Adminable(initialAdmin) {
+    constructor(address initialAdmin, ILockupNFTDescriptor initialNFTDescriptor) RoleAdminable(initialAdmin) {
         nftDescriptor = initialNFTDescriptor;
     }
 
@@ -216,7 +217,12 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControl, IERC165, ERC721)
+        returns (bool)
+    {
         // 0x49064906 is the ERC-165 interface ID required by ERC-4906
         return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
     }
@@ -267,7 +273,7 @@ abstract contract SablierLockupBase is
         _allowedToHook[recipient] = true;
 
         // Log the allowlist addition.
-        emit ISablierLockupBase.AllowToHook({ admin: msg.sender, recipient: recipient });
+        emit AllowToHook({ admin: msg.sender, recipient: recipient });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -349,9 +355,10 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` is not the admin, `feeRecipient` must be the admin address.
-        if (msg.sender != admin && feeRecipient != admin) {
-            revert Errors.SablierLockupBase_FeeRecipientNotAdmin(feeRecipient, admin);
+        // Check: if `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // then `feeRecipient` must be the admin address.
+        if (!hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE) && feeRecipient != admin) {
+            revert Errors.SablierLockupBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
         uint256 feeAmount = address(this).balance;
@@ -365,7 +372,7 @@ abstract contract SablierLockupBase is
         }
 
         // Log the fee withdrawal.
-        emit ISablierLockupBase.CollectFees(admin, feeRecipient, feeAmount);
+        emit CollectFees(admin, feeRecipient, feeAmount);
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -407,7 +414,7 @@ abstract contract SablierLockupBase is
         _renounce(streamId);
 
         // Log the renouncement.
-        emit ISablierLockupBase.RenounceLockupStream(streamId);
+        emit RenounceLockupStream(streamId);
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -446,7 +453,7 @@ abstract contract SablierLockupBase is
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit ISablierLockupBase.SetNFTDescriptor({
+        emit SetNFTDescriptor({
             admin: msg.sender,
             oldNFTDescriptor: oldNftDescriptor,
             newNFTDescriptor: newNFTDescriptor
@@ -706,7 +713,7 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: sender, value: senderAmount });
 
         // Log the cancellation.
-        emit ISablierLockupBase.CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
+        emit CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
         emit MetadataUpdate({ _tokenId: streamId });
@@ -791,7 +798,7 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: to, value: amount });
 
         // Log the withdrawal.
-        emit ISablierLockupBase.WithdrawFromLockupStream(streamId, to, token, amount);
+        emit WithdrawFromLockupStream(streamId, to, token, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

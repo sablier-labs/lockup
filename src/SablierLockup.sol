@@ -428,11 +428,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_DYNAMIC });
 
         // Log the newly created stream.
-        emit ISablierLockup.CreateLockupDynamicStream({
-            streamId: streamId,
-            commonParams: commonParams,
-            segments: segments
-        });
+        emit CreateLockupDynamicStream({ streamId: streamId, commonParams: commonParams, segments: segments });
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
@@ -479,7 +475,7 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_LINEAR });
 
         // Log the newly created stream.
-        emit ISablierLockup.CreateLockupLinearStream({
+        emit CreateLockupLinearStream({
             streamId: streamId,
             commonParams: commonParams,
             cliffTime: cliffTime,
@@ -522,10 +518,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             _create({ streamId: streamId, params: params, lockupModel: Lockup.Model.LOCKUP_TRANCHED });
 
         // Log the newly created stream.
-        emit ISablierLockup.CreateLockupTranchedStream({
-            streamId: streamId,
-            commonParams: commonParams,
-            tranches: tranches
-        });
+        emit CreateLockupTranchedStream({ streamId: streamId, commonParams: commonParams, tranches: tranches });
     }
 }
