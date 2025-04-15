@@ -355,7 +355,7 @@ abstract contract SablierLockupBase is
 
     /// @inheritdoc ISablierLockupBase
     function collectFees(address feeRecipient) external override {
-        // Check: if `msg.sender` has neither the {IRoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
+        // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
         // then `feeRecipient` must be the admin address.
         if (!hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE) && feeRecipient != admin) {
             revert Errors.SablierLockupBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
