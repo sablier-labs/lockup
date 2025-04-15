@@ -72,9 +72,6 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
 
-    /// @notice Emitted when the native token address is set by the admin.
-    event SetNativeToken(address indexed admin, address nativeToken);
-
     /// @notice Emitted when the admin sets a new NFT descriptor contract.
     /// @param admin The address of the current contract admin.
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
@@ -338,28 +335,15 @@ interface ISablierLockupBase is
     /// @param streamId The ID of the stream to renounce.
     function renounce(uint256 streamId) external payable;
 
-    /// @notice Renounces multiple streams.
-    ///
-    /// @dev Emits multiple {RenounceLockupStream} events.
-    ///
-    /// Notes:
-    /// - Refer to the notes in {renounce}.
-    ///
-    /// Requirements:
-    /// - All requirements from {renounce} must be met for each stream.
-    ///
-    /// @param streamIds An array of stream IDs to renounce.
-    function renounceMultiple(uint256[] calldata streamIds) external payable;
-
     /// @notice Sets the native token address. Once set, it cannot be changed.
     /// @dev For more information, see the documentation for {nativeToken}.
     ///
-    /// Emits a {SetNativeToken} event.
+    /// Notes:
+    /// - If `newNativeToken` is zero address, the function does not revert.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.
-    /// - `newNativeToken` must not be zero address.
-    /// - The native token must not be already set.
+    /// - The current native token must be zero address.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
 

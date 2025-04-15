@@ -288,47 +288,22 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierLockupBase
-    function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
-        // Load in memory the parameters used in {LockupMath}.
-        uint40 blockTimestamp = uint40(block.timestamp);
-        uint128 depositedAmount = _streams[streamId].amounts.deposited;
-        Lockup.Model lockupModel = _streams[streamId].lockupModel;
-        uint128 streamedAmount;
-        Lockup.Timestamps memory timestamps =
-            Lockup.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
+    function _streamedAmountOf(uint256 streamId) internal view override returns (uint128) {
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
-        // Calculate the streamed amount for the LD model.
-        if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
-            streamedAmount = LockupMath.calculateStreamedAmountLD({
-                depositedAmount: depositedAmount,
-                segments: _segments[streamId],
-                blockTimestamp: blockTimestamp,
-                timestamps: timestamps,
-                withdrawnAmount: _streams[streamId].amounts.withdrawn
-            });
-        }
-        // Calculate the streamed amount for the LL model.
-        else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
-            streamedAmount = LockupMath.calculateStreamedAmountLL({
-                depositedAmount: depositedAmount,
-                blockTimestamp: blockTimestamp,
-                timestamps: timestamps,
-                cliffTime: _cliffs[streamId],
-                unlockAmounts: _unlockAmounts[streamId],
-                withdrawnAmount: _streams[streamId].amounts.withdrawn
-            });
-        }
-        // Calculate the streamed amount for the LT model.
-        else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
-            streamedAmount = LockupMath.calculateStreamedAmountLT({
-                depositedAmount: depositedAmount,
-                blockTimestamp: blockTimestamp,
-                timestamps: timestamps,
-                tranches: _tranches[streamId]
-            });
+        if (_streams[streamId].isDepleted) {
+            return amounts.withdrawn;
+        } else if (_streams[streamId].wasCanceled) {
+            return amounts.deposited - amounts.refunded;
         }
 
-        return streamedAmount;
+        return LockupMath.calculateStreamedAmount({
+            stream: _streams[streamId],
+            cliffTimeLL: _cliffs[streamId],
+            segmentsLD: _segments[streamId],
+            tranchesLT: _tranches[streamId],
+            unlockAmountsLL: _unlockAmounts[streamId]
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -354,7 +329,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
             wasCanceled: false,
             token: params.token,
             isDepleted: false,
-            isStream: true,
             isTransferable: params.transferable,
             lockupModel: lockupModel,
             amounts: Lockup.Amounts({ deposited: params.depositAmount, withdrawn: 0, refunded: 0 })
@@ -375,7 +349,6 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         params.token.safeTransferFrom({ from: msg.sender, to: address(this), value: params.depositAmount });
 
         return Lockup.CreateEventCommon({
-            funder: msg.sender,
             sender: params.sender,
             recipient: params.recipient,
             depositAmount: params.depositAmount,
@@ -452,20 +425,14 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         // Load the stream ID in a variable.
         streamId = nextStreamId;
 
-        // Effect: set the start unlock amount if it is non-zero.
-        if (unlockAmounts.start > 0) {
-            _unlockAmounts[streamId].start = unlockAmounts.start;
-        }
+        // Effect: set the start unlock amount.
+        _unlockAmounts[streamId].start = unlockAmounts.start;
 
-        // Effect: update cliff time if it is non-zero.
-        if (cliffTime > 0) {
-            _cliffs[streamId] = cliffTime;
+        // Effect: update cliff time.
+        _cliffs[streamId] = cliffTime;
 
-            // Effect: set the cliff unlock amount if it is non-zero.
-            if (unlockAmounts.cliff > 0) {
-                _unlockAmounts[streamId].cliff = unlockAmounts.cliff;
-            }
-        }
+        // Effect: set the cliff unlock amount.
+        _unlockAmounts[streamId].cliff = unlockAmounts.cliff;
 
         // Effect: create the stream,  mint the NFT and transfer the deposit amount.
         Lockup.CreateEventCommon memory commonParams =

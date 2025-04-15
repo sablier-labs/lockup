@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
-import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
 
@@ -16,13 +15,9 @@ contract Recover_Integration_Concrete_Test is Integration_Test {
         lockup.recover(dai, users.eve);
     }
 
-    function test_RevertWhen_TokenBalanceNotExceedAggregateAmount() external whenCallerAdmin {
-        // Using dai token for this test because it has zero surplus.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_SurplusZero.selector, address(dai)));
-        lockup.recover(dai, users.admin);
-    }
+    function test_WhenCallerAdmin() external {
+        setMsgSender(users.admin);
 
-    function test_WhenTokenBalanceExceedAggregateAmount() external whenCallerAdmin {
         uint256 surplusAmount = 1e18;
 
         // Increase the lockup contract balance in order to have a surplus.
