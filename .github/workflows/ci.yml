@@ -15,21 +15,23 @@ on:
 
 jobs:
   lint:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
-
-  bulloak:
-    needs: ["lint"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@main"
-    with:
-      skip-modifiers: true
-      tree-path: "tests"
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@ci/proper-cache"
 
   build:
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@ci/proper-cache"
+
+  test-bulloak:
+      needs: ["lint", "build"]
+      if: needs.build.outputs.cache-hit != 'true'
+      uses: "sablier-labs/reusable-workflows/.github/workflows/bulloak-check.yml@ci/proper-cache"
+      with:
+        skip-modifiers: true
+        tree-path: "tests"
 
   test-unit:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-hit != 'true'
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@ci/proper-cache"
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
@@ -38,7 +40,8 @@ jobs:
 
   test-integration:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-hit != 'true'
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@ci/proper-cache"
     with:
       foundry-fuzz-runs: 2000
       foundry-profile: "test-optimized"
@@ -47,7 +50,8 @@ jobs:
 
   test-invariant:
     needs: ["lint", "build"]
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    if: needs.build.outputs.cache-hit != 'true'
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@ci/proper-cache"
     with:
       foundry-profile: "test-optimized"
       match-path: "tests/invariant/**/*.sol"
@@ -55,9 +59,10 @@ jobs:
 
   test-fork:
     needs: ["lint", "build"]
+    if: needs.build.outputs.cache-hit != 'true'
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@ci/proper-cache"
     with:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
@@ -66,9 +71,10 @@ jobs:
 
   coverage:
     needs: ["lint", "build"]
+    if: needs.build.outputs.cache-hit != 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@ci/proper-cache"
     with:
       match-path: "tests/{fork,integration,unit}/**/*.sol"
