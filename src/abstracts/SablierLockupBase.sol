@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -273,7 +274,7 @@ abstract contract SablierLockupBase is
         _allowedToHook[recipient] = true;
 
         // Log the allowlist addition.
-        emit AllowToHook({ admin: msg.sender, recipient: recipient });
+        emit ISablierLockupBase.AllowToHook({ admin: msg.sender, recipient: recipient });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -343,7 +344,7 @@ abstract contract SablierLockupBase is
 
             // If there is a revert, log it using an event, and continue with the next stream.
             if (!success) {
-                emit InvalidStreamInCancelMultiple(streamIds[i], result);
+                emit ISablierLockupBase.InvalidStreamInCancelMultiple(streamIds[i], result);
             }
             // Otherwise, the call is successful, so insert the refunded amount into the array.
             else {
@@ -372,7 +373,7 @@ abstract contract SablierLockupBase is
         }
 
         // Log the fee withdrawal.
-        emit CollectFees(admin, feeRecipient, feeAmount);
+        emit ISablierLockupBase.CollectFees(admin, feeRecipient, feeAmount);
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -390,7 +391,7 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: to, value: surplus });
 
         // Log the recover.
-        emit Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
+        emit ISablierLockupBase.Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -414,7 +415,7 @@ abstract contract SablierLockupBase is
         _renounce(streamId);
 
         // Log the renouncement.
-        emit RenounceLockupStream(streamId);
+        emit ISablierLockupBase.RenounceLockupStream(streamId);
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -443,7 +444,7 @@ abstract contract SablierLockupBase is
         nativeToken = newNativeToken;
 
         // Log the update.
-        emit SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
+        emit ISablierLockupBase.SetNativeToken({ admin: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -453,14 +454,14 @@ abstract contract SablierLockupBase is
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit SetNFTDescriptor({
+        emit ISablierLockupBase.SetNFTDescriptor({
             admin: msg.sender,
             oldNFTDescriptor: oldNftDescriptor,
             newNFTDescriptor: newNFTDescriptor
         });
 
         // Refresh the NFT metadata for all streams.
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
+        emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -509,7 +510,7 @@ abstract contract SablierLockupBase is
         _withdraw(streamId, to, amount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if `msg.sender` is not the recipient and the recipient is on the allowlist, run the hook.
         if (msg.sender != recipient && _allowedToHook[recipient]) {
@@ -588,7 +589,7 @@ abstract contract SablierLockupBase is
             );
             // If there is a revert, log it using an event, and continue with the next stream.
             if (!success) {
-                emit InvalidWithdrawalInWithdrawMultiple(streamIds[i], result);
+                emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple(streamIds[i], result);
             }
         }
     }
@@ -713,10 +714,10 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: sender, value: senderAmount });
 
         // Log the cancellation.
-        emit CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
+        emit ISablierLockupBase.CancelLockupStream(streamId, sender, recipient, token, senderAmount, recipientAmount);
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         // Interaction: if the recipient is on the allowlist, run the hook.
         if (_allowedToHook[recipient]) {
@@ -763,7 +764,7 @@ abstract contract SablierLockupBase is
         }
 
         // Emit an ERC-4906 event to trigger an update of the NFT metadata.
-        emit MetadataUpdate({ _tokenId: streamId });
+        emit IERC4906.MetadataUpdate({ _tokenId: streamId });
 
         return super._update(to, streamId, auth);
     }
@@ -798,7 +799,7 @@ abstract contract SablierLockupBase is
         token.safeTransfer({ to: to, value: amount });
 
         // Log the withdrawal.
-        emit WithdrawFromLockupStream(streamId, to, token, amount);
+        emit ISablierLockupBase.WithdrawFromLockupStream(streamId, to, token, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
