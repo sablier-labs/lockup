@@ -261,9 +261,6 @@ abstract contract SablierLockupBase is
 
         // Effect: put the recipient on the allowlist.
         _allowedToHook[recipient] = true;
-
-        // Log the allowlist addition.
-        emit ISablierLockupBase.AllowToHook({ admin: msg.sender, recipient: recipient });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -372,9 +369,6 @@ abstract contract SablierLockupBase is
 
         // Interaction: transfer the surplus to the provided address.
         token.safeTransfer({ to: to, value: surplus });
-
-        // Log the recover.
-        emit ISablierLockupBase.Recover({ admin: msg.sender, token: token, to: to, surplus: surplus });
     }
 
     /// @inheritdoc ISablierLockupBase
@@ -420,17 +414,8 @@ abstract contract SablierLockupBase is
     /// @inheritdoc ISablierLockupBase
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effect: set the NFT descriptor.
-        ILockupNFTDescriptor oldNftDescriptor = nftDescriptor;
         nftDescriptor = newNFTDescriptor;
 
-        // Log the change of the NFT descriptor.
-        emit ISablierLockupBase.SetNFTDescriptor({
-            admin: msg.sender,
-            oldNFTDescriptor: oldNftDescriptor,
-            newNFTDescriptor: newNFTDescriptor
-        });
-
-        // Refresh the NFT metadata for all streams.
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 

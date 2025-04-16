@@ -22,11 +22,6 @@ interface ISablierLockupBase is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
-    /// @param admin The address of the current contract admin.
-    /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address indexed admin, address recipient);
-
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
@@ -54,31 +49,16 @@ interface ISablierLockupBase is
     /// @notice Emitted when canceling multiple streams and one particular cancellation reverts.
     /// @param streamId The ID of the stream that reverted the cancellation.
     /// @param revertData The error data returned by the reverted cancel.
-    event InvalidStreamInCancelMultiple(uint256 streamId, bytes revertData);
+    event InvalidStreamInCancelMultiple(uint256 indexed streamId, bytes revertData);
 
     /// @notice Emitted when withdrawing from multiple streams and one particular withdrawal reverts.
     /// @param streamId The ID of the stream that reverted the withdrawal.
     /// @param revertData The error data returned by the reverted withdraw.
-    event InvalidWithdrawalInWithdrawMultiple(uint256 streamId, bytes revertData);
-
-    /// @notice Emitted when the contract admin recovers the surplus amount of tokens.
-    /// @param admin The address of the contract admin.
-    /// @param token The address of the ERC-20 token that has been recovered.
-    /// @param to The address the surplus amount has been sent to.
-    /// @param surplus The amount of surplus tokens recovered.
-    event Recover(address indexed admin, IERC20 indexed token, address to, uint256 surplus);
+    event InvalidWithdrawalInWithdrawMultiple(uint256 indexed streamId, bytes revertData);
 
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
-
-    /// @notice Emitted when the admin sets a new NFT descriptor contract.
-    /// @param admin The address of the current contract admin.
-    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
-    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
-    event SetNFTDescriptor(
-        address indexed admin, ILockupNFTDescriptor oldNFTDescriptor, ILockupNFTDescriptor newNFTDescriptor
-    );
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
@@ -233,9 +213,7 @@ interface ISablierLockupBase is
     /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when tokens are withdrawn.
     /// Useful for implementing contracts that hold streams on behalf of users, such as vaults or staking contracts.
     ///
-    /// @dev Emits an {AllowToHook} event.
-    ///
-    /// Notes:
+    /// @dev Notes:
     /// - Does not revert if the contract is already on the allowlist.
     /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
     ///
@@ -305,9 +283,7 @@ interface ISablierLockupBase is
 
     /// @notice Recover the surplus amount of tokens.
     ///
-    /// @dev Emits a {Recover} event.
-    ///
-    /// Notes:
+    /// @dev Notes:
     /// - The surplus amount is defined as the difference between the total balance of the contract for the provided
     /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
     ///
@@ -349,7 +325,7 @@ interface ISablierLockupBase is
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
-    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
+    /// @dev Emits a {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the NFT descriptor is the same.

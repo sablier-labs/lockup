@@ -8,5 +8,4 @@ AllowToHook_Integration_Concrete_Test
       ├── when provided address not return interface id
       │  └── it should revert
       └── when provided address returns interface id
-         ├── it should put the address on the allowlist
-         └── it should emit a {AllowToHook} event
+         └── it should put the address on the allowlist

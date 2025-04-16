@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { RecipientGood } from "../../../../mocks/Hooks.sol";
@@ -46,10 +45,6 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
     function test_WhenProvidedAddressReturnsInterfaceId() external whenCallerAdmin whenProvidedAddressContract {
         // Define a recipient that implementes the interface correctly.
         RecipientGood recipientWithInterfaceId = new RecipientGood();
-
-        // It should emit a {AllowToHook} event.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.AllowToHook(users.admin, address(recipientWithInterfaceId));
 
         // Allow the provided address to hook.
         lockup.allowToHook(address(recipientWithInterfaceId));

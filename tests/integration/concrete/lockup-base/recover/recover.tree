@@ -3,5 +3,5 @@ Recover_Integration_Concrete_Test
 │  └── it should revert
 └── when caller admin
    ├── it should transfer the surplus to provided address
-   ├── it should emit {Recover} and {Transfer} events
+   ├── it should emit {Transfer} event
    └── it should lead to token balance same as aggregate amount
