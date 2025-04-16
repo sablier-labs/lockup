@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
-import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
+import { RoleAdminable } from "@sablier/evm-utils/src/RoleAdminable.sol";
 
 import { ILockupNFTDescriptor } from "./../interfaces/ILockupNFTDescriptor.sol";
 import { ISablierLockupBase } from "./../interfaces/ISablierLockupBase.sol";
