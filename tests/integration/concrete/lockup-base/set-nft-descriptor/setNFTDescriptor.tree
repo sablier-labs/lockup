@@ -4,7 +4,7 @@ SetNFTDescriptor_Integration_Concrete_Test
 └── when caller admin
    ├── when provided address matches current NFT descriptor
    │  ├── it should re-set the NFT descriptor
-   │  └── it should emit {BatchMetadataUpdate} event
+   │  └── it should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events
    └── when provided address not match current NFT descriptor
       ├── it should set the new NFT descriptor
-      └── it should emit {BatchMetadataUpdate} event
+      └── it should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events

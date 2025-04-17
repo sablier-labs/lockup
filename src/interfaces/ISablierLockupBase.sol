@@ -22,6 +22,11 @@ interface ISablierLockupBase is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the admin allows a new recipient contract to hook to Sablier.
+    /// @param admin The address of the current contract admin.
+    /// @param recipient The address of the recipient contract put on the allowlist.
+    event AllowToHook(address indexed admin, address indexed recipient);
+
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
@@ -59,6 +64,16 @@ interface ISablierLockupBase is
     /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The ID of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
+
+    /// @notice Emitted when the admin sets a new NFT descriptor contract.
+    /// @param admin The address of the current contract admin.
+    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    event SetNFTDescriptor(
+        address indexed admin,
+        ILockupNFTDescriptor indexed oldNFTDescriptor,
+        ILockupNFTDescriptor indexed newNFTDescriptor
+    );
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
@@ -213,7 +228,9 @@ interface ISablierLockupBase is
     /// @notice Allows a recipient contract to hook to Sablier when a stream is canceled or when tokens are withdrawn.
     /// Useful for implementing contracts that hold streams on behalf of users, such as vaults or staking contracts.
     ///
-    /// @dev Notes:
+    /// @dev Emits an {AllowToHook} event.
+    ///
+    /// Notes:
     /// - Does not revert if the contract is already on the allowlist.
     /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
     ///
@@ -325,7 +342,7 @@ interface ISablierLockupBase is
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
-    /// @dev Emits a {BatchMetadataUpdate} event.
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the NFT descriptor is the same.
