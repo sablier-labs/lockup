@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -218,12 +217,7 @@ abstract contract SablierLockupBase is
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(AccessControl, IERC165, ERC721)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165, ERC721) returns (bool) {
         // 0x49064906 is the ERC-165 interface ID required by ERC-4906
         return interfaceId == 0x49064906 || super.supportsInterface(interfaceId);
     }
@@ -358,7 +352,8 @@ abstract contract SablierLockupBase is
     function collectFees(address feeRecipient) external override {
         // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
         // then `feeRecipient` must be the admin address.
-        if (!hasRoleOrIsAdmin(FEE_COLLECTOR_ROLE) && feeRecipient != admin) {
+        bool hasRoleOrIsAdmin = hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        if (!hasRoleOrIsAdmin && feeRecipient != admin) {
             revert Errors.SablierLockupBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
 
