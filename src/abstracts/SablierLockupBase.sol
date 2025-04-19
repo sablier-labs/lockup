@@ -24,7 +24,7 @@ abstract contract SablierLockupBase is
     ERC721, // 6 inherited components
     ISablierLockupBase, // 7 inherited components
     NoDelegateCall, // 0 inherited components
-    RoleAdminable // 6 inherited components
+    RoleAdminable // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -352,7 +352,7 @@ abstract contract SablierLockupBase is
     function collectFees(address feeRecipient) external override {
         // Check: if `msg.sender` has neither the {RoleAdminable.FEE_COLLECTOR_ROLE} role nor is the contract admin,
         // then `feeRecipient` must be the admin address.
-        bool hasRoleOrIsAdmin = hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
+        bool hasRoleOrIsAdmin = _hasRoleOrIsAdmin({ role: FEE_COLLECTOR_ROLE, account: msg.sender });
         if (!hasRoleOrIsAdmin && feeRecipient != admin) {
             revert Errors.SablierLockupBase_FeeRecipientNotAdmin({ feeRecipient: feeRecipient, admin: admin });
         }
