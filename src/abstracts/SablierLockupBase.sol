@@ -428,7 +428,6 @@ abstract contract SablierLockupBase is
         });
 
         // Refresh the NFT metadata for all streams.
-
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
