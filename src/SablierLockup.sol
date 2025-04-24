@@ -288,22 +288,46 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierLockupBase
-    function _streamedAmountOf(uint256 streamId) internal view override returns (uint128) {
-        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+    function _streamedAmountOf(uint256 streamId) internal view override returns (uint128 streamedAmount) {
+        // Load the stream from storage.
+        Lockup.Stream memory stream = _streams[streamId];
 
-        if (_streams[streamId].isDepleted) {
-            return amounts.withdrawn;
-        } else if (_streams[streamId].wasCanceled) {
-            return amounts.deposited - amounts.refunded;
+        if (stream.isDepleted) {
+            return stream.amounts.withdrawn;
+        } else if (stream.wasCanceled) {
+            return stream.amounts.deposited - stream.amounts.refunded;
         }
 
-        return LockupMath.calculateStreamedAmount({
-            stream: _streams[streamId],
-            cliffTimeLL: _cliffs[streamId],
-            segmentsLD: _segments[streamId],
-            tranchesLT: _tranches[streamId],
-            unlockAmountsLL: _unlockAmounts[streamId]
-        });
+        // Calculate the streamed amount for the LD model.
+        if (stream.lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
+            streamedAmount = LockupMath.calculateStreamedAmountLD({
+                depositedAmount: stream.amounts.deposited,
+                endTime: stream.endTime,
+                segments: _segments[streamId],
+                startTime: stream.startTime,
+                withdrawnAmount: stream.amounts.withdrawn
+            });
+        }
+        // Calculate the streamed amount for the LL model.
+        else if (stream.lockupModel == Lockup.Model.LOCKUP_LINEAR) {
+            streamedAmount = LockupMath.calculateStreamedAmountLL({
+                cliffTime: _cliffs[streamId],
+                depositedAmount: stream.amounts.deposited,
+                endTime: stream.endTime,
+                startTime: stream.startTime,
+                unlockAmounts: _unlockAmounts[streamId],
+                withdrawnAmount: stream.amounts.withdrawn
+            });
+        }
+        // Calculate the streamed amount for the LT model.
+        else if (stream.lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
+            streamedAmount = LockupMath.calculateStreamedAmountLT({
+                depositedAmount: stream.amounts.deposited,
+                endTime: stream.endTime,
+                startTime: stream.startTime,
+                tranches: _tranches[streamId]
+            });
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -425,14 +449,11 @@ contract SablierLockup is ISablierLockup, SablierLockupBase {
         // Load the stream ID in a variable.
         streamId = nextStreamId;
 
-        // Effect: set the start unlock amount.
-        _unlockAmounts[streamId].start = unlockAmounts.start;
+        // Effect: set the start and cliff unlock amounts.
+        _unlockAmounts[streamId] = unlockAmounts;
 
         // Effect: update cliff time.
         _cliffs[streamId] = cliffTime;
-
-        // Effect: set the cliff unlock amount.
-        _unlockAmounts[streamId].cliff = unlockAmounts.cliff;
 
         // Effect: create the stream,  mint the NFT and transfer the deposit amount.
         Lockup.CreateEventCommon memory commonParams =

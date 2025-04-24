@@ -6,7 +6,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
+import { LockupDynamic, LockupLinear, LockupTranched } from "./../types/DataTypes.sol";
 
 /// @title LockupMath
 /// @notice Provides functions for calculating the streamed amounts in Lockup streams. Note that 'streamed' is
@@ -17,58 +17,6 @@ library LockupMath {
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Calculates the streamed amount of the Lockup stream without looking up the stream's status.
-    function calculateStreamedAmount(
-        Lockup.Stream memory stream,
-        uint40 cliffTimeLL,
-        LockupDynamic.Segment[] memory segmentsLD,
-        LockupTranched.Tranche[] memory tranchesLT,
-        LockupLinear.UnlockAmounts memory unlockAmountsLL
-    )
-        external
-        view
-        returns (uint128 streamedAmount)
-    {
-        Lockup.Model lockupModel = stream.lockupModel;
-
-        // Calculate the streamed amount for the LD model.
-        if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
-            streamedAmount = _calculateStreamedAmountLD({
-                depositedAmount: stream.amounts.deposited,
-                endTime: stream.endTime,
-                segments: segmentsLD,
-                startTime: stream.startTime,
-                withdrawnAmount: stream.amounts.withdrawn
-            });
-        }
-        // Calculate the streamed amount for the LL model.
-        else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
-            streamedAmount = _calculateStreamedAmountLL({
-                cliffTime: cliffTimeLL,
-                depositedAmount: stream.amounts.deposited,
-                endTime: stream.endTime,
-                startTime: stream.startTime,
-                unlockAmounts: unlockAmountsLL,
-                withdrawnAmount: stream.amounts.withdrawn
-            });
-        }
-        // Calculate the streamed amount for the LT model.
-        else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
-            streamedAmount = _calculateStreamedAmountLT({
-                depositedAmount: stream.amounts.deposited,
-                endTime: stream.endTime,
-                startTime: stream.startTime,
-                tranches: tranchesLT
-            });
-        }
-
-        return streamedAmount;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                             PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Calculates the streamed amount of LD streams.
@@ -96,14 +44,14 @@ library LockupMath {
     /// 2. The first segment's timestamp is greater than the start time.
     /// 3. The last segment's timestamp equals the end time.
     /// 4. The segment timestamps are arranged in ascending order.
-    function _calculateStreamedAmountLD(
+    function calculateStreamedAmountLD(
         uint128 depositedAmount,
         uint40 endTime,
         LockupDynamic.Segment[] memory segments,
         uint40 startTime,
         uint128 withdrawnAmount
     )
-        private
+        external
         view
         returns (uint128)
     {
@@ -192,7 +140,7 @@ library LockupMath {
     /// the deposit amount.
     /// 2. The start time is before the end time.
     /// 3. If the cliff time is not zero, it is after the start time and before the end time.
-    function _calculateStreamedAmountLL(
+    function calculateStreamedAmountLL(
         uint40 cliffTime,
         uint128 depositedAmount,
         uint40 endTime,
@@ -200,7 +148,7 @@ library LockupMath {
         LockupLinear.UnlockAmounts memory unlockAmounts,
         uint128 withdrawnAmount
     )
-        private
+        external
         view
         returns (uint128)
     {
@@ -277,13 +225,13 @@ library LockupMath {
     /// 2. The first tranche's timestamp is greater than the start time.
     /// 3. The last tranche's timestamp equals the end time.
     /// 4. The tranche timestamps are arranged in ascending order.
-    function _calculateStreamedAmountLT(
+    function calculateStreamedAmountLT(
         uint128 depositedAmount,
         uint40 endTime,
         uint40 startTime,
         LockupTranched.Tranche[] memory tranches
     )
-        private
+        external
         view
         returns (uint128)
     {
