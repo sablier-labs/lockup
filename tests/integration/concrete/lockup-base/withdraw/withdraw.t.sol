@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
@@ -35,9 +35,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_WithdrawalAddressZero() external whenNoDelegateCall givenNotNull givenNotDEPLETEDStatus {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_WithdrawToZeroAddress.selector, ids.defaultStream)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_WithdrawToZeroAddress.selector, ids.defaultStream));
         lockup.withdraw({ streamId: ids.defaultStream, to: address(0), amount: withdrawAmount });
     }
 
@@ -48,7 +46,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         givenNotDEPLETEDStatus
         whenWithdrawalAddressNotZero
     {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_WithdrawAmountZero.selector, ids.defaultStream));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_WithdrawAmountZero.selector, ids.defaultStream));
         lockup.withdraw({ streamId: ids.defaultStream, to: users.recipient, amount: 0 });
     }
 
@@ -63,7 +61,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupBase_Overdraw.selector, ids.defaultStream, MAX_UINT128, withdrawableAmount
+                Errors.SablierLockup_Overdraw.selector, ids.defaultStream, MAX_UINT128, withdrawableAmount
             )
         );
         lockup.withdraw({ streamId: ids.defaultStream, to: users.recipient, amount: MAX_UINT128 });
@@ -118,7 +116,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupBase_WithdrawalAddressNotRecipient.selector, ids.defaultStream, caller, users.alice
+                Errors.SablierLockup_WithdrawalAddressNotRecipient.selector, ids.defaultStream, caller, users.alice
             )
         );
         lockup.withdraw({ streamId: ids.defaultStream, to: users.alice, amount: withdrawAmount });
@@ -144,7 +142,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: ids.defaultStream,
             to: users.alice,
             token: dai,
@@ -263,7 +261,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: ids.defaultStream,
             to: users.recipient,
             token: dai,
@@ -368,9 +366,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
         // Expect a revert.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockupBase_InvalidHookSelector.selector, address(recipientInvalidSelector)
-            )
+            abi.encodeWithSelector(Errors.SablierLockup_InvalidHookSelector.selector, address(recipientInvalidSelector))
         );
 
         // Cancel the stream.
@@ -469,7 +465,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: ids.recipientGoodStream,
             to: address(recipientGood),
             token: dai,

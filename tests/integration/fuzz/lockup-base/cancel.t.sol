@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/interfaces/ISablierLockupRecipient.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -93,7 +93,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream(
+        emit ISablierLockup.CancelLockupStream(
             ids.recipientGoodStream, users.sender, address(recipientGood), dai, senderAmount, recipientAmount
         );
         vm.expectEmit({ emitter: address(lockup) });

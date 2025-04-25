@@ -19,7 +19,7 @@ contract SetNativeToken_Integration_Test is Integration_Test {
         lockup.setNativeToken(nativeToken);
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_NativeTokenAlreadySet.selector, nativeToken));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_NativeTokenAlreadySet.selector, nativeToken));
 
         // Set native token again with a different address.
         lockup.setNativeToken(address(usdc));

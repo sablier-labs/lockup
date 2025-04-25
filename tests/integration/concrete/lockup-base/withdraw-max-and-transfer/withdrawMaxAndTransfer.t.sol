@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
@@ -21,7 +21,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_NonTransferableStream() external whenCallerRecipient whenNoDelegateCall givenNotNull {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_NotTransferable.selector, ids.notTransferableStream)
+            abi.encodeWithSelector(Errors.SablierLockup_NotTransferable.selector, ids.notTransferableStream)
         );
         lockup.withdrawMaxAndTransfer({ streamId: ids.notTransferableStream, newRecipient: users.recipient });
     }
@@ -42,7 +42,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.recipient)
         );
         lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.alice });
     }
@@ -81,7 +81,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.eve)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.eve)
         );
         lockup.withdrawMaxAndTransfer({ streamId: ids.defaultStream, newRecipient: users.eve });
     }
@@ -108,7 +108,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {Transfer} and {WithdrawFromLockupStream} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: ids.defaultStream,
             to: users.recipient,
             amount: expectedWithdrawnAmount,
@@ -151,7 +151,7 @@ contract WithdrawMaxAndTransfer_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: ids.defaultStream,
             to: users.recipient,
             amount: expectedWithdrawnAmount,

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -25,7 +25,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertWhen_FeeRecipientNotAdmin() external whenCallerNotAdmin whenCallerWithoutFeeCollectorRole {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_FeeRecipientNotAdmin.selector, users.eve, users.admin)
+            abi.encodeWithSelector(Errors.SablierLockup_FeeRecipientNotAdmin.selector, users.eve, users.admin)
         );
         lockup.collectFees({ feeRecipient: users.eve });
     }
@@ -47,9 +47,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
     {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupBase_FeeTransferFail.selector,
-                address(contractWithoutReceive),
-                address(lockup).balance
+                Errors.SablierLockup_FeeTransferFail.selector, address(contractWithoutReceive), address(lockup).balance
             )
         );
         lockup.collectFees({ feeRecipient: address(contractWithoutReceive) });
@@ -66,7 +64,7 @@ contract CollectFees_Integration_Concrete_Test is Integration_Test {
 
         // It should emit a {CollectFees} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
+        emit ISablierLockup.CollectFees({ admin: users.admin, feeRecipient: feeRecipient, feeAmount: FEE });
 
         lockup.collectFees({ feeRecipient: feeRecipient });
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -44,7 +44,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {CancelLockupStream} events for non-reverting streams.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream({
+        emit ISablierLockup.CancelLockupStream({
             streamId: cancelIds[0],
             sender: users.sender,
             recipient: users.recipient,
@@ -53,7 +53,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             recipientAmount: defaults.WITHDRAW_AMOUNT()
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream({
+        emit ISablierLockup.CancelLockupStream({
             streamId: cancelIds[1],
             sender: users.sender,
             recipient: users.recipient,
@@ -64,11 +64,9 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {InvalidStreamInCancelMultiple} event for reverting stream.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.InvalidStreamInCancelMultiple({
+        emit ISablierLockup.InvalidStreamInCancelMultiple({
             streamId: revertingStreamId,
-            revertData: abi.encodeWithSelector(
-                Errors.SablierLockupBase_Unauthorized.selector, revertingStreamId, users.sender
-            )
+            revertData: abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, revertingStreamId, users.sender)
         });
 
         // Cancel the streams.
@@ -108,7 +106,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {CancelLockupStream} events for all streams.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream({
+        emit ISablierLockup.CancelLockupStream({
             streamId: cancelIds[0],
             sender: users.sender,
             recipient: users.recipient,
@@ -117,7 +115,7 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount0
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream({
+        emit ISablierLockup.CancelLockupStream({
             streamId: cancelIds[1],
             sender: users.sender,
             recipient: users.recipient,

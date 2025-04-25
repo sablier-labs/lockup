@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -40,7 +40,7 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupBase_WithdrawArrayCountsNotEqual.selector, streamIds.length, amounts.length
+                Errors.SablierLockup_WithdrawArrayCountsNotEqual.selector, streamIds.length, amounts.length
             )
         );
         lockup.withdrawMultiple(streamIds, amounts);
@@ -92,14 +92,14 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {WithdrawFromLockupStream} events for non-reverting streams.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: withdrawMultipleIds[0],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: withdrawMultipleIds[1],
             to: users.recipient,
             token: dai,
@@ -108,10 +108,10 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {InvalidWithdrawalInWithdrawMultiple} event for reverting stream.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.InvalidWithdrawalInWithdrawMultiple({
+        emit ISablierLockup.InvalidWithdrawalInWithdrawMultiple({
             streamId: withdrawMultipleIds[2],
             revertData: abi.encodeWithSelector(
-                Errors.SablierLockupBase_Overdraw.selector,
+                Errors.SablierLockup_Overdraw.selector,
                 withdrawMultipleIds[2],
                 MAX_UINT128,
                 lockup.withdrawableAmountOf(withdrawMultipleIds[2])
@@ -147,21 +147,21 @@ contract WithdrawMultiple_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {WithdrawFromLockupStream} events for all streams.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: withdrawMultipleIds[0],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[0]
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: withdrawMultipleIds[1],
             to: users.recipient,
             token: dai,
             amount: withdrawAmounts[1]
         });
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream({
+        emit ISablierLockup.WithdrawFromLockupStream({
             streamId: withdrawMultipleIds[2],
             to: users.recipient,
             token: dai,

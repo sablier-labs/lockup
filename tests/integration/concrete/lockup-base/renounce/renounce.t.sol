@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
@@ -52,7 +52,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test {
     {
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotCancelable.selector, ids.notCancelableStream)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, ids.notCancelableStream)
         );
         lockup.renounce(ids.notCancelableStream);
     }
@@ -66,7 +66,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test {
     {
         // It should emit {RenounceLockupStream} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.RenounceLockupStream(streamId);
+        emit ISablierLockup.RenounceLockupStream(streamId);
 
         // Renounce the stream.
         lockup.renounce(streamId);

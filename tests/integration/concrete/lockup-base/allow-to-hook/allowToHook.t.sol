@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { RecipientGood } from "../../../../mocks/Hooks.sol";
@@ -33,7 +33,7 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
         // Incorrect interface ID.
         address recipient = address(recipientInterfaceIDIncorrect);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_AllowToHookUnsupportedInterface.selector, recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_AllowToHookUnsupportedInterface.selector, recipient)
         );
         lockup.allowToHook(recipient);
 
@@ -49,7 +49,7 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
 
         // It should emit a {AllowToHook} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.AllowToHook(users.admin, address(recipientWithInterfaceId));
+        emit ISablierLockup.AllowToHook(users.admin, address(recipientWithInterfaceId));
 
         // Allow the provided address to hook.
         lockup.allowToHook(address(recipientWithInterfaceId));

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
@@ -120,7 +120,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream(ids.defaultStream, to, dai, withdrawAmount);
+        emit ISablierLockup.WithdrawFromLockupStream(ids.defaultStream, to, dai, withdrawAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: ids.defaultStream });
 
@@ -188,7 +188,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test {
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.WithdrawFromLockupStream(ids.defaultStream, to, dai, withdrawAmount);
+        emit ISablierLockup.WithdrawFromLockupStream(ids.defaultStream, to, dai, withdrawAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: ids.defaultStream });
 

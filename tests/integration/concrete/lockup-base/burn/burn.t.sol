@@ -18,19 +18,19 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
 
     function test_RevertGiven_PENDINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotDepleted.selector, ids.defaultStream));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }
 
     function test_RevertGiven_STREAMINGStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotDepleted.selector, ids.defaultStream));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }
 
     function test_RevertGiven_SETTLEDStatus() external whenNoDelegateCall givenNotNull givenNotDepletedStream {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotDepleted.selector, ids.defaultStream));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }
 
@@ -39,7 +39,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
         setMsgSender(users.sender);
         lockup.cancel(ids.defaultStream);
         setMsgSender(users.recipient);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotDepleted.selector, ids.defaultStream));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_StreamNotDepleted.selector, ids.defaultStream));
         lockup.burn(ids.defaultStream);
     }
 
@@ -62,7 +62,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
     {
         setMsgSender(users.sender);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.sender)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.sender)
         );
         lockup.burn(ids.defaultStream);
     }
@@ -93,7 +93,7 @@ contract Burn_Integration_Concrete_Test is Integration_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.recipient)
         );
         lockup.burn(ids.defaultStream);
     }

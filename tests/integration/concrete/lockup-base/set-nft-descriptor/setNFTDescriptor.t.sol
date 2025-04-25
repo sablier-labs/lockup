@@ -5,7 +5,7 @@ import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
@@ -22,7 +22,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_WhenProvidedAddressMatchesCurrentNFTDescriptor() external whenCallerAdmin {
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
@@ -42,7 +42,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 

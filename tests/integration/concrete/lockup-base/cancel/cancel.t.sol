@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 
-import { ISablierLockupBase } from "src/interfaces/ISablierLockupBase.sol";
+import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { ISablierLockupRecipient } from "src/interfaces/ISablierLockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
@@ -53,7 +53,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_Unauthorized.selector, ids.defaultStream, users.recipient)
+            abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, ids.defaultStream, users.recipient)
         );
         lockup.cancel(ids.defaultStream);
     }
@@ -66,7 +66,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         whenCallerSender
     {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierLockupBase_StreamNotCancelable.selector, ids.notCancelableStream)
+            abi.encodeWithSelector(Errors.SablierLockup_StreamNotCancelable.selector, ids.notCancelableStream)
         );
         lockup.cancel(ids.notCancelableStream);
     }
@@ -158,9 +158,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
     {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockupBase_InvalidHookSelector.selector, address(recipientInvalidSelector)
-            )
+            abi.encodeWithSelector(Errors.SablierLockup_InvalidHookSelector.selector, address(recipientInvalidSelector))
         );
 
         // Cancel the stream.
@@ -194,8 +192,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         vm.expectCall(
             address(lockup),
             abi.encodeCall(
-                ISablierLockupBase.withdraw,
-                (ids.recipientReentrantStream, address(recipientReentrant), recipientAmount)
+                ISablierLockup.withdraw, (ids.recipientReentrantStream, address(recipientReentrant), recipientAmount)
             )
         );
 
@@ -245,7 +242,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {MetadataUpdate} and {CancelLockupStream} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupBase.CancelLockupStream(
+        emit ISablierLockup.CancelLockupStream(
             ids.recipientGoodStream, users.sender, address(recipientGood), dai, senderAmount, recipientAmount
         );
         vm.expectEmit({ emitter: address(lockup) });
