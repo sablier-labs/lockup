@@ -344,7 +344,7 @@ contract SablierBatchLockup is ISablierBatchLockup {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                           INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to approve a Lockup contract to spend funds from the batchLockup. If the current allowance
