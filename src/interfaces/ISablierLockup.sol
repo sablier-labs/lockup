@@ -16,7 +16,7 @@ import { ISablierLockupState } from "./ISablierLockupState.sol";
 interface ISablierLockup is
     IBatch, // 0 inherited components
     IERC4906, // 2 inherited components
-    IERC721Metadata, // 1 inherited components
+    IERC721Metadata, // 1 inherited component
     IRoleAdminable, // 1 inherited component
     ISablierLockupState // 0 inherited components
 {
@@ -47,6 +47,12 @@ interface ISablierLockup is
         uint128 recipientAmount
     );
 
+    /// @notice Emitted when the accrued fees are collected.
+    /// @param admin The address of the current contract admin.
+    /// @param feeRecipient The address where the fees will be collected.
+    /// @param feeAmount The amount of collected fees.
+    event CollectFees(address indexed admin, address indexed feeRecipient, uint256 feeAmount);
+
     /// @notice Emitted when an LD stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
@@ -75,12 +81,6 @@ interface ISablierLockup is
     event CreateLockupTranchedStream(
         uint256 indexed streamId, Lockup.CreateEventCommon commonParams, LockupTranched.Tranche[] tranches
     );
-
-    /// @notice Emitted when the accrued fees are collected.
-    /// @param admin The address of the current contract admin.
-    /// @param feeRecipient The address where the fees will be collected.
-    /// @param feeAmount The amount of collected fees.
-    event CollectFees(address indexed admin, address indexed feeRecipient, uint256 feeAmount);
 
     /// @notice Emitted when canceling multiple streams and one particular cancellation reverts.
     /// @param streamId The ID of the stream that reverted the cancellation.

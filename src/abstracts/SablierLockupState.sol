@@ -61,13 +61,27 @@ abstract contract SablierLockupState is ISablierLockupState {
 
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(address initialNFTDescriptor) {
+        // Set the next stream to 1.
         nextStreamId = 1;
+
+        // Set the NFT Descriptor.
         nftDescriptor = ILockupNFTDescriptor(initialNFTDescriptor);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierLockupState
+    function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
+        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
+            revert Errors.SablierLockupState_NotExpectedModel(
+                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR
+            );
+        }
+
+        cliffTime = _cliffs[streamId];
+    }
 
     /// @inheritdoc ISablierLockupState
     function getDepositedAmount(uint256 streamId)
@@ -105,17 +119,6 @@ abstract contract SablierLockupState is ISablierLockupState {
         returns (uint128 refundedAmount)
     {
         refundedAmount = _streams[streamId].amounts.refunded;
-    }
-
-    /// @inheritdoc ISablierLockupState
-    function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
-        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
-            revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR
-            );
-        }
-
-        cliffTime = _cliffs[streamId];
     }
 
     /// @inheritdoc ISablierLockupState
@@ -253,7 +256,7 @@ abstract contract SablierLockupState is ISablierLockupState {
     }
 
     /// @notice Calculates the streamed amount of the stream.
-    /// @dev This function is implemented by child contracts. The logic varies according to the distribution model.
+    /// @dev This function is implemented by child contract. The logic varies according to the distribution model.
     function _streamedAmountOf(uint256 streamId) internal view virtual returns (uint128);
 
     /*//////////////////////////////////////////////////////////////////////////

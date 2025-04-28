@@ -33,12 +33,12 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./types/Dat
 /// @title SablierLockup
 /// @notice See the documentation in {ISablierLockup}.
 contract SablierLockup is
-    Batch, // 1 inherited components
+    Batch, // 1 inherited component
     ERC721, // 6 inherited components
-    ISablierLockup, // 7 inherited components
+    ISablierLockup, // 8 inherited components
     NoDelegateCall, // 0 inherited components
     RoleAdminable, // 3 inherited components
-    SablierLockupState // 1 inherited components
+    SablierLockupState // 1 inherited component
 {
     using SafeERC20 for IERC20;
 

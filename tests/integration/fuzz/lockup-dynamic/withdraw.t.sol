@@ -7,7 +7,7 @@ import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "./../lockup-base/withdraw.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "./../lockup-state/withdraw.t.sol";
 import { Lockup_Dynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
