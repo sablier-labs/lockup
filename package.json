@@ -73,7 +73,7 @@
     "prettier:check": "prettier --cache --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --cache --write \"**/*.{json,md,svg,yml}\"",
     "solhint:check": "solhint \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "solhint:fix": "bun solhint \"{scripts/solidity,src,tests}/**/*.sol\" --fix --noPrompt",
+    "solhint:fix": "solhint \"{scripts/solidity,src,tests}/**/*.sol\" --fix --noPrompt",
     "test": "forge test",
     "test:bulloak": "bulloak check --skip-modifiers \"./tests/**/*.tree\"",
     "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt \"testFork\"",
