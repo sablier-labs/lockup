@@ -29,33 +29,39 @@ contract Init is BaseScript {
         // Approve the Lockup contracts to transfer the ERC-20 tokens from the sender.
         token.approve({ spender: address(lockup), value: type(uint256).max });
 
-        // Create 7 LL streams with various amounts and durations.
-        //
-        // - 1st stream: meant to be depleted.
-        // - 2th to 4th streams: pending or streaming.
-        // - 5th stream: meant to be renounced.
-        // - 6th stream: meant to canceled.
-        // - 7th stream: meant to be transferred to a third party.
         uint128[] memory depositAmounts =
             Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
         uint40[] memory cliffDurations = Solarray.uint40s(0, 0, 0, 0, 24 hours, 1 weeks, 12 weeks);
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 24 hours, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
-        for (uint256 i = 0; i < totalDurations.length; ++i) {
-            lockup.createWithDurationsLL(
-                Lockup.CreateWithDurations({
+
+        uint256 batchSize = depositAmounts.length;
+        LockupLinear.CreateWithDurations[] memory batchParamsLL = new LockupLinear.CreateWithDurations[](batchSize);
+
+        // Create 7 LL streams with various amounts and durations.
+        //
+        // - 1st stream: meant to be depleted.
+        // - 2th to 4th streams: pending or streaming.
+        // - 5th stream: meant to be renounced.
+        // - 6th stream: meant to be canceled.
+        // - 7th stream: meant to be transferred to a third party.
+        for (uint256 i = 0; i < batchSize; ++i) {
+            batchParamsLL[i] = LockupLinear.CreateWithDurations({
+                commonParams: Lockup.CreateWithDurations({
                     sender: sender,
                     recipient: recipient,
                     depositAmount: depositAmounts[i],
-                    token: token,
                     cancelable: true,
                     transferable: true,
                     shape: "Cliff Linear"
                 }),
-                LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
-                LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
-            );
+                unlockAmounts: LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
+                durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
+            });
         }
+
+        // Create the streams.
+        lockup.createWithDurationsLL(token, batchParamsLL);
 
         // Renounce the 5th stream.
         lockup.renounce({ streamId: 5 });
@@ -73,17 +79,21 @@ contract Init is BaseScript {
             LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
         segments[1] =
             LockupDynamic.SegmentWithDuration({ amount: 7500e18, exponent: ud2x18(0.5e18), duration: 1 weeks });
-        lockup.createWithDurationsLD(
-            Lockup.CreateWithDurations({
+
+        LockupDynamic.CreateWithDurations[] memory batchParamsLD = new LockupDynamic.CreateWithDurations[](1);
+        batchParamsLD[0] = LockupDynamic.CreateWithDurations({
+            commonParams: Lockup.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
                 depositAmount: 10_000e18,
-                token: token,
                 cancelable: true,
                 transferable: true,
                 shape: "Exponential Dynamic"
             }),
-            segments
-        );
+            segmentsWithDuration: segments
+        });
+
+        // Create the streams.
+        lockup.createWithDurationsLD(token, batchParamsLD);
     }
 }

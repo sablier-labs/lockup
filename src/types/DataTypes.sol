@@ -6,7 +6,6 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 
 // This file defines all structs used in Lockup, most of which are organized under three namespaces:
 //
-// - BatchLockup
 // - Lockup
 // - LockupDynamic
 // - LockupLinear
@@ -15,80 +14,6 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 // You will notice that some structs contain "slot" annotations - they are used to indicate the
 // storage layout of the struct. It is more gas efficient to group small data types together so
 // that they fit in a single 32-byte slot.
-
-/// @dev Namespace for the structs used in `BatchLockup` contract.
-library BatchLockup {
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLD} except for the token.
-    struct CreateWithDurationsLD {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
-        string shape;
-    }
-
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLL} except for the token.
-    struct CreateWithDurationsLL {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        LockupLinear.Durations durations;
-        LockupLinear.UnlockAmounts unlockAmounts;
-        string shape;
-    }
-
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithDurationsLT} except for the token.
-    struct CreateWithDurationsLT {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        LockupTranched.TrancheWithDuration[] tranchesWithDuration;
-        string shape;
-    }
-
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLD} except for the token.
-    struct CreateWithTimestampsLD {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        uint40 startTime;
-        LockupDynamic.Segment[] segments;
-        string shape;
-    }
-
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLL} except for the token.
-    struct CreateWithTimestampsLL {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        Lockup.Timestamps timestamps;
-        uint40 cliffTime;
-        LockupLinear.UnlockAmounts unlockAmounts;
-        string shape;
-    }
-
-    /// @notice A struct encapsulating all parameters of {SablierLockup.createWithTimestampsLT} except for the token.
-    struct CreateWithTimestampsLT {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        uint40 startTime;
-        LockupTranched.Tranche[] tranches;
-        string shape;
-    }
-}
 
 /// @notice Namespace for the structs shared by all Lockup models.
 library Lockup {
@@ -127,12 +52,11 @@ library Lockup {
         string shape;
     }
 
-    /// @notice Struct encapsulating the parameters of the `createWithDurations` functions.
+    /// @notice Struct encapsulating the common parameters (except token) of the `createWithDurations` functions.
     /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
-    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
@@ -141,18 +65,16 @@ library Lockup {
         address sender;
         address recipient;
         uint128 depositAmount;
-        IERC20 token;
         bool cancelable;
         bool transferable;
         string shape;
     }
 
-    /// @notice Struct encapsulating the parameters of the `createWithTimestamps` functions.
+    /// @notice Struct encapsulating the common parameters (except token) of the `createWithTimestamps` functions.
     /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
     /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
-    /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
@@ -162,7 +84,6 @@ library Lockup {
         address sender;
         address recipient;
         uint128 depositAmount;
-        IERC20 token;
         bool cancelable;
         bool transferable;
         Timestamps timestamps;
@@ -236,6 +157,18 @@ library Lockup {
 
 /// @notice Namespace for the structs used only in LD streams.
 library LockupDynamic {
+    /// @notice Struct encapsulating the parameters of the `createWithDurationsLD` functions.
+    struct CreateWithDurations {
+        Lockup.CreateWithDurations commonParams;
+        LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
+    }
+
+    /// @notice Struct encapsulating the parameters of the `createWithTimestampsLD` functions.
+    struct CreateWithTimestamps {
+        Lockup.CreateWithTimestamps commonParams;
+        LockupDynamic.Segment[] segments;
+    }
+
     /// @notice Segment struct stored to represent LD streams.
     /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
@@ -260,6 +193,20 @@ library LockupDynamic {
 
 /// @notice Namespace for the structs used only in LL streams.
 library LockupLinear {
+    /// @notice Struct encapsulating the parameters of the `createWithDurationsLL` functions.
+    struct CreateWithDurations {
+        Lockup.CreateWithDurations commonParams;
+        LockupLinear.UnlockAmounts unlockAmounts;
+        LockupLinear.Durations durations;
+    }
+
+    /// @notice Struct encapsulating the parameters of the `createWithTimestampsLL` functions.
+    struct CreateWithTimestamps {
+        Lockup.CreateWithTimestamps commonParams;
+        LockupLinear.UnlockAmounts unlockAmounts;
+        uint40 cliffTime;
+    }
+
     /// @notice Struct encapsulating the cliff duration and the total duration used at runtime in
     /// {SablierLockup.createWithDurationsLL} function.
     /// @param cliff The cliff duration in seconds.
@@ -282,6 +229,18 @@ library LockupLinear {
 
 /// @notice Namespace for the structs used only in LT streams.
 library LockupTranched {
+    /// @notice Struct encapsulating the parameters of the `createWithDurationsLT` functions.
+    struct CreateWithDurations {
+        Lockup.CreateWithDurations commonParams;
+        LockupTranched.TrancheWithDuration[] tranchesWithDuration;
+    }
+
+    /// @notice Struct encapsulating the parameters of the `createWithTimestampsLT` functions.
+    struct CreateWithTimestamps {
+        Lockup.CreateWithTimestamps commonParams;
+        LockupTranched.Tranche[] tranches;
+    }
+
     /// @notice Tranche struct stored to represent LT streams.
     /// @param amount The amount of tokens to be unlocked in the tranche, denoted in units of the token's decimals.
     /// @param timestamp The Unix timestamp indicating the tranche's end.
