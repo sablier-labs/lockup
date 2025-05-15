@@ -8,7 +8,7 @@
   ]
   gas_limit = 9223372036854775807
   optimizer = true
-  optimizer_runs = 500
+  optimizer_runs = 300
   out = "out"
   script = "scripts/solidity"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"

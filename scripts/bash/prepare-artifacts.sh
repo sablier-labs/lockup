@@ -28,10 +28,8 @@ mkdir $artifacts \
 lockup=./artifacts/
 cp out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json $lockup
 cp out-optimized/SablierLockup.sol/SablierLockup.json $lockup
-cp out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json $lockup
 
 lockup_interfaces=./artifacts/interfaces
-cp out-optimized/ISablierBatchLockup.sol/ISablierBatchLockup.json $lockup_interfaces
 cp out-optimized/ILockupNFTDescriptor.sol/ILockupNFTDescriptor.json $lockup_interfaces
 cp out-optimized/ISablierLockupRecipient.sol/ISablierLockupRecipient.json $lockup_interfaces
 cp out-optimized/ISablierLockupState.sol/ISablierLockupState.json $lockup_interfaces
