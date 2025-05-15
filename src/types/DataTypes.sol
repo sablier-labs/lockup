@@ -52,7 +52,8 @@ library Lockup {
         string shape;
     }
 
-    /// @notice Struct encapsulating the common parameters (except token) of the `createWithDurations` functions.
+    /// @notice Struct encapsulating the common parameters (except token) of `createWithDurations` and
+    /// `createWithTimestamps` functions.
     /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
     /// the same as `msg.sender`.
     /// @param recipient The address receiving the tokens, as well as the NFT owner.
@@ -61,32 +62,12 @@ library Lockup {
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
     /// streams in the UI.
-    struct CreateWithDurations {
+    struct CreateParamsCommon {
         address sender;
         address recipient;
         uint128 depositAmount;
         bool cancelable;
         bool transferable;
-        string shape;
-    }
-
-    /// @notice Struct encapsulating the common parameters (except token) of the `createWithTimestamps` functions.
-    /// @param sender The address distributing the tokens, with the ability to cancel the stream. It doesn't have to be
-    /// the same as `msg.sender`.
-    /// @param recipient The address receiving the tokens, as well as the NFT owner.
-    /// @param depositAmount The deposit amount, denoted in units of the token's decimals.
-    /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param timestamps Struct encapsulating (i) the stream's start time and (ii) end time, both as Unix timestamps.
-    /// @param shape An optional parameter to specify the shape of the distribution function. This helps differentiate
-    /// streams in the UI.
-    struct CreateWithTimestamps {
-        address sender;
-        address recipient;
-        uint128 depositAmount;
-        bool cancelable;
-        bool transferable;
-        Timestamps timestamps;
         string shape;
     }
 
@@ -159,13 +140,14 @@ library Lockup {
 library LockupDynamic {
     /// @notice Struct encapsulating the parameters of the `createWithDurationsLD` functions.
     struct CreateWithDurations {
-        Lockup.CreateWithDurations commonParams;
+        Lockup.CreateParamsCommon commonParams;
         LockupDynamic.SegmentWithDuration[] segmentsWithDuration;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestampsLD` functions.
     struct CreateWithTimestamps {
-        Lockup.CreateWithTimestamps commonParams;
+        Lockup.CreateParamsCommon commonParams;
+        Lockup.Timestamps timestamps;
         LockupDynamic.Segment[] segments;
     }
 
@@ -195,14 +177,15 @@ library LockupDynamic {
 library LockupLinear {
     /// @notice Struct encapsulating the parameters of the `createWithDurationsLL` functions.
     struct CreateWithDurations {
-        Lockup.CreateWithDurations commonParams;
+        Lockup.CreateParamsCommon commonParams;
         LockupLinear.UnlockAmounts unlockAmounts;
         LockupLinear.Durations durations;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestampsLL` functions.
     struct CreateWithTimestamps {
-        Lockup.CreateWithTimestamps commonParams;
+        Lockup.CreateParamsCommon commonParams;
+        Lockup.Timestamps timestamps;
         LockupLinear.UnlockAmounts unlockAmounts;
         uint40 cliffTime;
     }
@@ -231,13 +214,14 @@ library LockupLinear {
 library LockupTranched {
     /// @notice Struct encapsulating the parameters of the `createWithDurationsLT` functions.
     struct CreateWithDurations {
-        Lockup.CreateWithDurations commonParams;
+        Lockup.CreateParamsCommon commonParams;
         LockupTranched.TrancheWithDuration[] tranchesWithDuration;
     }
 
     /// @notice Struct encapsulating the parameters of the `createWithTimestampsLT` functions.
     struct CreateWithTimestamps {
-        Lockup.CreateWithTimestamps commonParams;
+        Lockup.CreateParamsCommon commonParams;
+        Lockup.Timestamps timestamps;
         LockupTranched.Tranche[] tranches;
     }
 

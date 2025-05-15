@@ -47,7 +47,7 @@ contract Init is BaseScript {
         // - 7th stream: meant to be transferred to a third party.
         for (uint256 i = 0; i < batchSize; ++i) {
             batchParamsLL[i] = LockupLinear.CreateWithDurations({
-                commonParams: Lockup.CreateWithDurations({
+                commonParams: Lockup.CreateParamsCommon({
                     sender: sender,
                     recipient: recipient,
                     depositAmount: depositAmounts[i],
@@ -82,7 +82,7 @@ contract Init is BaseScript {
 
         LockupDynamic.CreateWithDurations[] memory batchParamsLD = new LockupDynamic.CreateWithDurations[](1);
         batchParamsLD[0] = LockupDynamic.CreateWithDurations({
-            commonParams: Lockup.CreateWithDurations({
+            commonParams: Lockup.CreateParamsCommon({
                 sender: sender,
                 recipient: recipient,
                 depositAmount: 10_000e18,

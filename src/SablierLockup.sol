@@ -425,7 +425,7 @@ contract SablierLockup is
                 segments: batchParams[i].segments,
                 sender: batchParams[i].commonParams.sender,
                 shape: batchParams[i].commonParams.shape,
-                timestamps: batchParams[i].commonParams.timestamps,
+                timestamps: batchParams[i].timestamps,
                 token: token,
                 transferable: batchParams[i].commonParams.transferable
             });
@@ -467,7 +467,7 @@ contract SablierLockup is
                 recipient: batchParams[i].commonParams.recipient,
                 sender: batchParams[i].commonParams.sender,
                 shape: batchParams[i].commonParams.shape,
-                timestamps: batchParams[i].commonParams.timestamps,
+                timestamps: batchParams[i].timestamps,
                 token: token,
                 transferable: batchParams[i].commonParams.transferable,
                 unlockAmounts: batchParams[i].unlockAmounts
@@ -509,7 +509,7 @@ contract SablierLockup is
                 recipient: batchParams[i].commonParams.recipient,
                 sender: batchParams[i].commonParams.sender,
                 shape: batchParams[i].commonParams.shape,
-                timestamps: batchParams[i].commonParams.timestamps,
+                timestamps: batchParams[i].timestamps,
                 token: token,
                 tranches: batchParams[i].tranches,
                 transferable: batchParams[i].commonParams.transferable
