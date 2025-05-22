@@ -4,7 +4,7 @@ require("@nomiclabs/hardhat-etherscan");
 
 dotenv.config();
 
-let deployPrivateKey = process.env.PV_KEY as string;
+let deployPrivateKey = process.env.PRIVATE_KEY as string;
 if (!deployPrivateKey) {
   // default first account deterministically created by local nodes like `npx hardhat node` or `anvil`
   throw "No deployer private key set in .env";
