@@ -5,35 +5,36 @@
 Feel free to dive in! [Open](../../issues/new) an issue, [start](../../discussions/new) a discussion or submit a PR. For
 any informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
-Contributions to Sablier Lockup are welcome by anyone interested in writing more tests, improving readability,
-optimizing for gas efficiency, or extending the protocol via new features.
+Contributions are welcome by anyone interested in writing more tests, improving readability, optimizing for gas
+efficiency, or extending the protocol via new features.
 
 ## Pre Requisites
 
 You will need the following software on your machine:
 
 - [Git](https://git-scm.com/downloads)
-- [Foundry](https://github.com/foundry-rs/foundry)
+- [Just](https://github.com/casey/just)
 - [Node.Js](https://nodejs.org/en/download/)
 - [Bun](https://bun.sh/)
+- [Foundry](https://github.com/foundry-rs/foundry)
 - [Rust](https://rust-lang.org/tools/install)
-- [Bulloak](https://bulloak.dev/)
+- [Bulloak](https://bulloak.dev)
 
-In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite.
+In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 
 ## Set Up
 
-Clone this repository;
+Clone this repository:
 
 ```shell
 $ git clone git@github.com:sablier-labs/lockup.git
 ```
 
-Then, inside the project's directory, run this to install the Node.js dependencies and build the contracts:
+Then, inside the project's directory, run these commands to install the Node.js dependencies and build the contracts:
 
 ```shell
-$ bun install
-$ bun run build
+$ just install
+$ just build
 ```
 
 Switch to the `staging` branch, where all development work should be done:
@@ -44,17 +45,17 @@ $ git switch staging
 
 Now you can start making changes.
 
-To see a list of all available scripts:
+To see a list of all available scripts, run this command:
 
 ```shell
-$ bun run
+$ just --list
 ```
 
 ## Pull Requests
 
 When making a pull request, ensure that:
 
-- The base branch is `staging`.
+- The base development branch is `staging`.
 - All tests pass.
 - Concrete tests are generated using Bulloak and the Branching Tree Technique (BTT).
   - You can learn more about this on the [Bulloak website](https://bulloak.dev).
