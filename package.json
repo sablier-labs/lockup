@@ -13,6 +13,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.3.0",
     "@prb/math": "4.1.0",
+    "@sablier/devkit": "github:sablier-labs/devkit#main",
     "@sablier/evm-utils": "github:sablier-labs/evm-utils#e81a04b"
   },
   "devDependencies": {
@@ -62,23 +63,7 @@
   },
   "repository": "github.com/sablier-labs/lockup",
   "scripts": {
-    "build": "forge build",
-    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
-    "build:smt": "FOUNDRY_PROFILE=smt forge build",
-    "clean": "rm -rf artifacts artifacts-* cache cache_hardhat-zk coverage docs out out-* typechain-types lcov.info",
-    "forge:check": "forge fmt --check",
-    "forge:write": "forge fmt",
-    "full:check": "bun run solhint:check && bun run forge:check && bun run prettier:check",
-    "full:write": " bun run solhint:write && bun run forge:write && bun run prettier:write",
-    "prepack": "bun install && bash ./scripts/bash/prepare-artifacts.sh",
-    "prepare": "husky",
-    "prettier:check": "prettier --cache --check \"**/*.{json,md,svg,yml}\"",
-    "prettier:write": "prettier --cache --write \"**/*.{json,md,svg,yml}\"",
-    "solhint:check": "solhint \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "solhint:write": "solhint --fix --noPrompt \"{scripts/solidity,src,tests}/**/*.sol\"",
-    "test": "forge test",
-    "test:bulloak": "bulloak check --skip-modifiers \"./tests/**/*.tree\"",
-    "test:lite": "FOUNDRY_PROFILE=lite forge test --nmt \"testFork\"",
-    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
+    "prepare": "husky"
   }
 }
