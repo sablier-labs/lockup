@@ -37,8 +37,8 @@ contract LockupAdminHandler is BaseHandler {
     function recover() external limitNumberOfCalls("recover") instrument("recover") {
         vm.assume(token.balanceOf(address(lockup)) > lockup.aggregateAmount(token));
 
-        setMsgSender(lockup.admin());
+        setMsgSender(address(lockup.comptroller()));
 
-        lockup.recover({ token: token, to: lockup.admin() });
+        lockup.recover({ token: token, to: address(lockup.comptroller()) });
     }
 }

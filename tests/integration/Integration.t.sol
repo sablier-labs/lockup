@@ -109,6 +109,7 @@ abstract contract Integration_Test is Base_Test {
         recipientInvalidSelector = new RecipientInvalidSelector();
         recipientReentrant = new RecipientReentrant();
         recipientReverting = new RecipientReverting();
+        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
         vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
         vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
         vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
@@ -116,7 +117,7 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
 
         // Allow the selected recipients to hook.
-        setMsgSender(users.admin);
+        setMsgSender(address(comptroller));
         lockup.allowToHook(address(recipientGood));
         lockup.allowToHook(address(recipientInvalidSelector));
         lockup.allowToHook(address(recipientReentrant));
@@ -231,7 +232,7 @@ abstract contract Integration_Test is Base_Test {
 
     function expectRevert_DEPLETEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: ids.defaultStream, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "depleted status call success");

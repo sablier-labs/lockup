@@ -81,8 +81,7 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        setMsgSender(users.admin);
+    modifier whenCallerComptroller() {
         _;
     }
 
@@ -146,7 +145,7 @@ abstract contract Modifiers is Fuzzers {
 
     modifier givenDepletedStream(ISablierLockup lockup, uint256 streamId) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: streamId, to: users.recipient });
         _;
     }
 
@@ -392,6 +391,10 @@ abstract contract Modifiers is Fuzzers {
 
     modifier givenNotDEPLETEDStatus() {
         vm.warp({ newTimestamp: defaults.START_TIME() });
+        _;
+    }
+
+    modifier whenFeeNotLessThanMinFee() {
         _;
     }
 
