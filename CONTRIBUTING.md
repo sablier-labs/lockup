@@ -8,17 +8,15 @@ any informal concerns or feedback, please join our [Discord server](https://disc
 Contributions are welcome by anyone interested in writing more tests, improving readability, optimizing for gas
 efficiency, or extending the protocol via new features.
 
-## Pre Requisites
+## Prerequisites
 
-You will need the following software on your machine:
-
-- [Git](https://git-scm.com/downloads)
-- [Just](https://github.com/casey/just)
-- [Node.Js](https://nodejs.org/en/download/)
-- [Bun](https://bun.sh/)
-- [Foundry](https://github.com/foundry-rs/foundry)
-- [Rust](https://rust-lang.org/tools/install)
-- [Bulloak](https://bulloak.dev)
+- [Node.js](https://nodejs.org) (v20+)
+- [Just](https://github.com/casey/just) (command runner)
+- [Bun](https://bun.sh) (package manager)
+- [Ni](https://github.com/antfu-collective/ni) (package manager resolver)
+- [Foundry](https://github.com/foundry-rs/foundry) (EVM development framework)
+- [Rust](https://rust-lang.org/tools/install) (Rust compiler)
+- [Bulloak](https://bulloak.dev) (CLI for checking tests)
 
 In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 
@@ -27,7 +25,7 @@ In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 Clone this repository:
 
 ```shell
-$ git clone git@github.com:sablier-labs/lockup.git
+$ git clone git@github.com:sablier-labs/lockup.git sablier-lockup && cd sablier-lockup
 ```
 
 Then, inside the project's directory, run these commands to install the Node.js dependencies and build the contracts:
