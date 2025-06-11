@@ -98,7 +98,7 @@ library Errors {
     error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when the fee transfer fails.
-    error SablierLockup_FeeTransferFail(address comptroller, uint256 feeAmount);
+    error SablierLockup_FeeTransferFailed(address comptroller, uint256 feeAmount);
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockup_InvalidHookSelector(address recipient);

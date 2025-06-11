@@ -100,6 +100,11 @@ interface ISablierLockup is
         ILockupNFTDescriptor indexed newNFTDescriptor
     );
 
+    /// @notice Emitted when the native token fees generated are transferred to the comptroller contract.
+    /// @param comptroller The address of the current comptroller.
+    /// @param feeAmount The amount of native tokens transferred, denoted in units of the native token's decimals.
+    event TransferFeesToComptroller(address indexed comptroller, uint256 feeAmount);
+
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
     /// @param to The address that has received the withdrawn tokens.
@@ -456,6 +461,7 @@ interface ISablierLockup is
     /// Notes:
     /// - If `msg.sender` is not the recipient and the address is on the allowlist, this function will invoke a hook on
     /// the recipient.
+    /// - The minimum fee in wei is calculated for the stream's sender in the {SablierComptroller} contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -463,6 +469,7 @@ interface ISablierLockup is
     /// - `to` must not be the zero address.
     /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
+    /// - `msg.value` must not be less than the calculated minimum fee in wei for the stream's sender.
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.

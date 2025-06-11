@@ -485,8 +485,18 @@ contract SablierLockup is
 
     /// @inheritdoc ISablierLockup
     function transferFeesToComptroller() external {
-        (bool success,) = address(comptroller).call{ value: address(this).balance }("");
-        success;
+        uint256 feeAmount = address(this).balance;
+
+        // Interaction: transfer the fees to the comptroller.
+        (bool success,) = address(comptroller).call{ value: feeAmount }("");
+
+        // Revert if the call failed.
+        if (!success) {
+            revert Errors.SablierLockup_FeeTransferFailed(address(comptroller), feeAmount);
+        }
+
+        // Log the transfer of fees to the comptroller.
+        emit ISablierLockup.TransferFeesToComptroller({ comptroller: address(comptroller), feeAmount: feeAmount });
     }
 
     /// @inheritdoc ISablierLockup
