@@ -378,14 +378,6 @@ abstract contract Modifiers is Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TRANSFER-ADMIN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenNewAdminNotSameAsCurrentAdmin() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -415,26 +407,6 @@ abstract contract Modifiers is Fuzzers {
     }
 
     modifier whenWithdrawAmountNotOverdraw() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   COLLECT-FEES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAdminIsContract() {
-        _;
-    }
-
-    modifier whenCallerNotAdmin() {
-        _;
-    }
-
-    modifier whenCallerWithoutFeeCollectorRole() {
-        _;
-    }
-
-    modifier whenFeeRecipientContract() {
         _;
     }
 

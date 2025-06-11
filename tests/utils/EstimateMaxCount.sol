@@ -59,13 +59,18 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 11_155_111 })); // Sepolia
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                       SET-UP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         CommonBase.setUp();
 
         // Initialize the variables.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
         setToken(dai);
-        users.sender = users.recipient = payable(makeAddr("sender"));
+        users.sender = payable(makeAddr("sender"));
+        users.recipient = payable(makeAddr("recipient"));
         setUsers(users);
 
         // Deploy the Lockup contract.

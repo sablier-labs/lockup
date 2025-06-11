@@ -34,7 +34,7 @@ import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "./types/Dat
 /// @notice See the documentation in {ISablierLockup}.
 contract SablierLockup is
     Batch, // 1 inherited component
-    ComptrollerManager, // 2 inherited components
+    ComptrollerManager, // 1 inherited component
     ERC721, // 6 inherited components
     ISablierLockup, // 8 inherited components
     NoDelegateCall, // 0 inherited components

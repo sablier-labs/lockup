@@ -5,12 +5,12 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-contract LockupAdminHandler is BaseHandler {
+contract LockupComptrollerHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Since all admin-related functions are rarely called compared to core lockup functionalities,
+    /// @dev Since all comptroller-related functions are rarely called compared to core lockup functionalities,
     /// we limit the number of calls to 10.
     modifier limitNumberOfCalls(string memory name) {
         vm.assume(calls[name] < 10);
@@ -24,7 +24,7 @@ contract LockupAdminHandler is BaseHandler {
     constructor(IERC20 token_, ISablierLockup lockup_) BaseHandler(token_, lockup_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-LOCKUP-STATE
+                                   SABLIER-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Increase the Lockup contract's balance by directly transferring tokens to it.

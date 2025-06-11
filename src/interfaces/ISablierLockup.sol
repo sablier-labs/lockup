@@ -173,7 +173,7 @@ interface ISablierLockup is
     /// - This is an irreversible operation. The contract cannot be removed from the allowlist.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the comptroller.
+    /// - `msg.sender` must be the comptroller contract.
     /// - `recipient` must implement {ISablierLockupRecipient}.
     ///
     /// @param recipient The address of the contract to allow for hooks.
@@ -402,7 +402,7 @@ interface ISablierLockup is
     /// ERC-20 token and the sum of balances of all streams created using the same ERC-20 token.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the comptroller.
+    /// - `msg.sender` must be the comptroller contract.
     /// - The surplus amount must be greater than zero.
     ///
     /// @param token The contract address of the ERC-20 token to recover for.
@@ -432,7 +432,7 @@ interface ISablierLockup is
     /// - If `newNativeToken` is zero address, the function does not revert.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the comptroller.
+    /// - `msg.sender` must be the comptroller contract.
     /// - The current native token must be zero address.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
@@ -445,7 +445,7 @@ interface ISablierLockup is
     /// - Does not revert if the NFT descriptor is the same.
     ///
     /// Requirements:
-    /// - `msg.sender` must be the comptroller.
+    /// - `msg.sender` must be the comptroller contract.
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
