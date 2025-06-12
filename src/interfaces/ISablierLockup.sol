@@ -451,7 +451,10 @@ interface ISablierLockup is
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
 
     /// @notice Transfers the native token fees to the comptroller contract.
-    /// @dev Anyone can call this function.
+    /// @dev Emits a {TransferFeesToComptroller} event.
+    ///
+    /// Notes:
+    /// - Anyone can call this function.
     function transferFeesToComptroller() external;
 
     /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
