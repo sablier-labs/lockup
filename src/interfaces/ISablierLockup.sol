@@ -101,11 +101,6 @@ interface ISablierLockup is
         ILockupNFTDescriptor indexed newNFTDescriptor
     );
 
-    /// @notice Emitted when the native token fees generated are transferred to the comptroller contract.
-    /// @param comptroller The address of the current comptroller.
-    /// @param feeAmount The amount of native tokens transferred, denoted in units of the native token's decimals.
-    event TransferFeesToComptroller(ISablierComptroller indexed comptroller, uint256 feeAmount);
-
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
     /// @param to The address that has received the withdrawn tokens.
@@ -450,10 +445,6 @@ interface ISablierLockup is
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
-
-    /// @notice Transfers the fees accrued to the comptroller contract.
-    /// @dev Emits a {TransferFeesToComptroller} event.
-    function transferFeesToComptroller() external;
 
     /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
     ///
