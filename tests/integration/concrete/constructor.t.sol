@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { SablierLockup } from "src/SablierLockup.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -10,7 +11,10 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Expect the relevant event to be emitted.
         vm.expectEmit();
-        emit IComptrollerManager.SetComptroller({ newComptroller: address(comptroller), previousComptroller: address(0) });
+        emit IComptrollerManager.SetComptroller({
+            newComptroller: comptroller,
+            oldComptroller: ISablierComptroller(address(0))
+        });
 
         // Construct the contract.
         SablierLockup constructedLockup = new SablierLockup({

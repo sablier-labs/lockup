@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
+
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
@@ -13,7 +15,7 @@ contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Integrati
 
     function test_RevertGiven_ComptrollerNotImplementReceive() external {
         setMsgSender(address(comptroller));
-        lockup.setComptroller(address(contractWithoutReceive));
+        lockup.setComptroller(ISablierComptroller(address(contractWithoutReceive)));
 
         // Fund the lockup with fees to transfer.
         vm.deal(address(lockup), 1 ether);
