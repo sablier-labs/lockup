@@ -6,10 +6,10 @@ default:
   @just --list
 
 build-optimized *args:
-    FOUNDRY_PROFILE=optimized forge build {{ args }}
+  FOUNDRY_PROFILE=optimized forge build {{ args }}
 
 test *args:
-    forge test {{ args }}
+  forge test {{ args }}
 
 test-lite *args:
-    FOUNDRY_PROFILE=lite forge test --no-match-test "testFork" {{ args }}
+  FOUNDRY_PROFILE=lite forge test --no-match-test "testFork" {{ args }}
