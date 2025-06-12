@@ -94,7 +94,7 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockup_AllowToHookZeroCodeSize(address recipient);
 
-    /// @notice Thrown when trying to withdraw without paying the min fee.
+    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
     error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when the fee transfer fails.

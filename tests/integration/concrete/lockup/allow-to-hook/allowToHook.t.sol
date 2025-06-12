@@ -55,12 +55,12 @@ contract AllowToHook_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenProvidedAddressReturnsInterfaceId() external whenCallerComptroller whenProvidedAddressContract {
-        // Define a recipient that implementes the interface correctly.
+        // Define a recipient that implements the interface correctly.
         RecipientGood recipientWithInterfaceId = new RecipientGood();
 
         // It should emit a {AllowToHook} event.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.AllowToHook(address(comptroller), address(recipientWithInterfaceId));
+        emit ISablierLockup.AllowToHook(comptroller, address(recipientWithInterfaceId));
 
         // Allow the provided address to hook.
         lockup.allowToHook(address(recipientWithInterfaceId));

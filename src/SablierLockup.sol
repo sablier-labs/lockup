@@ -153,7 +153,7 @@ contract SablierLockup is
         _allowedToHook[recipient] = true;
 
         // Log the allowlist addition.
-        emit ISablierLockup.AllowToHook({ comptroller: address(comptroller), recipient: recipient });
+        emit ISablierLockup.AllowToHook(comptroller, recipient);
     }
 
     /// @inheritdoc ISablierLockup
@@ -473,11 +473,7 @@ contract SablierLockup is
         nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
-        emit ISablierLockup.SetNFTDescriptor({
-            comptroller: address(comptroller),
-            oldNFTDescriptor: oldNftDescriptor,
-            newNFTDescriptor: newNFTDescriptor
-        });
+        emit ISablierLockup.SetNFTDescriptor(comptroller, oldNftDescriptor, newNFTDescriptor);
 
         // Refresh the NFT metadata for all streams.
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
@@ -495,8 +491,8 @@ contract SablierLockup is
             revert Errors.SablierLockup_FeeTransferFailed(address(comptroller), feeAmount);
         }
 
-        // Log the transfer of fees to the comptroller.
-        emit ISablierLockup.TransferFeesToComptroller({ comptroller: address(comptroller), feeAmount: feeAmount });
+        // Log the fee transfer to the comptroller.
+        emit ISablierLockup.TransferFeesToComptroller(comptroller, feeAmount);
     }
 
     /// @inheritdoc ISablierLockup
@@ -1047,11 +1043,10 @@ contract SablierLockup is
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
         uint256 minFeeWei = comptroller.calculateLockupMinFeeWeiFor(_streams[streamId].sender);
-        uint256 feePaid = msg.value;
 
-        // Check: the min fee is paid.
-        if (feePaid < minFeeWei) {
-            revert Errors.SablierLockup_InsufficientFeePayment(feePaid, minFeeWei);
+        // Check: `msg.value` is at least the minimum fee.
+        if (msg.value < minFeeWei) {
+            revert Errors.SablierLockup_InsufficientFeePayment(msg.value, minFeeWei);
         }
 
         // Effect: update the withdrawn amount.

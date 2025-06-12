@@ -109,12 +109,14 @@ abstract contract Integration_Test is Base_Test {
         recipientInvalidSelector = new RecipientInvalidSelector();
         recipientReentrant = new RecipientReentrant();
         recipientReverting = new RecipientReverting();
-        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
         vm.label({ account: address(recipientInterfaceIDIncorrect), newLabel: "Recipient Interface ID Incorrect" });
         vm.label({ account: address(recipientInterfaceIDMissing), newLabel: "Recipient Interface ID Missing" });
         vm.label({ account: address(recipientInvalidSelector), newLabel: "Recipient Invalid Selector" });
         vm.label({ account: address(recipientReentrant), newLabel: "Recipient Reentrant" });
         vm.label({ account: address(recipientReverting), newLabel: "Recipient Reverting" });
+
+        // Deal some ETH to the `recipientReentrant` because its used in reentrant tests.
+        vm.deal({ account: address(recipientReentrant), newBalance: 100 ether });
 
         // Allow the selected recipients to hook.
         setMsgSender(address(comptroller));

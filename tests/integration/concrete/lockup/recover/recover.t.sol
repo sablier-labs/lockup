@@ -7,24 +7,18 @@ import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Error
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract Recover_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-
-        // Set the comptroller as the caller for this test.
-        setMsgSender(address(comptroller));
-    }
-
     function test_RevertWhen_CallerNotComptroller() external {
         setMsgSender(users.eve);
         vm.expectRevert(
             abi.encodeWithSelector(
-                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, address(comptroller), users.eve
+                EvmUtilsErrors.ComptrollerManager_CallerNotComptroller.selector, comptroller, users.eve
             )
         );
         lockup.recover(dai, users.eve);
     }
 
     function test_WhenCallerComptroller() external {
+        setMsgSender(address(comptroller));
         uint256 surplusAmount = 1e18;
 
         // Increase the lockup contract balance in order to have a surplus.

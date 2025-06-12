@@ -10,6 +10,7 @@ import { Integration_Test } from "./../../../Integration.t.sol";
 contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Integration_Test {
     function setUp() public virtual override {
         Integration_Test.setUp();
+
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
     }
 
@@ -30,19 +31,19 @@ contract TransferFeesToComptroller_Lockup_Integration_Concrete_Test is Integrati
         lockup.transferFeesToComptroller();
     }
 
-    function test_GivenNoFeesToTransfer() external givenComptrollerImplementsReceive {
+    function test_GivenFeeZero() external givenComptrollerImplementsReceive {
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.TransferFeesToComptroller(address(comptroller), 0);
+        emit ISablierLockup.TransferFeesToComptroller(comptroller, 0);
         lockup.transferFeesToComptroller();
     }
 
-    function test_GivenFeesToTransfer() external givenComptrollerImplementsReceive {
+    function test_GivenFeeNotZero() external givenComptrollerImplementsReceive {
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }(ids.defaultStream, users.recipient);
 
         uint256 balanceBefore = address(comptroller).balance;
 
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.TransferFeesToComptroller(address(comptroller), LOCKUP_MIN_FEE_WEI);
+        emit ISablierLockup.TransferFeesToComptroller(comptroller, LOCKUP_MIN_FEE_WEI);
         lockup.transferFeesToComptroller();
 
         assertEq(

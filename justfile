@@ -4,3 +4,12 @@ import "./node_modules/@sablier/devkit/just/evm.just"
 
 default:
   @just --list
+
+build-optimized *args:
+    FOUNDRY_PROFILE=optimized forge build {{ args }}
+
+test-lite *args:
+    forge test {{ args }}
+
+test-lite *args:
+    FOUNDRY_PROFILE=lite forge test --no-match-test "testFork" {{ args }}

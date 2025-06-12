@@ -7,13 +7,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetNativeToken_Integration_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-
-        // Set the comptroller as the caller for this test.
-        setMsgSender(address(comptroller));
-    }
-
     function test_RevertWhen_CallerNotComptroller() external {
         setMsgSender(users.eve);
         vm.expectRevert(

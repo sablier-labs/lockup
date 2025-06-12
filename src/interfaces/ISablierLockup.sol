@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
 import { IComptrollerManager } from "@sablier/evm-utils/src/interfaces/IComptrollerManager.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
@@ -15,9 +16,9 @@ import { ISablierLockupState } from "./ISablierLockupState.sol";
 /// @notice Creates and manages Lockup streams with various distribution models.
 interface ISablierLockup is
     IBatch, // 0 inherited components
+    IComptrollerManager, // 0 inherited components
     IERC4906, // 2 inherited components
     IERC721Metadata, // 1 inherited component
-    IComptrollerManager, // 0 inherited components
     ISablierLockupState // 0 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -27,7 +28,7 @@ interface ISablierLockup is
     /// @notice Emitted when the comptroller allows a new recipient contract to hook to Sablier.
     /// @param comptroller The address of the current comptroller.
     /// @param recipient The address of the recipient contract put on the allowlist.
-    event AllowToHook(address indexed comptroller, address indexed recipient);
+    event AllowToHook(ISablierComptroller indexed comptroller, address indexed recipient);
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The ID of the stream.
@@ -95,7 +96,7 @@ interface ISablierLockup is
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed comptroller,
+        ISablierComptroller indexed comptroller,
         ILockupNFTDescriptor indexed oldNFTDescriptor,
         ILockupNFTDescriptor indexed newNFTDescriptor
     );
@@ -103,7 +104,7 @@ interface ISablierLockup is
     /// @notice Emitted when the native token fees generated are transferred to the comptroller contract.
     /// @param comptroller The address of the current comptroller.
     /// @param feeAmount The amount of native tokens transferred, denoted in units of the native token's decimals.
-    event TransferFeesToComptroller(address indexed comptroller, uint256 feeAmount);
+    event TransferFeesToComptroller(ISablierComptroller indexed comptroller, uint256 feeAmount);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The ID of the stream.
@@ -450,11 +451,8 @@ interface ISablierLockup is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
 
-    /// @notice Transfers the native token fees to the comptroller contract.
+    /// @notice Transfers the fees accrued to the comptroller contract.
     /// @dev Emits a {TransferFeesToComptroller} event.
-    ///
-    /// Notes:
-    /// - Anyone can call this function.
     function transferFeesToComptroller() external;
 
     /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
@@ -464,7 +462,7 @@ interface ISablierLockup is
     /// Notes:
     /// - If `msg.sender` is not the recipient and the address is on the allowlist, this function will invoke a hook on
     /// the recipient.
-    /// - The minimum fee in wei is calculated for the stream's sender in the {SablierComptroller} contract.
+    /// - The minimum fee in wei is calculated for the stream's sender using the {SablierComptroller} contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -472,7 +470,7 @@ interface ISablierLockup is
     /// - `to` must not be the zero address.
     /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
-    /// - `msg.value` must not be less than the calculated minimum fee in wei for the stream's sender.
+    /// - `msg.value` must be greater than or equal to the minimum fee in wei for the stream's sender.
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn tokens.

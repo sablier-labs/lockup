@@ -10,13 +10,6 @@ import { LockupNFTDescriptor } from "src/LockupNFTDescriptor.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
-    function setUp() public override {
-        Integration_Test.setUp();
-
-        // Set the comptroller as the caller for this test.
-        setMsgSender(address(comptroller));
-    }
-
     function test_RevertWhen_CallerNotComptroller() external {
         // Make Eve the caller in this test.
         setMsgSender(users.eve);
@@ -33,7 +26,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
     function test_WhenProvidedAddressMatchesCurrentNFTDescriptor() external whenCallerComptroller {
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.SetNFTDescriptor(address(comptroller), nftDescriptor, nftDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(comptroller, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
@@ -53,7 +46,7 @@ contract SetNFTDescriptor_Integration_Concrete_Test is Integration_Test {
 
         // It should emit {SetNFTDescriptor} and {BatchMetadataUpdate} events.
         vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockup.SetNFTDescriptor(address(comptroller), nftDescriptor, newNFTDescriptor);
+        emit ISablierLockup.SetNFTDescriptor(comptroller, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 

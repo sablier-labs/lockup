@@ -81,11 +81,12 @@ abstract contract Modifiers is Fuzzers {
         _;
     }
 
-    modifier whenCallerComptroller() {
+    modifier whenCallerAuthorizedForAllStreams() virtual {
         _;
     }
 
-    modifier whenCallerAuthorizedForAllStreams() virtual {
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
