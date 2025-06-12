@@ -1043,10 +1043,11 @@ contract SablierLockup is
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _withdraw(uint256 streamId, address to, uint128 amount) private {
         uint256 minFeeWei = comptroller.calculateLockupMinFeeWeiFor(_streams[streamId].sender);
+        uint256 feePaid = msg.value;
 
-        // Check: `msg.value` is at least the minimum fee.
-        if (msg.value < minFeeWei) {
-            revert Errors.SablierLockup_InsufficientFeePayment(msg.value, minFeeWei);
+        // Check: fee paid is at least the minimum fee.
+        if (feePaid < minFeeWei) {
+            revert Errors.SablierLockup_InsufficientFeePayment(feePaid, minFeeWei);
         }
 
         // Effect: update the withdrawn amount.
