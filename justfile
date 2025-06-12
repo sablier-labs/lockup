@@ -8,7 +8,7 @@ default:
 build-optimized *args:
     FOUNDRY_PROFILE=optimized forge build {{ args }}
 
-test-lite *args:
+test *args:
     forge test {{ args }}
 
 test-lite *args:
