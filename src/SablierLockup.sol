@@ -38,7 +38,7 @@ contract SablierLockup is
     Batch, // 1 inherited component
     ComptrollerManager, // 1 inherited component
     ERC721, // 6 inherited components
-    ISablierLockup, // 11 inherited components
+    ISablierLockup, // 10 inherited components
     SablierLockupDynamic, // 4 inherited components
     SablierLockupLinear, // 4 inherited components
     SablierLockupTranched // 4 inherited components
@@ -235,7 +235,7 @@ contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function recover(IERC20 token, address to) external override onlyAdmin {
+    function recover(IERC20 token, address to) external override onlyComptroller {
         // If tokens are directly transferred to the contract without using the stream creation functions, the
         // ERC-20 balance may be greater than the aggregate amount.
         uint256 surplus = token.balanceOf(address(this)) - aggregateAmount[token];
