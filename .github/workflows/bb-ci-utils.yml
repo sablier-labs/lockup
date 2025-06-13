@@ -1,0 +1,26 @@
+name: "BB-CI: Build and Test"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Forge Lint
+    uses: sablier-labs/gha-utils/.github/workflows/evm-lint.yml@main
+    secrets: inherit
+
+  build:
+    name: Forge Build
+    uses: sablier-labs/gha-utils/.github/workflows/forge-build.yml@main
+    secrets: inherit
+
+  test-utils:
+    needs: ["lint", "build"]
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "test-optimized"
+      match-path: "tests/utils/**/*.sol"
+      name: "Utils tests"
