@@ -19,7 +19,7 @@ jobs:
 
   test-utils:
     needs: ["lint", "build"]
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/bb-forge-test.yml@main"
     with:
       foundry-profile: "test-optimized"
       match-path: "tests/utils/**/*.sol"
