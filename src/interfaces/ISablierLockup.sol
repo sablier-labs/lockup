@@ -15,7 +15,7 @@ import { ISablierLockupLinear } from "./ISablierLockupLinear.sol";
 import { ISablierLockupTranched } from "./ISablierLockupTranched.sol";
 
 /// @title ISablierLockup
-/// @notice Interface to create and manage Lockup streams with various distribution models.
+/// @notice Interface to manage Lockup streams with various distribution models.
 interface ISablierLockup is
     IBatch, // 0 inherited components
     IComptrollerManager, // 0 inherited components

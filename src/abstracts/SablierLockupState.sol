@@ -266,8 +266,10 @@ abstract contract SablierLockupState is ISablierLockupState {
                          INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev This function is implemented by {SablierLockup} and is used in the {SablierLockupDynamic},
+    /// @notice This function is implemented by {SablierLockup} and is used in the {SablierLockupDynamic},
     /// {SablierLockupLinear} and {SablierLockupTranched} contracts.
+    /// @dev It updates state variables based on the stream parameters, mints an NFT to the recipient, bumps stream ID,
+    /// and transfers the deposit amount.
     function _create(
         bool cancelable,
         uint128 depositAmount,
