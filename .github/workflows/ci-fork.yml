@@ -10,6 +10,8 @@ jobs:
 
   build:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      foundry-profiles: "default"
 
   test-fork:
     needs: ["check", "build"]
