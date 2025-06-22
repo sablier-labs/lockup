@@ -14,14 +14,14 @@ abstract contract DeployOptimized is CommonBase {
 
     /// @dev Deploys {SablierBatchLockup} from an optimized source compiled with `--via-ir`.
     function deployOptimizedBatchLockup() internal returns (ISablierBatchLockup) {
-        return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
+        return ISablierBatchLockup(deployCode("out/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
     /// @dev Deploys the optimized {Helpers} and {LockupMath} libraries.
     function deployOptimizedLibraries() internal returns (address helpers, address lockupMath) {
         // Deploy public libraries.
-        helpers = deployCode("out-optimized/Helpers.sol/Helpers.json");
-        lockupMath = deployCode("out-optimized/LockupMath.sol/LockupMath.json");
+        helpers = deployCode("out/Helpers.sol/Helpers.json");
+        lockupMath = deployCode("out/LockupMath.sol/LockupMath.json");
     }
 
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
@@ -36,7 +36,7 @@ abstract contract DeployOptimized is CommonBase {
         (address helpers, address lockupMath) = deployOptimizedLibraries();
 
         // Get the bytecode from {SablierLockup} artifact.
-        string memory artifactJson = vm.readFile("out-optimized/SablierLockup.sol/SablierLockup.json");
+        string memory artifactJson = vm.readFile("out/SablierLockup.sol/SablierLockup.json");
         string memory rawBytecode = artifactJson.readString(".bytecode.object");
 
         // Replace the library placeholders with the library addresses to link the libraries with the contract.
@@ -66,7 +66,7 @@ abstract contract DeployOptimized is CommonBase {
 
     /// @dev Deploys {LockupNFTDescriptor} from an optimized source compiled with `--via-ir`.
     function deployOptimizedNFTDescriptor() internal returns (ILockupNFTDescriptor) {
-        return ILockupNFTDescriptor(deployCode("out-optimized/LockupNFTDescriptor.sol/LockupNFTDescriptor.json"));
+        return ILockupNFTDescriptor(deployCode("out/LockupNFTDescriptor.sol/LockupNFTDescriptor.json"));
     }
 
     /// @notice Deploys all contracts from an optimized source compiled with `--via-ir` in the following order:

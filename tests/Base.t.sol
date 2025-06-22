@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { BaseTest as CommonBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
-
 import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
 import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
@@ -16,7 +15,6 @@ import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { LockupLinear } from "src/types/LockupLinear.sol";
 import { LockupTranched } from "src/types/LockupTranched.sol";
-
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
 import { Noop } from "./mocks/Noop.sol";
@@ -69,7 +67,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         defaults.setToken(dai);
 
         // Deploy the protocol.
-        deployProtocolConditionally();
+        deployProtocol();
 
         // Deploy the NFT descriptor mock.
         nftDescriptorMock = new NFTDescriptorMock();
@@ -112,19 +110,10 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         users.sender = createUser("Sender", spenders);
     }
 
-    /// @dev Conditionally deploys the protocol normally or from an optimized source compiled with `--via-ir`.
-    /// We cannot use the {DeployProtocol} script because some tests rely on hard coded addresses for the
-    /// deployed contracts. Since the script itself would have to be deployed, using it would bump the
-    /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
-    /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
-    function deployProtocolConditionally() internal {
-        if (!isTestOptimizedProfile()) {
-            batchLockup = new SablierBatchLockup();
-            nftDescriptor = new LockupNFTDescriptor();
-            lockup = new SablierLockup(address(comptroller), address(nftDescriptor));
-        } else {
-            (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(address(comptroller));
-        }
+    /// @dev Deploys the protocol.
+    function deployProtocol() internal {
+        (nftDescriptor, lockup, batchLockup) = deployOptimizedProtocol(address(comptroller));
+
         vm.label({ account: address(batchLockup), newLabel: "BatchLockup" });
         vm.label({ account: address(lockup), newLabel: "Lockup" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });

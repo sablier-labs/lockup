@@ -3,7 +3,7 @@
   bytecode_hash = "none"
   evm_version = "shanghai" # needed for greater coverage of EVM chains
   fs_permissions = [
-    { access = "read", path = "./out-optimized" },
+    { access = "read", path = "./out" },
     { access = "read", path = "package.json" },
   ]
   gas_limit = 9223372036854775807
@@ -15,6 +15,15 @@
   solc = "0.8.29"
   src = "src"
   test = "tests"
+  via_ir = true
+
+additional_compiler_profiles = [
+  { name = "tests/", via_ir = false }
+]
+
+compilation_restrictions = [
+  { paths = "tests/**", via_ir = false }
+]
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
@@ -29,16 +38,7 @@
 # Speed up compilation and tests during development
 [profile.lite]
   optimizer = false
-
-# Compile only the production code
-[profile.optimized]
-  out = "out-optimized"
-  test = "tests/mocks"
-  via_ir = true
-
-# Test the optimized contracts without re-compiling them
-[profile.test-optimized]
-  src = "tests"
+  via_ir = false
 
 [doc]
   ignore = ["**/*.t.sol"]

@@ -41,7 +41,6 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.unitFuzzRuns || '50000') }}
-      foundry-profile: "test-optimized"
       match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
 
@@ -50,7 +49,6 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.integrationFuzzRuns || '50000') }}
-      foundry-profile: "test-optimized"
       match-path: "tests/integration/**/*.sol"
       name: "Integration tests"
 
@@ -60,7 +58,6 @@ jobs:
     with:
       foundry-invariant-depth: ${{ fromJSON(inputs.invariantDepth || '100') }}
       foundry-invariant-runs: ${{ fromJSON(inputs.invariantRuns || '100') }}
-      foundry-profile: "test-optimized"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
 
@@ -71,7 +68,6 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: ${{ fromJSON(inputs.forkFuzzRuns || '1000') }}
-      foundry-profile: "test-optimized"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
 

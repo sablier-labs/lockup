@@ -18,7 +18,6 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
       foundry-fuzz-runs: 100
-      foundry-profile: "test-optimized"
       fuzz-seed: true
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
@@ -27,7 +26,6 @@ jobs:
     needs: ["check", "build"]
     uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
     with:
-      foundry-profile: "test-optimized"
       match-path: "tests/utils/**/*.sol"
       name: "Utils tests"
 
