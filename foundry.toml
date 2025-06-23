@@ -65,7 +65,7 @@
   base = "https://mainnet.base.org"
   berachain = "https://rpc.berachain.com"
   blast = "https://rpc.blast.io"
-  bnb = "https://bsc-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  bsc = "https://bsc-mainnet.infura.io/v3/${API_KEY_INFURA}"
   chiliz = "https://rpc.chiliz.com"
   core_dao = "https://rpc.coredao.org"
   form = "https://rpc.form.network/http"
