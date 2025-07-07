@@ -1,7 +1,7 @@
 {
   "name": "@sablier/lockup",
   "description": "Core smart contracts of the Lockup token distribution protocol",
-  "license": "BUSL-1.1",
+  "license": "SEE LICENSE IN LICENSE",
   "version": "2.0.1",
   "author": {
     "name": "Sablier Labs Ltd",
@@ -30,6 +30,8 @@
     "src",
     "tests/utils",
     "CHANGELOG.md",
+    "LICENSE.md",
+    "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
   "homepage": "https://github.com/sablier-labs/lockup#readme",
