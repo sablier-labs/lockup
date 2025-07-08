@@ -1,88 +1,61 @@
-List of Invariants Implemented in Invariant.t.sol
+### List of Invariants Implemented in [Invariant.t.sol](./Invariant.t.sol)
 
-1. For the Lockup contract:
-   token.balanceOf(Lockup) ≥ Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts
+1. Next stream id = Current stream id + 1
 
-2. For any stream:
-   deposited amount ≥ streamed amount
+1. For a token:
+   - Aggregate amount = (Total deposited - Total refunded - Total withdrawn)
+   - token.balanceOf(lockup) $`\ge`$ (Total deposited - Total refunded - Total withdrawn)
 
-3. For any stream:
-   deposited amount ≥ withdrawable amount
+1. For a stream:
+   - Deposited amount $`\ge`$ Streamed amount
+   - Deposited amount $`\ge`$ Withdrawable amount
+   - Deposited amount $`\ge`$ Withdrawn amount
+   - Deposited amount $`\ge`$ 0
+   - End time > Start time
+   - Start time $`\ge`$ 0
+   - Streamed amount $`\ge`$ Withdrawable amount
+   - Streamed amount $`\ge`$ Withdrawn amount
 
-4. For any stream:
-   deposited amount ≥ withdrawn amount
+1. For a canceled stream:
+   - Refunded amount > 0
+   - Stream should not be cancelable anymore
+   - Refundable amount = 0
+   - Withdrawable amount > 0
 
-5. For any stream:
-   deposited amount ≠ 0 (stream non-null)
+1. For a depleted stream:
+   - Withdrawn amount = (Deposited amount - Refunded amount)
+   - Stream should not be cancelable anymore
+   - Refundable amount = 0
+   - Withdrawable amount = 0
 
-6. For any stream:
-   end time > start time
+1. For a pending stream:
+   - Refunded amount = 0
+   - Withdrawn amount = 0
+   - Refundable amount = Deposited amount
+   - Streamed amount = 0
+   - Withdrawable amount = 0
 
-7. For the Lockup contract:
-   next stream ID = last stream ID + 1
+1. For a settled stream:
+   - Refunded amount = 0
+   - Stream should not be cancelable anymore
+   - Refundable amount = 0
+   - Streamed amount = Deposited amount
 
-8. For any stream:
-   start time > 0
+1. For a streaming stream:
+   - Refunded amount = 0
+   - Streamed amount < Deposited amount
 
-9. For any canceled stream:
-   refunded amount > 0
-   refundable amount = 0
-   withdrawable amount > 0
-   stream not cancelable
+1. State transitions:
+   - PENDING $`\not\to`$ DEPLETED
+   - STREAMING $`\not\to`$ PENDING
+   - SETTLED $`\not\to`$ { PENDING, STREAMING, CANCELED }
+   - CANCELED $`\not\to`$ { PENDING, STREAMING, SETTLED }
+   - DEPLETED $`\to`$ DEPLETED
 
-10. For any depleted stream:
-    deposited amount - refunded amount = withdrawn amount
-    refundable amount = 0
-    withdrawable amount = 0
-    stream not cancelable
+1. For a Dynamic stream, segment timestamps should be strictly increasing.
 
-11. For any pending stream:
-    refunded amount = 0
-    withdrawn amount = 0
-    refundable amount = deposited amount
-    streamed amount = 0
-    withdrawable amount = 0
+1. For a Linear stream,
+   - If Cliff time > 0, $`\implies`$ Cliff time > Start time.
+   - End time > Cliff time
 
-12. For any settled stream:
-    refunded amount = 0
-    refundable amount = 0
-    streamed amount = deposited amount
-    stream not cancelable
-
-13. For any streaming stream:
-    refunded amount = 0
-    streamed amount < deposited amount
-
-14. Valid status transitions:
-    If previous status = Pending:
-      Cannot transition to Depleted
-    If previous status = Streaming:
-      Cannot transition to Pending
-    If previous status = Settled:
-      Cannot transition to Pending
-      Cannot transition to Streaming
-      Cannot transition to Canceled
-    If previous status = Canceled:
-      Cannot transition to Pending
-      Cannot transition to Streaming
-      Cannot transition to Settled
-    If previous status = Depleted:
-      Must remain Depleted
-
-15. For any stream:
-    streamed amount ≥ withdrawable amount
-
-16. For any stream:
-    streamed amount ≥ withdrawn amount
-
-17. For any dynamic stream:
-    segment timestamps strictly increasing
-
-18. For any linear stream:
-    if cliff time > 0: cliff time > start time
-
-19. For any linear stream:
-    end time > cliff time
-
-20. For any tranched stream:
-    tranche timestamps strictly increasing
+1. For a Tranched stream, tranche timestamps should be strictly increasing.
