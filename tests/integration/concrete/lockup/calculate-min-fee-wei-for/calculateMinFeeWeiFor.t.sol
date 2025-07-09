@@ -22,7 +22,7 @@ contract CalculateMinFeeWeiFor_Integration_Concrete_Test is Integration_Test {
             customFeeUSD: customFeeUSD
         });
 
-        uint256 expectedFeeWei = (1e18 * customFeeUSD) / 3000e8; // at $3000 per ETH
+        uint256 expectedFeeWei = (1e18 * customFeeUSD) / ETH_PRICE_USD;
 
         // It should return the custom fee in wei.
         assertEq(lockup.calculateMinFeeWei(ids.defaultStream), expectedFeeWei, "customFeeWei");
