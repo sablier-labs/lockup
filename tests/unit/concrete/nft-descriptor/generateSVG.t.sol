@@ -26,7 +26,7 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             })
         );
         string memory expectedSVG1 = vm.readFile("tests/data/expected_svg_1.svg");
-            
+
         assertEq(actualSVG, expectedSVG1, "SVG mismatch");
     }
 
@@ -45,7 +45,7 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             })
         );
         string memory expectedSVG2 = vm.readFile("tests/data/expected_svg_2.svg");
-           
+
         assertEq(actualSVG, expectedSVG2, "SVG mismatch");
     }
 
@@ -64,8 +64,7 @@ contract GenerateSVG_Unit_Concrete_Test is Base_Test {
             })
         );
         string memory expectedSVG3 = vm.readFile("tests/data/expected_svg_3.svg");
-           
-            
+
         assertEq(actualSVG, expectedSVG3, "SVG mismatch");
     }
 }
