@@ -4,4 +4,4 @@ CreateWithTimestampsLT_Integration_Test
 └── when batch size not zero
    ├── it should create a batch of streams with timestamps
    ├── it should perform the ERC-20 transfers
-   └── it should emit a {CreateBatch} event
+   └── it should emit a {CreateLockupBatch} event

@@ -13,11 +13,11 @@ interface ISablierBatchLockup {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when streams are created using this contract.
+    /// @notice Emitted when a batch of Lockup streams are created.
     /// @param funder The address funding the streams.
     /// @param lockup The address of the {SablierLockup} contract used to create the streams.
-    /// @param streamIds The ids of the newly created streams.
-    event CreateBatch(address indexed funder, ISablierLockup indexed lockup, uint256[] streamIds);
+    /// @param streamIds The ids of the newly created streams, the ones that were successfully created.
+    event CreateLockupBatch(address indexed funder, ISablierLockup indexed lockup, uint256[] streamIds);
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS

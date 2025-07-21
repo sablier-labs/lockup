@@ -84,8 +84,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -143,8 +143,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -195,8 +195,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -248,8 +248,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -299,8 +299,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /// @inheritdoc ISablierBatchLockup
@@ -358,8 +358,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
             );
         }
 
-        // Emit the {CreateBatch} event.
-        emit ISablierBatchLockup.CreateBatch(msg.sender, lockup, streamIds);
+        // Log the creation of the batch of streams.
+        emit ISablierBatchLockup.CreateLockupBatch({ funder: msg.sender, lockup: lockup, streamIds: streamIds });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
