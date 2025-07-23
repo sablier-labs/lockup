@@ -15,7 +15,7 @@ Additional Use Grant: Any uses listed and defined at
 [`lockup-license-grants.sablier.eth`](https://app.ens.domains/lockup-license-grants.sablier.eth)
 
 Change Date: The earlier of 2029-07-01 or a date specified at
-[`license-date.sablier.eth`](https://app.ens.domains/license-date.sablier.eth)
+[`license-dates.sablier.eth`](https://app.ens.domains/license-dates.sablier.eth)
 
 Change License: GNU General Public License v3.0 or later
 
