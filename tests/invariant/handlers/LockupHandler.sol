@@ -102,8 +102,12 @@ contract LockupHandler is BaseHandler {
         // Not cancelable streams cannot be canceled.
         vm.assume(lockup.isCancelable(currentStreamId));
 
-        // Cancel the stream.
+        // Cancel the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         lockup.cancel(currentStreamId);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "cancel", gas: gasBefore - gasAfter });
     }
 
     function renounce(
@@ -159,8 +163,12 @@ contract LockupHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        // Withdraw from the stream.
+        // Withdraw from the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
     }
 
     function withdrawMax(
@@ -191,8 +199,12 @@ contract LockupHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        // Make the max withdrawal.
+        // Make the max withdrawal and record the gas used.
+        uint256 gasBefore = gasleft();
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
     }
 
     function withdrawMaxAndTransfer(
