@@ -9,12 +9,14 @@ contract LockupStore {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 streamId => bool recorded) public isPreviousStatusRecorded;
     uint256 public lastStreamId;
+    uint256[] public streamIds;
+
+    mapping(uint256 streamId => mapping(string functionName => uint256 gas)) public gasUsed;
+    mapping(uint256 streamId => bool recorded) public isPreviousStatusRecorded;
     mapping(uint256 streamId => Lockup.Status status) public previousStatusOf;
     mapping(uint256 streamId => address recipient) public recipients;
     mapping(uint256 streamId => address sender) public senders;
-    uint256[] public streamIds;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
@@ -28,6 +30,14 @@ contract LockupStore {
 
         // Update the last stream ID.
         lastStreamId = streamId;
+    }
+
+    /// @dev Records gas used by a function.
+    function recordGasUsage(uint256 streamId, string calldata action, uint256 gas) external {
+        // We want to store the maximum gas used by any action.
+        if (gas > gasUsed[streamId][action]) {
+            gasUsed[streamId][action] = gas;
+        }
     }
 
     function updateIsPreviousStatusRecorded(uint256 streamId) external {

@@ -65,7 +65,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Dynamic Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -97,7 +103,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Linear Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -135,7 +147,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Tranched Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -176,7 +194,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.token = token;
         params.shape = "Dynamic Stream";
         params.timestamps.end = segments[segments.length - 1].timestamp;
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -208,7 +232,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream.
         params.token = token;
         params.shape = "Linear Stream";
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -249,7 +279,13 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.token = token;
         params.shape = "Tranched Stream";
         params.timestamps.end = tranches[tranches.length - 1].timestamp;
+
+        // Create the stream and record the gas used.
+        uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
+        uint256 gasAfter = gasleft();
+
+        lockupStore.recordGasUsage({ streamId: streamId, action: "create", gas: gasBefore - gasAfter });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
