@@ -364,8 +364,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            uint256 createGas = lockupStore.gasUsed(streamId, "create");
-            uint256 cancelGas = lockupStore.gasUsed(streamId, "cancel");
+            uint256 createGas = lockupStore.gasUsed(streamId, BaseHandler.GasOperation.CREATE);
+            uint256 cancelGas = lockupStore.gasUsed(streamId, BaseHandler.GasOperation.CANCEL);
 
             // If cancel action is called 0 times, skip.
             if (cancelGas == 0) return;
@@ -378,8 +378,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            uint256 createGas = lockupStore.gasUsed(streamId, "create");
-            uint256 withdrawGas = lockupStore.gasUsed(streamId, "withdraw");
+            uint256 createGas = lockupStore.gasUsed(streamId, BaseHandler.GasOperation.CREATE);
+            uint256 withdrawGas = lockupStore.gasUsed(streamId, BaseHandler.GasOperation.WITHDRAW);
 
             // If withdraw action is called 0 times, skip.
             if (withdrawGas == 0) return;

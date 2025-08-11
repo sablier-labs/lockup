@@ -107,7 +107,7 @@ contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "cancel", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: currentStreamId, operation: GasOperation.CANCEL, gas: gasBefore - gasAfter });
     }
 
     function renounce(
@@ -168,7 +168,7 @@ contract LockupHandler is BaseHandler {
         lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: currentStreamId, operation: GasOperation.WITHDRAW, gas: gasBefore - gasAfter });
     }
 
     function withdrawMax(
@@ -204,7 +204,7 @@ contract LockupHandler is BaseHandler {
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: currentStreamId, operation: GasOperation.WITHDRAW, gas: gasBefore - gasAfter });
     }
 
     function withdrawMaxAndTransfer(
