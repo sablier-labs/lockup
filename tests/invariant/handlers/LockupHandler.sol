@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/types/Lockup.sol";
+import { StreamAction } from "tests/utils/Types.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
@@ -107,7 +108,7 @@ contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "cancel", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: currentStreamId, action: StreamAction.CANCEL, gas: gasBefore - gasAfter });
     }
 
     function renounce(
@@ -168,7 +169,11 @@ contract LockupHandler is BaseHandler {
         lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({
+            streamId: currentStreamId,
+            action: StreamAction.WITHDRAW,
+            gas: gasBefore - gasAfter
+        });
     }
 
     function withdrawMax(
@@ -204,7 +209,11 @@ contract LockupHandler is BaseHandler {
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: "withdraw", gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({
+            streamId: currentStreamId,
+            action: StreamAction.WITHDRAW,
+            gas: gasBefore - gasAfter
+        });
     }
 
     function withdrawMaxAndTransfer(

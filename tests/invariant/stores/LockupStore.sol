@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup } from "src/types/Lockup.sol";
+import { StreamAction } from "tests/utils/Types.sol";
 
 /// @dev Storage variables needed by all lockup handlers.
 contract LockupStore {
@@ -12,7 +13,7 @@ contract LockupStore {
     uint256 public lastStreamId;
     uint256[] public streamIds;
 
-    mapping(uint256 streamId => mapping(string functionName => uint256 gas)) public gasUsed;
+    mapping(uint256 streamId => mapping(StreamAction action => uint256 gas)) public gasUsed;
     mapping(uint256 streamId => bool recorded) public isPreviousStatusRecorded;
     mapping(uint256 streamId => Lockup.Status status) public previousStatusOf;
     mapping(uint256 streamId => address recipient) public recipients;
@@ -32,8 +33,8 @@ contract LockupStore {
         lastStreamId = streamId;
     }
 
-    /// @dev Records gas used by a function.
-    function recordGasUsage(uint256 streamId, string calldata action, uint256 gas) external {
+    /// @dev Records gas used by an action.
+    function recordGasUsage(uint256 streamId, StreamAction action, uint256 gas) external {
         // We want to store the maximum gas used by any action.
         if (gas > gasUsed[streamId][action]) {
             gasUsed[streamId][action] = gas;
