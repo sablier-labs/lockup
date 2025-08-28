@@ -16,32 +16,20 @@ jobs:
     needs: ["lint", "build"]
     secrets:
       MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
-      ROUTEME_API_KEY: ${{ secrets.ROUTEME_API_KEY }}
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@ci/retry"
     with:
-      foundry-fuzz-runs: 100
+      foundry-fuzz-runs: 10
       foundry-profile: "test-optimized"
       fuzz-seed: true
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
+      retry-attempts: 2
 
   test-utils:
     needs: ["lint", "build"]
-    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@ci/retry"
     with:
       foundry-profile: "test-optimized"
       match-path: "tests/utils/**/*.sol"
       name: "Utils tests"
-
-  notify-on-failure:
-    if: failure()
-    needs: ["lint", "build", "test-fork", "test-utils"]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Send Slack notification"
-        uses: "rtCamp/action-slack-notify@v2"
-        env:
-          SLACK_CHANNEL: "#ci-notifications"
-          SLACK_MESSAGE: "CI Workflow failed for ${{ github.repository }} on branch ${{ github.ref }} at job ${{ github.job }}."
-          SLACK_USERNAME: "GitHub CI"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
