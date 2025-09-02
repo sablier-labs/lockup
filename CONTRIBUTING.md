@@ -28,11 +28,12 @@ Clone this repository:
 $ git clone git@github.com:sablier-labs/lockup.git sablier-lockup && cd sablier-lockup
 ```
 
-Then, inside the project's directory, run these commands to install the Node.js dependencies and build the contracts:
+Then, inside the project's directory, run these commands:
 
 ```shell
-$ just install
-$ just build
+$ just install        # Install the Node.js dependencies
+$ just setup          # Execute setup script
+$ just build          # Build the contracts
 ```
 
 Switch to the `staging` branch, where all development work should be done:
