@@ -25,12 +25,3 @@ lcov.info
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-
-# Ignore .env.example
-!.env.example
-
-# Allow .env symlinks in subdirectories
-!airdrops/.env
-!flow/.env
-!lockup/.env
-!utils/.env
