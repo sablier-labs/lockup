@@ -1,0 +1,133 @@
+name: "CI: Module (Reusable)"
+
+on:
+  workflow_call:
+    inputs:
+      exclude-invariant-tests:
+        default: false
+        required: false
+        type: boolean
+      exclude-unit-tests:
+        default: false
+        required: false
+        type: boolean
+      module:
+        description: "Module name (e.g., airdrops, flow, lockup, utils)"
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+      ROUTEMESH_API_KEY:
+        required: false
+
+jobs:
+  check:
+    uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
+    with:
+      foundry-version: "v1.4.4"
+      working-directory: ${{ inputs.module }}
+
+  build:
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-build.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-version: "v1.4.4"
+      working-directory: ${{ inputs.module }}
+
+  test-bulloak:
+    needs: ["build", "check"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
+    with:
+      skip-modifiers: true
+      test-dir: "${{ inputs.module }}/tests"
+      working-directory: ${{ inputs.module }}
+
+  test-fork:
+    needs: ["build", "check"]
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets:
+      ROUTEMESH_API_KEY: ${{ secrets.ROUTEMESH_API_KEY }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-fuzz-runs: 20
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/fork/**/*.sol"
+      name: "test-fork"
+      working-directory: ${{ inputs.module }}
+
+  test-integration:
+    needs: ["build", "check"]
+    if: needs.build.outputs.cache-status != 'primary'
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/{integration,utils}/**/*.sol"
+      name: "test-integration"
+      working-directory: ${{ inputs.module }}
+
+  test-invariant:
+    needs: ["build", "check"]
+    if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-invariant-tests
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/invariant/**/*.sol"
+      name: "test-invariant"
+      working-directory: ${{ inputs.module }}
+
+  test-unit:
+    needs: ["build", "check"]
+    if: needs.build.outputs.cache-status != 'primary' && !inputs.exclude-unit-tests
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-test.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-profile: "test-optimized"
+      foundry-version: "v1.4.4"
+      match-path: "tests/unit/**/*.sol"
+      name: "test-unit"
+      working-directory: ${{ inputs.module }}
+
+  coverage:
+    needs: ["build", "check", "test-integration"]
+    if: needs.build.outputs.cache-status != 'primary'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    uses: "sablier-labs/gha-utils/.github/workflows/forge-coverage.yml@main"
+    with:
+      cache-path: |
+        ${{ inputs.module }}/cache
+        ${{ inputs.module }}/node_modules
+        ${{ inputs.module }}/out
+        ${{ inputs.module }}/out-optimized
+      foundry-version: "v1.4.4"
+      match-path: "tests/{integration,unit}/**/*.sol"
+      via-ir-minimum: true
+      working-directory: ${{ inputs.module }}
