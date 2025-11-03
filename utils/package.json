@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/evm-utils/issues"
+    "url": "https://github.com/sablier-labs/evm-monorepo/issues"
   },
   "dependencies": {
     "@chainlink/contracts": "1.3.0",
@@ -18,8 +18,7 @@
   },
   "devDependencies": {
     "@openzeppelin/foundry-upgrades": "0.4.0",
-    "@sablier/devkit": "github:sablier-labs/devkit#main",
-    "husky": "^9.1",
+    "@sablier/devkit": "github:sablier-labs/devkit",
     "lint-staged": "^16.1",
     "prettier": "^3.5",
     "solhint": "^6.0"
@@ -32,7 +31,7 @@
     "LICENSE-BUSL.md",
     "LICENSE-GPL.md"
   ],
-  "homepage": "https://github.com/sablier-labs/evm-utils#readme",
+  "homepage": "https://github.com/sablier-labs/evm-monorepo#readme",
   "keywords": [
     "blockchain",
     "ethereum",
@@ -48,11 +47,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sablier-labs/evm-utils.git"
+    "url": "https://github.com/sablier-labs/evm-monorepo.git",
+    "directory": "utils"
   },
   "scripts": {
     "postinstall": "cd node_modules/forge-std && ln -sf src/* .",
-    "prepack": "bun install --frozen-lockfile && bash ./scripts/bash/prepare-artifacts.sh",
-    "setup": "husky"
+    "prepack": "../scripts/bash/publish_prepack.sh",
+    "postpack": "../scripts/bash/publish_postpack.sh"
   }
 }
