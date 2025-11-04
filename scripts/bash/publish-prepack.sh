@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Shared prepack script for all packages in the monorepo
-# This script should be called from a package directory via: bash ../scripts/bash/publish_prepack.sh
+# This script should be called from a package directory via: bash ../scripts/bash/publish-prepack.sh
 
 set -euo pipefail
 

@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
-    "husky": "^9.1",
-    "lint-staged": "^16.1",
-    "prettier": "^3.5",
-    "solhint": "^6.0"
+    "husky": "9.1.7",
+    "lint-staged": "16.2.6",
+    "prettier": "3.6.2",
+    "solhint": "6.0.1"
   },
   "engines": {
     "bun": ">=1.0.0"

@@ -44,6 +44,9 @@ install package:
 install-all:
     for dir in airdrops flow lockup utils; do (cd $dir && ni); done
 
+# Setup the project
+setup: install-all
+    ./scripts/bash/setup.sh
 # ---------------------------------------------------------------------------- #
 #                                    LINTING                                   #
 # ---------------------------------------------------------------------------- #

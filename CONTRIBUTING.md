@@ -28,7 +28,7 @@ Clone this repository:
 git clone git@github.com:sablier-labs/evm-monorepo.git && cd evm-monorepo
 ```
 
-To install the dependencies:
+To install the root dependencies:
 
 ```shell
 bun install

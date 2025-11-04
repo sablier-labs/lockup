@@ -18,11 +18,11 @@
   "devDependencies": {
     "@sablier/devkit": "github:sablier-labs/devkit",
     "forge-std": "github:foundry-rs/forge-std#v1.10.0",
-    "lint-staged": "^16.1",
-    "prettier": "^3.5",
+    "lint-staged": "16.2.6",
+    "prettier": "3.6.2",
     "solady": "0.0.208",
     "solarray": "github:evmcheb/solarray#a547630",
-    "solhint": "^6.0"
+    "solhint": "6.0.1"
   },
   "files": [
     "artifacts",
