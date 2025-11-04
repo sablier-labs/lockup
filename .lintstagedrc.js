@@ -3,5 +3,5 @@
  */
 module.exports = {
   "*.{json,md,svg,yml}": "bun prettier --cache --write",
-  "*.sol": ["bun solhint --cache --fix --noPrompt"],
+  "*.sol": () => "just full-write-all",
 };
