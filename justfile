@@ -73,12 +73,12 @@ full-write-all:
 
 # Build a specific package
 [group("foundry")]
-build package:
+build package: ensure-env
     just {{ package }}/build
 
 # Build all packages
 [group("foundry")]
-build-all:
+build-all: ensure-env
     just for-each build
 
 # Build a specific package with optimized profile
@@ -152,3 +152,14 @@ for-each recipe:
     just flow/{{ recipe }}
     just lockup/{{ recipe }}
     just utils/{{ recipe }}
+
+# Ensure .env symlinks exist in all packages
+[private]
+ensure-env:
+    #!/usr/bin/env bash
+    # Create root .env if it doesn't exist
+    [ ! -f .env ] && touch .env
+    # Create symlinks in each package
+    for dir in airdrops flow lockup utils; do
+        [ ! -L "$dir/.env" ] && ln -sf ../.env "$dir/.env" || true
+    done
