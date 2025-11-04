@@ -113,10 +113,8 @@ abstract contract SablierMerkleBase is
 
         campaignName = campaignName_;
         ipfsCID = ipfsCID_;
-        minFeeUSD = ISablierComptroller(COMPTROLLER).getMinFeeUSDFor({
-            protocol: ISablierComptroller.Protocol.Airdrops,
-            user: campaignCreator
-        });
+        minFeeUSD = ISablierComptroller(COMPTROLLER)
+            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: campaignCreator });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -183,7 +181,11 @@ abstract contract SablierMerkleBase is
         minFeeUSD = newMinFeeUSD;
 
         // Log the event.
-        emit LowerMinFeeUSD({ comptroller: COMPTROLLER, newMinFeeUSD: newMinFeeUSD, previousMinFeeUSD: currentMinFeeUSD });
+        emit LowerMinFeeUSD({
+            comptroller: COMPTROLLER,
+            newMinFeeUSD: newMinFeeUSD,
+            previousMinFeeUSD: currentMinFeeUSD
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

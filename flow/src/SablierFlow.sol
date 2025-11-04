@@ -65,13 +65,7 @@ contract SablierFlow is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFlow
-    function calculateMinFeeWei(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint256 minFeeWei)
-    {
+    function calculateMinFeeWei(uint256 streamId) external view override notNull(streamId) returns (uint256 minFeeWei) {
         // Calculate the minimum fee in wei for the stream sender.
         minFeeWei = comptroller.calculateMinFeeWeiFor({
             protocol: ISablierComptroller.Protocol.Flow,

@@ -17,7 +17,9 @@ interface ISablierLockupTranched is ISablierLockupState {
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
     /// @param tranches The tranches the protocol uses to compose the tranched distribution function.
     event CreateLockupTranchedStream(
-        uint256 indexed streamId, Lockup.CreateEventCommon commonParams, LockupTranched.Tranche[] tranches
+        uint256 indexed streamId,
+        Lockup.CreateEventCommon commonParams,
+        LockupTranched.Tranche[] tranches
     );
 
     /*//////////////////////////////////////////////////////////////////////////

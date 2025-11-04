@@ -86,7 +86,11 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
                 Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.eve
             )
         );
-        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({
+            streamId: defaultStreamId,
+            to: users.eve,
+            amount: WITHDRAW_AMOUNT_6D
+        });
     }
 
     function test_RevertWhen_CallerUnknown()
@@ -106,7 +110,11 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
                 Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.eve, users.eve
             )
         );
-        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({ streamId: defaultStreamId, to: users.eve, amount: WITHDRAW_AMOUNT_6D });
+        flow.withdraw{ value: FLOW_MIN_FEE_WEI }({
+            streamId: defaultStreamId,
+            to: users.eve,
+            amount: WITHDRAW_AMOUNT_6D
+        });
     }
 
     function test_WhenCallerRecipient()
@@ -256,7 +264,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
             streamId: defaultStreamId,
             to: users.recipient,
             withdrawAmount: WITHDRAW_AMOUNT_6D // amount < snapshot debt => amount < total debt
-         });
+        });
 
         // It should reduce snapshot debt by amount withdrawn.
         assertEq(
@@ -321,7 +329,7 @@ contract Withdraw_Integration_Concrete_Test is Shared_Integration_Concrete_Test 
             streamId: streamId,
             to: users.recipient,
             withdrawAmount: WITHDRAW_AMOUNT_18D // withdrawAmount < total debt and > snapshot debt
-         });
+        });
 
         // It should set snapshot debt to difference between total debt and amount withdrawn.
         assertEq(flow.getSnapshotDebtScaled(streamId), ONE_MONTH_DEBT_18D - WITHDRAW_AMOUNT_18D, "snapshot debt");

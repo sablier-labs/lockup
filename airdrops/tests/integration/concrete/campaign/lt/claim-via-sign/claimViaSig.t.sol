@@ -28,7 +28,12 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
 
         vm.expectEmit({ emitter: address(merkleLT) });
         emit ISablierMerkleLT.ClaimLTWithVesting(
-            index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve, true
+            index,
+            users.recipient,
+            CLAIM_AMOUNT,
+            expectedStreamId,
+            users.eve,
+            true
         );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
@@ -56,7 +61,12 @@ contract ClaimViaSig_MerkleLT_Integration_Test is ClaimViaSig_Integration_Test, 
 
         vm.expectEmit({ emitter: address(merkleLT) });
         emit ISablierMerkleLT.ClaimLTWithVesting(
-            index, users.smartWalletWithIERC1271, CLAIM_AMOUNT, expectedStreamId, users.eve, true
+            index,
+            users.smartWalletWithIERC1271,
+            CLAIM_AMOUNT,
+            expectedStreamId,
+            users.eve,
+            true
         );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });

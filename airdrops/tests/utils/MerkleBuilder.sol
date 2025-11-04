@@ -15,8 +15,9 @@ struct LeafData {
 library MerkleBuilder {
     /// @dev Double hashes the data needed for a Merkle tree leaf.
     function computeLeaf(LeafData memory leafData) internal pure returns (uint256 leaf) {
-        leaf =
-            uint256(keccak256(bytes.concat(keccak256(abi.encode(leafData.index, leafData.recipient, leafData.amount)))));
+        leaf = uint256(
+            keccak256(bytes.concat(keccak256(abi.encode(leafData.index, leafData.recipient, leafData.amount))))
+        );
     }
 
     /// @dev Compute leaves for given data and sort them in ascending order.

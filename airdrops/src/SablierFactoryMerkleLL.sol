@@ -102,7 +102,10 @@ contract SablierFactoryMerkleLL is ISablierFactoryMerkleLL, SablierFactoryMerkle
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
-            minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
+            minFeeUSD: comptroller.getMinFeeUSDFor({
+                protocol: ISablierComptroller.Protocol.Airdrops,
+                user: msg.sender
+            })
         });
     }
 }

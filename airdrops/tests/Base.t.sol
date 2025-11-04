@@ -216,8 +216,11 @@ abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, F
         recipients[3] = users.unknownRecipient;
 
         for (uint256 i = 0; i < RECIPIENT_COUNT; ++i) {
-            leafData[i] =
-                LeafData({ index: getIndexInMerkleTree(recipients[i]), recipient: recipients[i], amount: CLAIM_AMOUNT });
+            leafData[i] = LeafData({
+                index: getIndexInMerkleTree(recipients[i]),
+                recipient: recipients[i],
+                amount: CLAIM_AMOUNT
+            });
         }
 
         MerkleBuilder.computeLeaves(LEAVES, leafData);

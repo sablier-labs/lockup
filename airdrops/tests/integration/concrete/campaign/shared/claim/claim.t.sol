@@ -24,11 +24,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         claim();
     }
 
-    function test_RevertGiven_MsgValueLessThanFee()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-    {
+    function test_RevertGiven_MsgValueLessThanFee() external givenCampaignStartTimeNotInFuture givenCampaignNotExpired {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, AIRDROP_MIN_FEE_WEI)
         );

@@ -178,7 +178,9 @@ library Helpers {
         // Check: the sum of the start and cliff unlock amounts is not greater than the deposit amount.
         if (unlockAmounts.start + unlockAmounts.cliff > depositAmount) {
             revert Errors.SablierHelpers_UnlockAmountsSumTooHigh(
-                depositAmount, unlockAmounts.start, unlockAmounts.cliff
+                depositAmount,
+                unlockAmounts.start,
+                unlockAmounts.cliff
             );
         }
     }
@@ -245,14 +247,16 @@ library Helpers {
         // Check: the start time is strictly less than the first segment timestamp.
         if (timestamps.start >= segments[0].timestamp) {
             revert Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp(
-                timestamps.start, segments[0].timestamp
+                timestamps.start,
+                segments[0].timestamp
             );
         }
 
         // Check: the end time equals the last segment's timestamp.
         if (timestamps.end != segments[segmentCount - 1].timestamp) {
             revert Errors.SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp(
-                timestamps.end, segments[segmentCount - 1].timestamp
+                timestamps.end,
+                segments[segmentCount - 1].timestamp
             );
         }
 
@@ -273,7 +277,9 @@ library Helpers {
             currentSegmentTimestamp = segments[index].timestamp;
             if (currentSegmentTimestamp <= previousSegmentTimestamp) {
                 revert Errors.SablierHelpers_SegmentTimestampsNotOrdered(
-                    index, previousSegmentTimestamp, currentSegmentTimestamp
+                    index,
+                    previousSegmentTimestamp,
+                    currentSegmentTimestamp
                 );
             }
 
@@ -311,14 +317,16 @@ library Helpers {
         // Check: the start time is strictly less than the first tranche timestamp.
         if (timestamps.start >= tranches[0].timestamp) {
             revert Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp(
-                timestamps.start, tranches[0].timestamp
+                timestamps.start,
+                tranches[0].timestamp
             );
         }
 
         // Check: the end time equals the tranche's timestamp.
         if (timestamps.end != tranches[trancheCount - 1].timestamp) {
             revert Errors.SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp(
-                timestamps.end, tranches[trancheCount - 1].timestamp
+                timestamps.end,
+                tranches[trancheCount - 1].timestamp
             );
         }
 
@@ -339,7 +347,9 @@ library Helpers {
             currentTrancheTimestamp = tranches[index].timestamp;
             if (currentTrancheTimestamp <= previousTrancheTimestamp) {
                 revert Errors.SablierHelpers_TrancheTimestampsNotOrdered(
-                    index, previousTrancheTimestamp, currentTrancheTimestamp
+                    index,
+                    previousTrancheTimestamp,
+                    currentTrancheTimestamp
                 );
             }
 

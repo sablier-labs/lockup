@@ -80,10 +80,7 @@ interface ISablierLockupState {
     /// @dev Reverts if `streamId` references either a null stream or a non-LL stream.
     /// @param streamId The stream ID for the query.
     /// @return unlockAmounts See the documentation in {LockupLinear} type.
-    function getUnlockAmounts(uint256 streamId)
-        external
-        view
-        returns (LockupLinear.UnlockAmounts memory unlockAmounts);
+    function getUnlockAmounts(uint256 streamId) external view returns (LockupLinear.UnlockAmounts memory unlockAmounts);
 
     /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the token's decimals.
     /// @dev Reverts if `streamId` references a null stream.

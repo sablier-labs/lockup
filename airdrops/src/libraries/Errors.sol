@@ -38,7 +38,8 @@ library Errors {
 
     /// @notice Thrown if vesting end time is not greater than the vesting start time.
     error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
-        uint40 vestingStartTime, uint40 vestingEndTime
+        uint40 vestingStartTime,
+        uint40 vestingEndTime
     );
 
     /// @notice Thrown if the start time is zero.

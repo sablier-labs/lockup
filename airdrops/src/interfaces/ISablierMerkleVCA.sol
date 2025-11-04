@@ -21,7 +21,12 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @param to The address receiving the claim amount on behalf of the airdrop recipient.
     /// @param viaSig Bool indicating whether the claim is made via a signature.
     event ClaimVCA(
-        uint256 index, address indexed recipient, uint128 claimAmount, uint128 forgoneAmount, address to, bool viaSig
+        uint256 index,
+        address indexed recipient,
+        uint128 claimAmount,
+        uint128 forgoneAmount,
+        address to,
+        bool viaSig
     );
 
     /*//////////////////////////////////////////////////////////////////////////

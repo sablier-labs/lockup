@@ -34,7 +34,10 @@ interface ISablierFlow is
     /// @param newRatePerSecond The new rate per second, denoted as a fixed-point number where 1e18 is 1 token
     /// per second.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint256 totalDebt, UD21x18 oldRatePerSecond, UD21x18 newRatePerSecond
+        uint256 indexed streamId,
+        uint256 totalDebt,
+        UD21x18 oldRatePerSecond,
+        UD21x18 newRatePerSecond
     );
 
     /// @notice Emitted when a Flow stream is created.
@@ -70,7 +73,10 @@ interface ISablierFlow is
     /// @param recipient The stream's recipient address.
     /// @param totalDebt The amount of tokens owed by the sender to the recipient, denoted in token's decimals.
     event PauseFlowStream(
-        uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalDebt
+        uint256 indexed streamId,
+        address indexed sender,
+        address indexed recipient,
+        uint256 totalDebt
     );
 
     /// @notice Emitted when the comptroller recovers the surplus amount of token.
@@ -129,7 +135,11 @@ interface ISablierFlow is
     /// @param caller The address that performed the withdrawal, which can be the recipient or an approved operator.
     /// @param withdrawAmount The amount withdrawn to the recipient, denoted in token's decimals.
     event WithdrawFromFlowStream(
-        uint256 indexed streamId, address indexed to, IERC20 indexed token, address caller, uint128 withdrawAmount
+        uint256 indexed streamId,
+        address indexed to,
+        IERC20 indexed token,
+        address caller,
+        uint128 withdrawAmount
     );
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -26,12 +26,7 @@ contract SafeTokenSymbol_Integration_Concrete_Test is Base_Test {
         assertEq(actualSymbol, expectedSymbol, "symbol");
     }
 
-    function test_GivenSymbolLongerThan30Chars()
-        external
-        whenTokenContract
-        givenSymbolImplemented
-        givenSymbolAsString
-    {
+    function test_GivenSymbolLongerThan30Chars() external whenTokenContract givenSymbolImplemented givenSymbolAsString {
         ERC20Mock token = new ERC20Mock({
             name_: "Token",
             symbol_: "This symbol is has more than 30 characters and it should be ignored",

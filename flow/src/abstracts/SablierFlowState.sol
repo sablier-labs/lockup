@@ -128,13 +128,7 @@ abstract contract SablierFlowState is ISablierFlowState {
     }
 
     /// @inheritdoc ISablierFlowState
-    function getTokenDecimals(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint8 tokenDecimals)
-    {
+    function getTokenDecimals(uint256 streamId) external view override notNull(streamId) returns (uint8 tokenDecimals) {
         tokenDecimals = _streams[streamId].tokenDecimals;
     }
 

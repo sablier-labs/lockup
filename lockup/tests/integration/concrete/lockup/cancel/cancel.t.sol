@@ -243,7 +243,12 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         // It should emit {MetadataUpdate} and {CancelLockupStream} events.
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.CancelLockupStream(
-            ids.recipientGoodStream, users.sender, address(recipientGood), dai, senderAmount, recipientAmount
+            ids.recipientGoodStream,
+            users.sender,
+            address(recipientGood),
+            dai,
+            senderAmount,
+            recipientAmount
         );
         vm.expectEmit({ emitter: address(lockup) });
         emit IERC4906.MetadataUpdate({ _tokenId: ids.recipientGoodStream });

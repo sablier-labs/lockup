@@ -52,13 +52,7 @@ contract DepletionTimeOf_Integration_Concrete_Test is Shared_Integration_Concret
         assertEq(actualDepletionTime, exptectedDepletionTime, "depletion time");
     }
 
-    function test_WhenNotExactDivision()
-        external
-        givenNotNull
-        givenNotPaused
-        givenBalanceNotZero
-        givenNoUncoveredDebt
-    {
+    function test_WhenNotExactDivision() external givenNotNull givenNotPaused givenBalanceNotZero givenNoUncoveredDebt {
         // It should return the time at which the total debt exceeds the balance.
         uint40 actualDepletionTime = uint40(flow.depletionTimeOf(defaultStreamId));
         uint256 expectedDepletionTime = WARP_SOLVENCY_PERIOD + 1;

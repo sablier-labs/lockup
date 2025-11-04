@@ -126,7 +126,10 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
             totalDuration: totalDuration,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
-            minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
+            minFeeUSD: comptroller.getMinFeeUSDFor({
+                protocol: ISablierComptroller.Protocol.Airdrops,
+                user: msg.sender
+            })
         });
     }
 

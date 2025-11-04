@@ -39,7 +39,9 @@ library Errors {
 
     /// @notice Thrown when the new comptroller does not support the minimal interface ID from the previous comptroller.
     error Comptrollerable_UnsupportedInterfaceId(
-        address previousComptroller, address newComptroller, bytes4 minimalInterfaceId
+        address previousComptroller,
+        address newComptroller,
+        bytes4 minimalInterfaceId
     );
 
     /*//////////////////////////////////////////////////////////////////////////

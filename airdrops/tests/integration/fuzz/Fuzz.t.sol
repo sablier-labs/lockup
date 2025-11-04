@@ -140,7 +140,11 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
 
             expectCallToTransfer({ token: dai, to: users.campaignCreator, value: amount });
             vm.expectEmit({ emitter: address(merkleBase) });
-            emit ISablierMerkleBase.Clawback({ to: users.campaignCreator, admin: users.campaignCreator, amount: amount });
+            emit ISablierMerkleBase.Clawback({
+                to: users.campaignCreator,
+                admin: users.campaignCreator,
+                amount: amount
+            });
         }
         // It should revert otherwise.
         else {

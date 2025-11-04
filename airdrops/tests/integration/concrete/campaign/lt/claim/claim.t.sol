@@ -23,7 +23,11 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // It should emit a {ClaimLTWithTransfer} event.
         vm.expectEmit({ emitter: address(merkleLT) });
         emit ISablierMerkleLT.ClaimLTWithTransfer(
-            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.recipient, false
+            getIndexInMerkleTree(),
+            users.recipient,
+            CLAIM_AMOUNT,
+            users.recipient,
+            false
         );
 
         expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
@@ -62,7 +66,12 @@ contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Int
         // It should emit a {ClaimLTWithVesting} event.
         vm.expectEmit({ emitter: address(merkleLT) });
         emit ISablierMerkleLT.ClaimLTWithVesting(
-            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, expectedStreamId, users.recipient, false
+            getIndexInMerkleTree(),
+            users.recipient,
+            CLAIM_AMOUNT,
+            expectedStreamId,
+            users.recipient,
+            false
         );
 
         expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });

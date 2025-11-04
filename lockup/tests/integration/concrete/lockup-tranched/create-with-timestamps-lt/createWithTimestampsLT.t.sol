@@ -155,7 +155,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // Swap the tranche timestamps.
         // LockupTranched.Tranche[] memory tranches = defaults.tranches();
         (_defaultParams.tranches[0].timestamp, _defaultParams.tranches[1].timestamp) =
-            (_defaultParams.tranches[1].timestamp, _defaultParams.tranches[0].timestamp);
+        (_defaultParams.tranches[1].timestamp, _defaultParams.tranches[0].timestamp);
 
         // Expect the relevant error to be thrown.
         uint256 index = 1;

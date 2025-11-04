@@ -62,7 +62,7 @@
     "directory": "flow"
   },
   "scripts": {
-    "prepack": "../scripts/bash/publish_prepack.sh",
-    "postpack": "../scripts/bash/publish_postpack.sh"
+    "prepack": "../scripts/bash/publish-prepack.sh",
+    "postpack": "../scripts/bash/publish-postpack.sh"
   }
 }

@@ -135,13 +135,11 @@ contract EstimateMaxCount is Defaults, DeployOptimized {
 
         // Populate segments.
         for (uint256 i = 0; i < totalSegments; ++i) {
-            segments_[i] = (
-                LockupDynamic.SegmentWithDuration({
-                    amount: AMOUNT_PER_SEGMENT,
-                    exponent: ud2x18(0.5e18),
-                    duration: CLIFF_DURATION
-                })
-            );
+            segments_[i] = LockupDynamic.SegmentWithDuration({
+                amount: AMOUNT_PER_SEGMENT,
+                exponent: ud2x18(0.5e18),
+                duration: CLIFF_DURATION
+            });
         }
 
         params = createWithDurations();

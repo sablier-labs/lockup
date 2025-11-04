@@ -81,7 +81,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with the sum of the unlock amounts greater than the deposit
     /// amount.
     error SablierHelpers_UnlockAmountsSumTooHigh(
-        uint128 depositAmount, uint128 startUnlockAmount, uint128 cliffUnlockAmount
+        uint128 depositAmount,
+        uint128 startUnlockAmount,
+        uint128 cliffUnlockAmount
     );
 
     /*//////////////////////////////////////////////////////////////////////////

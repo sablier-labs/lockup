@@ -89,7 +89,9 @@ contract Invariant_Test is Base_Test, StdInvariant {
         );
 
         assertGe(
-            erc20Balance, totals, unicode"Invariant violation: ERC-20 balance < Σ deposits - Σ refunds - Σ withdrawals"
+            erc20Balance,
+            totals,
+            unicode"Invariant violation: ERC-20 balance < Σ deposits - Σ refunds - Σ withdrawals"
         );
     }
 

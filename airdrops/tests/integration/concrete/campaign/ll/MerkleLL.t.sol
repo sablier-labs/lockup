@@ -72,10 +72,7 @@ contract HasExpired_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Tes
     }
 }
 
-contract LowerMinFeeUSD_MerkleLL_Integration_Test is
-    MerkleLL_Integration_Shared_Test,
-    LowerMinFeeUSD_Integration_Test
-{
+contract LowerMinFeeUSD_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Test, LowerMinFeeUSD_Integration_Test {
     function setUp() public override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
     }

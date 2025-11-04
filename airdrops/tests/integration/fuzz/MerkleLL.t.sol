@@ -210,7 +210,12 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
                 viaSig: false
             });
 
-            expectCallToTransferFrom({ token: dai, from: address(merkleLL), to: address(lockup), value: leafData.amount });
+            expectCallToTransferFrom({
+                token: dai,
+                from: address(merkleLL),
+                to: address(lockup),
+                value: leafData.amount
+            });
         }
     }
 }

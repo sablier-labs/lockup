@@ -116,7 +116,10 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
-            minFeeUSD: comptroller.getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: msg.sender })
+            minFeeUSD: comptroller.getMinFeeUSDFor({
+                protocol: ISablierComptroller.Protocol.Airdrops,
+                user: msg.sender
+            })
         });
     }
 
@@ -146,7 +149,8 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         // Check: vesting end time is greater than the vesting start time.
         if (vestingEndTime <= vestingStartTime) {
             revert Errors.SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
-                vestingStartTime, vestingEndTime
+                vestingStartTime,
+                vestingEndTime
             );
         }
 

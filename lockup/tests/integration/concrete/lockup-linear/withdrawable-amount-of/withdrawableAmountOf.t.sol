@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { WithdrawableAmountOf_Integration_Concrete_Test } from
-    "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
+import {
+    WithdrawableAmountOf_Integration_Concrete_Test
+} from "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 import { Lockup_Linear_Integration_Concrete_Test, Integration_Test } from "./../LockupLinear.t.sol";
 
 contract WithdrawableAmountOf_Lockup_Linear_Integration_Concrete_Test is

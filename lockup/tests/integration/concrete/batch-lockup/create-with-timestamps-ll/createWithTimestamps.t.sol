@@ -40,7 +40,11 @@ contract CreateWithTimestampsLL_Integration_Test is Integration_Test {
 
         // It should emit a {CreateLockupBatch} event.
         vm.expectEmit({ emitter: address(batchLockup) });
-        emit ISablierBatchLockup.CreateLockupBatch({ funder: users.sender, lockup: lockup, streamIds: expectedStreamIds });
+        emit ISablierBatchLockup.CreateLockupBatch({
+            funder: users.sender,
+            lockup: lockup,
+            streamIds: expectedStreamIds
+        });
 
         // Assert that the batch of streams has been created successfully.
         uint256[] memory actualStreamIds =

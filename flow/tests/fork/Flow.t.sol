@@ -493,8 +493,9 @@ abstract contract Flow_Fork_Test is Fork_Test {
             flow.pause(streamId);
         }
 
-        ratePerSecond =
-            boundRatePerSecond(ud21x18(uint128(uint256(keccak256(abi.encodePacked(ratePerSecond.unwrap(), streamId))))));
+        ratePerSecond = boundRatePerSecond(
+            ud21x18(uint128(uint256(keccak256(abi.encodePacked(ratePerSecond.unwrap(), streamId)))))
+        );
 
         // It should emit 1 {RestartFlowStream}, 1 {MetadataUpdate} event.
         vm.expectEmit({ emitter: address(flow) });

@@ -17,7 +17,9 @@ interface ISablierLockupDynamic is ISablierLockupState {
     /// @param commonParams Common parameters emitted in Create events across all Lockup models.
     /// @param segments The segments the protocol uses to compose the dynamic distribution function.
     event CreateLockupDynamicStream(
-        uint256 indexed streamId, Lockup.CreateEventCommon commonParams, LockupDynamic.Segment[] segments
+        uint256 indexed streamId,
+        Lockup.CreateEventCommon commonParams,
+        LockupDynamic.Segment[] segments
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -34,8 +36,8 @@ interface ISablierLockupDynamic is ISablierLockupState {
     /// - All requirements in {createWithTimestampsLD} must be met for the calculated parameters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {Lockup} type.
-    /// @param segmentsWithDuration Segments with durations used to compose the dynamic distribution function. Timestamps
-    /// are calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @param segmentsWithDuration Segments with durations used to compose the dynamic distribution function.
+    /// Timestamps are calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
     /// @return streamId The ID of the newly created stream.
     function createWithDurationsLD(
         Lockup.CreateWithDurations calldata params,

@@ -41,7 +41,10 @@ abstract contract ProxyHelpers is BaseScript {
         opts.unsafeAllow = "constructor";
 
         // Run validation checks.
-        DeployProxyUtils.validateImplementation({ contractName: "SablierComptroller.sol:SablierComptroller", opts: opts });
+        DeployProxyUtils.validateImplementation({
+            contractName: "SablierComptroller.sol:SablierComptroller",
+            opts: opts
+        });
     }
 
     /// @dev Verifies the initial states of the proxy contract.

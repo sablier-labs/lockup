@@ -79,7 +79,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
         if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
             revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR
+                _streams[streamId].lockupModel,
+                Lockup.Model.LOCKUP_LINEAR
             );
         }
 
@@ -134,7 +135,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     {
         if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_DYNAMIC) {
             revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_DYNAMIC
+                _streams[streamId].lockupModel,
+                Lockup.Model.LOCKUP_DYNAMIC
             );
         }
 
@@ -161,7 +163,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     {
         if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_TRANCHED) {
             revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_TRANCHED
+                _streams[streamId].lockupModel,
+                Lockup.Model.LOCKUP_TRANCHED
             );
         }
 
@@ -183,7 +186,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     {
         if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
             revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR
+                _streams[streamId].lockupModel,
+                Lockup.Model.LOCKUP_LINEAR
             );
         }
 
@@ -282,8 +286,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         bool transferable
     )
         internal
-        virtual
-    { }
+        virtual { }
 
     /*//////////////////////////////////////////////////////////////////////////
                              PRIVATE READ-ONLY FUNCTIONS

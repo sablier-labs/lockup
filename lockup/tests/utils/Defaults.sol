@@ -120,16 +120,16 @@ contract Defaults is Constants {
 
     function segments() public pure returns (LockupDynamic.Segment[] memory segments_) {
         segments_ = new LockupDynamic.Segment[](2);
-        segments_[0] = (
-            LockupDynamic.Segment({
-                amount: 2600e18,
-                exponent: ud2x18(3.14e18),
-                timestamp: START_TIME + WARP_26_PERCENT_DURATION
-            })
-        );
-        segments_[1] = (
-            LockupDynamic.Segment({ amount: 7400e18, exponent: ud2x18(0.5e18), timestamp: START_TIME + TOTAL_DURATION })
-        );
+        segments_[0] = LockupDynamic.Segment({
+            amount: 2600e18,
+            exponent: ud2x18(3.14e18),
+            timestamp: START_TIME + WARP_26_PERCENT_DURATION
+        });
+        segments_[1] = LockupDynamic.Segment({
+            amount: 7400e18,
+            exponent: ud2x18(0.5e18),
+            timestamp: START_TIME + TOTAL_DURATION
+        });
     }
 
     function segmentsWithDurations()
@@ -139,20 +139,16 @@ contract Defaults is Constants {
     {
         LockupDynamic.Segment[] memory segments_ = segments();
         segmentsWithDurations_ = new LockupDynamic.SegmentWithDuration[](2);
-        segmentsWithDurations_[0] = (
-            LockupDynamic.SegmentWithDuration({
-                amount: segments_[0].amount,
-                exponent: segments_[0].exponent,
-                duration: 2600 seconds
-            })
-        );
-        segmentsWithDurations_[1] = (
-            LockupDynamic.SegmentWithDuration({
-                amount: segments_[1].amount,
-                exponent: segments_[1].exponent,
-                duration: 7400 seconds
-            })
-        );
+        segmentsWithDurations_[0] = LockupDynamic.SegmentWithDuration({
+            amount: segments_[0].amount,
+            exponent: segments_[0].exponent,
+            duration: 2600 seconds
+        });
+        segmentsWithDurations_[1] = LockupDynamic.SegmentWithDuration({
+            amount: segments_[1].amount,
+            exponent: segments_[1].exponent,
+            duration: 7400 seconds
+        });
     }
 
     function tranches() public pure returns (LockupTranched.Tranche[] memory tranches_) {

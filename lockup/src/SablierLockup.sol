@@ -66,13 +66,7 @@ contract SablierLockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockup
-    function calculateMinFeeWei(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint256 minFeeWei)
-    {
+    function calculateMinFeeWei(uint256 streamId) external view override notNull(streamId) returns (uint256 minFeeWei) {
         // Calculate the minimum fee in wei for the stream sender.
         minFeeWei = comptroller.calculateMinFeeWeiFor({
             protocol: ISablierComptroller.Protocol.Lockup,
@@ -363,12 +357,8 @@ contract SablierLockup is
 
         // Interaction: if `msg.sender` is not the recipient and the recipient is on the allowlist, run the hook.
         if (msg.sender != recipient && _allowedToHook[recipient]) {
-            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupWithdraw({
-                streamId: streamId,
-                caller: msg.sender,
-                to: to,
-                amount: amount
-            });
+            bytes4 selector = ISablierLockupRecipient(recipient)
+                .onSablierLockupWithdraw({ streamId: streamId, caller: msg.sender, to: to, amount: amount });
 
             // Check: the recipient's hook returned the correct selector.
             if (selector != ISablierLockupRecipient.onSablierLockupWithdraw.selector) {
@@ -433,9 +423,10 @@ contract SablierLockup is
         // Iterate over the provided array of stream IDs and withdraw from each stream to the recipient.
         for (uint256 i = 0; i < streamIdsCount; ++i) {
             // Checks, Effects and Interactions: withdraw using a delegate call to self.
-            (bool success, bytes memory result) = address(this).delegatecall(
-                abi.encodeCall(ISablierLockup.withdraw, (streamIds[i], _ownerOf(streamIds[i]), amounts[i]))
-            );
+            (bool success, bytes memory result) = address(this)
+                .delegatecall(
+                    abi.encodeCall(ISablierLockup.withdraw, (streamIds[i], _ownerOf(streamIds[i]), amounts[i]))
+                );
             // If there is a revert, log it using an event, and continue with the next stream.
             if (!success) {
                 emit ISablierLockup.InvalidWithdrawalInWithdrawMultiple(streamIds[i], result);
@@ -645,12 +636,13 @@ contract SablierLockup is
 
         // Interaction: if the recipient is on the allowlist, run the hook.
         if (_allowedToHook[recipient]) {
-            bytes4 selector = ISablierLockupRecipient(recipient).onSablierLockupCancel({
-                streamId: streamId,
-                sender: sender,
-                senderAmount: senderAmount,
-                recipientAmount: recipientAmount
-            });
+            bytes4 selector = ISablierLockupRecipient(recipient)
+                .onSablierLockupCancel({
+                    streamId: streamId,
+                    sender: sender,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                });
 
             // Check: the recipient's hook returned the correct selector.
             if (selector != ISablierLockupRecipient.onSablierLockupCancel.selector) {

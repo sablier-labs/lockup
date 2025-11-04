@@ -195,10 +195,7 @@ library SVGElements {
         );
     }
 
-    function progressCircle(
-        uint256 progressNumerical,
-        string memory accentColor
-    )
+    function progressCircle(uint256 progressNumerical, string memory accentColor)
         internal
         pure
         returns (string memory)

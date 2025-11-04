@@ -274,8 +274,7 @@ contract LockupNFTDescriptor is ILockupNFTDescriptor {
     {
         // Depending on the transferability of the NFT, declare the relevant information.
         string memory info = isTransferable
-            ?
-            unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
+            ? unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
             : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
 
         return string.concat(

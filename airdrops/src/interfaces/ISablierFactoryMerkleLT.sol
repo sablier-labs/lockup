@@ -32,10 +32,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// @dev This is a helper function for the frontend. It is not used anywhere in the contracts.
     /// @param tranches The tranches with their respective unlock percentages.
     /// @return result True if the sum of percentages equals 100%, otherwise false.
-    function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches)
-        external
-        pure
-        returns (bool result);
+    function isPercentagesSum100(MerkleLT.TrancheWithPercentage[] calldata tranches) external pure returns (bool result);
 
     /// @notice Computes the deterministic address where {SablierMerkleLT} campaign will be deployed.
     /// @dev Reverts if the requirements from {createMerkleLT} are not met.

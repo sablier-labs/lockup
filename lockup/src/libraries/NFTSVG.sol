@@ -143,8 +143,14 @@ library NFTSVG {
                 offset: "-100%",
                 text: string.concat(lockupAddress, unicode" • ", "Sablier Lockup")
             }),
-            SVGElements.floatingText({ offset: "0%", text: string.concat(lockupAddress, unicode" • ", "Sablier Lockup") }),
-            SVGElements.floatingText({ offset: "-50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
+            SVGElements.floatingText({
+                offset: "0%",
+                text: string.concat(lockupAddress, unicode" • ", "Sablier Lockup")
+            }),
+            SVGElements.floatingText({
+                offset: "-50%",
+                text: string.concat(tokenAddress, unicode" • ", tokenSymbol)
+            }),
             SVGElements.floatingText({ offset: "50%", text: string.concat(tokenAddress, unicode" • ", tokenSymbol) }),
             "</text>"
         );

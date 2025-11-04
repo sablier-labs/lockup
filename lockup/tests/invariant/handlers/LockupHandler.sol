@@ -108,7 +108,11 @@ contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: currentStreamId, action: StreamAction.CANCEL, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({
+            streamId: currentStreamId,
+            action: StreamAction.CANCEL,
+            gas: gasBefore - gasAfter
+        });
     }
 
     function renounce(

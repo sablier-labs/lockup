@@ -66,7 +66,9 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockup.InvalidStreamInCancelMultiple({
             streamId: revertingStreamId,
-            revertData: abi.encodeWithSelector(Errors.SablierLockup_Unauthorized.selector, revertingStreamId, users.sender)
+            revertData: abi.encodeWithSelector(
+                Errors.SablierLockup_Unauthorized.selector, revertingStreamId, users.sender
+            )
         });
 
         // Cancel the streams.

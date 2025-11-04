@@ -26,7 +26,11 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         // It should emit a {ClaimLLWithTransfer} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithTransfer(
-            getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, users.eve, false
+            getIndexInMerkleTree(),
+            users.recipient,
+            CLAIM_AMOUNT,
+            users.eve,
+            false
         );
 
         expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
@@ -133,7 +137,12 @@ contract ClaimTo_MerkleLL_Integration_Test is ClaimTo_Integration_Test, MerkleLL
         // It should emit a {ClaimLLWithVesting} event.
         vm.expectEmit({ emitter: address(merkleLL) });
         emit ISablierMerkleLL.ClaimLLWithVesting(
-            index, users.recipient, CLAIM_AMOUNT, expectedStreamId, users.eve, false
+            index,
+            users.recipient,
+            CLAIM_AMOUNT,
+            expectedStreamId,
+            users.eve,
+            false
         );
 
         expectCallToTransferFrom({ from: address(merkleLL), to: address(lockup), value: CLAIM_AMOUNT });
