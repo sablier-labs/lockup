@@ -45,8 +45,8 @@ install-all:
     for dir in airdrops flow lockup utils; do (cd $dir && ni); done
 
 # Setup the project
-setup: install-all
-    ./scripts/bash/setup.sh
+setup: install-all ensure-env
+
 # ---------------------------------------------------------------------------- #
 #                                    LINTING                                   #
 # ---------------------------------------------------------------------------- #
@@ -73,12 +73,12 @@ full-write-all:
 
 # Build a specific package
 [group("foundry")]
-build package: ensure-env
+build package:
     just {{ package }}/build
 
 # Build all packages
 [group("foundry")]
-build-all: ensure-env
+build-all:
     just for-each build
 
 # Build a specific package with optimized profile
