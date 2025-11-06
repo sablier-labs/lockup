@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/syncpack@latest/dist/schema.json",
+  "source": ["package.json", "airdrops/package.json", "flow/package.json", "lockup/package.json", "utils/package.json"],
+  "semverGroups": [
+    {
+      "label": "Use exact versions",
+      "dependencies": ["**"],
+      "range": ""
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "Ignore non-npm dependencies",
+      "dependencies": ["forge-std", "murky", "solarray"],
+      "isIgnored": true
+    },
+    {
+      "label": "Verify npm dependencies versions are the same everywhere",
+      "dependencies": ["**"],
+      "policy": "sameRange"
+    }
+  ]
+}

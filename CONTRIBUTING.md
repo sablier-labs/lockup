@@ -34,13 +34,21 @@ To install the root dependencies:
 bun install
 ```
 
+Create your root `.env` from `.env.example`:
+
+```shell
+cp .env.example .env
+```
+
 Then, execute the one-time setup script:
 
 ```shell
 just setup
 ```
 
-To build all contracts:
+The setup script installs dependencies in all packages as well as create symlinks for `.env`.
+
+Next, to build all contracts:
 
 ```shell
 just build-all

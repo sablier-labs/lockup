@@ -16,7 +16,7 @@
     "@sablier/evm-utils": "1.0.1"
   },
   "devDependencies": {
-    "@sablier/devkit": "github:sablier-labs/devkit",
+    "@sablier/devkit": "1",
     "forge-std": "github:foundry-rs/forge-std#v1.10.0",
     "lint-staged": "16.2.6",
     "prettier": "3.6.2",
@@ -51,7 +51,7 @@
     "web3"
   ],
   "peerDependencies": {
-    "@prb/math": "4.1.x"
+    "@prb/math": "4.1.0"
   },
   "publishConfig": {
     "access": "public"

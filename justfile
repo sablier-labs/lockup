@@ -44,8 +44,8 @@ install package:
 install-all:
     for dir in airdrops flow lockup utils; do (cd $dir && ni); done
 
-# Setup the project
-setup: install-all ensure-env
+# Setup script
+setup: setup-env install-all
 
 # ---------------------------------------------------------------------------- #
 #                                    LINTING                                   #
@@ -153,9 +153,9 @@ for-each recipe:
     just lockup/{{ recipe }}
     just utils/{{ recipe }}
 
-# Ensure .env symlinks exist in all packages
+# Setup .env symlinks in all packages
 [private]
-ensure-env:
+setup-env:
     #!/usr/bin/env bash
     # Create root .env if it doesn't exist
     [ ! -f .env ] && touch .env
