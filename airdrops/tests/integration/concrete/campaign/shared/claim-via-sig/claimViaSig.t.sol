@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Utilities } from "tests/utils/Utilities.sol";
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract ClaimViaSig_Integration_Test is Integration_Test {
@@ -30,9 +29,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         uint256 index = getIndexInMerkleTree();
 
         // Generate an incompatible signature.
-        bytes memory incompatibleSignature = Utilities.generateEIP191Signature(
-            recipientPrivateKey, index, users.eve, users.recipient, CLAIM_AMOUNT, getBlockTimestamp()
-        );
+        bytes memory incompatibleSignature = vm.randomBytes(65);
 
         // Expect revert.
         vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
@@ -62,7 +59,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         setMsgSender(newSigner);
 
         // Generate the signature using the new user's private key.
-        bytes memory signatureFromNewSigner = Utilities.generateEIP712Signature({
+        bytes memory signatureFromNewSigner = generateEIP712Signature({
             signerPrivateKey: newSignerPrivateKey,
             merkleContract: address(merkleBase),
             index: index,
@@ -99,7 +96,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         vm.warp(VALID_FROM - 1);
 
         // Generate the signature using the new user's private key.
-        bytes memory signatureFromNewSigner = Utilities.generateEIP712Signature({
+        bytes memory signatureFromNewSigner = generateEIP712Signature({
             signerPrivateKey: recipientPrivateKey,
             merkleContract: address(merkleBase),
             index: index,

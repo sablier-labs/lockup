@@ -4,9 +4,8 @@ pragma solidity >=0.8.22;
 import { uUNIT } from "@prb/math/src/UD2x18.sol";
 import { UD60x18, ud60x18 } from "@prb/math/src/UD60x18.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
-import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 
-abstract contract Constants is BaseConstants {
+abstract contract Constants {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -47,6 +46,12 @@ abstract contract Constants is BaseConstants {
     bool public constant STREAM_CANCELABLE = false;
     string public STREAM_SHAPE = "A custom stream shape";
     bool public constant STREAM_TRANSFERABLE = false;
+
+    // EIP-712
+    string public constant PROTOCOL_NAME = "Sablier Airdrops Protocol";
+    string public constant SCHEMA_CLAIM =
+        "Claim(uint256 index,address recipient,address to,uint128 amount,uint40 validFrom)";
+    string public constant SCHEMA_EIP712_DOMAIN = "EIP712Domain(string name,uint256 chainId,address verifyingContract)";
 
     /*//////////////////////////////////////////////////////////////////////////
                                      IMMUTABLES
