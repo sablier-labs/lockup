@@ -34,14 +34,14 @@ import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { Assertions } from "./utils/Assertions.sol";
-import { Constants } from "./utils/Constants.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
 import { LeafData, MerkleBuilder } from "./utils/MerkleBuilder.sol";
 import { Users } from "./utils/Types.sol";
+import { Utils } from "./utils/Utils.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Assertions, Constants, DeployOptimized, Merkle, Fuzzers {
+abstract contract Base_Test is Assertions, DeployOptimized, Fuzzers, Merkle, Utils {
     using MerkleBuilder for uint256[];
 
     /*//////////////////////////////////////////////////////////////////////////

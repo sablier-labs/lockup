@@ -3,6 +3,34 @@ pragma solidity >=0.8.22;
 
 import { LeafData } from "./MerkleBuilder.sol";
 
+/// @dev Struct to hold the Claim message parameters during ERC-712 signature tests.
+struct Claim {
+    uint256 index;
+    address recipient;
+    address to;
+    uint128 amount;
+    uint40 validFrom;
+}
+
+/// @dev Struct to hold the EIP-712 domain parameters during ERC-712 signature tests.
+struct EIP712Domain {
+    string name;
+    uint256 chainId;
+    address verifyingContract;
+}
+
+/// @dev Struct to hold the common parameters needed for fuzz tests.
+struct Params {
+    uint128 clawbackAmount;
+    bool enableCustomFeeUSD;
+    uint40 expiration;
+    uint256 feeForUser;
+    uint256[] indexesToClaim;
+    uint256 msgValue;
+    LeafData[] rawLeavesData;
+    address to;
+}
+
 struct Users {
     // Default campaign creator.
     address payable campaignCreator;
@@ -18,16 +46,4 @@ struct Users {
     address payable sender;
     // An unknown recipient.
     address payable unknownRecipient;
-}
-
-/// @dev Struct to hold the common parameters needed for fuzz tests.
-struct Params {
-    uint128 clawbackAmount;
-    bool enableCustomFeeUSD;
-    uint40 expiration;
-    uint256 feeForUser;
-    uint256[] indexesToClaim;
-    uint256 msgValue;
-    LeafData[] rawLeavesData;
-    address to;
 }
