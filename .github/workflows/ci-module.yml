@@ -26,6 +26,7 @@ jobs:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
       foundry-version: "v1.4.4"
+      name: "Full check"
       working-directory: ${{ inputs.module }}
 
   build:
@@ -37,6 +38,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-version: "v1.4.4"
+      name: "Build"
       working-directory: ${{ inputs.module }}
 
   test-bulloak:
@@ -44,6 +46,7 @@ jobs:
     if: needs.build.outputs.cache-status != 'primary'
     uses: "sablier-labs/gha-utils/.github/workflows/bulloak-check.yml@main"
     with:
+      name: "Bulloak check"
       skip-modifiers: true
       test-dir: "${{ inputs.module }}/tests"
       working-directory: ${{ inputs.module }}
@@ -64,7 +67,7 @@ jobs:
       foundry-profile: "test-optimized"
       foundry-version: "v1.4.4"
       match-path: "tests/fork/**/*.sol"
-      name: "test-fork"
+      name: "Fork tests"
       working-directory: ${{ inputs.module }}
 
   test-integration:
@@ -80,7 +83,7 @@ jobs:
       foundry-profile: "test-optimized"
       foundry-version: "v1.4.4"
       match-path: "tests/{integration,utils}/**/*.sol"
-      name: "test-integration"
+      name: "Integration tests"
       working-directory: ${{ inputs.module }}
 
   test-invariant:
@@ -96,7 +99,7 @@ jobs:
       foundry-profile: "test-optimized"
       foundry-version: "v1.4.4"
       match-path: "tests/invariant/**/*.sol"
-      name: "test-invariant"
+      name: "Invariant tests"
       working-directory: ${{ inputs.module }}
 
   test-unit:
@@ -112,7 +115,7 @@ jobs:
       foundry-profile: "test-optimized"
       foundry-version: "v1.4.4"
       match-path: "tests/unit/**/*.sol"
-      name: "test-unit"
+      name: "Unit tests"
       working-directory: ${{ inputs.module }}
 
   coverage:
@@ -129,5 +132,6 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-version: "v1.4.4"
       match-path: "tests/{integration,unit}/**/*.sol"
+      name: "Coverage"
       via-ir-minimum: true
       working-directory: ${{ inputs.module }}

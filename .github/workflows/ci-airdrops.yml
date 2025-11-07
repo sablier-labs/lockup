@@ -26,7 +26,7 @@ on:
       - "package.json"
 
 jobs:
-  ci-airdrops:
+  ci:
     uses: "./.github/workflows/ci-module.yml"
     secrets: inherit
     with:
