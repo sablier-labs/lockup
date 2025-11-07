@@ -1,0 +1,24 @@
+name: "Check Dependencies"
+run-name: "Check Dependencies"
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{github.workflow}}-${{github.ref}}
+
+on:
+  schedule:
+    - cron: "0 3 * * 0" # at 3:00 AM UTC on Sunday
+  workflow_dispatch:
+
+jobs:
+  check-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out the repo"
+        uses: actions/checkout@v4
+
+      - name: "Install Bun"
+        uses: oven-sh/setup-bun@v2
+
+      - name: "Check dependencies versions for mismatch"
+        run: bunx syncpack@13.0.4 list-mismatches

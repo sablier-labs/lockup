@@ -4,7 +4,7 @@
     "": {
       "name": "@sablier/monorepo",
       "devDependencies": {
-        "@sablier/devkit": "github:sablier-labs/devkit",
+        "@sablier/devkit": "1",
         "husky": "9.1.7",
         "lint-staged": "16.2.6",
         "prettier": "3.6.2",
@@ -25,7 +25,7 @@
 
     "@pnpm/npm-conf": ["@pnpm/npm-conf@2.3.1", "", { "dependencies": { "@pnpm/config.env-replace": "^1.1.0", "@pnpm/network.ca-file": "^1.0.1", "config-chain": "^1.1.11" } }, "sha512-c83qWb22rNRuB0UaVCI0uRPNRr8Z0FWnEIvT47jiHAmOIUHbBOg5XvV7pM5x+rKn9HRpjxquDbXYSXr3fAKFcw=="],
 
-    "@sablier/devkit": ["@sablier/devkit@github:sablier-labs/devkit#d991d3d", {}, "sablier-labs-devkit-d991d3d"],
+    "@sablier/devkit": ["@sablier/devkit@1.3.1", "", {}, "sha512-kY7U6cfXBWbh0w7wPfGYpiWN5axMOSLmd3uwzojiB5QuT7Oj1691NYow2cXl2EyLkyezGNjWPn3A38wtSx4MQw=="],
 
     "@sindresorhus/is": ["@sindresorhus/is@5.6.0", "", {}, "sha512-TV7t8GKYaJWsn00tFDqBw8+Uqmr8A0fRU1tvTQhyZzGv0sJCGRQL3JGMI3ucuKo3XIZdUP+Lx7/gh2t3lewy7g=="],
 
