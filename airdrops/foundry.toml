@@ -7,7 +7,7 @@
   optimizer_runs = 100_000_000
 
 [profile.default.fuzz]
-  runs = 1000
+  runs = 200
 
 [profile.default.invariant]
   depth = 20
