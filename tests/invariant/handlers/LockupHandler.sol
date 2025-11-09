@@ -50,7 +50,6 @@ contract LockupHandler is BaseHandler {
     modifier useFuzzedStreamRecipient() {
         currentRecipient = lockupStore.recipients(currentStreamId);
         setMsgSender(currentRecipient);
-        vm.deal({ account: currentRecipient, newBalance: 100 ether });
         _;
     }
 
