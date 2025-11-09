@@ -59,6 +59,9 @@ abstract contract BaseHandler is Fuzzers, StdCheats {
 
         // Prevent the contract itself from playing the role of any user.
         vm.assume(sender != address(this) && recipient != address(this));
+
+        // Prevent the sender and recipient to be the lockup contract.
+        vm.assume(sender != address(lockup) && recipient != address(lockup));
         _;
     }
 
