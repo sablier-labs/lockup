@@ -98,6 +98,8 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
 
         vars.leafToClaim = params.leavesData[params.leafIndex];
 
+        assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: vars.leafToClaim.recipient });
+
         // Make the recipient as the caller.
         setMsgSender(vars.leafToClaim.recipient);
 
