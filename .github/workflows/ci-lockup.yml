@@ -8,6 +8,9 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
+    branches:
+      - "main"
+      - "staging"
     paths:
       - ".github/workflows/ci-lockup.yml"
       - ".github/workflows/ci-module.yml"
