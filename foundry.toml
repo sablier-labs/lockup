@@ -79,6 +79,7 @@
   lightlink = "https://replicator.phoenix.lightlink.io/rpc/v1"
   linea = "https://direct.routeme.sh/rpc/59144/${ROUTEMESH_API_KEY}"
   mode = "https://direct.routeme.sh/rpc/34443/${ROUTEMESH_API_KEY}"
+  monad = "${MONAD_RPC_URL}"
   morph = "https://rpc.morphl2.io"
   optimism = "https://direct.routeme.sh/rpc/10/${ROUTEMESH_API_KEY}"
   polygon = "https://direct.routeme.sh/rpc/137/${ROUTEMESH_API_KEY}"
