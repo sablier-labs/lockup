@@ -304,7 +304,7 @@ abstract contract SablierMerkleBase is
         // Generate the Merkle tree leaf. Hashing twice prevents second preimage attacks.
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount))));
 
-        // Check: the input claim is included in the Merkle tree.
+        // Check: the Merkle proof corresponds to the Merkle root and the leaf.
         if (!MerkleProof.verify(merkleProof, MERKLE_ROOT, leaf)) {
             revert Errors.SablierMerkleBase_InvalidProof();
         }
