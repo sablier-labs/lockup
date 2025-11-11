@@ -5,10 +5,9 @@ coverage:
   status:
     patch: off
 ignore:
-  - "scripts"
-  - "scripts/solidity"
-  - "src/libraries/NFTSVG.sol"
-  - "src/libraries/SVGElements.sol"
-  - "src/mocks"
-  - "src/tests"
-  - "tests"
+  - "lockup/src/libraries/NFTSVG.sol"
+  - "lockup/src/libraries/SVGElements.sol"
+  - "**/scripts/**"
+  - "**/src/mocks/**"
+  - "**/src/tests/**"
+  - "**/tests/**"
