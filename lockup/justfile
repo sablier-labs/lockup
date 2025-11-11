@@ -4,3 +4,8 @@ import "./node_modules/@sablier/devkit/just/evm.just"
 # Run just --list to see all available commands
 default:
   @just --list
+
+deploy *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployDeterministicProtocol.s.sol \
+        -vvv --broadcast {{ args }}

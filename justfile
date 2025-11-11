@@ -101,6 +101,16 @@ coverage package:
 coverage-all:
     just for-each coverage
 
+# Deploy package contracts
+[group("foundry")]
+deploy package *args:
+    just {{ package }}/deploy {{ args }}
+
+# Deploy all contracts for all packages
+[group("foundry")]
+deploy-all *args:
+    just for-each deploy {{ args }}
+
 # Run tests for a specific package
 [group("foundry")]
 test package *args:
@@ -147,11 +157,12 @@ test-optimized-all:
 
 # Helper to run recipe in each package
 [private]
-for-each recipe:
-    just airdrops/{{ recipe }}
-    just flow/{{ recipe }}
-    just lockup/{{ recipe }}
-    just utils/{{ recipe }}
+for-each recipe *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for dir in airdrops flow lockup utils; do
+        just "$dir/{{ recipe }}" {{ args }}
+    done
 
 # Setup .env symlinks in all packages
 [private]
