@@ -13,18 +13,26 @@ import { MerkleLT } from "../../src/types/DataTypes.sol";
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Tranched.
 contract CreateMerkleLT is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
-    function run(SablierFactoryMerkleLT factory) public broadcast returns (ISablierMerkleLT merkleLT) {
+    function run(
+        SablierFactoryMerkleLT factory,
+        ISablierLockup lockup,
+        IERC20 token
+    )
+        public
+        broadcast
+        returns (ISablierMerkleLT merkleLT)
+    {
         // Prepare the constructor parameters.
         MerkleLT.ConstructorParams memory params;
         params.campaignName = "The Boys LT";
         params.campaignStartTime = uint40(block.timestamp);
         params.cancelable = true;
         params.expiration = uint40(block.timestamp + 30 days);
-        params.lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+        params.lockup = lockup;
         params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
+        params.token = token;
         params.transferable = true;
 
         // The tranches with their unlock percentages and durations.

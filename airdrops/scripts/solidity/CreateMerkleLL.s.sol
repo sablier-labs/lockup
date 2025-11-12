@@ -13,7 +13,15 @@ import { MerkleLL } from "../../src/types/DataTypes.sol";
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Linear.
 contract CreateMerkleLL is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
-    function run(SablierFactoryMerkleLL factory) public broadcast returns (ISablierMerkleLL merkleLL) {
+    function run(
+        SablierFactoryMerkleLL factory,
+        ISablierLockup lockup,
+        IERC20 token
+    )
+        public
+        broadcast
+        returns (ISablierMerkleLL merkleLL)
+    {
         // Prepare the constructor parameters.
         MerkleLL.ConstructorParams memory params;
         params.campaignName = "The Boys LL";
@@ -24,12 +32,12 @@ contract CreateMerkleLL is EvmUtilsBaseScript {
         params.expiration = uint40(block.timestamp + 30 days);
         params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        params.lockup = ISablierLockup(0x7C01AA3783577E15fD7e272443D44B92d5b21056);
+        params.lockup = lockup;
         params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
         params.shape = "LL";
         params.startUnlockPercentage = ud60x18(0.01e18);
         params.vestingStartTime = 0; // i.e. block.timestamp
-        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
+        params.token = token;
         params.totalDuration = 90 days;
         params.transferable = true;
 

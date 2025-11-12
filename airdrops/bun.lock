@@ -6,7 +6,7 @@
       "dependencies": {
         "@openzeppelin/contracts": "5.3.0",
         "@prb/math": "4.1.0",
-        "@sablier/evm-utils": "1.0.1",
+        "@sablier/evm-utils": "1.0.2",
         "@sablier/lockup": "3.0.1",
       },
       "devDependencies": {
@@ -172,7 +172,7 @@
 
     "@sablier/devkit": ["@sablier/devkit@1.3.1", "", {}, "sha512-kY7U6cfXBWbh0w7wPfGYpiWN5axMOSLmd3uwzojiB5QuT7Oj1691NYow2cXl2EyLkyezGNjWPn3A38wtSx4MQw=="],
 
-    "@sablier/evm-utils": ["@sablier/evm-utils@1.0.1", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-lPXFvqqIZENmG3hRJLcwMEf7cr45woL4yJdrZVc8QsjzXb5ZVToBONpuOVKRNz9D12OgkhgLW8wIbL6D6iL44w=="],
+    "@sablier/evm-utils": ["@sablier/evm-utils@1.0.2", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-wyDp3iJoxsHwVSh7BZ5OF21BVZPZTbEdS5AEOoXIPNsI8LUNHbMjeLPc95DwV9n6s0c6iB9sZ9fpI8kVXpM3Ig=="],
 
     "@sablier/lockup": ["@sablier/lockup@3.0.1", "", { "dependencies": { "@openzeppelin/contracts": "5.3.0", "@prb/math": "4.1.0", "@sablier/evm-utils": "1.0.0" } }, "sha512-WhPKxtl/1Kyl8hHoyhlh6PlxnltRUvothewGRHTwB7XuwZ6MelThFjkMncVBXzZjjv9uaGAV13tmU6fPirfUGg=="],
 
@@ -799,6 +799,8 @@
     "@offchainlabs/upgrade-executor/@openzeppelin/contracts-upgradeable": ["@openzeppelin/contracts-upgradeable@4.7.3", "", {}, "sha512-+wuegAMaLcZnLCJIvrVUDzA9z/Wp93f0Dla/4jJvIhijRrPabjQbZe6fWiECLaJyfn5ci9fqf9vTw3xpQOad2A=="],
 
     "@openzeppelin/upgrades-core/minimatch": ["minimatch@9.0.5", "", { "dependencies": { "brace-expansion": "^2.0.1" } }, "sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow=="],
+
+    "@sablier/evm-utils/forge-std": ["forge-std@github:foundry-rs/forge-std#8bbcf6e", {}, "foundry-rs-forge-std-8bbcf6e"],
 
     "@sablier/lockup/@sablier/evm-utils": ["@sablier/evm-utils@1.0.0", "", { "dependencies": { "@chainlink/contracts": "1.3.0", "@openzeppelin/contracts": "5.3.0", "@openzeppelin/contracts-upgradeable": "5.3.0", "forge-std": "github:foundry-rs/forge-std#v1.10.0" } }, "sha512-GMkIjV0Io0HdIa5o/XaGAcXYqsCpZQZbyXqit9AwMvWKEy4okA0x1mW8k6Gw8UyC2nye9kjKkH9jAstxfRqNeA=="],
 

@@ -7,7 +7,7 @@ library ChainId {
                                       MAINNETS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 public constant MAINNETS_COUNT = 26;
+    uint256 public constant MAINNETS_COUNT = 27;
 
     uint256 public constant ABSTRACT = 2741;
     uint256 public constant ARBITRUM = 42_161;
@@ -24,6 +24,7 @@ library ChainId {
     uint256 public constant LIGHTLINK = 1890;
     uint256 public constant LINEA = 59_144;
     uint256 public constant MODE = 34_443;
+    uint256 public constant MONAD = 143;
     uint256 public constant MORPH = 2818;
     uint256 public constant OPTIMISM = 10;
     uint256 public constant POLYGON = 137;
@@ -71,17 +72,18 @@ library ChainId {
         supportedIds[12] = LIGHTLINK;
         supportedIds[13] = LINEA;
         supportedIds[14] = MODE;
-        supportedIds[15] = MORPH;
-        supportedIds[16] = OPTIMISM;
-        supportedIds[17] = POLYGON;
-        supportedIds[18] = SCROLL;
-        supportedIds[19] = SEI;
-        supportedIds[20] = SOPHON;
-        supportedIds[21] = SUPERSEED;
-        supportedIds[22] = SONIC;
-        supportedIds[23] = UNICHAIN;
-        supportedIds[24] = XDC;
-        supportedIds[25] = ZKSYNC;
+        supportedIds[15] = MONAD;
+        supportedIds[16] = MORPH;
+        supportedIds[17] = OPTIMISM;
+        supportedIds[18] = POLYGON;
+        supportedIds[19] = SCROLL;
+        supportedIds[20] = SEI;
+        supportedIds[21] = SOPHON;
+        supportedIds[22] = SUPERSEED;
+        supportedIds[23] = SONIC;
+        supportedIds[24] = UNICHAIN;
+        supportedIds[25] = XDC;
+        supportedIds[26] = ZKSYNC;
     }
 
     /// @notice Returns the full list of supported testnet chain IDs.
@@ -113,6 +115,7 @@ library ChainId {
         if (chainId == ChainId.LIGHTLINK) return "lightlink";
         if (chainId == ChainId.LINEA) return "linea";
         if (chainId == ChainId.MODE) return "mode";
+        if (chainId == ChainId.MONAD) return "monad";
         if (chainId == ChainId.MORPH) return "morph";
         if (chainId == ChainId.OPTIMISM) return "optimism";
         if (chainId == ChainId.POLYGON) return "polygon";

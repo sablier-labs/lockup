@@ -3,10 +3,17 @@
 All notable changes to this project will be documented in this file. The format is based on
 [Common Changelog](https://common-changelog.org/).
 
-[v1.0.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.1
-[v1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
+[1.0.2]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.2
+[1.0.1]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.1
+[1.0.0]: https://github.com/sablier-labs/evm-utils/releases/tag/v1.0.0
 
-## [v1.0.1] - 2025-10-22
+## [1.0.2] - 2025-11-10
+
+### Added
+
+- Support for Monad network
+
+## [1.0.1] - 2025-10-22
 
 ### Changed
 
@@ -16,7 +23,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - Add more functions in `ChainId` library ([#67](https://github.com/sablier-labs/evm-utils/pull/67))
 
-## [v1.0.0] - 2025-09-25
+## [1.0.0] - 2025-09-25
 
 ### Added
 
