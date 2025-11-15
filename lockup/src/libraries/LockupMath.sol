@@ -127,7 +127,7 @@ library LockupMath {
     /// $$
     ///        ( x * sa + s, block timestamp < cliff time
     /// f(x) = (
-    ///        ( x * sa + s + c, block timestamp => cliff time
+    ///        ( x * sa + s + c, block timestamp >= cliff time
     /// $$
     ///
     /// Where:
