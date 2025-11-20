@@ -173,7 +173,7 @@ interface ISablierLockup is
     /// @dev Emits a {Transfer}, {CancelLockupStream} and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - If there any tokens left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
+    /// - If there are any tokens left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
     /// stream is marked as depleted.
     /// - If the address is on the allowlist, this function will invoke a hook on the recipient.
     ///
@@ -234,11 +234,11 @@ interface ISablierLockup is
     /// @dev For more information, see the documentation for {nativeToken}.
     ///
     /// Notes:
-    /// - If `newNativeToken` is zero address, the function does not revert.
+    /// - If `newNativeToken` is the zero address, the function does not revert.
     ///
     /// Requirements:
     /// - `msg.sender` must be the comptroller contract.
-    /// - The current native token must be zero address.
+    /// - The current native token must be the zero address.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
 

@@ -466,7 +466,7 @@ contract SablierFlow is
 
     /// @inheritdoc ISablierFlow
     function setNativeToken(address newNativeToken) external override onlyComptroller {
-        // Check: provided token is not zero address.
+        // Check: provided token is not the zero address.
         if (newNativeToken == address(0)) {
             revert Errors.SablierFlow_NativeTokenZeroAddress();
         }
@@ -571,7 +571,7 @@ contract SablierFlow is
                          INTERNAL STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable.
+    /// @notice Overrides the {ERC721._update} function to check that the stream is transferable.
     ///
     /// @dev The transferable flag is ignored if the current owner is 0, as the update in this case is a mint and
     /// is allowed. Transfers to the zero address are not allowed, preventing accidental burns.
