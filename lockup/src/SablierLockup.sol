@@ -529,7 +529,7 @@ contract SablierLockup is
         token.safeTransferFrom({ from: msg.sender, to: address(this), value: depositAmount });
     }
 
-    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
+    /// @notice Overrides the {ERC721._update} function to check that the stream is transferable, and emits an
     /// ERC-4906 event.
     /// @dev There are two cases when the transferable flag is ignored:
     /// - If the current owner is 0, then the update is a mint and is allowed.

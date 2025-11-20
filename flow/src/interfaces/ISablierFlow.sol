@@ -441,7 +441,7 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - `msg.sender` must be the comptroller contract.
-    /// - `newNativeToken` must not be zero address.
+    /// - `newNativeToken` must not be the zero address.
     /// - The native token must not be already set.
     /// @param newNativeToken The address of the native token.
     function setNativeToken(address newNativeToken) external;
