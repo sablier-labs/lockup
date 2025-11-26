@@ -5,27 +5,25 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { LeafData, MerkleBuilder } from "../../utils/MerkleBuilder.sol";
+import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Integration_Test } from "../Integration.t.sol";
 
 /// @notice Common logic needed by all fuzz tests.
 abstract contract Shared_Fuzz_Test is Integration_Test {
-    using MerkleBuilder for uint256[];
-
     /*//////////////////////////////////////////////////////////////////////////
                                  STATE-VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    // Track claim fee earned in native tokens.
+    /// @dev Track claim fee earned in native tokens.
     uint256 internal feeEarned;
 
-    // Store the first claim time to be used in clawback.
+    /// @dev Store the first claim time to be used in clawback.
     uint40 internal firstClaimTime;
 
-    // Store leaves as `uint256` in storage so that we can use OpenZeppelin's {Arrays.findUpperBound}.
+    /// @dev Store leaves as `uint256` in storage so that we can use OpenZeppelin's {Arrays.findUpperBound}.
     uint256[] internal leaves;
 
-    // Store leaves data in storage so that we can use it across functions.
+    /// @dev Store leaves data in storage so that we can use it across functions.
     LeafData[] internal leavesData;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -166,30 +164,6 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function constructMerkleTree(LeafData[] memory rawLeavesData)
-        internal
-        returns (uint256 aggregateAmount, bytes32 merkleRoot)
-    {
-        // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
-        // of all `msg.value`.
-        address[] memory excludedAddresses = new address[](1);
-        excludedAddresses[0] = address(factoryMerkleBase);
-
-        // Fuzz the leaves data.
-        aggregateAmount = fuzzMerkleData({ leavesData: rawLeavesData, excludedAddresses: excludedAddresses });
-
-        // Store the merkle tree leaves in storage.
-        for (uint256 i = 0; i < rawLeavesData.length; ++i) {
-            leavesData.push(rawLeavesData[i]);
-        }
-
-        // Compute the Merkle leaves.
-        MerkleBuilder.computeLeaves(leaves, rawLeavesData);
-
-        // If there is only one leaf, the Merkle root is the hash of the leaf itself.
-        merkleRoot = leaves.length == 1 ? bytes32(leaves[0]) : getRoot(leaves.toBytes32());
-    }
-
     /// @dev Expect claim event. This function should be overridden in the child contract.
     function expectClaimEvent(LeafData memory leafData, address to) internal virtual { }
 
@@ -206,7 +180,13 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
         // Bound expiration so that the campaign is still active at the creation.
         if (expiration > 0) expiration_ = boundUint40(expiration, getBlockTimestamp() + 365 days, MAX_UNIX_TIMESTAMP);
 
+        // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
+        // of all `msg.value`.
+        address[] memory excludedAddresses = new address[](1);
+        excludedAddresses[0] = address(factoryMerkleBase);
+
         // Construct merkle root for the given tree leaves.
-        (aggregateAmount, merkleRoot) = constructMerkleTree(rawLeavesData);
+        (aggregateAmount, merkleRoot) =
+            fuzzMerkleDataAndComputeRoot(leaves, leavesData, rawLeavesData, excludedAddresses);
     }
 }
