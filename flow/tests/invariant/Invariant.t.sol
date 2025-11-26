@@ -30,7 +30,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy and the FlowStore contract.
+        // Deploy the FlowStore contract.
         flowStore = new FlowStore(tokens);
 
         // Deploy the handlers.
