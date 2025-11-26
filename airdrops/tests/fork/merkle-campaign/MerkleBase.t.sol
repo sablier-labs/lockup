@@ -5,12 +5,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-import { LeafData, MerkleBuilder } from "./../../utils/MerkleBuilder.sol";
+import { LeafData } from "./../../utils/MerkleBuilder.sol";
 import { Fork_Test } from "./../Fork.t.sol";
 
 abstract contract MerkleBase_Fork_Test is Fork_Test {
-    using MerkleBuilder for uint256[];
-
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -68,18 +66,9 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         address[] memory excludedAddresses = new address[](1);
         excludedAddresses[0] = address(factoryMerkleBase);
 
-        // Fuzz the leaves data.
-        vars.aggregateAmount = fuzzMerkleData({ leavesData: params.leavesData, excludedAddresses: excludedAddresses });
-
-        // Store the merkle tree leaves in storage.
-        for (uint256 i = 0; i < params.leavesData.length; ++i) {
-            vars.leavesData.push(params.leavesData[i]);
-        }
-
-        MerkleBuilder.computeLeaves(vars.leaves, params.leavesData);
-
-        // If there is only one leaf, the Merkle root is the hash of the leaf itself.
-        vars.merkleRoot = vars.leaves.length == 1 ? bytes32(vars.leaves[0]) : getRoot(vars.leaves.toBytes32());
+        // Fuzz the leaves data, construct the Merkle tree and compute the aggregate amount and Merkle root.
+        (vars.aggregateAmount, vars.merkleRoot) =
+            fuzzMerkleDataAndComputeRoot(vars.leaves, vars.leavesData, params.leavesData, excludedAddresses);
 
         // Make the campaign creator as the caller.
         setMsgSender(params.campaignCreator);

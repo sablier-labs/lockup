@@ -7,9 +7,9 @@ import { LibSort } from "solady/src/utils/LibSort.sol";
 
 import { LeafData, MerkleBuilder } from "./MerkleBuilder.sol";
 
-contract MerkleBuilder_Test is StdAssertions, StdUtils {
+contract MerkleBuilder_Test is MerkleBuilder, StdAssertions, StdUtils {
     function testFuzz_ComputeLeaf(uint256 index, address recipient, uint128 amount) external pure {
-        uint256 actualLeaf = MerkleBuilder.computeLeaf(LeafData({ index: index, recipient: recipient, amount: amount }));
+        uint256 actualLeaf = computeLeaf(LeafData({ index: index, recipient: recipient, amount: amount }));
         uint256 expectedLeaf = uint256(keccak256(bytes.concat(keccak256(abi.encode(index, recipient, amount)))));
         assertEq(actualLeaf, expectedLeaf, "computeLeaf");
     }
@@ -18,7 +18,7 @@ contract MerkleBuilder_Test is StdAssertions, StdUtils {
     uint256[] internal actualLeaves;
 
     function testFuzz_ComputeLeaves(LeafData[] memory params) external {
-        MerkleBuilder.computeLeaves(actualLeaves, params);
+        computeLeaves(actualLeaves, params);
 
         uint256[] memory expectedLeaves = new uint256[](params.length);
         for (uint256 i = 0; i < params.length; ++i) {
