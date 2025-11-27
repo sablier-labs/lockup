@@ -13,8 +13,8 @@ import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
 
 import { Modifiers } from "./utils/Modifiers.sol";
-import { Utils } from "./utils/Utils.sol";
 import { Users } from "./utils/Types.sol";
+import { Utils } from "./utils/Utils.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {

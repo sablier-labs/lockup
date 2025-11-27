@@ -2,9 +2,8 @@
 pragma solidity >=0.8.26;
 
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
-import { ComptrollerHandler } from "./handlers/ComptrollerHandler.sol";
-
 import { Base_Test } from "../Base.t.sol";
+import { ComptrollerHandler } from "./handlers/ComptrollerHandler.sol";
 
 contract Comptroller_Invariant_Test is Base_Test, StdInvariant {
     ComptrollerHandler public comptrollerHandler;

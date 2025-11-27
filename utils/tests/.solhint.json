@@ -1,7 +1,9 @@
 {
+  "extends": "solhint:recommended",
   "rules": {
     "code-complexity": "off",
     "contract-name-capwords": "off",
-    "gas-increment-by-one": "off"
+    "gas-increment-by-one": "off",
+    "imports-order": "warn"
   }
 }
