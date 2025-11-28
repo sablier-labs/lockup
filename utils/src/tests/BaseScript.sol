@@ -92,7 +92,9 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.CHILIZ) return 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935;
         if (chainId == ChainId.ETHEREUM) return 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         if (chainId == ChainId.GNOSIS) return 0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399;
+        if (chainId == ChainId.HYPEREVM) return 0xa5a72eF19F82A579431186402425593a559ed352;
         if (chainId == ChainId.LINEA) return 0x72dCfa0483d5Ef91562817C6f20E8Ce07A81319D;
+        if (chainId == ChainId.MONAD) return 0xBcD78f76005B7515837af6b50c7C52BCf73822fb;
         if (chainId == ChainId.OPTIMISM) return 0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350;
         if (chainId == ChainId.POLYGON) return 0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6;
         if (chainId == ChainId.SCROLL) return 0x0F7Ad835235Ede685180A5c611111610813457a9;
