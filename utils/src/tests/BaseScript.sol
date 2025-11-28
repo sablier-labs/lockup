@@ -92,9 +92,7 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.CHILIZ) return 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935;
         if (chainId == ChainId.ETHEREUM) return 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
         if (chainId == ChainId.GNOSIS) return 0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399;
-        if (chainId == ChainId.HYPEREVM) return 0xa5a72eF19F82A579431186402425593a559ed352;
         if (chainId == ChainId.LINEA) return 0x72dCfa0483d5Ef91562817C6f20E8Ce07A81319D;
-        if (chainId == ChainId.MONAD) return 0xBcD78f76005B7515837af6b50c7C52BCf73822fb;
         if (chainId == ChainId.OPTIMISM) return 0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350;
         if (chainId == ChainId.POLYGON) return 0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6;
         if (chainId == ChainId.SCROLL) return 0x0F7Ad835235Ede685180A5c611111610813457a9;
@@ -114,7 +112,9 @@ abstract contract BaseScript is Script {
         if (chainId == ChainId.BSC) return 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE;
         if (chainId == ChainId.ETHEREUM) return 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
         if (chainId == ChainId.GNOSIS) return 0x678df3415fc31947dA4324eC63212874be5a82f8;
+        if (chainId == ChainId.HYPEREVM) return 0xa5a72eF19F82A579431186402425593a559ed352;
         if (chainId == ChainId.LINEA) return 0x3c6Cd9Cc7c7a4c2Cf5a82734CD249D7D593354dA;
+        if (chainId == ChainId.MONAD) return 0xBcD78f76005B7515837af6b50c7C52BCf73822fb;
         if (chainId == ChainId.OPTIMISM) return 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
         if (chainId == ChainId.POLYGON) return 0xAB594600376Ec9fD91F8e885dADF0CE036862dE0;
         if (chainId == ChainId.SCROLL) return 0x6bF14CB0A831078629D993FDeBcB182b21A8774C;
