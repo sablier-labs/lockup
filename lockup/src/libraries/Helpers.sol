@@ -135,7 +135,7 @@ library Helpers {
         // Check: validate the user-provided common parameters.
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
-        // Check: validate the user-provided segments.
+        // Check: validate the user-provided tranches.
         _checkTranches(tranches, depositAmount, timestamps);
     }
 
