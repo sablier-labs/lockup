@@ -98,6 +98,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
     /// - Collect fees earned.
     function testFuzz_MerkleVCA(
         Params memory params,
+        bool enableRedistribution,
         UD60x18 unlockPercentage,
         uint40 vestingEndTime,
         uint40 vestingStartTime
@@ -125,6 +126,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         // Test creating the MerkleVCA campaign.
         _testCreateMerkleVCA(
             aggregateAmount,
+            enableRedistribution,
             params.expiration,
             params.feeForUser,
             merkleRoot,
@@ -146,6 +148,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
 
     function _testCreateMerkleVCA(
         uint256 aggregateAmount,
+        bool enableRedistribution,
         uint40 expiration,
         uint256 feeForUser,
         bytes32 merkleRoot,
@@ -175,6 +178,8 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         setMsgSender(users.campaignCreator);
 
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams(expiration);
+        params.aggregateAmount = aggregateAmount;
+        params.enableRedistribution = enableRedistribution;
         params.merkleRoot = merkleRoot;
         params.unlockPercentage = unlockPercentage;
         params.vestingEndTime = vestingEndTime;
@@ -188,14 +193,13 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(expectedMerkleVCA),
             params: params,
-            aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             comptroller: address(comptroller),
             minFeeUSD: feeForUser
         });
 
         // Create the campaign.
-        merkleVCA = factoryMerkleVCA.createMerkleVCA(params, aggregateAmount, leavesData.length);
+        merkleVCA = factoryMerkleVCA.createMerkleVCA(params, leavesData.length);
 
         // Verify that the contract is deployed at the correct address.
         assertGt(address(merkleVCA).code.length, 0, "MerkleVCA contract not created");
@@ -233,6 +237,25 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             vestingStartTime: merkleVCA.VESTING_START_TIME()
         });
 
+        // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
+        // redistribution is enabled.
+        uint256 expectedRewardAmount;
+        if (
+            getBlockTimestamp() >= merkleVCA.VESTING_END_TIME() && merkleVCA.isRedistributionEnabled()
+                && merkleVCA.totalForgoneAmount() > 0
+        ) {
+            expectedRewardAmount =
+                ud(leafData.amount).mul(merkleVCA.calculateRedistributionRewardsPerToken()).intoUint128();
+
+            vm.expectEmit({ emitter: address(merkleVCA) });
+            emit ISablierMerkleVCA.RedistributionReward({
+                index: leafData.index,
+                recipient: leafData.recipient,
+                amount: expectedRewardAmount,
+                to: to
+            });
+        }
+
         // It should emit a {ClaimVCA} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.ClaimVCA({
@@ -244,7 +267,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             viaSig: false
         });
 
-        // It should transfer the claim amount to the `to` address.
-        expectCallToTransfer({ token: dai, to: to, value: claimAmount });
+        // It should transfer the claim amount and reward amount (if any) to the `to` address.
+        expectCallToTransfer({ token: dai, to: to, value: claimAmount + expectedRewardAmount });
     }
 }

@@ -8,13 +8,20 @@ ClaimTo_MerkleVCA_Integration_Test
    │  ├── it should update total forgone amount
    │  └── it should emit a {ClaimVCA} event
    └── when vesting start time in past
-      ├── when vesting end time in past
-      │  ├── it should transfer the full amount to Eve
+      ├── when vesting end time in future
+      │  ├── it should transfer a portion of the amount to Eve
       │  ├── it should update the claimed status
-      │  ├── it should not update total forgone amount
+      │  ├── it should update total forgone amount
       │  └── it should emit a {ClaimVCA} event
-      └── when vesting end time not in past
-         ├── it should transfer a portion of the amount to Eve
-         ├── it should update the claimed status
-         ├── it should update total forgone amount
-         └── it should emit a {ClaimVCA} event
+      └── when vesting end time not in future
+         ├── given redistribution not enabled
+         │  ├── it should transfer the full amount to Eve
+         │  ├── it should update the claimed status
+         │  ├── it should not update total forgone amount
+         │  └── it should emit a {ClaimVCA} event
+         └── given redistribution enabled
+            ├── it should transfer the full amount to Eve
+            ├── it should transfer the reward amount to Eve
+            ├── it should update the claimed status
+            ├── it should not update total forgone amount
+            └── it should emit a {ClaimVCA} event

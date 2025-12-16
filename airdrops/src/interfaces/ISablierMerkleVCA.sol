@@ -29,9 +29,21 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
         bool viaSig
     );
 
+    /// @notice Emitted when a recipient receives rewards from the forgone tokens pool.
+    /// @dev Only emitted when redistribution is enabled.
+    /// @param index The index of the airdrop recipient in the Merkle tree.
+    /// @param recipient The address of the airdrop recipient.
+    /// @param amount The amount of ERC-20 tokens distributed as a reward.
+    /// @param to The address receiving the reward tokens.
+    event RedistributionReward(uint256 index, address indexed recipient, uint256 amount, address to);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Retrieves the total amount of ERC-20 tokens allocated to the campaign.
+    /// @dev Only used when redistribution is enabled.
+    function AGGREGATE_AMOUNT() external view returns (uint256);
 
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
     /// value is denominated as a fixed-point number where 1e18 is 100%.
@@ -57,6 +69,13 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @param claimTime A hypothetical time at which to make the claim. Zero is a sentinel value for `block.timestamp`.
     /// @return The amount that would be forgone, denominated in the token's decimals.
     function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128);
+
+    /// @notice Retrieves a bool indicating whether the redistribution of forgone tokens is enabled or not.
+    function isRedistributionEnabled() external view returns (bool);
+
+    /// @notice Returns the redistribution rewards per token.
+    /// @dev Reverts if redistribution is not enabled.
+    function calculateRedistributionRewardsPerToken() external view returns (UD60x18);
 
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
     function totalForgoneAmount() external view returns (uint256);
@@ -150,4 +169,15 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     )
         external
         payable;
+
+    /// @notice Enable the redistribution of forgone tokens among recipients claiming after the vesting end time,
+    /// proportional to their allocation amount.
+    ///
+    /// @dev Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - Redistribution must not be already enabled.
+    /// - Vesting time must be in the future.
+    /// TODO: Can we allow this switch after vesting end time? In that case, can users who already claimed their full
+    /// airdrop claim the rewards separately?
+    function enableRedistribution() external;
 }

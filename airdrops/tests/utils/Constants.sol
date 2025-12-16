@@ -62,6 +62,12 @@ abstract contract Constants {
     uint128 public immutable VCA_VESTING_AMOUNT = CLAIM_AMOUNT - UNLOCK_START_AMOUNT;
     uint128 public immutable VCA_UNLOCK_AMOUNT = UNLOCK_START_AMOUNT; // 1% of full amount.
     uint128 public immutable VCA_CLAIM_AMOUNT =
-        VCA_UNLOCK_AMOUNT + (VCA_VESTING_AMOUNT * 2 days) / VESTING_TOTAL_DURATION;
+        VCA_UNLOCK_AMOUNT + (VCA_VESTING_AMOUNT * 2 days) / VESTING_TOTAL_DURATION; // 2080e18
+
+    // Reward amount per user if one user claims at campaign start time, and the remaining 3 users claim after vesting
+    // end time.
+    uint128 public immutable VCA_REWARD_AMOUNT_PER_USER =
+        (VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT) / (uint128(RECIPIENT_COUNT) - 1); // 2640e18
+    UD60x18 public immutable VCA_REWARDS_PER_TOKEN = ud60x18(0.264e18); // 0.264
     UD60x18 public immutable VCA_UNLOCK_PERCENTAGE = ud60x18(0.01e18); // 1%.
 }

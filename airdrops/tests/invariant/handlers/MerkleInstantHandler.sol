@@ -34,7 +34,8 @@ contract MerkleInstantHandler is BaseHandler {
 
     function _deployCampaign(
         address campaignCreator,
-        bytes32 merkleRoot
+        bytes32 merkleRoot,
+        bool
     )
         internal
         override

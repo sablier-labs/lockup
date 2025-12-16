@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Base_Test } from "./../Base.t.sol";
 import { MerkleInstantHandler } from "./handlers/MerkleInstantHandler.sol";
 import { MerkleLLHandler } from "./handlers/MerkleLLHandler.sol";
@@ -138,5 +139,33 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store.vcaTotalClaimAmountRequested() - store.totalClaimAmount(vcaCampaign),
             unicode"Invariant violation: total forgone amount != total claim amount requested - total claimed amount"
         );
+    }
+
+    /// @dev For a VCA campaign, if redistribution is enabled, the redistribution rewards per token should never
+    /// decrease.
+    function invariant_RedistributionRewardsPerTokenMonotonicity() external view {
+        address vcaCampaign = store.vcaCampaign();
+
+        // Skip if no VCA campaign is deployed.
+        if (vcaCampaign == address(0)) return;
+
+        // Skip if redistribution is disabled.
+        if (!ISablierMerkleVCA(vcaCampaign).isRedistributionEnabled()) return;
+
+        // Redistribution rewards per token should never decrease.
+        assertGe(
+            ISablierMerkleVCA(vcaCampaign).calculateRedistributionRewardsPerToken().intoUint128(),
+            store.vcaRedistributionRewardsPerToken().intoUint128(),
+            unicode"Invariant violation: redistribution rewards per token decreased"
+        );
+
+        // If vesting has ended, redistribution rewards per token should never change.
+        if (getBlockTimestamp() >= ISablierMerkleVCA(vcaCampaign).VESTING_END_TIME()) {
+            assertEq(
+                ISablierMerkleVCA(vcaCampaign).calculateRedistributionRewardsPerToken().intoUint128(),
+                store.vcaRedistributionRewardsPerToken().intoUint128(),
+                unicode"Invariant violation: redistribution rewards per token changed after vesting end time"
+            );
+        }
     }
 }

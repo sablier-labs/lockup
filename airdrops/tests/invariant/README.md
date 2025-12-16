@@ -7,4 +7,6 @@
 
 #### For VCA campaign:
 
-1. For MerkleVCA campaigns, total forgone = $\sum$ claim requested - $\sum$ claimed
+1. total forgone = $\sum$ claim requested - $\sum$ claimed
+2. If redistribution is enabled, redistribution rewards per token should never decrease.
+3. If redistribution is enabled and vesting has ended, redistribution rewards per token should never change.

@@ -46,11 +46,17 @@ contract MerkleVCAHandler is BaseHandler {
 
         // Update total claim amount requested for VCA campaign in store.
         store.updateVcaTotalClaimAmountRequested(leafData.amount);
+
+        // Set redistribution rewards per token in store, only if redistribution is enabled.
+        if (merkleVCA.isRedistributionEnabled()) {
+            store.setVcaRedistributionRewardsPerToken(merkleVCA.calculateRedistributionRewardsPerToken());
+        }
     }
 
     function _deployCampaign(
         address campaignCreator,
-        bytes32 merkleRoot
+        bytes32 merkleRoot,
+        bool vcaRedistributionEnabled
     )
         internal
         override
@@ -59,8 +65,10 @@ contract MerkleVCAHandler is BaseHandler {
         // Load pre-defined constructor parameters.
         MerkleVCA.ConstructorParams memory params;
 
+        params.aggregateAmount = aggregateAmount;
         params.campaignName = CAMPAIGN_NAME;
         params.campaignStartTime = getBlockTimestamp();
+        params.enableRedistribution = vcaRedistributionEnabled;
         params.expiration = getBlockTimestamp() + 365 days;
         params.initialAdmin = campaignCreator;
         params.ipfsCID = IPFS_CID;

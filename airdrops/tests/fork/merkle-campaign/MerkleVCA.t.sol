@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
@@ -33,7 +34,14 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
                                    TEST-FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testForkFuzz_MerkleVCA(Params memory params, uint40 vestingEndTime, uint40 vestingStartTime) external {
+    function testForkFuzz_MerkleVCA(
+        Params memory params,
+        bool enableRedistribution,
+        uint40 vestingEndTime,
+        uint40 vestingStartTime
+    )
+        external
+    {
         /*//////////////////////////////////////////////////////////////////////////
                                           CREATE
         //////////////////////////////////////////////////////////////////////////*/
@@ -55,8 +63,10 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         }
 
         MerkleVCA.ConstructorParams memory constructorParams = merkleVCAConstructorParams({
+            aggregateAmount: vars.aggregateAmount,
             campaignCreator: params.campaignCreator,
             campaignStartTime: CAMPAIGN_START_TIME,
+            enableRedistribution: enableRedistribution,
             expiration: params.expiration,
             merkleRoot: vars.merkleRoot,
             tokenAddress: FORK_TOKEN,
@@ -72,13 +82,12 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(vars.expectedMerkleCampaign),
             params: constructorParams,
-            aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
             comptroller: address(comptroller),
             minFeeUSD: vars.minFeeUSD
         });
 
-        merkleVCA = factoryMerkleVCA.createMerkleVCA(constructorParams, vars.aggregateAmount, vars.leavesData.length);
+        merkleVCA = factoryMerkleVCA.createMerkleVCA(constructorParams, vars.leavesData.length);
 
         assertLt(0, address(merkleVCA).code.length, "MerkleVCA contract not created");
         assertEq(address(merkleVCA), vars.expectedMerkleCampaign, "MerkleVCA contract does not match computed address");
@@ -103,6 +112,22 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             vestingStartTime: vestingStartTime
         });
 
+        // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
+        // redistribution is enabled.
+        uint256 expectedRewardAmount;
+        if (getBlockTimestamp() >= vestingEndTime && enableRedistribution && forgoneAmount > 0) {
+            expectedRewardAmount =
+                ud(vars.leafToClaim.amount).mul(merkleVCA.calculateRedistributionRewardsPerToken()).intoUint128();
+
+            vm.expectEmit({ emitter: address(merkleVCA) });
+            emit ISablierMerkleVCA.RedistributionReward({
+                index: vars.leafToClaim.index,
+                recipient: vars.leafToClaim.recipient,
+                amount: expectedRewardAmount,
+                to: vars.leafToClaim.recipient
+            });
+        }
+
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.ClaimVCA({
             index: vars.leafToClaim.index,
@@ -122,7 +147,11 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             merkleProof: vars.merkleProof
         });
 
-        expectCallToTransfer({ token: FORK_TOKEN, to: vars.leafToClaim.recipient, value: claimAmount });
+        expectCallToTransfer({
+            token: FORK_TOKEN,
+            to: vars.leafToClaim.recipient,
+            value: claimAmount + expectedRewardAmount
+        });
 
         merkleVCA.claimTo{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,

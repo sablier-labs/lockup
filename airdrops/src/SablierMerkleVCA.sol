@@ -41,6 +41,9 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
+    uint256 public immutable override AGGREGATE_AMOUNT;
+
+    /// @inheritdoc ISablierMerkleVCA
     UD60x18 public immutable override UNLOCK_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleVCA
@@ -50,7 +53,13 @@ contract SablierMerkleVCA is
     uint40 public immutable override VESTING_START_TIME;
 
     /// @inheritdoc ISablierMerkleVCA
+    bool public override isRedistributionEnabled;
+
+    /// @inheritdoc ISablierMerkleVCA
     uint256 public override totalForgoneAmount;
+
+    /// @dev Tracks the full amount allocated to the recipients who claimed before the vesting end time.
+    uint256 private _fullAmountAllocatedToEarlyClaimers;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -75,9 +84,15 @@ contract SablierMerkleVCA is
         )
     {
         // Effect: set the immutable variables.
+        AGGREGATE_AMOUNT = params.aggregateAmount;
         UNLOCK_PERCENTAGE = params.unlockPercentage;
         VESTING_END_TIME = params.vestingEndTime;
         VESTING_START_TIME = params.vestingStartTime;
+
+        // Effect: enable redistribution if true.
+        if (params.enableRedistribution) {
+            isRedistributionEnabled = true;
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -85,7 +100,7 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
+    function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view override returns (uint128) {
         // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
@@ -96,7 +111,7 @@ contract SablierMerkleVCA is
     }
 
     /// @inheritdoc ISablierMerkleVCA
-    function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
+    function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view override returns (uint128) {
         // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
@@ -111,6 +126,17 @@ contract SablierMerkleVCA is
         }
 
         return fullAmount - _calculateClaimAmount(fullAmount, claimTime);
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function calculateRedistributionRewardsPerToken() external view override returns (UD60x18) {
+        // Check: redistribution is enabled.
+        if (!isRedistributionEnabled) {
+            revert Errors.SablierMerkleVCA_RedistributionNotEnabled();
+        }
+
+        // Calculate and return the redistribution rewards per token.
+        return _calculateRedistributionRewardsPerToken();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -161,6 +187,25 @@ contract SablierMerkleVCA is
         _postProcessClaim({ index: index, recipient: recipient, to: to, fullAmount: fullAmount, viaSig: true });
     }
 
+    /// @inheritdoc ISablierMerkleVCA
+    function enableRedistribution() external override onlyAdmin {
+        // Check: the redistribution is not already enabled.
+        if (isRedistributionEnabled) {
+            revert Errors.SablierMerkleVCA_RedistributionAlreadyEnabled();
+        }
+
+        // Check: vesting time is in the future.
+        if (block.timestamp >= VESTING_END_TIME) {
+            revert Errors.SablierMerkleVCA_VestingAlreadyEnded({
+                vestingEndTime: VESTING_END_TIME,
+                blockTimestamp: block.timestamp
+            });
+        }
+
+        // Effect: set the value to true.
+        isRedistributionEnabled = true;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -197,6 +242,15 @@ contract SablierMerkleVCA is
         }
     }
 
+    /// @notice Calculates the redistribution rewards per token.
+    function _calculateRedistributionRewardsPerToken() private view returns (UD60x18 rewardsPerToken) {
+        // Calculate the total amount allocated to the remaining claimers.
+        uint256 fullAmountAllocatedToRemainingClaimers = AGGREGATE_AMOUNT - _fullAmountAllocatedToEarlyClaimers;
+
+        // Calculate the rewards per token.
+        rewardsPerToken = ud(totalForgoneAmount).div(ud(fullAmountAllocatedToRemainingClaimers));
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -212,21 +266,39 @@ contract SablierMerkleVCA is
         }
 
         uint128 forgoneAmount;
+        uint256 rewardAmount;
+        uint256 transferAmount = claimAmount;
 
-        // Effect: update the total forgone amount.
+        // Effect: update the total forgone amount and the total amount claimed by early claimers.
         if (claimAmount < fullAmount) {
             unchecked {
                 forgoneAmount = fullAmount - claimAmount;
                 totalForgoneAmount += forgoneAmount;
+                _fullAmountAllocatedToEarlyClaimers += fullAmount;
             }
         } else {
             // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
             // in case of a calculation error.
             assert(claimAmount == fullAmount);
+
+            // If redistribution is enabled and there are forgone tokens, calculate and transfer the reward amount.
+            if (isRedistributionEnabled && totalForgoneAmount > 0) {
+                unchecked {
+                    // Calculate the reward amount proportional to the full amount.
+                    UD60x18 rewardsPerToken = _calculateRedistributionRewardsPerToken();
+                    rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
+
+                    // Update the transfer amount.
+                    transferAmount = claimAmount + rewardAmount;
+                }
+
+                // Log the event.
+                emit RedistributionReward(index, recipient, rewardAmount, to);
+            }
         }
 
         // Interaction: transfer the tokens to the recipient.
-        TOKEN.safeTransfer({ to: to, value: claimAmount });
+        TOKEN.safeTransfer({ to: to, value: transferAmount });
 
         // Emit claim event.
         emit ClaimVCA(index, recipient, claimAmount, forgoneAmount, to, viaSig);

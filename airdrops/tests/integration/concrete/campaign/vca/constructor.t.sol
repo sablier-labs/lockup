@@ -2,17 +2,29 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
+import { MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
 contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
-    function test_Constructor() external {
+    function test_Constructor_RedistributionDisabled() external {
+        _testConstructor({ enableRedistribution: false });
+    }
+
+    function test_Constructor_RedistributionEnabled() external {
+        _testConstructor({ enableRedistribution: true });
+    }
+
+    /// @dev Shared private function.
+    function _testConstructor(bool enableRedistribution) private {
         // Make Factory the caller for the constructor test.
         setMsgSender(address(factoryMerkleVCA));
 
         // Deploy the SablierMerkleVCA contract.
+        MerkleVCA.ConstructorParams memory constructorParams = merkleVCAConstructorParams();
+        constructorParams.enableRedistribution = enableRedistribution;
         SablierMerkleVCA constructedVCA =
-            new SablierMerkleVCA(merkleVCAConstructorParams(), users.campaignCreator, address(comptroller));
+            new SablierMerkleVCA(constructorParams, users.campaignCreator, address(comptroller));
 
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
@@ -27,9 +39,11 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         assertEq(address(constructedVCA.TOKEN()), address(dai), "token");
 
         // SablierMerkleVCA
+        assertEq(constructedVCA.AGGREGATE_AMOUNT(), AGGREGATE_AMOUNT, "aggregate amount");
         assertEq(constructedVCA.UNLOCK_PERCENTAGE(), VCA_UNLOCK_PERCENTAGE, "unlock percentage");
         assertEq(constructedVCA.VESTING_END_TIME(), VCA_END_TIME, "vesting end time");
         assertEq(constructedVCA.VESTING_START_TIME(), VCA_START_TIME, "vesting start time");
+        assertEq(constructedVCA.isRedistributionEnabled(), enableRedistribution, "redistribution");
         assertEq(constructedVCA.totalForgoneAmount(), 0, "total forgone amount");
     }
 }

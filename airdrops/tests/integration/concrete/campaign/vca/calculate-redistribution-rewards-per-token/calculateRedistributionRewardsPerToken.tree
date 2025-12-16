@@ -1,0 +1,8 @@
+CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test
+├── given redistribution not enabled
+│  └── it should revert
+└── given redistribution enabled
+   ├── when no claim is made
+   │  └── it should return zero
+   └── when atleast one claim is made
+      └── it should return non-zero value

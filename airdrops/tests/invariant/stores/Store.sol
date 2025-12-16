@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 /// @dev Storage variables needed for handlers.
@@ -20,6 +21,9 @@ contract Store is BaseUtils {
 
     /// @dev Tracks VCA campaign.
     address public vcaCampaign;
+
+    /// @dev Track redistribution rewards per token for VCA campaign.
+    UD60x18 public vcaRedistributionRewardsPerToken;
 
     /// @dev Track total claim amounts requested by users for VCA campaign.
     uint256 public vcaTotalClaimAmountRequested;
@@ -81,6 +85,10 @@ contract Store is BaseUtils {
 
     function getTokens() public view returns (IERC20[] memory) {
         return tokens;
+    }
+
+    function setVcaRedistributionRewardsPerToken(UD60x18 rewardsPerToken) public {
+        vcaRedistributionRewardsPerToken = rewardsPerToken;
     }
 
     function updateTotalClaimAmount(address campaign, uint256 amount) public {

@@ -51,6 +51,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenRedistributionNotEnabled() {
+        _;
+    }
+
     modifier givenSevenDaysPassed() {
         // Skip forward by 8 days.
         skip(8 days);
@@ -60,6 +64,10 @@ abstract contract Modifiers is EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
                                         WHEN
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenAggregateAmountNotZero() {
+        _;
+    }
 
     modifier whenAmountValid() {
         _;
@@ -172,7 +180,11 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenVestingStartTimeNotInFuture() {
+    modifier whenVestingEndTimeNotInFuture() {
+        _;
+    }
+
+    modifier whenVestingStartTimeInPast() {
         _;
     }
 
