@@ -209,7 +209,7 @@ abstract contract Integration_Test is Base_Test {
         internal
         returns (ISablierMerkleVCA campaignAddress)
     {
-        campaignAddress = factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+        campaignAddress = factoryMerkleVCA.createMerkleVCA(params, RECIPIENT_COUNT);
 
         // Fund the campaign.
         fundCampaignWithDai(address(campaignAddress));

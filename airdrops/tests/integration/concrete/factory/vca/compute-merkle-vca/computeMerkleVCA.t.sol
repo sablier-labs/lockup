@@ -23,7 +23,16 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         factoryMerkleVCA.computeMerkleVCA(users.campaignCreator, params);
     }
 
-    function test_RevertWhen_VestingStartTimeZero() external whenNativeTokenNotFound {
+    function test_RevertWhen_AggregateAmountZero() external whenNativeTokenNotFound {
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.aggregateAmount = 0;
+
+        // It should revert.
+        vm.expectRevert(Errors.SablierFactoryMerkleVCA_AggregateAmountZero.selector);
+        factoryMerkleVCA.computeMerkleVCA(users.campaignCreator, params);
+    }
+
+    function test_RevertWhen_VestingStartTimeZero() external whenNativeTokenNotFound whenAggregateAmountNotZero {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = 0;
 
@@ -35,6 +44,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_VestingEndTimeLessThanVestingStartTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
@@ -55,6 +65,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_VestingEndTimeEqualsVestingStartTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
@@ -75,6 +86,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_ZeroExpiration()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
     {
@@ -89,6 +101,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_ExpirationNotExceedOneWeekFromVestingEndTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
@@ -108,6 +121,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_UnlockPercentageGreaterThan100()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration
@@ -129,6 +143,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         external
         view
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
         whenNotZeroExpiration

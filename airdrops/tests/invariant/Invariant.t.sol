@@ -74,8 +74,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Balances invariants:
-    /// - The ERC-20 balance of each campaign should be equal to the total deposit minus the sum of claimed and
-    /// clawbacked amounts.
+    /// - The ERC-20 balance of each campaign should be equal to the total deposit minus the sum of claimed,
+    /// clawbacked, and redistribution rewards (only apply to VCA campaigns).
     function invariant_Balances() external view {
         address[] memory campaigns = store.getCampaigns();
 
@@ -95,10 +95,16 @@ contract Invariant_Test is Base_Test, StdInvariant {
             // Get the total clawbacked amount from the campaign.
             uint256 totalClawbackAmount = store.totalClawbackAmount(campaign);
 
+            // For VCA campaigns with redistribution, rewards are also transferred out of the campaign balance.
+            uint256 totalRewardsDistributed;
+            if (campaign == store.vcaCampaign()) {
+                totalRewardsDistributed = store.vcaTotalRewardsDistributed();
+            }
+
             assertEq(
                 tokenBalance,
-                totalDepositAmount - totalClaimAmount - totalClawbackAmount,
-                unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked"
+                totalDepositAmount - totalClaimAmount - totalClawbackAmount - totalRewardsDistributed,
+                unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked - total rewards distributed"
             );
         }
     }
@@ -141,18 +147,65 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                    VCA INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev For a VCA campaign, the total forgone amount should be equal to total claim amount requested by users minus
-    /// the total claimed amount.
-    function invariant_TotalForgoneEqualsClaimRequestedMinusClaimed() external view {
-        address vcaCampaign = store.vcaCampaign();
+    /// @dev Invariants: For a VCA campaign,
+    /// - Total forgone amount should be equal to total full amount requested by users minus the total claimed amount.
+    /// - If vesting has ended, total forgone amount should never change.
+    function invariant_VcaTotalForgoneAmount() external view {
+        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
 
         // Skip if no VCA campaign is deployed.
-        if (vcaCampaign == address(0)) return;
+        if (address(merkleVCA) == address(0)) return;
 
         assertEq(
-            store.vcaTotalForgoneAmount(),
-            store.vcaTotalClaimAmountRequested() - store.totalClaimAmount(vcaCampaign),
-            unicode"Invariant violation: total forgone amount != total claim amount requested - total claimed amount"
+            merkleVCA.totalForgoneAmount(),
+            store.vcaTotalFullAmountRequested() - store.totalClaimAmount(address(merkleVCA)),
+            unicode"Invariant violation: total forgone amount != total full amount requested - total claimed amount"
+        );
+
+        if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
+            assertEq(
+                merkleVCA.totalForgoneAmount(),
+                store.previousVcaTotalForgoneAmount(),
+                unicode"Invariant violation: total forgone amount changed after vesting end time"
+            );
+        }
+    }
+
+    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and aggregate amount is correctly set,
+    /// - The redistribution rewards for a fixed amount should never decrease.
+    /// - If vesting has ended, redistribution rewards for a fixed amount should never change.
+    /// - `calculateRedistributionRewards` should never revert.
+    /// - Rewards distributed should never exceed total forgone amount.
+    function invariant_RedistributionRewardsGivenSufficientFunds() external view {
+        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
+
+        // Skip if no VCA campaign is deployed.
+        if (address(merkleVCA) == address(0)) return;
+
+        // Skip if redistribution is disabled.
+        if (!merkleVCA.isRedistributionEnabled()) return;
+
+        // Redistribution rewards for a fixed amount should never decrease.
+        assertGe(
+            merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
+            store.previousVcaRedistributionRewardsPer1e18(),
+            unicode"Invariant violation: redistribution rewards decreased"
+        );
+
+        // If vesting has ended, redistribution rewards for a fixed amount should never change.
+        if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
+            assertEq(
+                merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
+                store.previousVcaRedistributionRewardsPer1e18(),
+                unicode"Invariant violation: redistribution rewards changed after vesting end time"
+            );
+        }
+
+        // Rewards distributed should never exceed total forgone amount.
+        assertLe(
+            store.vcaTotalRewardsDistributed(),
+            merkleVCA.totalForgoneAmount(),
+            unicode"Invariant violation: rewards distributed > total forgone amount"
         );
     }
 
@@ -164,7 +217,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         if (vcaCampaign == address(0)) return;
 
         assertLe(
-            store.vcaTotalForgoneAmount(),
+            store.previousVcaTotalForgoneAmount(),
             ISablierMerkleVCA(vcaCampaign).totalForgoneAmount(),
             unicode"Invariant violation: total forgone amount decreased"
         );
