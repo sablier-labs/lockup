@@ -45,7 +45,6 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the total amount of ERC-20 tokens allocated to the campaign.
-    /// @dev Only used when redistribution is enabled.
     function AGGREGATE_AMOUNT() external view returns (uint128);
 
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
@@ -76,7 +75,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @notice Calculates the redistribution rewards for a given full amount.
     /// @dev Notes:
     /// - Reverts if redistribution is not enabled.
-    /// - Returns zero if the aggregate amount is less than the amount allocated to the recipients claiming early.
+    /// - If `AGGREGATE_AMOUNT` is set lower than actual total allocations in the Merkle tree, this might return 0
+    /// rather than reverting.
     /// @param fullAmount The amount of tokens that the redistribution rewards are to be calculated for.
     function calculateRedistributionRewards(uint128 fullAmount) external view returns (uint128);
 
@@ -98,9 +98,14 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @dev It emits a {ClaimVCA} event, and a {RedistributionReward} event if the redistribution is enabled.
     ///
     /// Notes:
-    /// - When redistribution is enabled, if the aggregate amount is incorrectly set, or the contract has insufficient
-    /// token balance, the rewards will be returned as zero and therefore no rewards will be distributed until the
-    /// campaign creator deposits the sufficient balance.
+    /// - If `AGGREGATE_AMOUNT` is set lower than actual total allocations in the Merkle tree, it can either cause a
+    /// race condition among the recipients or rewards would be calculated as 0 if its too low depending on how low the
+    /// value is set.
+    /// - If the campaign creator does not sufficiently fund the campaign with the actual total allocations (or
+    /// `AGGREGATE_AMOUNT`), it can cause a race condition among the recipients.
+    /// - The rewards are transferred to the recipients at the time of claiming. If the campaign creator turns the
+    /// redistribution on after the vesting end time, the recipients who have already claimed the full amount would miss
+    /// on the rewards while subsequent recipients would get them.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
@@ -186,8 +191,11 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @notice Enable the redistribution of forgone tokens among recipients claiming after the vesting end time,
     /// proportional to their allocation amount. Once enabled, it cannot be disabled.
     ///
-    /// @dev This function can be called at any time, even after the vesting period has ended. However, only the
-    /// recipients who have not claimed will be able to receive rewards.
+    /// @dev Notes while calling this function:
+    /// - If the function is called after the vesting end time, the recipients who have already claimed the full amount
+    /// would miss on the rewards while subsequent recipients would get them.
+    /// - It is also recommended to fund the campaign with the actual total allocation in the Merkle tree (ideally
+    /// equivalent to `AGGREGATE_AMOUNT`) to avoid race conditions among the recipients.
     ///
     /// Requirements:
     /// - `msg.sender` must be the admin.

@@ -244,7 +244,7 @@ contract SablierMerkleVCA is
             return 0;
         }
 
-        // Return zero if amount allocated to early claimers is less than aggregate amount.
+        // Return zero if aggregate amount does not exceed the amount allocated to early claimers.
         if (AGGREGATE_AMOUNT <= _fullAmountAllocatedToEarlyClaimers) {
             return 0;
         }
@@ -280,6 +280,7 @@ contract SablierMerkleVCA is
 
         // Effect: update the total forgone amount and the total amount claimed by early claimers.
         if (claimAmount < fullAmount) {
+            // Its safe to use unchecked because none of these values can overflow.
             unchecked {
                 forgoneAmount = fullAmount - claimAmount;
                 totalForgoneAmount += forgoneAmount;

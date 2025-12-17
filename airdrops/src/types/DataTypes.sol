@@ -126,7 +126,10 @@ library MerkleLT {
 library MerkleVCA {
     /// @notice Struct encapsulating the constructor parameters of Merkle VCA campaigns.
     /// @dev The fields are arranged alphabetically.
-    /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
+    /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients. If its value is
+    /// set lower than actual total allocations in the Merkle tree, it can either cause a race condition among the
+    /// recipients or rewards would be calculated as 0 if its too low. As a campaign creator, it is recommended to set
+    /// the value to the actual total allocations.
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
     /// @param enableRedistribution Enable redistribution of forgone tokens at deployment.
