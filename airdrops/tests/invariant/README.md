@@ -2,7 +2,8 @@
 
 #### For all campaigns:
 
-1. token.balanceOf(campaign) = total deposit - $\sum$ claimed - $\sum$ clawbacked
+1. token.balanceOf(campaign) = total deposit - $\sum$ claimed - $\sum$ clawbacked - $\sum$ redistribution rewards (only
+   apply to VCA campaigns)
 2. `hasClaimed` should never change its value from `true` to `false`
 
 #### For VCA campaign:

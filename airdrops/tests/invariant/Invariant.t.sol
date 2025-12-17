@@ -74,8 +74,8 @@ contract Invariant_Test is Base_Test, StdInvariant {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Balances invariants:
-    /// - The ERC-20 balance of each campaign should be equal to the total deposit minus the sum of claimed and
-    /// clawbacked amounts.
+    /// - The ERC-20 balance of each campaign should be equal to the total deposit minus the sum of claimed,
+    /// clawbacked, and redistribution rewards (only apply to VCA campaigns).
     function invariant_Balances() external view {
         address[] memory campaigns = store.getCampaigns();
 
@@ -95,10 +95,16 @@ contract Invariant_Test is Base_Test, StdInvariant {
             // Get the total clawbacked amount from the campaign.
             uint256 totalClawbackAmount = store.totalClawbackAmount(campaign);
 
+            // For VCA campaigns with redistribution, rewards are also transferred out of the campaign balance.
+            uint256 totalRewardsDistributed;
+            if (campaign == store.vcaCampaign()) {
+                totalRewardsDistributed = store.vcaTotalRewardsDistributed();
+            }
+
             assertEq(
                 tokenBalance,
-                totalDepositAmount - totalClaimAmount - totalClawbackAmount,
-                unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked"
+                totalDepositAmount - totalClaimAmount - totalClawbackAmount - totalRewardsDistributed,
+                unicode"Invariant violation: token balance != total deposit - total claimed - total clawbacked - total rewards distributed"
             );
         }
     }
