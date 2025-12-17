@@ -300,21 +300,19 @@ contract SablierMerkleVCA is
 
             // If redistribution is enabled and there are forgone tokens, calculate and transfer the reward amount.
             if (isRedistributionEnabled && totalForgoneAmount > 0) {
-                unchecked {
+                // Calculate the reward amount proportional to the full amount.
+                UD60x18 rewardsPerToken = _calculateRedistributionRewardsPerToken();
+
+                if (rewardsPerToken != ZERO) {
                     // Calculate the reward amount proportional to the full amount.
-                    UD60x18 rewardsPerToken = _calculateRedistributionRewardsPerToken();
+                    rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
 
-                    if (rewardsPerToken != ZERO) {
-                        // Calculate the reward amount proportional to the full amount.
-                        rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
+                    // Update the transfer amount.
+                    transferAmount = claimAmount + rewardAmount;
 
-                        // Update the transfer amount.
-                        transferAmount = claimAmount + rewardAmount;
-                    }
+                    // Log the event.
+                    emit RedistributionReward(index, recipient, rewardAmount, to);
                 }
-
-                // Log the event.
-                emit RedistributionReward(index, recipient, rewardAmount, to);
             }
         }
 
