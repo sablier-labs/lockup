@@ -2,9 +2,16 @@
 
 #### For all campaigns:
 
-1. token.balanceOf(campaign) = total deposit - $\sum$ claimed - $\sum$ clawbacked
+1. token.balanceOf(campaign) = total deposit - $\sum$ claimed - $\sum$ clawbacked - $\sum$ redistribution rewards (only
+   apply to VCA campaigns)
 2. `hasClaimed` should never change its value from `true` to `false`
 
 #### For VCA campaign:
 
-1. For MerkleVCA campaigns, total forgone = $\sum$ claim requested - $\sum$ claimed
+1. total forgone = $\sum$ full amount requested - $\sum$ claimed
+2. If vesting has ended, total forgone amount should never change.
+3. If redistribution is enabled and aggregate amount is correctly set,
+   - Redistribution rewards for a fixed amount should never decrease.
+   - If vesting has ended, redistribution rewards for a fixed amount should never change.
+   - `calculateRedistributionRewardsPerToken` should never revert.
+   - Rewards distributed should never exceed total forgone amount.

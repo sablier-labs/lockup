@@ -25,7 +25,7 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
         LeafData[] leavesData;
         LeafData leafToClaim;
         uint256 initialAdminBalance;
-        uint256 aggregateAmount;
+        uint128 aggregateAmount;
         uint128 clawbackAmount;
         address expectedMerkleCampaign;
         bytes32[] merkleProof;

@@ -16,16 +16,22 @@ contract Store is BaseUtils {
     /// @dev List of addresses to be excluded from being fuzzed as `msg.sender`.
     address[] internal excludedAddresses;
 
+    /// @dev Track redistribution rewards per 1e18 for VCA campaign before a claim is made.
+    uint256 public previousVcaRedistributionRewardsPer1e18;
+
+    /// @dev Track total forgone amounts for VCA campaign before a claim is made.
+    uint256 public previousVcaTotalForgoneAmount;
+
     IERC20[] public tokens;
 
     /// @dev Tracks VCA campaign.
     address public vcaCampaign;
 
-    /// @dev Track total claim amounts requested by users for VCA campaign.
-    uint256 public vcaTotalClaimAmountRequested;
+    /// @dev Track total full amounts requested by users for VCA campaign.
+    uint256 public vcaTotalFullAmountRequested;
 
-    /// @dev Track total forgone amounts for VCA campaign.
-    uint256 public vcaTotalForgoneAmount;
+    /// @dev Track total rewards distributed for VCA campaign.
+    uint256 public vcaTotalRewardsDistributed;
 
     /// @dev Track claimed indexes for each campaign.
     mapping(address campaign => uint256[] indexes) public claimedIndexes;
@@ -83,6 +89,14 @@ contract Store is BaseUtils {
         return tokens;
     }
 
+    function updatePreviousVcaRedistributionRewardsPer1e18(uint256 rewardsPer1e18) public {
+        previousVcaRedistributionRewardsPer1e18 = rewardsPer1e18;
+    }
+
+    function updatePreviousVcaTotalForgoneAmount(uint256 amount) public {
+        previousVcaTotalForgoneAmount += amount;
+    }
+
     function updateTotalClaimAmount(address campaign, uint256 amount) public {
         totalClaimAmount[campaign] += amount;
     }
@@ -95,15 +109,15 @@ contract Store is BaseUtils {
         totalDepositAmount[campaign] += amount;
     }
 
-    function updateTotalForgoneAmount(uint256 amount) public {
-        vcaTotalForgoneAmount += amount;
-    }
-
     function updateVcaCampaign(address campaign) public {
         vcaCampaign = campaign;
     }
 
-    function updateVcaTotalClaimAmountRequested(uint256 amount) public {
-        vcaTotalClaimAmountRequested += amount;
+    function updateVcaTotalFullAmountRequested(uint256 amount) public {
+        vcaTotalFullAmountRequested += amount;
+    }
+
+    function updateTotalRewardsDistributed(uint256 amount) public {
+        vcaTotalRewardsDistributed += amount;
     }
 }

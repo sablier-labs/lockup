@@ -16,7 +16,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal aggregateAmount;
+    uint128 internal aggregateAmount;
 
     /// @dev The campaign token being used in the handler.
     IERC20 public campaignToken;
@@ -104,7 +104,14 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal virtual;
 
     /// @dev An internal deploy campaign function that must be overridden by the handler contract.
-    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (ISablierMerkleBase);
+    function _deployCampaign(
+        address campaignCreator,
+        bytes32 merkleRoot,
+        bool vcaRedistributionEnabled
+    )
+        internal
+        virtual
+        returns (ISablierMerkleBase);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   COMMON HANDLERS
@@ -173,9 +180,12 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     }
 
     /// @notice Helper function to deploy a Merkle Instant campaign with fuzzed leaves data and token.
-    /// @dev This will be called only once.
+    /// @dev Notes:
+    /// - This will be called only once.
+    /// - `enableRedistribution` is only relevant for Merkle VCA campaigns.
     function deployCampaign(
         address campaignCreator,
+        bool vcaRedistributionEnabled,
         uint256 tokenIndex,
         LeafData[] memory rawLeavesData
     )
@@ -190,7 +200,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
             fuzzMerkleDataAndComputeRoot(leaves, leavesData, rawLeavesData, store.getExcludedAddresses());
 
         // This must be overridden by the handler contract.
-        campaign = _deployCampaign(campaignCreator, merkleRoot);
+        campaign = _deployCampaign(campaignCreator, merkleRoot, vcaRedistributionEnabled);
 
         // Add the campaign to store.
         store.addCampaign(address(campaign));

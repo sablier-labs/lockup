@@ -17,7 +17,6 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     event CreateMerkleVCA(
         ISablierMerkleVCA indexed merkleVCA,
         MerkleVCA.ConstructorParams params,
-        uint256 aggregateAmount,
         uint256 recipientCount,
         address comptroller,
         uint256 minFeeUSD
@@ -53,20 +52,19 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     ///
     /// Requirements:
     /// - `params.token` must not be the forbidden native token.
+    /// - `params.aggregateAmount` must be greater than 0.
+    /// - Both `params.vestingStartTime` and `params.vestingEndTime` must be greater than 0.
+    /// - `params.vestingEndTime` must be greater than `params.vestingStartTime`.
     /// - `params.expiration` must be greater than 0.
     /// - `params.expiration` must be at least 1 week beyond the end time to ensure loyal recipients have enough time to
     /// claim.
-    /// - `params.vestingEndTime` must be greater than `params.vestingStartTime`.
-    /// - Both `params.vestingStartTime` and `params.vestingEndTime` must be greater than 0.
     /// - `params.unlockPercentage` must not be greater than 1e18, equivalent to 100%.
     ///
     /// @param params Struct encapsulating the {SablierMerkleVCA} parameters, which are documented in {DataTypes}.
-    /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleVCA The address of the newly created MerkleVCA campaign.
     function createMerkleVCA(
         MerkleVCA.ConstructorParams memory params,
-        uint256 aggregateAmount,
         uint256 recipientCount
     )
         external
