@@ -173,7 +173,7 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
         uint256 indexesCount
     )
         internal
-        returns (uint256 aggregateAmount, uint40 expiration_, bytes32 merkleRoot)
+        returns (uint128 aggregateAmount, uint40 expiration_, bytes32 merkleRoot)
     {
         vm.assume(rawLeavesData.length > 0 && indexesCount < rawLeavesData.length);
 

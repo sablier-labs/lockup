@@ -6,7 +6,7 @@ import { MerkleVCA } from "src/types/DataTypes.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 
-contract CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
+contract CalculateRedistributionRewards_MerkleVCA_Integration_Test is MerkleVCA_Integration_Shared_Test {
     function setUp() public override {
         MerkleVCA_Integration_Shared_Test.setUp();
 
@@ -17,7 +17,7 @@ contract CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test is Me
     function test_RevertGiven_RedistributionNotEnabled() external {
         // It should revert.
         vm.expectRevert(Errors.SablierMerkleVCA_RedistributionNotEnabled.selector);
-        merkleVCA.calculateRedistributionRewardsPerToken();
+        merkleVCA.calculateRedistributionRewards(VCA_FULL_AMOUNT);
     }
 
     function test_GivenTotalForgoneAmountZero() external givenRedistributionEnabled(merkleVCA) {
@@ -25,7 +25,7 @@ contract CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test is Me
         assertEq(merkleVCA.totalForgoneAmount(), 0, "total forgone amount");
 
         // It should return zero.
-        assertEq(merkleVCA.calculateRedistributionRewardsPerToken(), 0, "rewards per token");
+        assertEq(merkleVCA.calculateRedistributionRewards(VCA_FULL_AMOUNT), 0, "rewards");
     }
 
     function test_GivenAggregateAmountUndervalued()
@@ -56,38 +56,13 @@ contract CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test is Me
         assertGt(merkleVCA.totalForgoneAmount(), 0, "total forgone amount");
 
         // It should return zero.
-        assertEq(merkleVCA.calculateRedistributionRewardsPerToken(), 0, "rewards per token");
+        assertEq(merkleVCA.calculateRedistributionRewards(VCA_FULL_AMOUNT), 0, "rewards");
     }
 
-    function test_GivenInsufficientBalance()
+    function test_GivenAggregateAmountNotUndervalued()
         external
         givenRedistributionEnabled(merkleVCA)
         givenTotalForgoneAmountNotZero
-        givenAggregateAmountNotUndervalued
-    {
-        // Claim early so that there is some forgone amount.
-        setMsgSender(users.recipient);
-        claimTo({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            to: users.recipient,
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof()
-        });
-
-        // Clawback some tokens from the campaign so that it has insufficient balance.
-        setMsgSender(users.campaignCreator);
-        merkleVCA.clawback(address(this), 1e18);
-
-        // It should return zero.
-        assertEq(merkleVCA.calculateRedistributionRewardsPerToken(), 0, "rewards per token");
-    }
-
-    function test_GivenSufficientBalance()
-        external
-        givenRedistributionEnabled(merkleVCA)
-        givenTotalForgoneAmountNotZero
-        givenAggregateAmountNotUndervalued
     {
         // Claim early so that there is some forgone amount.
         setMsgSender(users.recipient);
@@ -100,6 +75,6 @@ contract CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test is Me
         });
 
         // It should return correct value.
-        assertEq(merkleVCA.calculateRedistributionRewardsPerToken(), VCA_REWARDS_PER_TOKEN, "rewards per token");
+        assertEq(merkleVCA.calculateRedistributionRewards(VCA_FULL_AMOUNT), VCA_REWARD_AMOUNT_PER_USER, "rewards");
     }
 }

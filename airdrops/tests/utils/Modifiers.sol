@@ -20,10 +20,6 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenAggregateAmountNotUndervalued() {
-        _;
-    }
-
     modifier givenCallerNotClaimed() {
         _;
     }

@@ -1,4 +1,4 @@
-CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test
+CalculateRedistributionRewards_MerkleVCA_Integration_Test
 ├── given redistribution not enabled
 │  └── it should revert
 └── given redistribution enabled
@@ -8,7 +8,4 @@ CalculateRedistributionRewardsPerToken_MerkleVCA_Integration_Test
       ├── given aggregate amount undervalued
       │  └── it should return zero
       └── given aggregate amount not undervalued
-         ├── given insufficient balance
-         │  └── it should return zero
-         └── given sufficient balance
-            └── it should return correct value
+         └── it should return correct value

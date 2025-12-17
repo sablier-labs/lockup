@@ -11,7 +11,7 @@ abstract contract Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     // Amounts
-    uint256 public constant AGGREGATE_AMOUNT = CLAIM_AMOUNT * RECIPIENT_COUNT;
+    uint128 public constant AGGREGATE_AMOUNT = CLAIM_AMOUNT * uint128(RECIPIENT_COUNT);
     uint128 public constant CLAIM_AMOUNT = 10_000e18;
     uint128 public constant CLIFF_AMOUNT = (CLAIM_AMOUNT * VESTING_CLIFF_DURATION) / VESTING_TOTAL_DURATION;
     uint128 public constant UNLOCK_START_AMOUNT = 100e18;
@@ -68,6 +68,5 @@ abstract contract Constants {
     // end time.
     uint128 public immutable VCA_REWARD_AMOUNT_PER_USER =
         (VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT) / (uint128(RECIPIENT_COUNT) - 1); // 2640e18
-    UD60x18 public immutable VCA_REWARDS_PER_TOKEN = ud60x18(0.264e18); // 0.264
     UD60x18 public immutable VCA_UNLOCK_PERCENTAGE = ud60x18(0.01e18); // 1%.
 }

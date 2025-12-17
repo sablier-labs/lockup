@@ -144,16 +144,16 @@ contract Invariant_Test is Base_Test, StdInvariant {
         if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
             assertEq(
                 merkleVCA.totalForgoneAmount(),
-                store.vcaTotalForgoneAmount(),
+                store.previousVcaTotalForgoneAmount(),
                 unicode"Invariant violation: total forgone amount changed after vesting end time"
             );
         }
     }
 
     /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is sufficiently funded,
-    /// - The redistribution rewards per token should never decrease.
-    /// - If vesting has ended, redistribution rewards per token should never change.
-    /// - `calculateRedistributionRewardsPerToken` should never revert.
+    /// - The redistribution rewards for a fixed amount should never decrease.
+    /// - If vesting has ended, redistribution rewards for a fixed amount should never change.
+    /// - `calculateRedistributionRewards` should never revert.
     /// - Rewards distributed should never exceed total forgone amount.
     function invariant_RedistributionRewardsGivenSufficientFunds() external view {
         ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
@@ -170,19 +170,19 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store.totalDepositAmount(address(merkleVCA)) - store.totalClawbackAmount(address(merkleVCA));
         if (expectedNetDeposit < aggregateAmount) return;
 
-        // Redistribution rewards per token should never decrease.
+        // Redistribution rewards for a fixed amount should never decrease.
         assertGe(
-            merkleVCA.calculateRedistributionRewardsPerToken().intoUint128(),
-            store.vcaRedistributionRewardsPerToken().intoUint128(),
-            unicode"Invariant violation: redistribution rewards per token decreased"
+            merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
+            store.previousVcaRedistributionRewardsPer1e18(),
+            unicode"Invariant violation: redistribution rewards decreased"
         );
 
-        // If vesting has ended, redistribution rewards per token should never change.
+        // If vesting has ended, redistribution rewards for a fixed amount should never change.
         if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
             assertEq(
-                merkleVCA.calculateRedistributionRewardsPerToken().intoUint128(),
-                store.vcaRedistributionRewardsPerToken().intoUint128(),
-                unicode"Invariant violation: redistribution rewards per token changed after vesting end time"
+                merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
+                store.previousVcaRedistributionRewardsPer1e18(),
+                unicode"Invariant violation: redistribution rewards changed after vesting end time"
             );
         }
 
@@ -195,7 +195,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is not sufficiently funded,
-    /// - `calculateRedistributionRewardsPerToken` should return 0.
+    /// - `calculateRedistributionRewards` should return 0.
     function invariant_RedistributionRewardsGivenInsufficientFunds() external view {
         ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
 
@@ -212,7 +212,9 @@ contract Invariant_Test is Base_Test, StdInvariant {
         if (expectedNetDeposit >= aggregateAmount) return;
 
         assertEq(
-            merkleVCA.calculateRedistributionRewardsPerToken(), 0, unicode"Invariant violation: rewards per token != 0"
+            merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
+            0,
+            unicode"Invariant violation: rewards when insufficient funds != 0"
         );
     }
 }

@@ -141,7 +141,7 @@ library MerkleVCA {
     /// @param vestingEndTime Vesting end time, as a Unix timestamp.
     /// @param vestingStartTime Vesting start time, as a Unix timestamp.
     struct ConstructorParams {
-        uint256 aggregateAmount;
+        uint128 aggregateAmount;
         string campaignName;
         uint40 campaignStartTime;
         bool enableRedistribution;

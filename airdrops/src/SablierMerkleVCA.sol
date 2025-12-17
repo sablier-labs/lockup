@@ -3,7 +3,8 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ud, UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
@@ -34,6 +35,7 @@ contract SablierMerkleVCA is
     ISablierMerkleVCA, // 2 inherited components
     SablierMerkleBase // 3 inherited components
 {
+    using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,7 +43,7 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    uint256 public immutable override AGGREGATE_AMOUNT;
+    uint128 public immutable override AGGREGATE_AMOUNT;
 
     /// @inheritdoc ISablierMerkleVCA
     UD60x18 public immutable override UNLOCK_PERCENTAGE;
@@ -56,10 +58,10 @@ contract SablierMerkleVCA is
     bool public override isRedistributionEnabled;
 
     /// @inheritdoc ISablierMerkleVCA
-    uint256 public override totalForgoneAmount;
+    uint128 public override totalForgoneAmount;
 
     /// @dev Tracks the full amount allocated to the recipients who claimed before the vesting end time.
-    uint256 private _fullAmountAllocatedToEarlyClaimers;
+    uint128 private _fullAmountAllocatedToEarlyClaimers;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -90,9 +92,7 @@ contract SablierMerkleVCA is
         VESTING_START_TIME = params.vestingStartTime;
 
         // Effect: enable redistribution if true.
-        if (params.enableRedistribution) {
-            isRedistributionEnabled = true;
-        }
+        if (params.enableRedistribution) isRedistributionEnabled = true;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -129,14 +129,14 @@ contract SablierMerkleVCA is
     }
 
     /// @inheritdoc ISablierMerkleVCA
-    function calculateRedistributionRewardsPerToken() external view override returns (UD60x18) {
+    function calculateRedistributionRewards(uint128 fullAmount) external view override returns (uint128) {
         // Check: redistribution is enabled.
         if (!isRedistributionEnabled) {
             revert Errors.SablierMerkleVCA_RedistributionNotEnabled();
         }
 
-        // Calculate and return the redistribution rewards per token.
-        return _calculateRedistributionRewardsPerToken();
+        // Calculate and return the redistribution rewards.
+        return _calculateRedistributionRewards(fullAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -237,35 +237,27 @@ contract SablierMerkleVCA is
         }
     }
 
-    /// @notice Calculates the redistribution rewards per token.
-    function _calculateRedistributionRewardsPerToken() private view returns (UD60x18 rewardsPerToken) {
+    /// @notice Calculates the redistribution rewards for a given full amount.
+    function _calculateRedistributionRewards(uint256 fullAmount) private view returns (uint128 rewards) {
+        // Return zero if total forgone amount is zero.
+        if (totalForgoneAmount == 0) {
+            return 0;
+        }
+
         // Return zero if amount allocated to early claimers is less than aggregate amount.
         if (AGGREGATE_AMOUNT <= _fullAmountAllocatedToEarlyClaimers) {
-            return ZERO;
+            return 0;
         }
 
         // Calculate the total amount allocated to the remaining claimers.
-        uint256 fullAmountAllocatedToRemainingClaimers;
+        uint128 fullAmountAllocatedToRemainingClaimers;
         unchecked {
             // Safe to use unchecked because it cannot overflow due to above check.
             fullAmountAllocatedToRemainingClaimers = AGGREGATE_AMOUNT - _fullAmountAllocatedToEarlyClaimers;
         }
 
-        // Get the token balance of the contract.
-        uint256 actualTokenBalance = TOKEN.balanceOf(address(this));
-
-        // Calculate the balance that is expected for the correct distribution of tokens.
-        uint256 expectedTokenBalance = totalForgoneAmount + fullAmountAllocatedToRemainingClaimers;
-
-        // For the correct distribution of tokens, the token balance must not be less than the sum of the total amount
-        // allocated to the remaining claimers and the total rewards to distribute. No rewards will be distributed if
-        // the contract has insufficient balance.
-        if (actualTokenBalance < expectedTokenBalance) {
-            return ZERO;
-        }
-
-        // Calculate the rewards per token.
-        rewardsPerToken = ud(totalForgoneAmount).div(ud(fullAmountAllocatedToRemainingClaimers));
+        // Calculate the rewards.
+        rewards = ((fullAmount * totalForgoneAmount) / fullAmountAllocatedToRemainingClaimers).toUint128();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -283,8 +275,8 @@ contract SablierMerkleVCA is
         }
 
         uint128 forgoneAmount;
-        uint256 rewardAmount;
-        uint256 transferAmount = claimAmount;
+        uint128 rewardAmount;
+        uint128 transferAmount = claimAmount;
 
         // Effect: update the total forgone amount and the total amount claimed by early claimers.
         if (claimAmount < fullAmount) {
@@ -298,17 +290,13 @@ contract SablierMerkleVCA is
             // in case of a calculation error.
             assert(claimAmount == fullAmount);
 
-            // If redistribution is enabled and there are forgone tokens, calculate and transfer the reward amount.
-            if (isRedistributionEnabled && totalForgoneAmount > 0) {
-                // Calculate the reward amount proportional to the full amount.
-                UD60x18 rewardsPerToken = _calculateRedistributionRewardsPerToken();
+            if (isRedistributionEnabled) {
+                // Calculate the reward amount.
+                rewardAmount = _calculateRedistributionRewards(fullAmount);
 
-                if (rewardsPerToken != ZERO) {
-                    // Calculate the reward amount proportional to the full amount.
-                    rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
-
-                    // Update the transfer amount.
-                    transferAmount = claimAmount + rewardAmount;
+                // Update the transfer amount if there are rewards to distribute.
+                if (rewardAmount > 0) {
+                    transferAmount += rewardAmount;
 
                     // Log the event.
                     emit RedistributionReward(index, recipient, rewardAmount, to);

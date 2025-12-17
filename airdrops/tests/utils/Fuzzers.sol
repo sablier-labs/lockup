@@ -22,7 +22,7 @@ abstract contract Fuzzers is BaseConstants, BaseUtils, MerkleBuilder, PRBMathUti
         address[] memory excludedAddresses
     )
         internal
-        returns (uint256 aggregateAmount, bytes32 merkleRoot)
+        returns (uint128 aggregateAmount, bytes32 merkleRoot)
     {
         // Fuzz the leaves data.
         aggregateAmount = fuzzMerkleData({ leavesData: rawLeavesData, excludedAddresses: excludedAddresses });
@@ -38,7 +38,7 @@ abstract contract Fuzzers is BaseConstants, BaseUtils, MerkleBuilder, PRBMathUti
     )
         internal
         view
-        returns (uint256 aggregateAmount)
+        returns (uint128 aggregateAmount)
     {
         for (uint256 i = 0; i < leavesData.length; ++i) {
             // Avoid zero recipient addresses.

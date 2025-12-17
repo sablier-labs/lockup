@@ -16,7 +16,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal aggregateAmount;
+    uint128 internal aggregateAmount;
 
     /// @dev The campaign token being used in the handler.
     IERC20 public campaignToken;

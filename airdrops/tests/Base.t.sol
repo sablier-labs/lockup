@@ -731,7 +731,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     }
 
     function merkleVCAConstructorParams(
-        uint256 aggregateAmount,
+        uint128 aggregateAmount,
         address campaignCreator,
         uint40 campaignStartTime,
         bool enableRedistribution,

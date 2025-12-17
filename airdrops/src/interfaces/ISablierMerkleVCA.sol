@@ -38,7 +38,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @param recipient The address of the airdrop recipient.
     /// @param amount The amount of ERC-20 tokens distributed as a reward.
     /// @param to The address receiving the reward tokens.
-    event RedistributionReward(uint256 index, address indexed recipient, uint256 amount, address to);
+    event RedistributionReward(uint256 index, address indexed recipient, uint128 amount, address to);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -46,7 +46,7 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
 
     /// @notice Retrieves the total amount of ERC-20 tokens allocated to the campaign.
     /// @dev Only used when redistribution is enabled.
-    function AGGREGATE_AMOUNT() external view returns (uint256);
+    function AGGREGATE_AMOUNT() external view returns (uint128);
 
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
     /// value is denominated as a fixed-point number where 1e18 is 100%.
@@ -73,18 +73,18 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @return The amount that would be forgone, denominated in the token's decimals.
     function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128);
 
-    /// @notice Retrieves a bool indicating whether the redistribution of forgone tokens is enabled or not.
-    function isRedistributionEnabled() external view returns (bool);
-
-    /// @notice Returns the redistribution rewards per token.
+    /// @notice Calculates the redistribution rewards for a given full amount.
     /// @dev Notes:
     /// - Reverts if redistribution is not enabled.
     /// - Returns zero if the aggregate amount is less than the amount allocated to the recipients claiming early.
-    /// - Returns zero if the contract has insufficient balance to distribute the rewards to the remaining recipients.
-    function calculateRedistributionRewardsPerToken() external view returns (UD60x18);
+    /// @param fullAmount The amount of tokens that the redistribution rewards are to be calculated for.
+    function calculateRedistributionRewards(uint128 fullAmount) external view returns (uint128);
+
+    /// @notice Retrieves a bool indicating whether the redistribution of forgone tokens is enabled or not.
+    function isRedistributionEnabled() external view returns (bool);
 
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
-    function totalForgoneAmount() external view returns (uint256);
+    function totalForgoneAmount() external view returns (uint128);
 
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
@@ -99,8 +99,8 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     ///
     /// Notes:
     /// - When redistribution is enabled, if the aggregate amount is incorrectly set, or the contract has insufficient
-    /// token balance, the rewards per token will be calculated as zero and therefore no rewards will be distributed
-    /// until the campaign creator deposits the sufficient balance.
+    /// token balance, the rewards will be returned as zero and therefore no rewards will be distributed until the
+    /// campaign creator deposits the sufficient balance.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.

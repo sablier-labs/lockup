@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 /// @dev Storage variables needed for handlers.
@@ -17,16 +16,16 @@ contract Store is BaseUtils {
     /// @dev List of addresses to be excluded from being fuzzed as `msg.sender`.
     address[] internal excludedAddresses;
 
+    /// @dev Track redistribution rewards per 1e18 for VCA campaign before a claim is made.
+    uint256 public previousVcaRedistributionRewardsPer1e18;
+
+    /// @dev Track total forgone amounts for VCA campaign before a claim is made.
+    uint256 public previousVcaTotalForgoneAmount;
+
     IERC20[] public tokens;
 
     /// @dev Tracks VCA campaign.
     address public vcaCampaign;
-
-    /// @dev Track redistribution rewards per token for VCA campaign.
-    UD60x18 public vcaRedistributionRewardsPerToken;
-
-    /// @dev Track total forgone amounts for VCA campaign.
-    uint256 public vcaTotalForgoneAmount;
 
     /// @dev Track total full amounts requested by users for VCA campaign.
     uint256 public vcaTotalFullAmountRequested;
@@ -90,8 +89,12 @@ contract Store is BaseUtils {
         return tokens;
     }
 
-    function setVcaRedistributionRewardsPerToken(UD60x18 rewardsPerToken) public {
-        vcaRedistributionRewardsPerToken = rewardsPerToken;
+    function updatePreviousVcaRedistributionRewardsPer1e18(uint256 rewardsPer1e18) public {
+        previousVcaRedistributionRewardsPer1e18 = rewardsPer1e18;
+    }
+
+    function updatePreviousVcaTotalForgoneAmount(uint256 amount) public {
+        previousVcaTotalForgoneAmount += amount;
     }
 
     function updateTotalClaimAmount(address campaign, uint256 amount) public {
@@ -104,10 +107,6 @@ contract Store is BaseUtils {
 
     function updateTotalDepositAmount(address campaign, uint256 amount) public {
         totalDepositAmount[campaign] += amount;
-    }
-
-    function updateTotalForgoneAmount(uint256 amount) public {
-        vcaTotalForgoneAmount += amount;
     }
 
     function updateVcaCampaign(address campaign) public {

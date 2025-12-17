@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ud } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
@@ -112,20 +111,20 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             vestingStartTime: vestingStartTime
         });
 
-        // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
-        // redistribution is enabled.
-        uint256 expectedRewardAmount;
-        if (getBlockTimestamp() >= vestingEndTime && enableRedistribution && forgoneAmount > 0) {
-            expectedRewardAmount =
-                ud(vars.leafToClaim.amount).mul(merkleVCA.calculateRedistributionRewardsPerToken()).intoUint128();
+        uint128 expectedRewardAmount;
+        if (getBlockTimestamp() >= vestingEndTime && enableRedistribution) {
+            expectedRewardAmount = merkleVCA.calculateRedistributionRewards({ fullAmount: vars.leafToClaim.amount });
 
-            vm.expectEmit({ emitter: address(merkleVCA) });
-            emit ISablierMerkleVCA.RedistributionReward({
-                index: vars.leafToClaim.index,
-                recipient: vars.leafToClaim.recipient,
-                amount: expectedRewardAmount,
-                to: vars.leafToClaim.recipient
-            });
+            // It should emit a {RedistributionReward} event if there are rewards to distribute.
+            if (expectedRewardAmount > 0) {
+                vm.expectEmit({ emitter: address(merkleVCA) });
+                emit ISablierMerkleVCA.RedistributionReward({
+                    index: vars.leafToClaim.index,
+                    recipient: vars.leafToClaim.recipient,
+                    amount: expectedRewardAmount,
+                    to: vars.leafToClaim.recipient
+                });
+            }
         }
 
         vm.expectEmit({ emitter: address(merkleVCA) });
