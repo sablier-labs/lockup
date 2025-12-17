@@ -150,7 +150,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is sufficiently funded,
+    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and aggregate amount is correctly set,
     /// - The redistribution rewards for a fixed amount should never decrease.
     /// - If vesting has ended, redistribution rewards for a fixed amount should never change.
     /// - `calculateRedistributionRewards` should never revert.
@@ -163,12 +163,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
         // Skip if redistribution is disabled.
         if (!merkleVCA.isRedistributionEnabled()) return;
-
-        // Skip if campaign is not sufficiently funded.
-        uint256 aggregateAmount = merkleVCA.AGGREGATE_AMOUNT();
-        uint256 expectedNetDeposit =
-            store.totalDepositAmount(address(merkleVCA)) - store.totalClawbackAmount(address(merkleVCA));
-        if (expectedNetDeposit < aggregateAmount) return;
 
         // Redistribution rewards for a fixed amount should never decrease.
         assertGe(
@@ -191,30 +185,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store.vcaTotalRewardsDistributed(),
             merkleVCA.totalForgoneAmount(),
             unicode"Invariant violation: rewards distributed > total forgone amount"
-        );
-    }
-
-    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is not sufficiently funded,
-    /// - `calculateRedistributionRewards` should return 0.
-    function invariant_RedistributionRewardsGivenInsufficientFunds() external view {
-        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
-
-        // Skip if no VCA campaign is deployed.
-        if (address(merkleVCA) == address(0)) return;
-
-        // Skip if redistribution is disabled.
-        if (!merkleVCA.isRedistributionEnabled()) return;
-
-        // Skip if campaign is sufficiently funded.
-        uint256 aggregateAmount = merkleVCA.AGGREGATE_AMOUNT();
-        uint256 expectedNetDeposit =
-            store.totalDepositAmount(address(merkleVCA)) - store.totalClawbackAmount(address(merkleVCA));
-        if (expectedNetDeposit >= aggregateAmount) return;
-
-        assertEq(
-            merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 }),
-            0,
-            unicode"Invariant violation: rewards when insufficient funds != 0"
         );
     }
 }

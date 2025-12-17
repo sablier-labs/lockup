@@ -9,10 +9,8 @@
 
 1. total forgone = $\sum$ full amount requested - $\sum$ claimed
 2. If vesting has ended, total forgone amount should never change.
-3. If redistribution is enabled and campaign is sufficiently funded,
+3. If redistribution is enabled and aggregate amount is correctly set,
    - Redistribution rewards for a fixed amount should never decrease.
    - If vesting has ended, redistribution rewards for a fixed amount should never change.
    - `calculateRedistributionRewardsPerToken` should never revert.
    - Rewards distributed should never exceed total forgone amount.
-4. If redistribution is enabled and campaign is not sufficiently funded,
-   - `calculateRedistributionRewardsPerToken` should return 0.
