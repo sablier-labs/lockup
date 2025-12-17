@@ -18,15 +18,11 @@ contract ClaimTo_MerkleVCA_Integration_Test is
     ClaimTo_Integration_Test,
     MerkleVCA_Integration_Shared_Test
 {
-    function setUp()
-        public
-        virtual
-        override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test, Integration_Test)
-    {
+    function setUp() public override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test, Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
         ClaimTo_Integration_Test.setUp();
 
-        // Warp to vesting start time.
+        // Warp to campaign start time.
         vm.warp({ newTimestamp: CAMPAIGN_START_TIME });
 
         // Claim early for a user so that there is some forgone amount.
@@ -48,6 +44,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp() + 1 seconds;
         merkleVCA = createMerkleVCA(params);
+        merkleBase = merkleVCA;
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient));
@@ -66,6 +63,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp();
         merkleVCA = createMerkleVCA(params);
+        merkleBase = merkleVCA;
 
         _test_ClaimTo({ expectedTransferAmount: VCA_UNLOCK_AMOUNT, isRedistributionEnabled: false });
     }

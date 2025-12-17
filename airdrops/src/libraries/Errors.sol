@@ -105,9 +105,6 @@ library Errors {
     /// @notice Thrown when trying to calculate the rewards amount without redistribution enabled.
     error SablierMerkleVCA_RedistributionNotEnabled();
 
-    /// @notice Thrown when trying to switch to REDISTRIBUTE strategy after the vesting period has ended.
-    error SablierMerkleVCA_VestingAlreadyEnded(uint40 vestingEndTime, uint256 blockTimestamp);
-
     /// @notice Thrown when calculating the forgone amount with claim time less than the vesting start time.
     error SablierMerkleVCA_VestingNotStarted(uint40 claimTime, uint40 vestingStartTime);
 }

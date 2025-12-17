@@ -29,6 +29,9 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
         bool viaSig
     );
 
+    /// @notice Emitted when the redistribution is enabled.
+    event RedistributionEnabled();
+
     /// @notice Emitted when a recipient receives rewards from the forgone tokens pool.
     /// @dev Only emitted when redistribution is enabled.
     /// @param index The index of the airdrop recipient in the Merkle tree.
@@ -74,7 +77,10 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     function isRedistributionEnabled() external view returns (bool);
 
     /// @notice Returns the redistribution rewards per token.
-    /// @dev Reverts if redistribution is not enabled.
+    /// @dev Notes:
+    /// - Reverts if redistribution is not enabled.
+    /// - Returns zero if the aggregate amount is less than the amount allocated to the recipients claiming early.
+    /// - Returns zero if the contract has insufficient balance to distribute the rewards to the remaining recipients.
     function calculateRedistributionRewardsPerToken() external view returns (UD60x18);
 
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
@@ -85,9 +91,16 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Claim airdrop. If the vesting end time is in the future, it calculates the claim amount to transfer to
-    /// the `to` address, otherwise it transfers the full amount.
+    /// the `to` address, otherwise it transfers the full amount. If the redistribution is enabled, it calculates the
+    /// reward amount based on the total amount of tokens forgone by early claimers and transfers it to the recipients
+    /// claiming after the vesting end time.
     ///
-    /// @dev It emits a {ClaimVCA} event.
+    /// @dev It emits a {ClaimVCA} event, and a {RedistributionReward} event if the redistribution is enabled.
+    ///
+    /// Notes:
+    /// - When redistribution is enabled, if the aggregate amount is incorrectly set, or the contract has insufficient
+    /// token balance, the rewards per token will be calculated as zero and therefore no rewards will be distributed
+    /// until the campaign creator deposits the sufficient balance.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
@@ -171,13 +184,13 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
         payable;
 
     /// @notice Enable the redistribution of forgone tokens among recipients claiming after the vesting end time,
-    /// proportional to their allocation amount.
+    /// proportional to their allocation amount. Once enabled, it cannot be disabled.
     ///
-    /// @dev Requirements:
+    /// @dev This function can be called at any time, even after the vesting period has ended. However, only the
+    /// recipients who have not claimed will be able to receive rewards.
+    ///
+    /// Requirements:
     /// - `msg.sender` must be the admin.
     /// - Redistribution must not be already enabled.
-    /// - Vesting time must be in the future.
-    /// TODO: Can we allow this switch after vesting end time? In that case, can users who already claimed their full
-    /// airdrop claim the rewards separately?
     function enableRedistribution() external;
 }

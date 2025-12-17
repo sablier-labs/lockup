@@ -7,6 +7,12 @@
 
 #### For VCA campaign:
 
-1. total forgone = $\sum$ claim requested - $\sum$ claimed
-2. If redistribution is enabled, redistribution rewards per token should never decrease.
-3. If redistribution is enabled and vesting has ended, redistribution rewards per token should never change.
+1. total forgone = $\sum$ full amount requested - $\sum$ claimed
+2. If vesting has ended, total forgone amount should never change.
+3. If redistribution is enabled and campaign is sufficiently funded,
+   - Redistribution rewards per token should never decrease.
+   - If vesting has ended, redistribution rewards per token should never change.
+   - `calculateRedistributionRewardsPerToken` should never revert.
+   - Rewards distributed should never exceed total forgone amount.
+4. If redistribution is enabled and campaign is not sufficiently funded,
+   - `calculateRedistributionRewardsPerToken` should return 0.

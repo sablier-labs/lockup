@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
@@ -28,27 +29,14 @@ contract EnableRedistribution_MerkleVCA_Integration_Test is MerkleVCA_Integratio
         merkleVCA.enableRedistribution();
     }
 
-    function test_RevertWhen_VestingEndTimeNotInFuture()
-        external
-        whenCallerCampaignCreator
-        givenRedistributionNotEnabled
-    {
-        // Forward time to campaign end time.
-        vm.warp(VCA_END_TIME);
+    function test_GivenRedistributionNotEnabled() external whenCallerCampaignCreator {
+        // It should emit {RedistributionEnabled} event.
+        vm.expectEmit({ emitter: address(merkleVCA) });
+        emit ISablierMerkleVCA.RedistributionEnabled();
 
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierMerkleVCA_VestingAlreadyEnded.selector, VCA_END_TIME, getBlockTimestamp()
-            )
-        );
-        merkleVCA.enableRedistribution();
-    }
-
-    function test_WhenVestingEndTimeInFuture() external whenCallerCampaignCreator givenRedistributionNotEnabled {
         merkleVCA.enableRedistribution();
 
-        // It should set it to true.
+        // It should enable redistribution.
         assertTrue(merkleVCA.isRedistributionEnabled(), "isRedistributionEnabled");
     }
 }

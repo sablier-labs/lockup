@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Users } from "./Types.sol";
 
 abstract contract Modifiers is EvmUtilsBase {
@@ -18,6 +19,10 @@ abstract contract Modifiers is EvmUtilsBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenAggregateAmountNotUndervalued() {
+        _;
+    }
 
     modifier givenCallerNotClaimed() {
         _;
@@ -51,13 +56,19 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenRedistributionNotEnabled() {
+    modifier givenRedistributionEnabled(ISablierMerkleVCA merkleVCA) {
+        // Enable the redistribution.
+        merkleVCA.enableRedistribution();
         _;
     }
 
     modifier givenSevenDaysPassed() {
         // Skip forward by 8 days.
         skip(8 days);
+        _;
+    }
+
+    modifier givenTotalForgoneAmountNotZero() {
         _;
     }
 

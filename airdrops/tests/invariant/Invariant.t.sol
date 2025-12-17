@@ -126,46 +126,93 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                CONDITIONAL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev For a VCA campaign, the total forgone amount should be equal to total claim amount requested by users minus
-    /// the total claimed amount.
-    function invariant_TotalForgoneEqualsClaimRequestedMinusClaimed() external view {
-        address vcaCampaign = store.vcaCampaign();
+    /// @dev Invariants: For a VCA campaign,
+    /// - Total forgone amount should be equal to total full amount requested by users minus the total claimed amount.
+    /// - If vesting has ended, total forgone amount should never change.
+    function invariant_VcaTotalForgoneAmount() external view {
+        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
 
         // Skip if no VCA campaign is deployed.
-        if (vcaCampaign == address(0)) return;
+        if (address(merkleVCA) == address(0)) return;
 
         assertEq(
-            store.vcaTotalForgoneAmount(),
-            store.vcaTotalClaimAmountRequested() - store.totalClaimAmount(vcaCampaign),
-            unicode"Invariant violation: total forgone amount != total claim amount requested - total claimed amount"
+            merkleVCA.totalForgoneAmount(),
+            store.vcaTotalFullAmountRequested() - store.totalClaimAmount(address(merkleVCA)),
+            unicode"Invariant violation: total forgone amount != total full amount requested - total claimed amount"
         );
+
+        if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
+            assertEq(
+                merkleVCA.totalForgoneAmount(),
+                store.vcaTotalForgoneAmount(),
+                unicode"Invariant violation: total forgone amount changed after vesting end time"
+            );
+        }
     }
 
-    /// @dev For a VCA campaign, if redistribution is enabled, the redistribution rewards per token should never
-    /// decrease.
-    function invariant_RedistributionRewardsPerTokenMonotonicity() external view {
-        address vcaCampaign = store.vcaCampaign();
+    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is sufficiently funded,
+    /// - The redistribution rewards per token should never decrease.
+    /// - If vesting has ended, redistribution rewards per token should never change.
+    /// - `calculateRedistributionRewardsPerToken` should never revert.
+    /// - Rewards distributed should never exceed total forgone amount.
+    function invariant_RedistributionRewardsGivenSufficientFunds() external view {
+        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
 
         // Skip if no VCA campaign is deployed.
-        if (vcaCampaign == address(0)) return;
+        if (address(merkleVCA) == address(0)) return;
 
         // Skip if redistribution is disabled.
-        if (!ISablierMerkleVCA(vcaCampaign).isRedistributionEnabled()) return;
+        if (!merkleVCA.isRedistributionEnabled()) return;
+
+        // Skip if campaign is not sufficiently funded.
+        uint256 aggregateAmount = merkleVCA.AGGREGATE_AMOUNT();
+        uint256 expectedNetDeposit =
+            store.totalDepositAmount(address(merkleVCA)) - store.totalClawbackAmount(address(merkleVCA));
+        if (expectedNetDeposit < aggregateAmount) return;
 
         // Redistribution rewards per token should never decrease.
         assertGe(
-            ISablierMerkleVCA(vcaCampaign).calculateRedistributionRewardsPerToken().intoUint128(),
+            merkleVCA.calculateRedistributionRewardsPerToken().intoUint128(),
             store.vcaRedistributionRewardsPerToken().intoUint128(),
             unicode"Invariant violation: redistribution rewards per token decreased"
         );
 
         // If vesting has ended, redistribution rewards per token should never change.
-        if (getBlockTimestamp() >= ISablierMerkleVCA(vcaCampaign).VESTING_END_TIME()) {
+        if (getBlockTimestamp() >= merkleVCA.VESTING_END_TIME()) {
             assertEq(
-                ISablierMerkleVCA(vcaCampaign).calculateRedistributionRewardsPerToken().intoUint128(),
+                merkleVCA.calculateRedistributionRewardsPerToken().intoUint128(),
                 store.vcaRedistributionRewardsPerToken().intoUint128(),
                 unicode"Invariant violation: redistribution rewards per token changed after vesting end time"
             );
         }
+
+        // Rewards distributed should never exceed total forgone amount.
+        assertLe(
+            store.vcaTotalRewardsDistributed(),
+            merkleVCA.totalForgoneAmount(),
+            unicode"Invariant violation: rewards distributed > total forgone amount"
+        );
+    }
+
+    /// @dev Invariants: For a VCA campaign, if redistribution is enabled and campaign is not sufficiently funded,
+    /// - `calculateRedistributionRewardsPerToken` should return 0.
+    function invariant_RedistributionRewardsGivenInsufficientFunds() external view {
+        ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());
+
+        // Skip if no VCA campaign is deployed.
+        if (address(merkleVCA) == address(0)) return;
+
+        // Skip if redistribution is disabled.
+        if (!merkleVCA.isRedistributionEnabled()) return;
+
+        // Skip if campaign is sufficiently funded.
+        uint256 aggregateAmount = merkleVCA.AGGREGATE_AMOUNT();
+        uint256 expectedNetDeposit =
+            store.totalDepositAmount(address(merkleVCA)) - store.totalClawbackAmount(address(merkleVCA));
+        if (expectedNetDeposit >= aggregateAmount) return;
+
+        assertEq(
+            merkleVCA.calculateRedistributionRewardsPerToken(), 0, unicode"Invariant violation: rewards per token != 0"
+        );
     }
 }

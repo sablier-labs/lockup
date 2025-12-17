@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
@@ -194,16 +194,11 @@ contract SablierMerkleVCA is
             revert Errors.SablierMerkleVCA_RedistributionAlreadyEnabled();
         }
 
-        // Check: vesting time is in the future.
-        if (block.timestamp >= VESTING_END_TIME) {
-            revert Errors.SablierMerkleVCA_VestingAlreadyEnded({
-                vestingEndTime: VESTING_END_TIME,
-                blockTimestamp: block.timestamp
-            });
-        }
-
         // Effect: set the value to true.
         isRedistributionEnabled = true;
+
+        // Log the event.
+        emit RedistributionEnabled();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -244,8 +239,30 @@ contract SablierMerkleVCA is
 
     /// @notice Calculates the redistribution rewards per token.
     function _calculateRedistributionRewardsPerToken() private view returns (UD60x18 rewardsPerToken) {
+        // Return zero if amount allocated to early claimers is less than aggregate amount.
+        if (AGGREGATE_AMOUNT <= _fullAmountAllocatedToEarlyClaimers) {
+            return ZERO;
+        }
+
         // Calculate the total amount allocated to the remaining claimers.
-        uint256 fullAmountAllocatedToRemainingClaimers = AGGREGATE_AMOUNT - _fullAmountAllocatedToEarlyClaimers;
+        uint256 fullAmountAllocatedToRemainingClaimers;
+        unchecked {
+            // Safe to use unchecked because it cannot overflow due to above check.
+            fullAmountAllocatedToRemainingClaimers = AGGREGATE_AMOUNT - _fullAmountAllocatedToEarlyClaimers;
+        }
+
+        // Get the token balance of the contract.
+        uint256 actualTokenBalance = TOKEN.balanceOf(address(this));
+
+        // Calculate the balance that is expected for the correct distribution of tokens.
+        uint256 expectedTokenBalance = totalForgoneAmount + fullAmountAllocatedToRemainingClaimers;
+
+        // For the correct distribution of tokens, the token balance must not be less than the sum of the total amount
+        // allocated to the remaining claimers and the total rewards to distribute. No rewards will be distributed if
+        // the contract has insufficient balance.
+        if (actualTokenBalance < expectedTokenBalance) {
+            return ZERO;
+        }
 
         // Calculate the rewards per token.
         rewardsPerToken = ud(totalForgoneAmount).div(ud(fullAmountAllocatedToRemainingClaimers));
@@ -286,10 +303,14 @@ contract SablierMerkleVCA is
                 unchecked {
                     // Calculate the reward amount proportional to the full amount.
                     UD60x18 rewardsPerToken = _calculateRedistributionRewardsPerToken();
-                    rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
 
-                    // Update the transfer amount.
-                    transferAmount = claimAmount + rewardAmount;
+                    if (rewardsPerToken != ZERO) {
+                        // Calculate the reward amount proportional to the full amount.
+                        rewardAmount = ud(fullAmount).mul(rewardsPerToken).intoUint128();
+
+                        // Update the transfer amount.
+                        transferAmount = claimAmount + rewardAmount;
+                    }
                 }
 
                 // Log the event.

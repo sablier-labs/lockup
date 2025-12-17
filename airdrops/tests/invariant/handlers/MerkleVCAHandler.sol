@@ -33,6 +33,9 @@ contract MerkleVCAHandler is BaseHandler {
         // Calculate the forgone amount.
         uint128 forgoneAmount = leafData.amount - claimAmount;
 
+        // Get initial balance of recipient for rewards calculation.
+        uint256 initialRecipientBalance = campaignToken.balanceOf(leafData.recipient);
+
         // Claim the airdrop.
         merkleVCA.claimTo{ value: AIRDROP_MIN_FEE_WEI }(
             leafData.index, leafData.recipient, leafData.amount, merkleProof
@@ -44,12 +47,18 @@ contract MerkleVCAHandler is BaseHandler {
         // Update forgone amount for VCA campaign in store.
         store.updateTotalForgoneAmount(forgoneAmount);
 
-        // Update total claim amount requested for VCA campaign in store.
-        store.updateVcaTotalClaimAmountRequested(leafData.amount);
+        // Update total full amount requested for VCA campaign in store.
+        store.updateVcaTotalFullAmountRequested(leafData.amount);
 
-        // Set redistribution rewards per token in store, only if redistribution is enabled.
         if (merkleVCA.isRedistributionEnabled()) {
             store.setVcaRedistributionRewardsPerToken(merkleVCA.calculateRedistributionRewardsPerToken());
+
+            // Get final balance of recipient for rewards calculation.
+            uint256 finalRecipientBalance = campaignToken.balanceOf(leafData.recipient);
+
+            // Calculate the rewards transferred to the recipient and update in store.
+            uint256 rewardsTransferred = finalRecipientBalance - initialRecipientBalance - claimAmount;
+            store.updateTotalRewardsDistributed(rewardsTransferred);
         }
     }
 

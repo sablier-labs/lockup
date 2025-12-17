@@ -25,11 +25,14 @@ contract Store is BaseUtils {
     /// @dev Track redistribution rewards per token for VCA campaign.
     UD60x18 public vcaRedistributionRewardsPerToken;
 
-    /// @dev Track total claim amounts requested by users for VCA campaign.
-    uint256 public vcaTotalClaimAmountRequested;
-
     /// @dev Track total forgone amounts for VCA campaign.
     uint256 public vcaTotalForgoneAmount;
+
+    /// @dev Track total full amounts requested by users for VCA campaign.
+    uint256 public vcaTotalFullAmountRequested;
+
+    /// @dev Track total rewards distributed for VCA campaign.
+    uint256 public vcaTotalRewardsDistributed;
 
     /// @dev Track claimed indexes for each campaign.
     mapping(address campaign => uint256[] indexes) public claimedIndexes;
@@ -111,7 +114,11 @@ contract Store is BaseUtils {
         vcaCampaign = campaign;
     }
 
-    function updateVcaTotalClaimAmountRequested(uint256 amount) public {
-        vcaTotalClaimAmountRequested += amount;
+    function updateVcaTotalFullAmountRequested(uint256 amount) public {
+        vcaTotalFullAmountRequested += amount;
+    }
+
+    function updateTotalRewardsDistributed(uint256 amount) public {
+        vcaTotalRewardsDistributed += amount;
     }
 }

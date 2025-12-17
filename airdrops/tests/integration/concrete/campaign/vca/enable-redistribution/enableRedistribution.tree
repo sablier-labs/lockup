@@ -5,7 +5,5 @@ EnableRedistribution_MerkleVCA_Integration_Test
    ├── given redistribution enabled
    │  └── it should revert
    └── given redistribution not enabled
-      ├── when vesting end time not in future
-      │  └── it should revert
-      └── when vesting end time in future
-         └── it should set it to true
+      ├── it should enable redistribution
+      └── it should emit {RedistributionEnabled} event
