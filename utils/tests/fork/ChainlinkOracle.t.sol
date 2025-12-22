@@ -9,41 +9,83 @@ import { Base_Test } from "../Base.t.sol";
 contract BaseScriptMock is BaseScript { }
 
 contract ChainlinkOracle_Fork_Test is Base_Test {
-    function testFork_ChainlinkOracle() external {
-        // Get list of mainnet chain IDs.
-        uint256[] memory supportedChainIds = ChainId.getAllMainnets();
+    function testFork_ChainlinkOracle_Arbitrum() external {
+        _testChainlinkOracle(ChainId.ARBITRUM);
+    }
 
-        // Run tests over all supported chains.
-        for (uint256 i = 0; i < ChainId.MAINNETS_COUNT; ++i) {
-            uint256 chainId = supportedChainIds[i];
+    function testFork_ChainlinkOracle_Avalanche() external {
+        _testChainlinkOracle(ChainId.AVALANCHE);
+    }
 
-            // Skip zksync as it requires a different foundry version.
-            if (chainId == ChainId.ZKSYNC) continue;
+    function testFork_ChainlinkOracle_Base() external {
+        _testChainlinkOracle(ChainId.BASE);
+    }
 
-            // Get the chain name.
-            string memory chainName = ChainId.getName(chainId);
+    function testFork_ChainlinkOracle_BSC() external {
+        _testChainlinkOracle(ChainId.BSC);
+    }
 
-            // Fork chain on the latest block number.
-            vm.createSelectFork({ urlOrAlias: chainName });
+    function testFork_ChainlinkOracle_Ethereum() external {
+        _testChainlinkOracle(ChainId.ETHEREUM);
+    }
 
-            BaseScriptMock baseScriptMock = new BaseScriptMock();
+    function testFork_ChainlinkOracle_Gnosis() external {
+        _testChainlinkOracle(ChainId.GNOSIS);
+    }
 
-            // Get the Chainlink oracle address for the current chain.
-            address oracle = baseScriptMock.getChainlinkOracle();
+    function testFork_ChainlinkOracle_HyperEVM() external {
+        _testChainlinkOracle(ChainId.HYPEREVM);
+    }
 
-            // Skip if oracle is not found.
-            if (oracle == address(0)) continue;
+    function testFork_ChainlinkOracle_Linea() external {
+        _testChainlinkOracle(ChainId.LINEA);
+    }
 
-            // Retrieve the latest price and decimals from the Chainlink oracle.
-            (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(oracle).latestRoundData();
-            uint8 oracleDecimals = AggregatorV3Interface(oracle).decimals();
+    function testFork_ChainlinkOracle_Monad() external {
+        _testChainlinkOracle(ChainId.MONAD);
+    }
 
-            // Assert that the Chainlink price feed returns non-zero values.
-            vm.assertGt(uint256(price), 0, "price");
-            vm.assertGt(updatedAt, 0, "updated at");
+    function testFork_ChainlinkOracle_Optimism() external {
+        _testChainlinkOracle(ChainId.OPTIMISM);
+    }
 
-            // Assert that the oracle returns 8 decimals.
-            vm.assertEq(oracleDecimals, 8, "oracle decimals");
-        }
+    function testFork_ChainlinkOracle_Polygon() external {
+        _testChainlinkOracle(ChainId.POLYGON);
+    }
+
+    function testFork_ChainlinkOracle_Scroll() external {
+        _testChainlinkOracle(ChainId.SCROLL);
+    }
+
+    function testFork_ChainlinkOracle_Sonic() external {
+        _testChainlinkOracle(ChainId.SONIC);
+    }
+
+    /// @dev Helper function to test Chainlink oracle for a specific chain
+    function _testChainlinkOracle(uint256 chainId) private {
+        // Get the chain name.
+        string memory chainName = ChainId.getName(chainId);
+
+        // Fork chain on the latest block number.
+        vm.createSelectFork({ urlOrAlias: chainName });
+
+        BaseScriptMock baseScriptMock = new BaseScriptMock();
+
+        // Get the Chainlink oracle address for the current chain.
+        address oracle = baseScriptMock.getChainlinkOracle();
+
+        // Skip if oracle is not found.
+        if (oracle == address(0)) return;
+
+        // Retrieve the latest price and decimals from the Chainlink oracle.
+        (, int256 price,, uint256 updatedAt,) = AggregatorV3Interface(oracle).latestRoundData();
+        uint8 oracleDecimals = AggregatorV3Interface(oracle).decimals();
+
+        // Assert that the Chainlink price feed returns non-zero values.
+        vm.assertGt(uint256(price), 0, "price");
+        vm.assertGt(updatedAt, 0, "updated at");
+
+        // Assert that the oracle returns 8 decimals.
+        vm.assertEq(oracleDecimals, 8, "oracle decimals");
     }
 }
