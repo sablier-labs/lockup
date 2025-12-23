@@ -26,3 +26,6 @@ vulnerability, it must adhere to these assumptions as well:
 - There is no need for exponents greater than ~18.44 in `LockupDynamic` segments.
 - Recipient contracts on the hook allowlist have gone through due diligence and are assumed to expose no risk to the
   Sablier protocol.
+- When withdrawing from multiple streams either using `batch` or `withdrawMultiple` function, the minimum fee required
+  to execute the transaction is equal to the minimum fee required to withdraw from a single stream. This is intentional
+  and expected behavior.
