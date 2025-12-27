@@ -25,7 +25,7 @@ jobs:
   check:
     uses: "sablier-labs/gha-utils/.github/workflows/full-check.yml@main"
     with:
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       name: "Full check"
       working-directory: ${{ inputs.module }}
 
@@ -37,7 +37,7 @@ jobs:
         ${{ inputs.module }}/node_modules
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       name: "Build"
       working-directory: ${{ inputs.module }}
 
@@ -65,7 +65,7 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       match-path: "tests/fork/**/*.sol"
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
@@ -81,7 +81,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       match-path: "tests/{integration,utils}/**/*.sol"
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
@@ -97,7 +97,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       match-path: "tests/invariant/**/*.sol"
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
@@ -113,7 +113,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       match-path: "tests/unit/**/*.sol"
       name: "Unit tests"
       working-directory: ${{ inputs.module }}
@@ -130,7 +130,7 @@ jobs:
         ${{ inputs.module }}/node_modules
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
-      foundry-version: "v1.4.4"
+      foundry-version: "v1.5.0"
       match-path: "tests/{integration,unit}/**/*.sol"
       name: "Coverage"
       via-ir-minimum: true
