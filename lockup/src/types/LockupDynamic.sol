@@ -3,9 +3,9 @@ pragma solidity >=0.8.22;
 
 import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 
-/// @notice Namespace for the structs used only in LD streams.
+/// @notice Namespace for the structs used only in Lockup Dynamic streams.
 library LockupDynamic {
-    /// @notice Segment struct stored to represent LD streams.
+    /// @notice Segment struct stored to represent Lockup Dynamic streams.
     /// @param amount The amount of tokens streamed in the segment, denoted in units of the token's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
     /// @param timestamp The Unix timestamp indicating the segment's end.

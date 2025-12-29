@@ -18,11 +18,13 @@ interface ISablierLockupLinear is ISablierLockupState {
     /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
     /// @param unlockAmounts Struct encapsulating (i) the amount to unlock at the start time and (ii) the amount to
     /// unlock at the cliff time.
+    /// @param unlockGranularity The smallest step in time between two consecutive token unlocks.
     event CreateLockupLinearStream(
         uint256 indexed streamId,
         Lockup.CreateEventCommon commonParams,
         uint40 cliffTime,
-        LockupLinear.UnlockAmounts unlockAmounts
+        LockupLinear.UnlockAmounts unlockAmounts,
+        uint40 unlockGranularity
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,7 +73,9 @@ interface ISablierLockupLinear is ISablierLockupState {
     /// - `params.sender` must not be the zero address.
     /// - The sum of `params.unlockAmounts.start` and `params.unlockAmounts.cliff` must be less than or equal to
     /// deposit amount.
-    /// - If `params.timestamps.cliff` not set, the `params.unlockAmounts.cliff` must be zero.
+    /// - If `params.timestamps.cliff` is not set, the `params.unlockAmounts.cliff` must be zero.
+    /// - `unlockGranularity` must not exceed the streamable range which is `params.timestamps.end - cliffTime` if cliff
+    /// is set, `params.timestamps.end - params.timestamps.start` otherwise.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
     /// - `params.token` must not be the native token.
     /// - `params.shape.length` must not be greater than 32 characters.
@@ -80,11 +84,14 @@ interface ISablierLockupLinear is ISablierLockupState {
     /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
     /// @param unlockAmounts Struct encapsulating (i) the amount to unlock at the start time and (ii) the amount to
     /// unlock at the cliff time.
+    /// @param unlockGranularity The smallest step in time between two consecutive unlocks. Zero is a sentinel value for
+    /// 1 second.
     /// @return streamId The ID of the newly created stream.
     function createWithTimestampsLL(
         Lockup.CreateWithTimestamps calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 cliffTime
+        uint40 cliffTime,
+        uint40 unlockGranularity
     )
         external
         payable

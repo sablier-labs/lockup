@@ -86,6 +86,9 @@ library Errors {
         uint128 cliffUnlockAmount
     );
 
+    /// @notice Thrown when trying to create a linear stream with unlock granularity greater than the streamable range.
+    error SablierHelpers_UnlockGranularityTooHigh(uint40 unlockGranularity, uint40 streamableRange);
+
     /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
