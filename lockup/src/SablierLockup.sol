@@ -467,6 +467,7 @@ contract SablierLockup is
                 endTime: stream.endTime,
                 startTime: stream.startTime,
                 unlockAmounts: _unlockAmounts[streamId],
+                unlockGranularity: _unlockGranularities[streamId],
                 withdrawnAmount: stream.amounts.withdrawn
             });
         }

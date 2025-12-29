@@ -125,14 +125,14 @@ library LockupMath {
     /// @dev The LL streaming model uses the following distribution function:
     ///
     /// $$
-    ///        ( x * sa + s, block timestamp < cliff time
+    ///        ( s, block timestamp < cliff time
     /// f(x) = (
     ///        ( x * sa + s + c, block timestamp >= cliff time
     /// $$
     ///
     /// Where:
     ///
-    /// - $x$ is the elapsed time in the streamable range divided by the total streamable range.
+    /// - $x$ is the time units elapsed in the streamable range divided by the total streamable time units.
     /// - $sa$ is the streamable amount, i.e. deposited amount minus unlock amounts' sum.
     /// - $s$ is the start unlock amount.
     /// - $c$ is the cliff unlock amount.
@@ -142,12 +142,14 @@ library LockupMath {
     /// the deposit amount.
     /// 2. The start time is before the end time.
     /// 3. If the cliff time is not zero, it is after the start time and before the end time.
+    /// 4. Unlock granularity is less than or equal to the streamable range.
     function calculateStreamedAmountLL(
         uint40 cliffTime,
         uint128 depositedAmount,
         uint40 endTime,
         uint40 startTime,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
+        uint40 unlockGranularity,
         uint128 withdrawnAmount
     )
         external
@@ -181,24 +183,27 @@ library LockupMath {
                 return depositedAmount;
             }
 
-            UD60x18 elapsedTime;
-            UD60x18 streamableRange;
+            // Calculate the time units elapsed and total streamable time units taking unlock granularity into account.
+            UD60x18 elapsedTimeUnits;
+            UD60x18 streamableTimeUnits;
 
-            // Calculate the streamable range.
             if (cliffTime == 0) {
-                elapsedTime = ud(blockTimestamp - startTime);
-                streamableRange = ud(endTime - startTime);
+                elapsedTimeUnits = ud(blockTimestamp - startTime).div(ud(unlockGranularity));
+                streamableTimeUnits = ud(endTime - startTime).div(ud(unlockGranularity));
             } else {
-                elapsedTime = ud(blockTimestamp - cliffTime);
-                streamableRange = ud(endTime - cliffTime);
+                elapsedTimeUnits = ud(blockTimestamp - cliffTime).div(ud(unlockGranularity));
+                streamableTimeUnits = ud(endTime - cliffTime).div(ud(unlockGranularity));
             }
 
-            UD60x18 elapsedTimePercentage = elapsedTime.div(streamableRange);
+            // Calculate the elapsed time units percentage.
+            UD60x18 elapsedTimeUnitsPercentage = elapsedTimeUnits.div(streamableTimeUnits);
+
+            // Calculate the streamable amount.
             UD60x18 streamableAmount = ud(depositedAmount - unlockAmountsSum);
 
-            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time percentage and
-            // streamable amount.
-            uint128 streamedAmount = unlockAmountsSum + (elapsedTimePercentage.mul(streamableAmount)).intoUint128();
+            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time units percentage
+            // and streamable amount.
+            uint128 streamedAmount = unlockAmountsSum + (elapsedTimeUnitsPercentage.mul(streamableAmount)).intoUint128();
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn

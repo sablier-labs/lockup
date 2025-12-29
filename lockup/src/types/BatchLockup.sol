@@ -69,6 +69,7 @@ library BatchLockup {
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
         LockupLinear.UnlockAmounts unlockAmounts;
+        uint40 unlockGranularity;
         string shape;
     }
 

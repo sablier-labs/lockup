@@ -48,9 +48,18 @@ abstract contract SablierLockupState is ISablierLockupState {
     /// @dev Unlock amounts mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => LockupLinear.UnlockAmounts unlockAmounts) internal _unlockAmounts;
 
+    /// @dev Unlock granularity mapped by stream IDs, used in LL streams.
+    mapping(uint256 streamId => uint40 unlockGranularity) internal _unlockGranularities;
+
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks that actual model and expected model are equal.
+    modifier notEqual(Lockup.Model actualModel, Lockup.Model expectedModel) {
+        _notEqual(actualModel, expectedModel);
+        _;
+    }
 
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
@@ -76,14 +85,14 @@ abstract contract SablierLockupState is ISablierLockupState {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLockupState
-    function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
-        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
-            revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel,
-                Lockup.Model.LOCKUP_LINEAR
-            );
-        }
-
+    function getCliffTime(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        returns (uint40 cliffTime)
+    {
         cliffTime = _cliffs[streamId];
     }
 
@@ -131,15 +140,9 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
+        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_DYNAMIC)
         returns (LockupDynamic.Segment[] memory segments)
     {
-        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_DYNAMIC) {
-            revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel,
-                Lockup.Model.LOCKUP_DYNAMIC
-            );
-        }
-
         segments = _segments[streamId];
     }
 
@@ -159,15 +162,9 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
+        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_TRANCHED)
         returns (LockupTranched.Tranche[] memory tranches)
     {
-        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_TRANCHED) {
-            revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel,
-                Lockup.Model.LOCKUP_TRANCHED
-            );
-        }
-
         tranches = _tranches[streamId];
     }
 
@@ -182,16 +179,22 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
+        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
         returns (LockupLinear.UnlockAmounts memory unlockAmounts)
     {
-        if (_streams[streamId].lockupModel != Lockup.Model.LOCKUP_LINEAR) {
-            revert Errors.SablierLockupState_NotExpectedModel(
-                _streams[streamId].lockupModel,
-                Lockup.Model.LOCKUP_LINEAR
-            );
-        }
-
         unlockAmounts = _unlockAmounts[streamId];
+    }
+
+    /// @inheritdoc ISablierLockupState
+    function getUnlockGranularity(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        returns (uint40 unlockGranularity)
+    {
+        unlockGranularity = _unlockGranularities[streamId];
     }
 
     /// @inheritdoc ISablierLockupState
@@ -292,7 +295,14 @@ abstract contract SablierLockupState is ISablierLockupState {
                              PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
+    /// @notice Reverts if actual model and expected model are not equal.
+    function _notEqual(Lockup.Model actualModel, Lockup.Model expectedModel) private pure {
+        if (actualModel != expectedModel) {
+            revert Errors.SablierLockupState_NotExpectedModel(actualModel, expectedModel);
+        }
+    }
+
+    /// @dev A private function is used instead of inlining this logic in a 3 because Solidity copies modifiers
     /// into every function that uses them.
     function _notNull(uint256 streamId) private view {
         // Since {Helpers._checkCreateStream} reverts if the sender address is zero, this can be used to check whether

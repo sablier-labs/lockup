@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-/// @notice Namespace for the structs used only in LL streams.
+/// @notice Namespace for the structs used only in Lockup Linear streams.
 library LockupLinear {
     /// @notice Struct encapsulating the cliff duration and the total duration used at runtime in
     /// {SablierLockupLinear.createWithDurationsLL} function.
     /// @param cliff The cliff duration in seconds.
     /// @param total The total duration in seconds.
+    /// @param unlockGranularity The smallest step in time between two consecutive unlocks. Zero is a sentinel value for
+    /// 1 second.
     struct Durations {
         uint40 cliff;
         uint40 total;
+        uint40 unlockGranularity;
     }
 
     /// @notice Struct encapsulating the unlock amounts for the stream.
