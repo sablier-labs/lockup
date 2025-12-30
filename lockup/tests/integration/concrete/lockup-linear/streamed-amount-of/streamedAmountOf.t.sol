@@ -71,18 +71,41 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
             _defaultParams.cliffTime,
             _defaultParams.createWithTimestamps.timestamps.end,
             defaults.DEPOSIT_AMOUNT(),
-            _defaultParams.unlockAmounts
+            _defaultParams.unlockAmounts,
+            _defaultParams.unlockGranularity
         );
 
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_GivenCliffAmount()
+    function test_GivenCustomUnlockGranularity()
         external
         givenSTREAMINGStatus
         givenCliffTimeNotZero
         givenCliffTimeInPast
         givenNoStartAmount
+        givenCliffAmount
+    {
+        _defaultParams.unlockGranularity = 3000 seconds;
+        uint256 streamId = createDefaultStream();
+
+        // Warp to a timestamp such that only one unlock granularity tick passes.
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() + 3900 seconds });
+
+        uint256 streamableAmount = defaults.DEPOSIT_AMOUNT() - defaults.CLIFF_AMOUNT();
+
+        uint256 actualStreamedAmount = lockup.streamedAmountOf(streamId);
+        uint256 expectedStreamedAmount = defaults.CLIFF_AMOUNT() + (streamableAmount * 0.4e18) / 1e18;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    function test_GivenDefaultUnlockGranularity()
+        external
+        givenSTREAMINGStatus
+        givenCliffTimeNotZero
+        givenCliffTimeInPast
+        givenNoStartAmount
+        givenCliffAmount
     {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);

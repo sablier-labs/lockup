@@ -158,6 +158,75 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
+    function test_RevertWhen_UnlockGranularityTooHigh()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
+    {
+        // Set unlock granularity such that it exceeds the streamable range.
+        uint40 streamableRange = defaults.END_TIME() - defaults.CLIFF_TIME();
+        _defaultParams.unlockGranularity = streamableRange + 1;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_UnlockGranularityTooHigh.selector,
+                _defaultParams.unlockGranularity,
+                streamableRange
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_WhenUnlockGranularityZero()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
+        whenUnlockGranularityNotTooHigh
+    {
+        // Use sentinel value zero.
+        _defaultParams.unlockGranularity = 0;
+
+        uint256 expectedStreamId = lockup.nextStreamId();
+
+        uint40 expectedGranularity = 1 seconds;
+
+        // It should emit unlock granularity as 1 second.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupLinear.CreateLockupLinearStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
+            cliffTime: _defaultParams.cliffTime,
+            unlockAmounts: _defaultParams.unlockAmounts,
+            unlockGranularity: expectedGranularity
+        });
+
+        // Create the stream.
+        uint256 streamId = createDefaultStream();
+
+        // It should create stream with unlock granularity as 1 second.
+        assertEq(lockup.getUnlockGranularity(streamId), expectedGranularity, "unlockGranularity");
+    }
+
     function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
@@ -172,6 +241,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
+        whenUnlockGranularityNotTooHigh
+        whenUnlockGranularityNotZero
     {
         IERC20 _usdt = IERC20(address(usdt));
 
@@ -199,7 +270,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
             cliffTime: _defaultParams.cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts
+            unlockAmounts: _defaultParams.unlockAmounts,
+            unlockGranularity: defaults.UNLOCK_GRANULARITY()
         });
 
         // Create the stream.
@@ -229,6 +301,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
+        whenUnlockGranularityNotTooHigh
+        whenUnlockGranularityNotZero
     {
         _testCreateWithTimestampsLL(_defaultParams.cliffTime);
     }
@@ -258,7 +332,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts
+            unlockAmounts: _defaultParams.unlockAmounts,
+            unlockGranularity: defaults.UNLOCK_GRANULARITY()
         });
 
         // Create the stream.
