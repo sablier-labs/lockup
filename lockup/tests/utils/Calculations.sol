@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
+import { convert, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
@@ -72,7 +72,8 @@ abstract contract Calculations is BaseUtils {
         uint40 cliffTime,
         uint40 endTime,
         uint128 depositAmount,
-        LockupLinear.UnlockAmounts memory unlockAmounts
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 unlockGranularity
     )
         internal
         view
@@ -97,8 +98,21 @@ abstract contract Calculations is BaseUtils {
                 return depositAmount;
             }
 
-            UD60x18 elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
-            UD60x18 streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
+            UD60x18 elapsedTime;
+            UD60x18 streamableDuration;
+
+            if (unlockGranularity == 1 seconds) {
+                elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
+                streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
+            } else {
+                elapsedTime = cliffTime > 0
+                    ? convert((blockTimestamp - cliffTime) / unlockGranularity)
+                    : convert((blockTimestamp - startTime) / unlockGranularity);
+                streamableDuration = cliffTime > 0
+                    ? ud(endTime - cliffTime).div(ud(unlockGranularity))
+                    : ud(endTime - startTime).div(ud(unlockGranularity));
+            }
+
             UD60x18 elapsedTimePercentage = elapsedTime.div(streamableDuration);
 
             UD60x18 streamableAmount = ud(depositAmount).sub(unlockAmountsSum);

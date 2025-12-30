@@ -199,14 +199,17 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 cliffTime
+        uint40 cliffTime,
+        uint40 unlockGranularity
     )
         internal
     {
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
+            data: abi.encodeCall(
+                ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, cliffTime, unlockGranularity)
+            )
         });
     }
 

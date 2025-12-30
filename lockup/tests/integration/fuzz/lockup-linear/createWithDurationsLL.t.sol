@@ -10,9 +10,16 @@ import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
     function testFuzz_CreateWithDurationsLL(LockupLinear.Durations memory durations) external whenNoDelegateCall {
         durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
-        vm.assume(durations.cliff < durations.total);
+
+        // Bound the cliff duration so that its less than the total duration.
+        durations.cliff = boundUint40(durations.cliff, 0, durations.total - 1 seconds);
+
+        // Bound the unlock granularity so that its within the streamable range.
+        uint40 streamableRange = durations.cliff > 0 ? durations.total - durations.cliff : durations.total;
+        durations.unlockGranularity = boundUint40(durations.unlockGranularity, 0, streamableRange);
 
         uint256 expectedStreamId = lockup.nextStreamId();
+        uint40 expectedUnlockGranularity = durations.unlockGranularity == 0 ? 1 : durations.unlockGranularity;
 
         // Expect the tokens to be transferred from the sender to {SablierLockup}.
         expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
@@ -30,7 +37,8 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts
+            unlockAmounts: unlockAmounts,
+            unlockGranularity: expectedUnlockGranularity
         });
 
         // Create the stream.
@@ -53,6 +61,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId), unlockAmounts);
+        assertEq(lockup.getUnlockGranularity(streamId), expectedUnlockGranularity, "unlockGranularity");
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

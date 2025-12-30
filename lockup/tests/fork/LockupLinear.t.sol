@@ -44,6 +44,7 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
     /// - Start time in the present
     /// - Start time in the future
     /// - Multiple values for the cliff time and the end time
+    /// - Multiple values for the unlock granularity
     /// - Cliff time zero and not zero
     /// - The whole gamut of stream statuses
     function testForkFuzz_CreateWithdrawCancel(Params memory params) external {
@@ -66,17 +67,24 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
                 token_: FORK_TOKEN
             }),
             cliffTime: params.cliffTime,
-            unlockAmounts: params.unlockAmounts
+            unlockAmounts: params.unlockAmounts,
+            unlockGranularity: vars.expectedUnlockGranularity
         });
 
         // Create the stream.
-        lockup.createWithTimestampsLL(params.create, params.unlockAmounts, params.cliffTime);
+        lockup.createWithTimestampsLL({
+            params: params.create,
+            unlockAmounts: params.unlockAmounts,
+            cliffTime: params.cliffTime,
+            unlockGranularity: params.unlockGranularity
+        });
 
         // Assert that the stream is created with the correct parameters.
         assertEq({ lockup: lockup, streamId: vars.streamId, expectedLockup: params.create });
         assertEq(lockup.getCliffTime(vars.streamId), params.cliffTime, "cliffTime");
         assertEq(lockup.getUnlockAmounts(vars.streamId), params.unlockAmounts);
         assertEq(lockup.getLockupModel(vars.streamId), Lockup.Model.LOCKUP_LINEAR);
+        assertEq(lockup.getUnlockGranularity(vars.streamId), vars.expectedUnlockGranularity, "unlockGranularity");
 
         // Update the streamed amount.
         vars.streamedAmount = calculateStreamedAmountLL(
@@ -84,7 +92,8 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
             params.cliffTime,
             params.create.timestamps.end,
             params.create.depositAmount,
-            params.unlockAmounts
+            params.unlockAmounts,
+            vars.expectedUnlockGranularity
         );
 
         // Run post-create assertions and update token balances in `vars`.
@@ -115,7 +124,8 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
             params.cliffTime,
             params.create.timestamps.end,
             params.create.depositAmount,
-            params.unlockAmounts
+            params.unlockAmounts,
+            vars.expectedUnlockGranularity
         );
 
         // Run the fork test for withdraw function and update the parameters.
