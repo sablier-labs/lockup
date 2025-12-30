@@ -20,7 +20,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -62,7 +62,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -104,7 +104,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
