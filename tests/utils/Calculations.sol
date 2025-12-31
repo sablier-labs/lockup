@@ -80,7 +80,7 @@ abstract contract Calculations is BaseUtils {
     {
         uint40 blockTimestamp = getBlockTimestamp();
 
-        if (startTime >= blockTimestamp) {
+        if (startTime > blockTimestamp) {
             return 0;
         }
         if (cliffTime > blockTimestamp) {
