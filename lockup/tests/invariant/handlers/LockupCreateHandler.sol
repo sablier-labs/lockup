@@ -70,9 +70,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -108,9 +107,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -152,9 +150,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -199,9 +196,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -239,9 +235,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime, unlockGranularity);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -286,9 +281,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
