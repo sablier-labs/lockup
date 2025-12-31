@@ -70,6 +70,8 @@
 12. For a Linear stream,
 
     - If Cliff time > 0, $`\implies`$ Cliff time > Start time.
-    - End time > Cliff time
+    - End time > Cliff time,
+    - The streamed amount should not exceed the amount that would have been streamed if the stream had a granularity
+      of 1.
 
 13. For a Tranched stream, tranche timestamps should be strictly increasing.
