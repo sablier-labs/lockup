@@ -23,28 +23,28 @@ contract CreateMerkleLL is EvmUtilsBaseScript {
         returns (ISablierMerkleLL merkleLL)
     {
         // Prepare the constructor parameters.
-        MerkleLL.ConstructorParams memory params;
-        params.campaignName = "The Boys LL";
-        params.campaignStartTime = uint40(block.timestamp);
-        params.cancelable = true;
-        params.cliffDuration = 30 days;
-        params.cliffUnlockPercentage = ud60x18(0.01e18);
-        params.expiration = uint40(block.timestamp + 30 days);
-        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        params.lockup = lockup;
-        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.shape = "LL";
-        params.startUnlockPercentage = ud60x18(0.01e18);
-        params.vestingStartTime = 0; // i.e. block.timestamp
-        params.token = token;
-        params.totalDuration = 90 days;
-        params.transferable = true;
+        MerkleLL.ConstructorParams memory campaignParams;
+        campaignParams.campaignName = "The Boys LL";
+        campaignParams.campaignStartTime = uint40(block.timestamp);
+        campaignParams.cancelable = true;
+        campaignParams.cliffDuration = 30 days;
+        campaignParams.cliffUnlockPercentage = ud60x18(0.01e18);
+        campaignParams.expiration = uint40(block.timestamp + 30 days);
+        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        campaignParams.lockup = lockup;
+        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        campaignParams.shape = "LL";
+        campaignParams.startUnlockPercentage = ud60x18(0.01e18);
+        campaignParams.vestingStartTime = 0; // i.e. block.timestamp
+        campaignParams.token = token;
+        campaignParams.totalDuration = 90 days;
+        campaignParams.transferable = true;
 
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;
 
         // Deploy the MerkleLL contract.
-        merkleLL = factory.createMerkleLL(params, aggregateAmount, recipientCount);
+        merkleLL = factory.createMerkleLL(campaignParams, aggregateAmount, recipientCount);
     }
 }

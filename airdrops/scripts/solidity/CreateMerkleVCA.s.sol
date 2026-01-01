@@ -13,16 +13,16 @@ contract CreateMerkleVCA is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run(SablierFactoryMerkleVCA factory) public broadcast returns (ISablierMerkleVCA merkleVCA) {
         // Prepare the constructor parameters.
-        MerkleVCA.ConstructorParams memory params;
-        params.campaignName = "The Boys VCA";
-        params.campaignStartTime = uint40(block.timestamp);
-        params.expiration = uint40(block.timestamp + 400 days);
-        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.vestingStartTime = uint40(block.timestamp);
-        params.vestingEndTime = uint40(block.timestamp + 365 days);
-        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
+        MerkleVCA.ConstructorParams memory campaignParams;
+        campaignParams.campaignName = "The Boys VCA";
+        campaignParams.campaignStartTime = uint40(block.timestamp);
+        campaignParams.expiration = uint40(block.timestamp + 400 days);
+        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        campaignParams.vestingStartTime = uint40(block.timestamp);
+        campaignParams.vestingEndTime = uint40(block.timestamp + 365 days);
+        campaignParams.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
 
         // The total amount to airdrop through the campaign.
         uint256 campaignTotalAmount = 10_000e18;
@@ -31,6 +31,6 @@ contract CreateMerkleVCA is EvmUtilsBaseScript {
         uint256 recipientCount = 100;
 
         // Deploy the MerkleVCA contract.
-        merkleVCA = factory.createMerkleVCA(params, campaignTotalAmount, recipientCount);
+        merkleVCA = factory.createMerkleVCA(campaignParams, campaignTotalAmount, recipientCount);
     }
 }

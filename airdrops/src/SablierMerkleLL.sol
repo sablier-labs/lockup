@@ -62,32 +62,32 @@ contract SablierMerkleLL is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleLL.ConstructorParams memory params,
+        MerkleLL.ConstructorParams memory campaignParams,
         address campaignCreator,
         address comptroller
     )
         SablierMerkleLockup(
             campaignCreator,
-            params.campaignName,
-            params.campaignStartTime,
-            params.cancelable,
+            campaignParams.campaignName,
+            campaignParams.campaignStartTime,
+            campaignParams.cancelable,
             comptroller,
-            params.lockup,
-            params.expiration,
-            params.initialAdmin,
-            params.ipfsCID,
-            params.merkleRoot,
-            params.shape,
-            params.token,
-            params.transferable
+            campaignParams.lockup,
+            campaignParams.expiration,
+            campaignParams.initialAdmin,
+            campaignParams.ipfsCID,
+            campaignParams.merkleRoot,
+            campaignParams.shape,
+            campaignParams.token,
+            campaignParams.transferable
         )
     {
         // Effect: set the immutable variables.
-        VESTING_CLIFF_DURATION = params.cliffDuration;
-        VESTING_CLIFF_UNLOCK_PERCENTAGE = params.cliffUnlockPercentage;
-        VESTING_START_TIME = params.vestingStartTime;
-        VESTING_START_UNLOCK_PERCENTAGE = params.startUnlockPercentage;
-        VESTING_TOTAL_DURATION = params.totalDuration;
+        VESTING_CLIFF_DURATION = campaignParams.cliffDuration;
+        VESTING_CLIFF_UNLOCK_PERCENTAGE = campaignParams.cliffUnlockPercentage;
+        VESTING_START_TIME = campaignParams.vestingStartTime;
+        VESTING_START_UNLOCK_PERCENTAGE = campaignParams.startUnlockPercentage;
+        VESTING_TOTAL_DURATION = campaignParams.totalDuration;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

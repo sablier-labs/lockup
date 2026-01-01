@@ -70,7 +70,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(vars.expectedMerkleCampaign),
-            params: constructorParams,
+            campaignParams: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
             comptroller: address(comptroller),

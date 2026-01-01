@@ -49,7 +49,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
-            params: params,
+            campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),
@@ -74,7 +74,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),
-            params: params,
+            campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),

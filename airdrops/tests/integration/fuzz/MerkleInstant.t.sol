@@ -92,7 +92,7 @@ contract MerkleInstant_Fuzz_Test is Shared_Fuzz_Test {
         vm.expectEmit({ emitter: address(factoryMerkleInstant) });
         emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(expectedMerkleInstant),
-            params: params,
+            campaignParams: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             comptroller: address(comptroller),
