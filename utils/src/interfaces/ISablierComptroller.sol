@@ -52,7 +52,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     );
 
     /// @notice Emitted when a target contract is called.
-    event Execute(address indexed target, bytes data, bytes result);
+    event Execute(address indexed target, bytes targetCallData, bytes result);
 
     /// @notice Emitted when the admin or the fee manager sets the custom USD fee for the provided user.
     event SetCustomFeeUSD(
@@ -154,9 +154,9 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// - `target` must be a contract.
     ///
     /// @param target The address of the target contract on which the data is executed.
-    /// @param data Function selector plus ABI encoded data.
+    /// @param targetCallData Function selector plus ABI encoded data.
     /// @return result The result from the call.
-    function execute(address target, bytes calldata data) external returns (bytes memory result);
+    function execute(address target, bytes calldata targetCallData) external returns (bytes memory result);
 
     /// @notice Sets the custom USD fee for the provided user for the given protocol.
     /// @dev Emits a {SetCustomFeeUSD} event.
