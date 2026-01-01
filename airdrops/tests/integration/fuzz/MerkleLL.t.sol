@@ -48,7 +48,8 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         UD60x18 cliffUnlockPercentage,
         UD60x18 startUnlockPercentage,
         uint40 totalDuration,
-        uint40 vestingStartTime
+        uint40 vestingStartTime,
+        uint40 unlockGranularity
     )
         external
     {
@@ -77,7 +78,8 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
             merkleRoot,
             startUnlockPercentage,
             totalDuration,
-            vestingStartTime
+            vestingStartTime,
+            unlockGranularity
         );
 
         // Test claiming the airdrop for the given indexes.
@@ -100,7 +102,8 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         bytes32 merkleRoot,
         UD60x18 startUnlockPercentage,
         uint40 totalDuration,
-        uint40 vestingStartTime
+        uint40 vestingStartTime,
+        uint40 unlockGranularity
     )
         private
         givenCampaignNotExists
@@ -119,6 +122,11 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // Bound the total duration so that the vesting end time to be greater than the cliff time.
         totalDuration = boundUint40(totalDuration, cliffDuration + 1, MAX_UNIX_TIMESTAMP - expectedVestingStartTime);
 
+        // Bound the unlock granularity so that it is within the streamable range.
+        unlockGranularity = cliffDuration == 0
+            ? boundUint40(unlockGranularity, 0, totalDuration)
+            : boundUint40(unlockGranularity, 0, totalDuration - cliffDuration);
+
         // Bound unlock percentages so that the sum does not exceed 100%.
         startUnlockPercentage = _bound(startUnlockPercentage, 0, 1e18);
 
@@ -135,6 +143,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         params.startUnlockPercentage = startUnlockPercentage;
         params.merkleRoot = merkleRoot;
         params.totalDuration = totalDuration;
+        params.unlockGranularity = unlockGranularity;
         params.vestingStartTime = vestingStartTime;
 
         // Precompute the deterministic address.
@@ -167,6 +176,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         assertEq(merkleLL.VESTING_START_TIME(), vestingStartTime, "vesting start time");
         assertEq(merkleLL.VESTING_START_UNLOCK_PERCENTAGE(), startUnlockPercentage, "vesting start unlock percentage");
         assertEq(merkleLL.VESTING_TOTAL_DURATION(), totalDuration, "vesting total duration");
+        assertEq(merkleLL.VESTING_UNLOCK_GRANULARITY(), unlockGranularity, "vesting unlock granularity");
 
         // Fund the MerkleLL contract.
         deal({ token: address(dai), to: address(merkleLL), give: aggregateAmount });

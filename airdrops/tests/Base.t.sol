@@ -491,6 +491,7 @@ abstract contract Base_Test is Assertions, DeployOptimized, Fuzzers, Merkle, Uti
             token: tokenAddress,
             totalDuration: VESTING_TOTAL_DURATION,
             transferable: STREAM_TRANSFERABLE,
+            unlockGranularity: VESTING_UNLOCK_GRANULARITY,
             vestingStartTime: vestingStartTime
         });
     }

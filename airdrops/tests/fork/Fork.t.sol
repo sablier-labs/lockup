@@ -4,6 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
+import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol";
+import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -32,11 +34,13 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // TODO: Load deployed addresses from Ethereum Mainnet.
+        // Load deployed addresses from Ethereum Mainnet.
         comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
         deployFactoriesConditionally();
 
-        // Update lockup address.
-        lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        // TODO: Update lockup address from Ethereum Mainnet.
+        // lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        address nftDescriptor = address(new LockupNFTDescriptor());
+        lockup = new SablierLockup(address(comptroller), nftDescriptor);
     }
 }

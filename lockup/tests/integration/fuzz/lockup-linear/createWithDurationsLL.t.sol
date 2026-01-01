@@ -15,8 +15,9 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         durations.cliff = boundUint40(durations.cliff, 0, durations.total - 1 seconds);
 
         // Bound the unlock granularity so that its within the streamable range.
-        uint40 streamableRange = durations.cliff > 0 ? durations.total - durations.cliff : durations.total;
-        durations.unlockGranularity = boundUint40(durations.unlockGranularity, 0, streamableRange);
+        durations.unlockGranularity = durations.cliff > 0
+            ? boundUint40(durations.unlockGranularity, 0, durations.total - durations.cliff)
+            : boundUint40(durations.unlockGranularity, 0, durations.total);
 
         uint256 expectedStreamId = lockup.nextStreamId();
         uint40 expectedUnlockGranularity = durations.unlockGranularity == 0 ? 1 : durations.unlockGranularity;
