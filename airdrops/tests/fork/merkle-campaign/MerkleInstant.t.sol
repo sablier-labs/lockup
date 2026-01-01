@@ -51,7 +51,7 @@ abstract contract MerkleInstant_Fork_Test is MerkleBase_Fork_Test {
         vm.expectEmit({ emitter: address(factoryMerkleInstant) });
         emit ISablierFactoryMerkleInstant.CreateMerkleInstant({
             merkleInstant: ISablierMerkleInstant(vars.expectedMerkleCampaign),
-            params: constructorParams,
+            campaignParams: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
             comptroller: address(comptroller),

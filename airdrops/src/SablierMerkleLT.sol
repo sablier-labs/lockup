@@ -53,32 +53,32 @@ contract SablierMerkleLT is
     /// @dev Constructs the contract by initializing the immutable state variables, and max approving the Lockup
     /// contract.
     constructor(
-        MerkleLT.ConstructorParams memory params,
+        MerkleLT.ConstructorParams memory campaignParams,
         address campaignCreator,
         address comptroller
     )
         SablierMerkleLockup(
             campaignCreator,
-            params.campaignName,
-            params.campaignStartTime,
-            params.cancelable,
+            campaignParams.campaignName,
+            campaignParams.campaignStartTime,
+            campaignParams.cancelable,
             comptroller,
-            params.lockup,
-            params.expiration,
-            params.initialAdmin,
-            params.ipfsCID,
-            params.merkleRoot,
-            params.shape,
-            params.token,
-            params.transferable
+            campaignParams.lockup,
+            campaignParams.expiration,
+            campaignParams.initialAdmin,
+            campaignParams.ipfsCID,
+            campaignParams.merkleRoot,
+            campaignParams.shape,
+            campaignParams.token,
+            campaignParams.transferable
         )
     {
-        VESTING_START_TIME = params.vestingStartTime;
+        VESTING_START_TIME = campaignParams.vestingStartTime;
 
         // Save the tranches in the contract state.
-        uint256 count = params.tranchesWithPercentages.length;
+        uint256 count = campaignParams.tranchesWithPercentages.length;
         for (uint256 i = 0; i < count; ++i) {
-            _tranchesWithPercentages.push(params.tranchesWithPercentages[i]);
+            _tranchesWithPercentages.push(campaignParams.tranchesWithPercentages[i]);
         }
     }
 

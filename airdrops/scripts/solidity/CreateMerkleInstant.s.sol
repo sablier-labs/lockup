@@ -13,14 +13,14 @@ contract CreateMerkleInstant is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run(SablierFactoryMerkleInstant factory) public broadcast returns (ISablierMerkleInstant merkleInstant) {
         // Prepare the constructor parameters.
-        MerkleInstant.ConstructorParams memory params;
-        params.campaignName = "The Boys Instant";
-        params.campaignStartTime = uint40(block.timestamp);
-        params.expiration = uint40(block.timestamp + 30 days);
-        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
+        MerkleInstant.ConstructorParams memory campaignParams;
+        campaignParams.campaignName = "The Boys Instant";
+        campaignParams.campaignStartTime = uint40(block.timestamp);
+        campaignParams.expiration = uint40(block.timestamp + 30 days);
+        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        campaignParams.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
 
         // The total amount to airdrop through the campaign.
         uint256 aggregateAmount = 10_000e18;
@@ -29,6 +29,6 @@ contract CreateMerkleInstant is EvmUtilsBaseScript {
         uint256 recipientCount = 100;
 
         // Deploy the MerkleInstant contract.
-        merkleInstant = factory.createMerkleInstant(params, aggregateAmount, recipientCount);
+        merkleInstant = factory.createMerkleInstant(campaignParams, aggregateAmount, recipientCount);
     }
 }
