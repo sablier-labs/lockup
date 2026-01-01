@@ -55,7 +55,8 @@ abstract contract SablierLockupLinear is
             timestamps: timestamps,
             token: params.token,
             transferable: params.transferable,
-            unlockAmounts: unlockAmounts
+            unlockAmounts: unlockAmounts,
+            unlockGranularity: durations.unlockGranularity
         });
     }
 
@@ -63,7 +64,8 @@ abstract contract SablierLockupLinear is
     function createWithTimestampsLL(
         Lockup.CreateWithTimestamps calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 cliffTime
+        uint40 cliffTime,
+        uint40 unlockGranularity
     )
         external
         payable
@@ -82,7 +84,8 @@ abstract contract SablierLockupLinear is
             timestamps: params.timestamps,
             token: params.token,
             transferable: params.transferable,
-            unlockAmounts: unlockAmounts
+            unlockAmounts: unlockAmounts,
+            unlockGranularity: unlockGranularity
         });
     }
 
@@ -101,21 +104,28 @@ abstract contract SablierLockupLinear is
         Lockup.Timestamps memory timestamps,
         IERC20 token,
         bool transferable,
-        LockupLinear.UnlockAmounts memory unlockAmounts
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 unlockGranularity
     )
         private
         returns (uint256 streamId)
     {
-        // Check: validate the user-provided parameters and cliff time.
+        // If sentinel value of zero is used for unlock granularity, change it to one second.
+        if (unlockGranularity == 0) {
+            unlockGranularity = 1;
+        }
+
+        // Check: validate the user-provided parameters.
         Helpers.checkCreateLL({
-            sender: sender,
-            timestamps: timestamps,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
-            unlockAmounts: unlockAmounts,
-            token: address(token),
             nativeToken: nativeToken,
-            shape: shape
+            sender: sender,
+            shape: shape,
+            timestamps: timestamps,
+            token: address(token),
+            unlockAmounts: unlockAmounts,
+            unlockGranularity: unlockGranularity
         });
 
         // Load the stream ID in a variable.
@@ -126,6 +136,9 @@ abstract contract SablierLockupLinear is
 
         // Effect: update cliff time.
         _cliffs[streamId] = cliffTime;
+
+        // Effect: set the unlock granularity.
+        _unlockGranularities[streamId] = unlockGranularity;
 
         // Effect: create the stream, mint the NFT and transfer the deposit amount.
         _create({
@@ -155,7 +168,8 @@ abstract contract SablierLockupLinear is
                 shape: shape
             }),
             cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts
+            unlockAmounts: unlockAmounts,
+            unlockGranularity: unlockGranularity
         });
     }
 }

@@ -244,7 +244,8 @@ contract SablierBatchLockup is ISablierBatchLockup {
                     shape: batch[i].shape
                 }),
                 batch[i].unlockAmounts,
-                batch[i].cliffTime
+                batch[i].cliffTime,
+                batch[i].unlockGranularity
             );
         }
 

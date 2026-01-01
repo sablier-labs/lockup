@@ -183,6 +183,7 @@ library BatchLockupBuilder {
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         uint40 cliffTime,
+        uint40 unlockGranularity,
         uint256 batchSize
     )
         internal
@@ -199,6 +200,7 @@ library BatchLockupBuilder {
             timestamps: params.timestamps,
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
+            unlockGranularity: unlockGranularity,
             shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);

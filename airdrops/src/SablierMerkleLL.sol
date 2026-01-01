@@ -55,6 +55,9 @@ contract SablierMerkleLL is
     /// @inheritdoc ISablierMerkleLL
     uint40 public immutable override VESTING_TOTAL_DURATION;
 
+    /// @inheritdoc ISablierMerkleLL
+    uint40 public immutable override VESTING_UNLOCK_GRANULARITY;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -88,6 +91,7 @@ contract SablierMerkleLL is
         VESTING_START_TIME = params.vestingStartTime;
         VESTING_START_UNLOCK_PERCENTAGE = params.startUnlockPercentage;
         VESTING_TOTAL_DURATION = params.totalDuration;
+        VESTING_UNLOCK_GRANULARITY = params.unlockGranularity;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -207,7 +211,8 @@ contract SablierMerkleLL is
                     shape: streamShape
                 }),
                 unlockAmounts,
-                cliffTime
+                cliffTime,
+                VESTING_UNLOCK_GRANULARITY
             );
 
             // Effect: push the stream ID into the claimed streams array.

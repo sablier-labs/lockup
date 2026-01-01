@@ -50,5 +50,6 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
             "vesting start unlock percentage"
         );
         assertEq(constructedLL.VESTING_TOTAL_DURATION(), VESTING_TOTAL_DURATION, "vesting total duration");
+        assertEq(constructedLL.VESTING_UNLOCK_GRANULARITY(), VESTING_UNLOCK_GRANULARITY, "vesting unlock granularity");
     }
 }

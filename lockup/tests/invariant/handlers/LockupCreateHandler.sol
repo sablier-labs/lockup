@@ -70,9 +70,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -93,7 +92,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // We don't want to create more than a certain number of streams.
         vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
-        (params, unlockAmounts, durations) = _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
+        _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -108,9 +107,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -152,9 +150,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -199,9 +196,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -211,7 +207,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 timeJumpSeed,
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 cliffTime
+        uint40 cliffTime,
+        uint40 unlockGranularity
     )
         public
         instrument("createWithTimestampsLL")
@@ -222,7 +219,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // We don't want to create more than a certain number of streams.
         vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
-        (params, unlockAmounts, cliffTime) = _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime);
+        (cliffTime, unlockGranularity) =
+            _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime, unlockGranularity);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -236,10 +234,9 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
-        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime);
-        uint256 gasAfter = gasleft();
+        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime, unlockGranularity);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -284,9 +281,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
-        uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasAfter });
+        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -306,10 +302,8 @@ contract LockupCreateHandler is BaseHandler, Calculations {
     )
         private
         pure
-        returns (Lockup.CreateWithDurations memory, LockupLinear.UnlockAmounts memory, LockupLinear.Durations memory)
     {
         // Bound the stream parameters.
-
         durations.cliff = boundUint40(durations.cliff, 1 seconds, 2500 seconds);
         durations.total = boundUint40(durations.total, durations.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.depositAmount = boundUint128(params.depositAmount, 1, 1_000_000_000e18);
@@ -318,7 +312,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             ? 0
             : boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start);
 
-        return (params, unlockAmounts, durations);
+        durations.unlockGranularity = boundUint40(durations.unlockGranularity, 1, durations.total - durations.cliff);
     }
 
     /// @notice Function to bound the params of the `createWithTimestampsLL` function so that all the requirements are
@@ -327,11 +321,12 @@ contract LockupCreateHandler is BaseHandler, Calculations {
     function _boundCreateWithTimestampsLLParams(
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 cliffTime
+        uint40 cliffTime,
+        uint40 unlockGranularity
     )
         private
         view
-        returns (Lockup.CreateWithTimestamps memory, LockupLinear.UnlockAmounts memory, uint40)
+        returns (uint40, uint40)
     {
         uint40 blockTimestamp = getBlockTimestamp();
 
@@ -353,6 +348,11 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint40 endTimeLowerBound = maxOfTwo(params.timestamps.start, cliffTime);
         params.timestamps.end = boundUint40(params.timestamps.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
-        return (params, unlockAmounts, cliffTime);
+        // Bound the unlock granularity so that it is within the streamable range.
+        unlockGranularity = cliffTime > 0
+            ? boundUint40(unlockGranularity, 1, params.timestamps.end - cliffTime)
+            : boundUint40(unlockGranularity, 1, params.timestamps.end - params.timestamps.start);
+
+        return (cliffTime, unlockGranularity);
     }
 }

@@ -287,6 +287,14 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
+    modifier whenUnlockGranularityNotTooHigh() {
+        _;
+    }
+
+    modifier whenUnlockGranularityNotZero() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 CREATE-WITH-DURATION
     //////////////////////////////////////////////////////////////////////////*/
@@ -350,6 +358,10 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     /*//////////////////////////////////////////////////////////////////////////
                                  STREAMED-AMOUNT-OF
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenCliffAmount() {
+        _;
+    }
 
     modifier givenCliffTimeInPast() {
         _;
