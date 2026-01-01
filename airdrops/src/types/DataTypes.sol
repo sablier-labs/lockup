@@ -52,6 +52,8 @@ library MerkleLL {
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param totalDuration The total duration of the vesting stream, in seconds.
     /// @param transferable Indicates if the Lockup stream will be transferable after claiming.
+    /// @param unlockGranularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel
+    /// value for 1 second.
     /// @param vestingStartTime The start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
     /// `block.timestamp`.
     struct ConstructorParams {
@@ -70,6 +72,7 @@ library MerkleLL {
         IERC20 token;
         uint40 totalDuration;
         bool transferable;
+        uint40 unlockGranularity;
         uint40 vestingStartTime;
     }
 }

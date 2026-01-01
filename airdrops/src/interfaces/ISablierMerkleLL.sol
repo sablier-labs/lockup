@@ -58,6 +58,10 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// @notice Retrieves the total duration of the vesting stream, in seconds.
     function VESTING_TOTAL_DURATION() external view returns (uint40);
 
+    /// @notice Retrieves the smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
+    /// 1 second.
+    function VESTING_UNLOCK_GRANULARITY() external view returns (uint40);
+
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

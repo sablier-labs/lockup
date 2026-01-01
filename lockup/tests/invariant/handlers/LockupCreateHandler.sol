@@ -335,8 +335,6 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
         unlockAmounts.cliff = 0;
 
-        uint40 referenceTimeForGranularity = params.timestamps.start;
-
         // The cliff time must be either zero or greater than the start time.
         if (cliffTime > 0) {
             cliffTime = boundUint40(cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
@@ -344,8 +342,6 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             unlockAmounts.cliff = params.depositAmount == unlockAmounts.start
                 ? 0
                 : boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start);
-
-            referenceTimeForGranularity = cliffTime;
         }
 
         // Bound the end time so that it is always greater than the start time, and the cliff time.
@@ -353,7 +349,9 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         params.timestamps.end = boundUint40(params.timestamps.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Bound the unlock granularity so that it is within the streamable range.
-        unlockGranularity = boundUint40(unlockGranularity, 1, params.timestamps.end - referenceTimeForGranularity);
+        unlockGranularity = cliffTime > 0
+            ? boundUint40(unlockGranularity, 1, params.timestamps.end - cliffTime)
+            : boundUint40(unlockGranularity, 1, params.timestamps.end - params.timestamps.start);
 
         return (cliffTime, unlockGranularity);
     }
