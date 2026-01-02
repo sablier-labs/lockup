@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupTranched } from "../interfaces/ISablierLockupTranched.sol";
-import { Helpers } from "../libraries/Helpers.sol";
+import { LockupHelpers } from "../libraries/LockupHelpers.sol";
 import { Lockup } from "../types/Lockup.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 import { SablierLockupState } from "./SablierLockupState.sol";
@@ -36,7 +36,8 @@ abstract contract SablierLockupTranched is
         uint40 startTime = uint40(block.timestamp);
 
         // Generate the canonical tranches.
-        LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(tranchesWithDuration, startTime);
+        LockupTranched.Tranche[] memory tranches =
+            LockupHelpers.calculateTrancheTimestamps(tranchesWithDuration, startTime);
 
         // Declare the timestamps for the stream.
         Lockup.Timestamps memory timestamps =
@@ -101,7 +102,7 @@ abstract contract SablierLockupTranched is
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and tranches.
-        Helpers.checkCreateLT({
+        LockupHelpers.checkCreateLT({
             sender: sender,
             timestamps: timestamps,
             depositAmount: depositAmount,

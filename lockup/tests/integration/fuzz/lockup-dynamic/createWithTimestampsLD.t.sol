@@ -18,7 +18,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
     {
         vm.assume(bytes(shapeName).length > 32);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
+            abi.encodeWithSelector(Errors.SablierLockupHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
         );
 
         _defaultParams.createWithTimestamps.shape = shapeName;
@@ -63,7 +63,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 _defaultParams.segments[0].timestamp
             )
@@ -97,7 +97,7 @@ contract CreateWithTimestampsLD_Integration_Fuzz_Test is Lockup_Dynamic_Integrat
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierLockupHelpers_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )

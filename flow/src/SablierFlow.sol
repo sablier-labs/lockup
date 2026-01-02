@@ -19,7 +19,7 @@ import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
 import { IFlowNFTDescriptor } from "./interfaces/IFlowNFTDescriptor.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Helpers } from "./libraries/Helpers.sol";
+import { FlowHelpers } from "./libraries/FlowHelpers.sol";
 import { Flow } from "./types/DataTypes.sol";
 
 /*
@@ -106,12 +106,12 @@ contract SablierFlow is
         }
 
         uint8 tokenDecimals = _streams[streamId].tokenDecimals;
-        uint256 balanceScaled = Helpers.scaleAmount({ amount: balance, decimals: tokenDecimals });
+        uint256 balanceScaled = FlowHelpers.scaleAmount({ amount: balance, decimals: tokenDecimals });
         uint256 snapshotDebtScaled = _streams[streamId].snapshotDebtScaled;
 
         // MVT represents Minimum Value Transferable, the smallest amount of token that can be transferred, which is
         // always 1 in token's decimal.
-        uint256 oneMVTScaled = Helpers.scaleAmount({ amount: 1, decimals: tokenDecimals });
+        uint256 oneMVTScaled = FlowHelpers.scaleAmount({ amount: 1, decimals: tokenDecimals });
 
         // If the total debt exceeds balance, return zero.
         if (snapshotDebtScaled + _ongoingDebtScaledOf(streamId) >= balanceScaled + oneMVTScaled) {
@@ -680,7 +680,7 @@ contract SablierFlow is
     /// value is independent of the stream's balance.
     function _totalDebtOf(uint256 streamId) private view returns (uint256) {
         uint256 totalDebtScaled = _ongoingDebtScaledOf(streamId) + _streams[streamId].snapshotDebtScaled;
-        return Helpers.descaleAmount({ amount: totalDebtScaled, decimals: _streams[streamId].tokenDecimals });
+        return FlowHelpers.descaleAmount({ amount: totalDebtScaled, decimals: _streams[streamId].tokenDecimals });
     }
 
     /// @dev Calculates the uncovered debt.
@@ -943,8 +943,10 @@ contract SablierFlow is
         // If the stream is insolvent, write off the uncovered debt.
         else {
             // Effect: update the total debt by setting snapshot debt to the stream balance.
-            _streams[streamId].snapshotDebtScaled =
-                Helpers.scaleAmount({ amount: _streams[streamId].balance, decimals: _streams[streamId].tokenDecimals });
+            _streams[streamId].snapshotDebtScaled = FlowHelpers.scaleAmount({
+                amount: _streams[streamId].balance,
+                decimals: _streams[streamId].tokenDecimals
+            });
         }
 
         // Effect: update the snapshot time.
@@ -1004,7 +1006,7 @@ contract SablierFlow is
 
         // Calculate the total debt.
         uint256 totalDebtScaled = _ongoingDebtScaledOf(streamId) + _streams[streamId].snapshotDebtScaled;
-        uint256 totalDebt = Helpers.descaleAmount(totalDebtScaled, tokenDecimals);
+        uint256 totalDebt = FlowHelpers.descaleAmount(totalDebtScaled, tokenDecimals);
 
         // Calculate the withdrawable amount.
         uint128 balance = _streams[streamId].balance;
@@ -1024,7 +1026,7 @@ contract SablierFlow is
         }
 
         // Calculate the amount scaled.
-        uint256 amountScaled = Helpers.scaleAmount(amount, tokenDecimals);
+        uint256 amountScaled = FlowHelpers.scaleAmount(amount, tokenDecimals);
 
         // Safe to use unchecked, `amount` cannot be greater than the balance or total debt at this point.
         unchecked {
