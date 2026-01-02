@@ -62,7 +62,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                LockupErrors.SablierHelpers_UnlockAmountsSumTooHigh.selector,
+                LockupErrors.SablierLockupHelpers_UnlockAmountsSumTooHigh.selector,
                 CLAIM_AMOUNT,
                 startUnlockAmount,
                 cliffUnlockAmount

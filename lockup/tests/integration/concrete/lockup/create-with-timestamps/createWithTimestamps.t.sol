@@ -78,13 +78,13 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
 
     function test_RevertWhen_ShapeExceeds32Bytes() external whenNoDelegateCall {
         _defaultParams.createWithTimestamps.shape = "this name is longer than 32 bytes";
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_ShapeExceeds32Bytes.selector, 33));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupHelpers_ShapeExceeds32Bytes.selector, 33));
         createDefaultStream();
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNoDelegateCall whenShapeNotExceed32Bytes {
         _defaultParams.createWithTimestamps.sender = address(0);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_SenderZeroAddress.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupHelpers_SenderZeroAddress.selector));
         createDefaultStream();
     }
 
@@ -107,7 +107,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         whenRecipientNotZeroAddress
     {
         _defaultParams.createWithTimestamps.depositAmount = 0;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_DepositAmountZero.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupHelpers_DepositAmountZero.selector));
         createDefaultStream();
     }
 
@@ -120,7 +120,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
         whenDepositAmountNotZero
     {
         _defaultParams.createWithTimestamps.timestamps.start = 0;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_StartTimeZero.selector));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupHelpers_StartTimeZero.selector));
         createDefaultStream();
     }
 
@@ -135,7 +135,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
     {
         setMsgSender(address(comptroller));
         lockup.setNativeToken(address(dai));
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierHelpers_CreateNativeToken.selector, address(dai)));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockupHelpers_CreateNativeToken.selector, address(dai)));
         createDefaultStream();
     }
 

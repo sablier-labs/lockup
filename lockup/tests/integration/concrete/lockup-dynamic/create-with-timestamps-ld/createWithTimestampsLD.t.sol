@@ -41,7 +41,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenContract
     {
         LockupDynamic.Segment[] memory segments;
-        vm.expectRevert(Errors.SablierHelpers_SegmentCountZero.selector);
+        vm.expectRevert(Errors.SablierLockupHelpers_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
     }
 
@@ -84,7 +84,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 segments[0].timestamp
             )
@@ -112,7 +112,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
                 segments[0].timestamp
             )
@@ -137,7 +137,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp.selector,
+                Errors.SablierLockupHelpers_EndTimeNotEqualToLastSegmentTimestamp.selector,
                 _defaultParams.createWithTimestamps.timestamps.end,
                 _defaultParams.createWithTimestamps.timestamps.end - 1
             )
@@ -168,7 +168,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_SegmentTimestampsNotOrdered.selector,
+                Errors.SablierLockupHelpers_SegmentTimestampsNotOrdered.selector,
                 index,
                 segments[0].timestamp,
                 segments[1].timestamp
@@ -204,7 +204,7 @@ contract CreateWithTimestampsLD_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierLockupHelpers_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )

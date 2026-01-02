@@ -34,18 +34,22 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // Load mainnet address.
-        flow = ISablierFlow(0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623);
+        // TODO: Load mainnet address.
+        // flow = ISablierFlow(0x7a86d3e6894f9c5B5f25FFBDAaE658CFc7569623);
 
         // Label the flow contract.
         vm.label(address(flow), "Flow");
 
         // We need these in case we work on a new iteration.
-        // Base_Test.setUp();
-        // vm.etch(address(FORK_TOKEN), address(usdc).code);
+        Base_Test.setUp();
+        vm.etch(address(FORK_TOKEN), address(usdc).code);
 
-        // Label the token.
-        vm.label({ account: address(FORK_TOKEN), newLabel: IERC20Metadata(address(FORK_TOKEN)).symbol() });
+        // Use try catch to handle tokens with missing `symbol` implementation.
+        try IERC20Metadata(address(FORK_TOKEN)).symbol() returns (string memory symbol) {
+            vm.label({ account: address(FORK_TOKEN), newLabel: symbol });
+        } catch {
+            vm.label({ account: address(FORK_TOKEN), newLabel: "FORK_TOKEN" });
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
