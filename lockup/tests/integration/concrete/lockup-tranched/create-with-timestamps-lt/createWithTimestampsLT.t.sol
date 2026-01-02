@@ -33,7 +33,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         whenTokenContract
     {
         LockupTranched.Tranche[] memory tranches;
-        vm.expectRevert(Errors.SablierHelpers_TrancheCountZero.selector);
+        vm.expectRevert(Errors.SablierLockupHelpers_TrancheCountZero.selector);
         lockup.createWithTimestampsLT(_defaultParams.createWithTimestamps, tranches);
     }
 
@@ -75,7 +75,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                 defaults.START_TIME(),
                 tranches[0].timestamp
             )
@@ -104,7 +104,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                 defaults.START_TIME(),
                 _defaultParams.tranches[0].timestamp
             )
@@ -129,7 +129,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.createWithTimestamps.timestamps.end = defaults.END_TIME() + 1 seconds;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp.selector,
+                Errors.SablierLockupHelpers_EndTimeNotEqualToLastTrancheTimestamp.selector,
                 _defaultParams.createWithTimestamps.timestamps.end,
                 _defaultParams.createWithTimestamps.timestamps.end - 1
             )
@@ -161,7 +161,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_TrancheTimestampsNotOrdered.selector,
+                Errors.SablierLockupHelpers_TrancheTimestampsNotOrdered.selector,
                 index,
                 _defaultParams.tranches[0].timestamp,
                 _defaultParams.tranches[1].timestamp
@@ -197,7 +197,7 @@ contract CreateWithTimestampsLT_Integration_Concrete_Test is CreateWithTimestamp
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_DepositAmountNotEqualToTrancheAmountsSum.selector,
+                Errors.SablierLockupHelpers_DepositAmountNotEqualToTrancheAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )

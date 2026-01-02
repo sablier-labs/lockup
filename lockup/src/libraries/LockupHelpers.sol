@@ -7,9 +7,9 @@ import { LockupLinear } from "../types/LockupLinear.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 import { Errors } from "./Errors.sol";
 
-/// @title Helpers
+/// @title LockupHelpers
 /// @notice Library with functions needed to validate input parameters across Lockup streams.
-library Helpers {
+library LockupHelpers {
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -161,12 +161,12 @@ library Helpers {
         if (cliffTime > 0) {
             // Check: the start time is strictly less than the cliff time.
             if (timestamps.start >= cliffTime) {
-                revert Errors.SablierHelpers_StartTimeNotLessThanCliffTime(timestamps.start, cliffTime);
+                revert Errors.SablierLockupHelpers_StartTimeNotLessThanCliffTime(timestamps.start, cliffTime);
             }
 
             // Check: the cliff time is strictly less than the end time.
             if (cliffTime >= timestamps.end) {
-                revert Errors.SablierHelpers_CliffTimeNotLessThanEndTime(cliffTime, timestamps.end);
+                revert Errors.SablierLockupHelpers_CliffTimeNotLessThanEndTime(cliffTime, timestamps.end);
             }
 
             unchecked {
@@ -176,7 +176,7 @@ library Helpers {
         } else {
             // Check: the cliff unlock amount is zero when the cliff time is zero.
             if (unlockAmounts.cliff > 0) {
-                revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
+                revert Errors.SablierLockupHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
             }
 
             // Calculate the streamable range when cliff time is zero.
@@ -192,12 +192,12 @@ library Helpers {
 
         // Check: the start time is strictly less than the end time.
         if (timestamps.start >= timestamps.end) {
-            revert Errors.SablierHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
+            revert Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
         }
 
         // Check: the sum of the start and cliff unlock amounts is not greater than the deposit amount.
         if (unlockAmounts.start + unlockAmounts.cliff > depositAmount) {
-            revert Errors.SablierHelpers_UnlockAmountsSumTooHigh(
+            revert Errors.SablierLockupHelpers_UnlockAmountsSumTooHigh(
                 depositAmount,
                 unlockAmounts.start,
                 unlockAmounts.cliff
@@ -219,27 +219,27 @@ library Helpers {
     {
         // Check: the sender is not the zero address.
         if (sender == address(0)) {
-            revert Errors.SablierHelpers_SenderZeroAddress();
+            revert Errors.SablierLockupHelpers_SenderZeroAddress();
         }
 
         // Check: the deposit amount is not zero.
         if (depositAmount == 0) {
-            revert Errors.SablierHelpers_DepositAmountZero();
+            revert Errors.SablierLockupHelpers_DepositAmountZero();
         }
 
         // Check: the start time is not zero.
         if (startTime == 0) {
-            revert Errors.SablierHelpers_StartTimeZero();
+            revert Errors.SablierLockupHelpers_StartTimeZero();
         }
 
         // Check: the token is not the native token.
         if (token == nativeToken) {
-            revert Errors.SablierHelpers_CreateNativeToken(nativeToken);
+            revert Errors.SablierLockupHelpers_CreateNativeToken(nativeToken);
         }
 
         // Check: the shape is not greater than 32 bytes.
         if (bytes(shape).length > 32) {
-            revert Errors.SablierHelpers_ShapeExceeds32Bytes(bytes(shape).length);
+            revert Errors.SablierLockupHelpers_ShapeExceeds32Bytes(bytes(shape).length);
         }
     }
 
@@ -261,12 +261,12 @@ library Helpers {
         // Check: the segment count is not zero.
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
-            revert Errors.SablierHelpers_SegmentCountZero();
+            revert Errors.SablierLockupHelpers_SegmentCountZero();
         }
 
         // Check: the start time is strictly less than the first segment timestamp.
         if (timestamps.start >= segments[0].timestamp) {
-            revert Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp(
+            revert Errors.SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp(
                 timestamps.start,
                 segments[0].timestamp
             );
@@ -274,7 +274,7 @@ library Helpers {
 
         // Check: the end time equals the last segment's timestamp.
         if (timestamps.end != segments[segmentCount - 1].timestamp) {
-            revert Errors.SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp(
+            revert Errors.SablierLockupHelpers_EndTimeNotEqualToLastSegmentTimestamp(
                 timestamps.end,
                 segments[segmentCount - 1].timestamp
             );
@@ -296,7 +296,7 @@ library Helpers {
             // Check: the current timestamp is strictly greater than the previous timestamp.
             currentSegmentTimestamp = segments[index].timestamp;
             if (currentSegmentTimestamp <= previousSegmentTimestamp) {
-                revert Errors.SablierHelpers_SegmentTimestampsNotOrdered(
+                revert Errors.SablierLockupHelpers_SegmentTimestampsNotOrdered(
                     index,
                     previousSegmentTimestamp,
                     currentSegmentTimestamp
@@ -309,7 +309,10 @@ library Helpers {
 
         // Check: the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
-            revert Errors.SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
+            revert Errors.SablierLockupHelpers_DepositAmountNotEqualToSegmentAmountsSum(
+                depositAmount,
+                segmentAmountsSum
+            );
         }
     }
 
@@ -331,12 +334,12 @@ library Helpers {
         // Check: the tranche count is not zero.
         uint256 trancheCount = tranches.length;
         if (trancheCount == 0) {
-            revert Errors.SablierHelpers_TrancheCountZero();
+            revert Errors.SablierLockupHelpers_TrancheCountZero();
         }
 
         // Check: the start time is strictly less than the first tranche timestamp.
         if (timestamps.start >= tranches[0].timestamp) {
-            revert Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp(
+            revert Errors.SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp(
                 timestamps.start,
                 tranches[0].timestamp
             );
@@ -344,7 +347,7 @@ library Helpers {
 
         // Check: the end time equals the tranche's timestamp.
         if (timestamps.end != tranches[trancheCount - 1].timestamp) {
-            revert Errors.SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp(
+            revert Errors.SablierLockupHelpers_EndTimeNotEqualToLastTrancheTimestamp(
                 timestamps.end,
                 tranches[trancheCount - 1].timestamp
             );
@@ -366,7 +369,7 @@ library Helpers {
             // Check: the current timestamp is strictly greater than the previous timestamp.
             currentTrancheTimestamp = tranches[index].timestamp;
             if (currentTrancheTimestamp <= previousTrancheTimestamp) {
-                revert Errors.SablierHelpers_TrancheTimestampsNotOrdered(
+                revert Errors.SablierLockupHelpers_TrancheTimestampsNotOrdered(
                     index,
                     previousTrancheTimestamp,
                     currentTrancheTimestamp
@@ -379,7 +382,10 @@ library Helpers {
 
         // Check: the deposit amount is equal to the tranche amounts sum.
         if (depositAmount != trancheAmountsSum) {
-            revert Errors.SablierHelpers_DepositAmountNotEqualToTrancheAmountsSum(depositAmount, trancheAmountsSum);
+            revert Errors.SablierLockupHelpers_DepositAmountNotEqualToTrancheAmountsSum(
+                depositAmount,
+                trancheAmountsSum
+            );
         }
     }
 }

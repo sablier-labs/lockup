@@ -13,81 +13,104 @@ library Errors {
     error SablierBatchLockup_BatchSizeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    HELPERS
+                               SABLIER-LOCKUP-HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
-    error SablierHelpers_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
+    error SablierLockupHelpers_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
     /// @notice Thrown when trying to create a stream with a non zero cliff unlock amount when the cliff time is zero.
-    error SablierHelpers_CliffTimeZeroUnlockAmountNotZero(uint128 cliffUnlockAmount);
+    error SablierLockupHelpers_CliffTimeZeroUnlockAmountNotZero(uint128 cliffUnlockAmount);
 
     /// @notice Thrown when trying to create a stream with the native token.
-    error SablierHelpers_CreateNativeToken(address nativeToken);
+    error SablierLockupHelpers_CreateNativeToken(address nativeToken);
 
     /// @notice Thrown when trying to create a dynamic stream with a deposit amount not equal to the sum of the segment
     /// amounts.
-    error SablierHelpers_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
+    error SablierLockupHelpers_DepositAmountNotEqualToSegmentAmountsSum(
+        uint128 depositAmount,
+        uint128 segmentAmountsSum
+    );
 
     /// @notice Thrown when trying to create a tranched stream with a deposit amount not equal to the sum of the tranche
     /// amounts.
-    error SablierHelpers_DepositAmountNotEqualToTrancheAmountsSum(uint128 depositAmount, uint128 trancheAmountsSum);
+    error SablierLockupHelpers_DepositAmountNotEqualToTrancheAmountsSum(
+        uint128 depositAmount,
+        uint128 trancheAmountsSum
+    );
 
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
-    error SablierHelpers_DepositAmountZero();
+    error SablierLockupHelpers_DepositAmountZero();
 
     /// @notice Thrown when trying to create a dynamic stream with end time not equal to the last segment's timestamp.
-    error SablierHelpers_EndTimeNotEqualToLastSegmentTimestamp(uint40 endTime, uint40 lastSegmentTimestamp);
+    error SablierLockupHelpers_EndTimeNotEqualToLastSegmentTimestamp(uint40 endTime, uint40 lastSegmentTimestamp);
 
     /// @notice Thrown when trying to create a tranched stream with end time not equal to the last tranche's timestamp.
-    error SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp(uint40 endTime, uint40 lastTrancheTimestamp);
+    error SablierLockupHelpers_EndTimeNotEqualToLastTrancheTimestamp(uint40 endTime, uint40 lastTrancheTimestamp);
 
     /// @notice Thrown when trying to create a linear stream with granularity greater than the streamable range.
     error SablierHelpers_GranularityTooHigh(uint40 granularity, uint40 streamableRange);
 
     /// @notice Thrown when trying to create a dynamic stream with no segments.
-    error SablierHelpers_SegmentCountZero();
+    error SablierLockupHelpers_SegmentCountZero();
 
     /// @notice Thrown when trying to create a dynamic stream with unordered segment timestamps.
-    error SablierHelpers_SegmentTimestampsNotOrdered(uint256 index, uint40 previousTimestamp, uint40 currentTimestamp);
+    error SablierLockupHelpers_SegmentTimestampsNotOrdered(
+        uint256 index,
+        uint40 previousTimestamp,
+        uint40 currentTimestamp
+    );
 
     /// @notice Thrown when trying to create a stream with the sender as the zero address.
-    error SablierHelpers_SenderZeroAddress();
+    error SablierLockupHelpers_SenderZeroAddress();
 
     /// @notice Thrown when trying to create a stream with a shape string exceeding 32 bytes.
-    error SablierHelpers_ShapeExceeds32Bytes(uint256 shapeLength);
+    error SablierLockupHelpers_ShapeExceeds32Bytes(uint256 shapeLength);
 
     /// @notice Thrown when trying to create a linear stream with a start time not strictly less than the cliff time,
     /// when the cliff time does not have a zero value.
-    error SablierHelpers_StartTimeNotLessThanCliffTime(uint40 startTime, uint40 cliffTime);
+    error SablierLockupHelpers_StartTimeNotLessThanCliffTime(uint40 startTime, uint40 cliffTime);
 
     /// @notice Thrown when trying to create a linear stream with a start time not strictly less than the end time.
-    error SablierHelpers_StartTimeNotLessThanEndTime(uint40 startTime, uint40 endTime);
+    error SablierLockupHelpers_StartTimeNotLessThanEndTime(uint40 startTime, uint40 endTime);
 
     /// @notice Thrown when trying to create a dynamic stream with a start time not strictly less than the first
     /// segment timestamp.
-    error SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp(uint40 startTime, uint40 firstSegmentTimestamp);
+    error SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp(
+        uint40 startTime,
+        uint40 firstSegmentTimestamp
+    );
 
     /// @notice Thrown when trying to create a tranched stream with a start time not strictly less than the first
     /// tranche timestamp.
-    error SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp(uint40 startTime, uint40 firstTrancheTimestamp);
+    error SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp(
+        uint40 startTime,
+        uint40 firstTrancheTimestamp
+    );
 
     /// @notice Thrown when trying to create a stream with a zero start time.
-    error SablierHelpers_StartTimeZero();
+    error SablierLockupHelpers_StartTimeZero();
 
     /// @notice Thrown when trying to create a tranched stream with no tranches.
-    error SablierHelpers_TrancheCountZero();
+    error SablierLockupHelpers_TrancheCountZero();
 
     /// @notice Thrown when trying to create a tranched stream with unordered tranche timestamps.
-    error SablierHelpers_TrancheTimestampsNotOrdered(uint256 index, uint40 previousTimestamp, uint40 currentTimestamp);
+    error SablierLockupHelpers_TrancheTimestampsNotOrdered(
+        uint256 index,
+        uint40 previousTimestamp,
+        uint40 currentTimestamp
+    );
 
     /// @notice Thrown when trying to create a stream with the sum of the unlock amounts greater than the deposit
     /// amount.
-    error SablierHelpers_UnlockAmountsSumTooHigh(
+    error SablierLockupHelpers_UnlockAmountsSumTooHigh(
         uint128 depositAmount,
         uint128 startUnlockAmount,
         uint128 cliffUnlockAmount
     );
+
+    /// @notice Thrown when trying to create a linear stream with unlock granularity greater than the streamable range.
+    error SablierLockupHelpers_UnlockGranularityTooHigh(uint40 unlockGranularity, uint40 streamableRange);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-LOCKUP

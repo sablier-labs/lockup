@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupDynamic } from "../interfaces/ISablierLockupDynamic.sol";
-import { Helpers } from "../libraries/Helpers.sol";
+import { LockupHelpers } from "../libraries/LockupHelpers.sol";
 import { Lockup } from "../types/Lockup.sol";
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { SablierLockupState } from "./SablierLockupState.sol";
@@ -36,7 +36,8 @@ abstract contract SablierLockupDynamic is
         uint40 startTime = uint40(block.timestamp);
 
         // Generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(segmentsWithDuration, startTime);
+        LockupDynamic.Segment[] memory segments =
+            LockupHelpers.calculateSegmentTimestamps(segmentsWithDuration, startTime);
 
         // Declare the timestamps for the stream.
         Lockup.Timestamps memory timestamps =
@@ -101,7 +102,7 @@ abstract contract SablierLockupDynamic is
         returns (uint256 streamId)
     {
         // Check: validate the user-provided parameters and segments.
-        Helpers.checkCreateLD({
+        LockupHelpers.checkCreateLD({
             sender: sender,
             timestamps: timestamps,
             depositAmount: depositAmount,

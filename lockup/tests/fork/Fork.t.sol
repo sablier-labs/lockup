@@ -48,7 +48,8 @@ abstract contract Fork_Test is Base_Test {
         forkTokenHolder = vm.randomAddress();
 
         // Label the addresses.
-        labelContracts();
+        labelForkedToken(FORK_TOKEN);
+        vm.label({ account: forkTokenHolder, newLabel: "Fork Token Holder" });
 
         // Deal 1M tokens to the user.
         initialHolderBalance = uint128(1e6 * (10 ** IERC20Metadata(address(FORK_TOKEN)).decimals()));
@@ -80,17 +81,6 @@ abstract contract Fork_Test is Base_Test {
 
         // Make the holder the caller.
         setMsgSender(forkTokenHolder);
-    }
-
-    /// @dev Labels the most relevant addresses.
-    function labelContracts() internal {
-        // Use try catch to handle tokens with missing `symbol` implementation.
-        try IERC20Metadata(address(FORK_TOKEN)).symbol() returns (string memory symbol) {
-            vm.label({ account: address(FORK_TOKEN), newLabel: symbol });
-        } catch {
-            vm.label({ account: address(FORK_TOKEN), newLabel: "FORK_TOKEN" });
-        }
-        vm.label({ account: forkTokenHolder, newLabel: "Fork Token Holder" });
     }
 
     // We need this function in case we work on a new iteration.

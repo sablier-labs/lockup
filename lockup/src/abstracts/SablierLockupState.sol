@@ -227,8 +227,8 @@ abstract contract SablierLockupState is ISablierLockupState {
 
     /// @inheritdoc ISablierLockupState
     function isStream(uint256 streamId) external view override returns (bool result) {
-        // Since {Helpers._checkCreateStream} reverts if the sender address is zero, this can be used to check whether
-        // the stream exists.
+        // Since {LockupHelpers._checkCreateStream} reverts if the sender address is zero, this can be used to check
+        // whether the stream exists.
         result = _streams[streamId].sender != address(0);
     }
 
@@ -305,8 +305,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     /// @dev A private function is used instead of inlining this logic in a 3 because Solidity copies modifiers
     /// into every function that uses them.
     function _notNull(uint256 streamId) private view {
-        // Since {Helpers._checkCreateStream} reverts if the sender address is zero, this can be used to check whether
-        // the stream exists.
+        // Since {LockupHelpers._checkCreateStream} reverts if the sender address is zero, this can be used to check
+        // whether the stream exists.
         if (_streams[streamId].sender == address(0)) {
             revert Errors.SablierLockupState_Null(streamId);
         }

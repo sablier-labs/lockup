@@ -37,6 +37,9 @@ abstract contract Fork_Test is Base_Test {
         comptroller = ISablierComptroller(0x0000008ABbFf7a84a2fE09f9A9b74D3BC2072399);
         deployFactoriesConditionally();
 
+        // Label the token contract.
+        labelForkedToken(FORK_TOKEN);
+
         // TODO: Update lockup address from Ethereum Mainnet.
         // lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
         address nftDescriptor = address(new LockupNFTDescriptor());
