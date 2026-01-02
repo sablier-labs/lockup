@@ -44,9 +44,9 @@ contract DisableCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
         // Check that custom fee is set.
         assertEq(comptroller.calculateMinFeeWeiFor(protocol, users.sender), 0, "custom fee set");
 
-        // It should emit a {DisableCustomFeeUSD} event.
+        // It should emit an {UpdateCustomFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.DisableCustomFeeUSD({
+        emit ISablierComptroller.UpdateCustomFeeUSD({
             protocol: protocol,
             caller: caller,
             user: users.sender,
