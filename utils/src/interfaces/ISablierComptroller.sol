@@ -42,26 +42,8 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the admin or the fee manager disables the custom USD fee for the provided user.
-    event DisableCustomFeeUSD(
-        Protocol indexed protocol,
-        address caller,
-        address indexed user,
-        uint256 previousMinFeeUSD,
-        uint256 newMinFeeUSD
-    );
-
     /// @notice Emitted when a target contract is called.
     event Execute(address indexed target, bytes data, bytes result);
-
-    /// @notice Emitted when the admin or the fee manager sets the custom USD fee for the provided user.
-    event SetCustomFeeUSD(
-        Protocol indexed protocol,
-        address caller,
-        address indexed user,
-        uint256 previousMinFeeUSD,
-        uint256 newMinFeeUSD
-    );
 
     /// @notice Emitted when the admin or the fee manager sets a new minimum USD fee.
     event SetMinFeeUSD(Protocol indexed protocol, address caller, uint256 previousMinFeeUSD, uint256 newMinFeeUSD);
@@ -71,6 +53,15 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
 
     /// @notice Emitted when the admin or the fee collector transfers the accrued fees to the fee recipient.
     event TransferFees(address indexed feeRecipient, uint256 feeAmount);
+
+    /// @notice Emitted when the admin or the fee manager sets/disables the custom USD fee for the provided user.
+    event UpdateCustomFeeUSD(
+        Protocol indexed protocol,
+        address caller,
+        address indexed user,
+        uint256 previousMinFeeUSD,
+        uint256 newMinFeeUSD
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -131,7 +122,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Disables the custom USD fee for the provided user for the given protocol, defaulting to the minimum fee.
-    /// @dev Emits a {DisableCustomFeeUSD} event.
+    /// @dev Emits an {UpdateCustomFeeUSD} event.
     ///
     /// Notes:
     /// - In case of airdrops, the new fee applies only to the future campaigns created by the user. Past campaigns are
@@ -159,7 +150,7 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     function execute(address target, bytes calldata data) external returns (bytes memory result);
 
     /// @notice Sets the custom USD fee for the provided user for the given protocol.
-    /// @dev Emits a {SetCustomFeeUSD} event.
+    /// @dev Emits an {UpdateCustomFeeUSD} event.
     ///
     /// Notes:
     /// - In case of airdrops, the new fee applies only to the future campaigns created by the user. Past campaigns are
