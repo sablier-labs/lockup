@@ -62,6 +62,14 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenCampaignImplementsSablierMerkle() {
+        _;
+    }
+
+    modifier whenCampaignReturnsTrueForSablierMerkle() {
+        _;
+    }
+
     modifier whenComptrollerWithMinimalInterfaceId() {
         _;
     }
