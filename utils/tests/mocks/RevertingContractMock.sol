@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.22;
 
-contract TargetReverter {
+contract RevertingContractMock {
     error SomeError();
 
     function withNothing() external pure {

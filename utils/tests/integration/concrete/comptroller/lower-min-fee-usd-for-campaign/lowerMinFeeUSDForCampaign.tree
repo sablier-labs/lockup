@@ -1,0 +1,17 @@
+LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test
+├── when caller not admin
+│  ├── when caller without fee management role
+│  │  └── it should revert
+│  └── when caller with fee management role
+│     └── it should succeed
+└── when caller admin
+   ├── when campaign not implement Sablier Merkle
+   │  └── it should revert
+   └── when campaign implements Sablier Merkle
+      ├── when campaign returns false for Sablier Merkle
+      │  └── it should revert
+      └── when campaign returns true for Sablier Merkle
+         ├── when call reverts
+         │  └── it should revert
+         └── when call does not revert
+            └── it should succeed
