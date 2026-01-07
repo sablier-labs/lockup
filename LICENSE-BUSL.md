@@ -9,7 +9,7 @@ Parameters
 
 Licensor: Sablier Labs Ltd
 
-Licensed Work: Sablier Lockup The Licensed Work is (C) 2025 Sablier Labs Ltd
+Licensed Work: Sablier Lockup The Licensed Work is (C) 2026 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at
 [`license-grants.sablier.eth`](https://app.ens.domains/license-grants.sablier.eth)
