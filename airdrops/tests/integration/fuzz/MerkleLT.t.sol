@@ -111,7 +111,7 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLT) });
         emit ISablierFactoryMerkleLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(expectedMerkleLT),
-            params: params,
+            campaignParams: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             totalDuration: streamDuration,

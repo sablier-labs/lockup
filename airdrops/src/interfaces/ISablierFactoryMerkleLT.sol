@@ -16,7 +16,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// @notice Emitted when a {SablierMerkleLT} campaign is created.
     event CreateMerkleLT(
         ISablierMerkleLT indexed merkleLT,
-        MerkleLT.ConstructorParams params,
+        MerkleLT.ConstructorParams campaignParams,
         uint256 aggregateAmount,
         uint256 totalDuration,
         uint256 recipientCount,
@@ -38,7 +38,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// @dev Reverts if the requirements from {createMerkleLT} are not met.
     function computeMerkleLT(
         address campaignCreator,
-        MerkleLT.ConstructorParams memory params
+        MerkleLT.ConstructorParams calldata campaignParams
     )
         external
         view
@@ -55,18 +55,19 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// Notes:
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
-    /// - A value of zero for `params.expiration` means the campaign does not expire.
+    /// - A value of zero for `campaignParams.expiration` means the campaign does not expire.
     ///
     /// Requirements:
-    /// - `params.token` must not be the forbidden native token.
+    /// - `campaignParams.token` must not be the forbidden native token.
     /// - The sum of percentages of the tranches must equal 100%.
     ///
-    /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleLT} parameters, which are documented in
+    /// {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleLT The address of the newly created Merkle Lockup contract.
     function createMerkleLT(
-        MerkleLT.ConstructorParams memory params,
+        MerkleLT.ConstructorParams calldata campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

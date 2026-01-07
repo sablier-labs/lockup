@@ -16,7 +16,7 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     /// @notice Emitted when a {SablierMerkleInstant} campaign is created.
     event CreateMerkleInstant(
         ISablierMerkleInstant indexed merkleInstant,
-        MerkleInstant.ConstructorParams params,
+        MerkleInstant.ConstructorParams campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount,
         address comptroller,
@@ -31,7 +31,7 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     /// @dev Reverts if the requirements from {createMerkleInstant} are not met.
     function computeMerkleInstant(
         address campaignCreator,
-        MerkleInstant.ConstructorParams memory params
+        MerkleInstant.ConstructorParams calldata campaignParams
     )
         external
         view
@@ -48,17 +48,18 @@ interface ISablierFactoryMerkleInstant is ISablierFactoryMerkleBase {
     /// Notes:
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
-    /// - A value of zero for `params.expiration` means the campaign does not expire.
+    /// - A value of zero for `campaignParams.expiration` means the campaign does not expire.
     ///
     /// Requirements:
-    /// - `params.token` must not be the forbidden native token.
+    /// - `campaignParams.token` must not be the forbidden native token.
     ///
-    /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleInstant} parameters, which are documented in
+    /// {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleInstant The address of the newly created MerkleInstant contract.
     function createMerkleInstant(
-        MerkleInstant.ConstructorParams memory params,
+        MerkleInstant.ConstructorParams calldata campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

@@ -16,7 +16,7 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     /// @notice Emitted when a {SablierMerkleLL} campaign is created.
     event CreateMerkleLL(
         ISablierMerkleLL indexed merkleLL,
-        MerkleLL.ConstructorParams params,
+        MerkleLL.ConstructorParams campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount,
         address comptroller,
@@ -31,7 +31,7 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     /// @dev Reverts if the requirements from {createMerkleLL} are not met.
     function computeMerkleLL(
         address campaignCreator,
-        MerkleLL.ConstructorParams memory params
+        MerkleLL.ConstructorParams calldata campaignParams
     )
         external
         view
@@ -48,17 +48,18 @@ interface ISablierFactoryMerkleLL is ISablierFactoryMerkleBase {
     /// Notes:
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
-    /// - A value of zero for `params.expiration` means the campaign does not expire.
+    /// - A value of zero for `campaignParams.expiration` means the campaign does not expire.
     ///
     /// Requirements:
-    /// - `params.token` must not be the forbidden native token.
+    /// - `campaignParams.token` must not be the forbidden native token.
     ///
-    /// @param params Struct encapsulating the input parameters, which are documented in {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleLL} parameters, which are documented in
+    /// {DataTypes}.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleLL The address of the newly created Merkle Lockup contract.
     function createMerkleLL(
-        MerkleLL.ConstructorParams memory params,
+        MerkleLL.ConstructorParams calldata campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )

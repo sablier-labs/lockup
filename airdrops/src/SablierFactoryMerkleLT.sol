@@ -46,7 +46,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
     /// @inheritdoc ISablierFactoryMerkleLT
     function computeMerkleLT(
         address campaignCreator,
-        MerkleLT.ConstructorParams calldata params
+        MerkleLT.ConstructorParams calldata campaignParams
     )
         external
         view
@@ -54,18 +54,18 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         returns (address merkleLT)
     {
         // Calculate the total percentage.
-        (, uint64 totalPercentage) = _calculateTrancheTotals(params.tranchesWithPercentages);
+        (, uint64 totalPercentage) = _calculateTrancheTotals(campaignParams.tranchesWithPercentages);
 
         // Check: validate the user-provided token and the total percentage.
-        _checkDeploymentParams(address(params.token), totalPercentage);
+        _checkDeploymentParams(address(campaignParams.token), totalPercentage);
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(campaignParams)));
 
         // Get the bytecode hash for the {SablierMerkleLT} contract.
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
-                type(SablierMerkleLT).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                type(SablierMerkleLT).creationCode, abi.encode(campaignParams, campaignCreator, address(comptroller))
             )
         );
 
@@ -94,7 +94,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
 
     /// @inheritdoc ISablierFactoryMerkleLT
     function createMerkleLT(
-        MerkleLT.ConstructorParams calldata params,
+        MerkleLT.ConstructorParams calldata campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
@@ -103,17 +103,18 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         returns (ISablierMerkleLT merkleLT)
     {
         // Calculate the total percentage.
-        (uint256 totalDuration, uint64 totalPercentage) = _calculateTrancheTotals(params.tranchesWithPercentages);
+        (uint256 totalDuration, uint64 totalPercentage) =
+            _calculateTrancheTotals(campaignParams.tranchesWithPercentages);
 
         // Check: validate the user-provided token and the total percentage.
-        _checkDeploymentParams(address(params.token), totalPercentage);
+        _checkDeploymentParams(address(campaignParams.token), totalPercentage);
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
 
         // Deploy the MerkleLT contract with CREATE2.
         merkleLT = new SablierMerkleLT{ salt: salt }({
-            params: params,
+            campaignParams: campaignParams,
             campaignCreator: msg.sender,
             comptroller: address(comptroller)
         });
@@ -121,7 +122,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         // Log the creation of the MerkleLT contract, including some metadata that is not stored on-chain.
         emit CreateMerkleLT({
             merkleLT: merkleLT,
-            params: params,
+            campaignParams: campaignParams,
             aggregateAmount: aggregateAmount,
             totalDuration: totalDuration,
             recipientCount: recipientCount,

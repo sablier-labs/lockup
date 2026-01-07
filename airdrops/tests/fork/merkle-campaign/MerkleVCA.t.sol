@@ -71,7 +71,7 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
         vm.expectEmit({ emitter: address(factoryMerkleVCA) });
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(vars.expectedMerkleCampaign),
-            params: constructorParams,
+            campaignParams: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
             comptroller: address(comptroller),

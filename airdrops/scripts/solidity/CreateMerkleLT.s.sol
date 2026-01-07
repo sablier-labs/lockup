@@ -23,30 +23,30 @@ contract CreateMerkleLT is EvmUtilsBaseScript {
         returns (ISablierMerkleLT merkleLT)
     {
         // Prepare the constructor parameters.
-        MerkleLT.ConstructorParams memory params;
-        params.campaignName = "The Boys LT";
-        params.campaignStartTime = uint40(block.timestamp);
-        params.cancelable = true;
-        params.expiration = uint40(block.timestamp + 30 days);
-        params.lockup = lockup;
-        params.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        params.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        params.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        params.token = token;
-        params.transferable = true;
+        MerkleLT.ConstructorParams memory campaignParams;
+        campaignParams.campaignName = "The Boys LT";
+        campaignParams.campaignStartTime = uint40(block.timestamp);
+        campaignParams.cancelable = true;
+        campaignParams.expiration = uint40(block.timestamp + 30 days);
+        campaignParams.lockup = lockup;
+        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
+        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
+        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        campaignParams.token = token;
+        campaignParams.transferable = true;
 
         // The tranches with their unlock percentages and durations.
-        params.tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
-        params.tranchesWithPercentages[0] =
+        campaignParams.tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
+        campaignParams.tranchesWithPercentages[0] =
             MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 3600 });
-        params.tranchesWithPercentages[1] =
+        campaignParams.tranchesWithPercentages[1] =
             MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
 
-        params.vestingStartTime = 0; // i.e. block.timestamp
+        campaignParams.vestingStartTime = 0; // i.e. block.timestamp
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;
 
         // Deploy the MerkleLT contract.
-        merkleLT = factory.createMerkleLT(params, aggregateAmount, recipientCount);
+        merkleLT = factory.createMerkleLT(campaignParams, aggregateAmount, recipientCount);
     }
 }

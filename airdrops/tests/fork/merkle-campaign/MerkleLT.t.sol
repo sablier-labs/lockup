@@ -69,7 +69,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLT) });
         emit ISablierFactoryMerkleLT.CreateMerkleLT({
             merkleLT: ISablierMerkleLT(vars.expectedMerkleCampaign),
-            params: constructorParams,
+            campaignParams: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             totalDuration: VESTING_TOTAL_DURATION,
             recipientCount: vars.leavesData.length,
