@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.22;
 
-contract TargetPanic {
+contract PanicContractMock {
     function failedAssertion() external pure {
         assert(false);
     }
@@ -20,3 +20,4 @@ contract TargetPanic {
         return x[5];
     }
 }
+

@@ -30,6 +30,12 @@ library Errors {
     /// @notice Thrown if fee transfer fails.
     error SablierComptroller_FeeTransferFailed(address feeRecipient, uint256 feeAmount);
 
+    /// @notice Thrown when the provided campaign address returns false for `IS_SABLIER_MERKLE()`.
+    error SablierComptroller_IsSablierMerkleReturnsFalse(address campaign);
+
+    /// @notice Thrown when the provided campaign address does not implement `IS_SABLIER_MERKLE()`.
+    error SablierComptroller_MissingIsSablierMerkle(address campaign);
+
     /*//////////////////////////////////////////////////////////////////////////
                                   COMPTROLLERABLE
     //////////////////////////////////////////////////////////////////////////*/
