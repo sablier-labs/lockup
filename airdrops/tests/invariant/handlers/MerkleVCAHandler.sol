@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
 import { MerkleVCA } from "src/types/DataTypes.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
@@ -17,7 +16,7 @@ contract MerkleVCAHandler is BaseHandler {
     constructor(address comptroller_, Store store_) BaseHandler(comptroller_, store_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
+                                     OVERRIDES
     //////////////////////////////////////////////////////////////////////////*/
 
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal override {
@@ -48,14 +47,7 @@ contract MerkleVCAHandler is BaseHandler {
         store.updateVcaTotalClaimAmountRequested(leafData.amount);
     }
 
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot
-    )
-        internal
-        override
-        returns (ISablierMerkleBase campaign)
-    {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address campaign) {
         // Load pre-defined constructor parameters.
         MerkleVCA.ConstructorParams memory params;
 
@@ -71,9 +63,9 @@ contract MerkleVCAHandler is BaseHandler {
         params.vestingStartTime = getBlockTimestamp();
 
         // Deploy and return the campaign address.
-        campaign = ISablierMerkleBase(new SablierMerkleVCA(params, campaignCreator, comptroller));
+        campaign = address(new SablierMerkleVCA(params, campaignCreator, comptroller));
 
         // Update VCA campaign in store.
-        store.updateVcaCampaign(address(campaign));
+        store.updateVcaCampaign(campaign);
     }
 }

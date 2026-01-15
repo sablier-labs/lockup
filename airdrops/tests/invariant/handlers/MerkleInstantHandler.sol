@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { MerkleInstant } from "src/types/DataTypes.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
@@ -32,14 +31,7 @@ contract MerkleInstantHandler is BaseHandler {
         store.updateTotalClaimAmount(address(campaign), leafData.amount);
     }
 
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot
-    )
-        internal
-        override
-        returns (ISablierMerkleBase campaign)
-    {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address) {
         // Prepare constructor parameters.
         MerkleInstant.ConstructorParams memory params;
 
@@ -51,7 +43,7 @@ contract MerkleInstantHandler is BaseHandler {
         params.merkleRoot = merkleRoot;
         params.token = campaignToken;
 
-        // Deploy and return the campaign address
-        campaign = ISablierMerkleBase(new SablierMerkleInstant(params, campaignCreator, comptroller));
+        // Deploy and return the campaign address.
+        return address(new SablierMerkleInstant(params, campaignCreator, comptroller));
     }
 }
