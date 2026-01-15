@@ -36,14 +36,13 @@ import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataType
 import { Assertions } from "./utils/Assertions.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
-import { LeafData, MerkleBuilder } from "./utils/MerkleBuilder.sol";
+import { LeafData } from "./utils/MerkleBuilder.sol";
+import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Assertions, DeployOptimized, Fuzzers, Merkle, Utils {
-    using MerkleBuilder for uint256[];
-
+abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -159,21 +158,6 @@ abstract contract Base_Test is Assertions, DeployOptimized, Fuzzers, Merkle, Uti
                                     MERKLE-BUILDER
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Computes the Merkle proof for the given leaf data and an array of leaves.
-    function computeMerkleProof(
-        LeafData memory leafData,
-        uint256[] storage leaves
-    )
-        internal
-        view
-        returns (bytes32[] memory merkleProof)
-    {
-        uint256 leaf = MerkleBuilder.computeLeaf(leafData);
-        uint256 pos = Arrays.findUpperBound(leaves, leaf);
-
-        merkleProof = leaves.length == 1 ? new bytes32[](0) : getProof(leaves.toBytes32(), pos);
-    }
-
     /// @dev Returns the index of the default recipient in the Merkle tree.
     function getIndexInMerkleTree() internal view returns (uint256 index) {
         index = getIndexInMerkleTree(users.recipient);
@@ -223,8 +207,8 @@ abstract contract Base_Test is Assertions, DeployOptimized, Fuzzers, Merkle, Uti
             });
         }
 
-        MerkleBuilder.computeLeaves(LEAVES, leafData);
-        MERKLE_ROOT = getRoot(LEAVES.toBytes32());
+        computeLeaves(LEAVES, leafData);
+        MERKLE_ROOT = getRoot(toBytes32(LEAVES));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -3,13 +3,34 @@ pragma solidity >=0.8.22;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
+import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
-import { LeafData } from "./MerkleBuilder.sol";
+import { LeafData, MerkleBuilder } from "./MerkleBuilder.sol";
 
-import { Modifiers } from "./Modifiers.sol";
+abstract contract Fuzzers is BaseConstants, BaseUtils, MerkleBuilder, PRBMathUtils {
+    /// @dev Construct a Merkle tree from the given raw leaves data.
+    /// @param leaves Storage pointer where the final leaves will be stored.
+    /// @param leavesData Storage pointer where the final leaves data will be stored.
+    /// @param rawLeavesData Raw leaves data to be fuzzed.
+    /// @param excludedAddresses Addresses to be excluded from the fuzzing.
+    function fuzzMerkleDataAndComputeRoot(
+        uint256[] storage leaves,
+        LeafData[] storage leavesData,
+        LeafData[] memory rawLeavesData,
+        address[] memory excludedAddresses
+    )
+        internal
+        returns (uint256 aggregateAmount, bytes32 merkleRoot)
+    {
+        // Fuzz the leaves data.
+        aggregateAmount = fuzzMerkleData({ leavesData: rawLeavesData, excludedAddresses: excludedAddresses });
 
-abstract contract Fuzzers is Modifiers, PRBMathUtils {
+        // Construct the Merkle tree and return the Merkle root.
+        merkleRoot = constructMerkleTree(leaves, leavesData, rawLeavesData);
+    }
+
     /// @dev Fuzz merkle data and return the aggregate amount.
     function fuzzMerkleData(
         LeafData[] memory leavesData,
