@@ -69,7 +69,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                              UNCONDITIONAL INVARIANTS
+                                 COMMON INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Balances invariants:
@@ -122,7 +122,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                               CONDITIONAL INVARIANTS
+                                   VCA INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev For a VCA campaign, the total forgone amount should be equal to total claim amount requested by users minus

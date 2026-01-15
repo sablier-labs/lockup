@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
@@ -26,7 +25,7 @@ contract MerkleLTHandler is BaseHandler {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
+                                     OVERRIDES
     //////////////////////////////////////////////////////////////////////////*/
 
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal override {
@@ -39,14 +38,7 @@ contract MerkleLTHandler is BaseHandler {
         store.updateTotalClaimAmount(address(campaign), leafData.amount);
     }
 
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot
-    )
-        internal
-        override
-        returns (ISablierMerkleBase campaign)
-    {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address) {
         // Fuzz the tranches with percentages.
         MerkleLT.TrancheWithPercentage[] memory tranchesWithPercentages_ = new MerkleLT.TrancheWithPercentage[](2);
         fuzzTranchesMerkleLT({ vestingStartTime: 0, tranches: tranchesWithPercentages_ });
@@ -69,6 +61,6 @@ contract MerkleLTHandler is BaseHandler {
         params.vestingStartTime = 0; // Use block.timestamp as sentinel value
 
         // Deploy and return the campaign address.
-        campaign = ISablierMerkleBase(new SablierMerkleLT(params, campaignCreator, comptroller));
+        return address(new SablierMerkleLT(params, campaignCreator, comptroller));
     }
 }

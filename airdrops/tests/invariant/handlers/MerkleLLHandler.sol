@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22;
 
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
-import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { MerkleLL } from "src/types/DataTypes.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
@@ -26,7 +25,7 @@ contract MerkleLLHandler is BaseHandler {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
+                                     OVERRIDES
     //////////////////////////////////////////////////////////////////////////*/
 
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal override {
@@ -39,14 +38,7 @@ contract MerkleLLHandler is BaseHandler {
         store.updateTotalClaimAmount(address(campaign), leafData.amount);
     }
 
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot
-    )
-        internal
-        override
-        returns (ISablierMerkleBase campaign)
-    {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address) {
         // Prepare constructor parameters.
         MerkleLL.ConstructorParams memory params;
 
@@ -68,6 +60,6 @@ contract MerkleLLHandler is BaseHandler {
         params.vestingStartTime = 0; // Use block.timestamp as sentinel value
 
         // Deploy and return the campaign address.
-        campaign = ISablierMerkleBase(new SablierMerkleLL(params, campaignCreator, comptroller));
+        return address(new SablierMerkleLL(params, campaignCreator, comptroller));
     }
 }

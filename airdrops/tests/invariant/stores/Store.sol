@@ -2,10 +2,9 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 /// @dev Storage variables needed for handlers.
-contract Store is BaseUtils {
+contract Store {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

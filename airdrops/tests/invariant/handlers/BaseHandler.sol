@@ -63,8 +63,6 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
         // Ensure campaign creator is not the zero address.
         vm.assume(campaignCreator != address(0));
 
-        // Ensure campaign creator is not blacklisted.
-        assumeNoBlacklisted({ token: address(campaignToken), addr: campaignCreator });
         _;
     }
 
@@ -97,17 +95,17 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
+                                     OVERRIDES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev An internal claim function that must be overridden by the handler contract.
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal virtual;
 
     /// @dev An internal deploy campaign function that must be overridden by the handler contract.
-    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (ISablierMerkleBase);
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  COMMON HANDLERS
+                                 HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function claim(uint256 timeJump, uint256 pos) external adjustTimestamp(timeJump) instrument("claim") isDeployed {
@@ -172,7 +170,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
         store.updateTotalClawbackAmount(address(campaign), amount);
     }
 
-    /// @notice Helper function to deploy a Merkle Instant campaign with fuzzed leaves data and token.
+    /// @notice Helper function to deploy a Merkle campaign with fuzzed leaves data and token.
     /// @dev This will be called only once.
     function deployCampaign(
         address campaignCreator,
@@ -190,7 +188,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
             fuzzMerkleDataAndComputeRoot(leaves, leavesData, rawLeavesData, store.getExcludedAddresses());
 
         // This must be overridden by the handler contract.
-        campaign = _deployCampaign(campaignCreator, merkleRoot);
+        campaign = ISablierMerkleBase(_deployCampaign(campaignCreator, merkleRoot));
 
         // Add the campaign to store.
         store.addCampaign(address(campaign));
