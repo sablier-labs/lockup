@@ -192,11 +192,19 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
-    function execute(address target, bytes calldata data) external override onlyAdmin returns (bytes memory result) {
+    function execute(
+        address target,
+        bytes calldata targetCallData
+    )
+        external
+        override
+        onlyAdmin
+        returns (bytes memory result)
+    {
         bool success;
 
-        // Interactions: call the target contract with the provided data.
-        (success, result) = target.call(data);
+        // Interactions: call the target contract with the provided calldata.
+        (success, result) = target.call(targetCallData);
 
         // Check whether the call was successful or not.
         if (!success) {
@@ -218,7 +226,7 @@ contract SablierComptroller is
         }
 
         // Log the execution.
-        emit ISablierComptroller.Execute(target, data, result);
+        emit ISablierComptroller.Execute(target, targetCallData, result);
     }
 
     /// @inheritdoc ISablierComptroller
