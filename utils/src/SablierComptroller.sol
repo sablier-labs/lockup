@@ -182,7 +182,7 @@ contract SablierComptroller is
         delete _protocolFees[protocol].customFeesUSD[user];
 
         // Log the update.
-        emit ISablierComptroller.DisableCustomFeeUSD({
+        emit ISablierComptroller.UpdateCustomFeeUSD({
             protocol: protocol,
             caller: msg.sender,
             user: user,
@@ -252,7 +252,7 @@ contract SablierComptroller is
         _protocolFees[protocol].customFeesUSD[user].fee = customFeeUSD;
 
         // Log the update.
-        emit ISablierComptroller.SetCustomFeeUSD({
+        emit ISablierComptroller.UpdateCustomFeeUSD({
             protocol: protocol,
             caller: msg.sender,
             user: user,

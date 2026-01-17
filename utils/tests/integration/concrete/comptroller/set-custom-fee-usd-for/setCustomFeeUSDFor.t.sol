@@ -131,9 +131,9 @@ contract SetCustomFeeUSDFor_Comptroller_Concrete_Test is Base_Test {
     )
         private
     {
-        // It should emit a {SetCustomFeeUSD} event.
+        // It should emit an {UpdateCustomFeeUSD} event.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ISablierComptroller.SetCustomFeeUSD(protocol, caller, user, currentFeeUSD, newCustomFeeUSD);
+        emit ISablierComptroller.UpdateCustomFeeUSD(protocol, caller, user, currentFeeUSD, newCustomFeeUSD);
 
         // Set the custom fee.
         comptroller.setCustomFeeUSDFor(protocol, user, newCustomFeeUSD);
