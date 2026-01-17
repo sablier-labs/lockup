@@ -170,7 +170,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         vm.expectEmit(address(factoryMerkleVCA));
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
-            params: params,
+            campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),
@@ -213,7 +213,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         vm.expectEmit(address(factoryMerkleVCA));
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
-            params: params,
+            campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),

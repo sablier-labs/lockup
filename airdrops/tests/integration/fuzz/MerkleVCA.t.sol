@@ -187,7 +187,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         vm.expectEmit({ emitter: address(factoryMerkleVCA) });
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(expectedMerkleVCA),
-            params: params,
+            campaignParams: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             comptroller: address(comptroller),

@@ -144,7 +144,7 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedMerkleLL),
-            params: params,
+            campaignParams: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             comptroller: address(comptroller),

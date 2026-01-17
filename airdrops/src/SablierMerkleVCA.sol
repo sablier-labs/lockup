@@ -58,26 +58,26 @@ contract SablierMerkleVCA is
 
     /// @dev Constructs the contract by initializing the immutable state variables.
     constructor(
-        MerkleVCA.ConstructorParams memory params,
+        MerkleVCA.ConstructorParams memory campaignParams,
         address campaignCreator,
         address comptroller
     )
         SablierMerkleBase(
             campaignCreator,
-            params.campaignName,
-            params.campaignStartTime,
+            campaignParams.campaignName,
+            campaignParams.campaignStartTime,
             comptroller,
-            params.expiration,
-            params.initialAdmin,
-            params.ipfsCID,
-            params.merkleRoot,
-            params.token
+            campaignParams.expiration,
+            campaignParams.initialAdmin,
+            campaignParams.ipfsCID,
+            campaignParams.merkleRoot,
+            campaignParams.token
         )
     {
         // Effect: set the immutable variables.
-        UNLOCK_PERCENTAGE = params.unlockPercentage;
-        VESTING_END_TIME = params.vestingEndTime;
-        VESTING_START_TIME = params.vestingStartTime;
+        UNLOCK_PERCENTAGE = campaignParams.unlockPercentage;
+        VESTING_END_TIME = campaignParams.vestingEndTime;
+        VESTING_START_TIME = campaignParams.vestingStartTime;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

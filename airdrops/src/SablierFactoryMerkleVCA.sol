@@ -46,7 +46,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     /// @inheritdoc ISablierFactoryMerkleVCA
     function computeMerkleVCA(
         address campaignCreator,
-        MerkleVCA.ConstructorParams calldata params
+        MerkleVCA.ConstructorParams calldata campaignParams
     )
         external
         view
@@ -55,20 +55,20 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     {
         // Check: validate the deployment parameters.
         _checkDeploymentParams(
-            address(params.token),
-            params.vestingStartTime,
-            params.vestingEndTime,
-            params.expiration,
-            params.unlockPercentage
+            address(campaignParams.token),
+            campaignParams.vestingStartTime,
+            campaignParams.vestingEndTime,
+            campaignParams.expiration,
+            campaignParams.unlockPercentage
         );
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(campaignParams)));
 
         // Get the bytecode hash for the {SablierMerkleVCA} contract.
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
-                type(SablierMerkleVCA).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                type(SablierMerkleVCA).creationCode, abi.encode(campaignParams, campaignCreator, address(comptroller))
             )
         );
 
@@ -83,7 +83,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
 
     /// @inheritdoc ISablierFactoryMerkleVCA
     function createMerkleVCA(
-        MerkleVCA.ConstructorParams calldata params,
+        MerkleVCA.ConstructorParams calldata campaignParams,
         uint256 aggregateAmount,
         uint256 recipientCount
     )
@@ -92,19 +92,19 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     {
         // Check: validate the deployment parameters.
         _checkDeploymentParams(
-            address(params.token),
-            params.vestingStartTime,
-            params.vestingEndTime,
-            params.expiration,
-            params.unlockPercentage
+            address(campaignParams.token),
+            campaignParams.vestingStartTime,
+            campaignParams.vestingEndTime,
+            campaignParams.expiration,
+            campaignParams.unlockPercentage
         );
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
 
         // Deploy the MerkleVCA contract with CREATE2.
         merkleVCA = new SablierMerkleVCA{ salt: salt }({
-            params: params,
+            campaignParams: campaignParams,
             campaignCreator: msg.sender,
             comptroller: address(comptroller)
         });
@@ -112,7 +112,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         // Log the creation of the MerkleVCA contract, including some metadata that is not stored on-chain.
         emit CreateMerkleVCA({
             merkleVCA: merkleVCA,
-            params: params,
+            campaignParams: campaignParams,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
