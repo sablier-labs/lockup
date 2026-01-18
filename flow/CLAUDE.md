@@ -1,0 +1,61 @@
+# Sablier Flow
+
+Debt tracking protocol for open-ended token streaming with no fixed end time.
+
+@../CLAUDE.md
+
+## Protocol Overview
+
+Flow tracks tokens owed between parties using a rate-per-second (rps) model:
+
+```
+amount owed = rps × elapsed time
+```
+
+Key features:
+
+- **Open-ended**: No end time, runs until paused or voided
+- **Top-ups**: Fund anytime, by anyone, any amount
+- **Pause/Resume**: Sender can pause; debt stops accruing
+- **Void**: Permanently stops stream; forfeits uncovered debt
+
+## Package Structure
+
+```
+src/
+├── SablierFlow.sol         # Main contract
+├── interfaces/             # ISablierFlow, etc.
+├── libraries/              # Helpers
+└── types/                  # Structs, enums
+tests/
+├── integration/
+│   ├── concrete/           # BTT-based tests
+│   └── fuzz/               # Fuzz tests
+└── invariant/              # Invariant tests
+scripts/
+└── solidity/               # Deployment scripts
+```
+
+## Commands
+
+```bash
+just build flow             # Build
+just test flow              # Run tests
+just test-lite flow         # Fast tests (no optimizer)
+just coverage flow          # Coverage report
+just full-check flow        # All checks
+```
+
+## Key Concepts
+
+- **Rate per second (rps)**: Tokens streamed per second (18 decimals)
+- **Snapshot debt**: Debt captured when stream is paused/adjusted
+- **Ongoing debt**: Debt accruing in real-time
+- **Total debt**: snapshot debt + ongoing debt
+- **Solvent/Insolvent**: Whether balance covers total debt
+
+## Import Path
+
+```solidity
+import { ISablierFlow } from "@sablier/flow/src/interfaces/ISablierFlow.sol";
+```

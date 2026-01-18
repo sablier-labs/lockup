@@ -26,6 +26,5 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
-# ignore .claude/ but track agents and skills directories
-!.claude/agents/
-!.claude/skills/
+# Track .claude directory
+!.claude
