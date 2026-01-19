@@ -240,7 +240,8 @@ contract SablierComptroller is
         onlyRole(FEE_MANAGEMENT_ROLE)
     {
         // Interaction: call the `lowerMinFeeUSD` function on the campaign.
-        (bool success, bytes memory returnData) = campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
+        (bool success, bytes memory returnData) =
+            campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
 
         // If the call fails, bubble up the revert reason.
         if (!success) {
