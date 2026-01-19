@@ -13,7 +13,7 @@ Sablier-specific naming and patterns. Find code examples in the actual codebase.
 | Library   | `{Domain}Math`, `Helpers`  | `LockupMath`, `Helpers`      |
 | Types     | Namespace library          | `Lockup.Stream`, `Flow.Rate` |
 
----
+______________________________________________________________________
 
 ## Error Library Pattern
 
@@ -25,7 +25,7 @@ Errors defined in dedicated `Errors.sol` per package with section comments by co
 - Include diagnostic parameters
 - Separate validation checks for distinct error conditions
 
----
+______________________________________________________________________
 
 ## Abstract Contract Types
 
@@ -35,7 +35,7 @@ Errors defined in dedicated `Errors.sol` per package with section comments by co
 | Feature contracts | Model-specific implementations | `SablierLockupDynamic` |
 | Base contracts    | Shared functionality           | `SablierMerkleBase`    |
 
----
+______________________________________________________________________
 
 ## Interface Organization
 
@@ -45,7 +45,7 @@ Errors defined in dedicated `Errors.sol` per package with section comments by co
 | `I{Contract}.sol`          | State-changing functions |
 | `I{Contract}Recipient.sol` | Hook interface           |
 
----
+______________________________________________________________________
 
 ## Inheritance Pattern
 
@@ -55,7 +55,7 @@ Inherit in alphabetical order:
 Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLockupLinear, SablierLockupTranched
 ```
 
----
+______________________________________________________________________
 
 ## Library Patterns
 
@@ -65,7 +65,7 @@ Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLoc
 | Namespace libraries | Group related types (`Lockup.Stream`)      |
 | Helper libraries    | Validation and calculation (`Helpers.sol`) |
 
----
+______________________________________________________________________
 
 ## Access Control Bases
 
@@ -75,7 +75,7 @@ Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLoc
 | `RoleAdminable`   | `onlyRole(role)`  | Role-based access control    |
 | `Comptrollerable` | `onlyComptroller` | Protocol-level admin actions |
 
----
+______________________________________________________________________
 
 ## Cross-Package Imports
 
@@ -85,7 +85,7 @@ Batch, Comptrollerable, ERC721, ISablierLockup, SablierLockupDynamic, SablierLoc
 | lockup       | `@sablier/lockup/src/interfaces/ISablierLockup.sol` |
 | types        | `@sablier/lockup/src/types/DataTypes.sol`           |
 
----
+______________________________________________________________________
 
 ## Shared Utils Package
 
@@ -118,7 +118,7 @@ Move code to utils only when ALL conditions are met:
 
 **Anti-pattern**: Moving code to utils "just in case" it might be reused later.
 
----
+______________________________________________________________________
 
 ## Hook Security Rules
 
@@ -127,13 +127,13 @@ Move code to utils only when ALL conditions are met:
 3. Validate hook returns correct selector
 4. Revert with specific error on invalid selector
 
----
+______________________________________________________________________
 
 ## Stack Too Deep Pattern
 
 Use `{FunctionName}Vars` struct for functions with many local variables.
 
----
+______________________________________________________________________
 
 ## Modifier Pattern
 
@@ -142,7 +142,7 @@ Use `{FunctionName}Vars` struct for functions with many local variables.
 | `notNull(id)`      | Revert if stream doesn't exist          |
 | `noDelegateCall()` | Call private helper `_noDelegateCall()` |
 
----
+______________________________________________________________________
 
 ## Commands
 

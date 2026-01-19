@@ -1,16 +1,7 @@
 ---
 name: btt
-version: "1.0.0"
-description: >
-  Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases: "write a tree",
-  "create test tree", "BTT spec", "bulloak tree", or when writing integration tests for contract functions.
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
+user-invocable: true
+description: 'Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases: write a tree, create test tree, BTT spec, bulloak tree, or when writing integration tests for contract functions.'
 ---
 
 # Branching Tree Technique (BTT) Skill
@@ -209,7 +200,7 @@ bulloak check --skip-modifiers tests/**/*.tree
 
 https://github.com/alexfertel/bulloak/blob/main/README.md
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

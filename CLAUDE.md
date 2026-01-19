@@ -9,7 +9,7 @@ Smart contracts for Sablier token streaming protocols.
 - **Package Manager**: Bun
 - **Task Runner**: Just
 - **Testing**: Foundry with Bulloak (BTT)
-- **Linting**: Solhint, Prettier
+- **Linting**: Solhint, Prettier, mdformat
 
 ## Monorepo Structure
 
@@ -21,25 +21,6 @@ Smart contracts for Sablier token streaming protocols.
 ```
 
 Each package has its own `CLAUDE.md` with protocol-specific context.
-
-## Commands
-
-```bash
-just setup              # One-time setup (install deps, create .env symlinks)
-just build-all          # Build all packages
-just test-all           # Run all tests
-just full-check-all     # Run all linting and checks
-just full-write-all     # Auto-fix linting issues
-```
-
-Package-specific commands use `just <command> <package>`:
-
-```bash
-just build lockup       # Build lockup package
-just test flow          # Test flow package
-just coverage airdrops  # Coverage for airdrops
-just full-check utils   # Run all checks on utils
-```
 
 ## Code Standards
 
@@ -57,3 +38,9 @@ just full-check utils   # Run all checks on utils
 ## Security
 
 All protocols are audited. See [SECURITY.md](./SECURITY.md) for bug bounty details.
+
+## References
+
+@justfile
+@package.json
+@CONTRIBUTING.md

@@ -87,7 +87,7 @@ shellcheck scripts/bash/*.sh
 echo "::endgroup::"
 ```
 
----
+______________________________________________________________________
 
 ## GitHub Actions Integration
 
@@ -129,7 +129,7 @@ for package in "${PACKAGES[@]}"; do
 done
 ```
 
----
+______________________________________________________________________
 
 ## Artifact Preparation
 
@@ -198,7 +198,7 @@ cp -r artifacts/*-"${VERSION}"/* "artifacts/all-${VERSION}/"
 echo "Release artifacts ready in artifacts/all-${VERSION}/"
 ```
 
----
+______________________________________________________________________
 
 ## Environment Variables
 

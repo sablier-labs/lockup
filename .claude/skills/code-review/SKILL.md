@@ -1,14 +1,8 @@
 ---
 name: code-review
-version: "1.0.0"
-description: >
-  Code review for Solidity smart contracts. Trigger phrases: "review code", "check PR", "audit code", "security review",
-  or when preparing code for submission. Covers PR reviews, security auditing, and test completeness.
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
+agent: Plan
+user-invocable: true
+description: 'Code review for Solidity smart contracts. Trigger phrases: review code, check PR, audit code, security review, or when preparing code for submission.'
 ---
 
 # Code Review Skill
@@ -35,7 +29,7 @@ process.
 | **Deep Review** | Thorough security analysis   | Deep     | Before mainnet deployment        |
 | **Audit**       | Comprehensive security audit | Thorough | Pre-launch or after major change |
 
----
+______________________________________________________________________
 
 ## Self-Review Checklist
 
@@ -73,7 +67,7 @@ process.
 - [ ] Edge cases tested
 - [ ] BTT tree updated (if applicable)
 
----
+______________________________________________________________________
 
 ## PR Review Issues
 
@@ -88,7 +82,7 @@ process.
 | Breaking changes        | Interface modifications without deprecation    |
 | Gas regression          | New loops, storage operations in hot paths     |
 
----
+______________________________________________________________________
 
 ## Severity Classification
 
@@ -100,7 +94,7 @@ process.
 | **Low (L)**       | Minor issues, deviations from best practices |
 | **Informational** | Suggestions and observations                 |
 
----
+______________________________________________________________________
 
 ## Quick Vulnerability Reference
 
@@ -112,7 +106,7 @@ process.
 | **High**     | Flash loan assumptions, Oracle manipulation, Front-running, Integer overflow, Price inflation |
 | **Medium**   | Fee-on-transfer tokens, Rebasing tokens, Unbounded loops, Timestamp dependence                |
 
----
+______________________________________________________________________
 
 ## Comment Prefixes
 
@@ -124,7 +118,7 @@ process.
 | `NIT:`        | Minor style preference           |
 | `QUESTION:`   | Clarification needed             |
 
----
+______________________________________________________________________
 
 ## Protocol Invariants
 
@@ -155,7 +149,7 @@ When reviewing code, read the package's invariant README and verify:
 | **Access control**     | Only authorized roles modify state        |
 | **State machine**      | Only valid transitions occur (see README) |
 
----
+______________________________________________________________________
 
 ## Final Checklists
 
@@ -186,7 +180,7 @@ When reviewing code, read the package's invariant README and verify:
 - [ ] Flash loan attack vectors considered
 - [ ] Slither run with no unreviewed findings
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

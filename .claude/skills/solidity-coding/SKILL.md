@@ -1,16 +1,7 @@
 ---
 name: solidity-coding
-version: "1.0.0"
-description: >
-  Write production-quality Solidity contracts. Trigger phrases: "write contract", "implement function", "add feature",
-  "contract architecture", or when working in src/ directories.
-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash
+user-invocable: true
+description: 'Write production-quality Solidity contracts. Trigger phrases: write contract, implement function, add feature, contract architecture, or when working in src/ directories.'
 ---
 
 # Solidity Contract Development Skill
@@ -236,7 +227,7 @@ token.safeTransferFrom(from, to, amount);
 3. Add NatSpec for struct and each field
 4. Use `@param` for each field in struct NatSpec
 
----
+______________________________________________________________________
 
 ## NFT Descriptor Pattern
 
@@ -283,7 +274,7 @@ where JSON = {
 }
 ```
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

@@ -1,16 +1,7 @@
 ---
 name: foundry-test
-version: "2.0.0"
-description: >
-  Write Foundry-based tests and scripts. Trigger phrases: "write test", "fuzz test", "fork test", "invariant test",
-  "deploy script", or when working in tests/ or scripts/ directories.
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
+user-invocable: true
+description: 'Write Foundry-based tests and scripts. Trigger phrases: write test, fuzz test, fork test, invariant test, deploy script, or when working in tests/ or scripts/ directories.'
 ---
 
 # Foundry Test & Script Skill
@@ -30,7 +21,7 @@ Rules and patterns for Foundry tests. Find examples in the actual codebase.
 | `references/gas-benchmarking.md`     | Snapshot, profiling, CI        | When measuring gas performance |
 | `references/sablier-conventions.md`  | Sablier-specific patterns      | When working in Sablier repos  |
 
----
+______________________________________________________________________
 
 ## Test Types
 
@@ -42,7 +33,7 @@ Rules and patterns for Foundry tests. Find examples in the actual codebase.
 | Invariant   | `tests/invariant/`            | `Invariant*.t.sol` | Stateful protocol properties |
 | Scripts     | `scripts/solidity/`           | `*.s.sol`          | Deployment/initialization    |
 
----
+______________________________________________________________________
 
 ## 1. Integration Tests (Concrete)
 
@@ -68,7 +59,7 @@ Rules and patterns for Foundry tests. Find examples in the actual codebase.
 2. One mock per scenario (not one mega-mock)
 3. Naming: `*Good`, `*Reverting`, `*InvalidSelector`, `*Reentrant`
 
----
+______________________________________________________________________
 
 ## 2. Fuzz Tests
 
@@ -93,7 +84,7 @@ cliffDuration = boundUint40(cliffDuration, 0, MAX - 1);
 totalDuration = boundUint40(totalDuration, cliffDuration + 1, MAX);
 ```
 
----
+______________________________________________________________________
 
 ## 3. Fork Tests
 
@@ -112,7 +103,7 @@ totalDuration = boundUint40(totalDuration, cliffDuration + 1, MAX);
 | USDT            | Non-standard | `forceApprove()`             |
 | Fee-on-transfer | Balance diff | Check actual received amount |
 
----
+______________________________________________________________________
 
 ## 4. Invariant Tests
 
@@ -132,7 +123,7 @@ tests/invariant/
 3. **Use stores** to track totals for invariant assertions
 4. **Early return** in handlers if preconditions not met
 
----
+______________________________________________________________________
 
 ## 5. Solidity Scripts
 
@@ -152,7 +143,7 @@ forge script scripts/Deploy.s.sol --sig "run(...)" ARGS --rpc-url $RPC
 forge script scripts/Deploy.s.sol --sig "run(...)" ARGS --rpc-url $RPC --broadcast --verify
 ```
 
----
+______________________________________________________________________
 
 ## Running Tests
 
@@ -172,7 +163,7 @@ forge test --match-test testFuzz_ --fuzz-runs 1000
 forge coverage --report lcov
 ```
 
----
+______________________________________________________________________
 
 ## Debugging
 
@@ -220,7 +211,7 @@ forge inspect MyContract storage-layout
 4. **Compare gas** - Use `--gas-report` to spot unexpected costs
 5. **Snapshot comparisons** - Use `vm.snapshot()` / `vm.revertTo()` to isolate state changes
 
----
+______________________________________________________________________
 
 ## Best Practices Summary
 
@@ -235,7 +226,7 @@ forge inspect MyContract storage-layout
 
 - [Foundry Book](https://getfoundry.sh)
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

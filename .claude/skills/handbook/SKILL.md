@@ -1,18 +1,12 @@
 ---
-name: sablier-protocol-knowledge
-version: "1.1.0"
-description: >
-  Sablier protocol domain knowledge: Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). Use when
-  implementing business logic. Extensible for new protocols.
-tools:
-  - Read
-  - Glob
-  - Grep
+name: handbook
+user-invocable: false
+description: Protocol domain knowledge - Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). Use when implementing business logic.
 ---
 
-# Sablier Protocol Knowledge
+# Protocol Handbook
 
-This skill explains Sablier protocol concepts essential for writing contracts and understanding business logic.
+Protocol concepts essential for writing contracts and understanding business logic.
 
 ## Protocol Registry
 
@@ -58,7 +52,7 @@ Each protocol has defined status transitions. See individual references for diag
 - Transfer changes recipient
 - Transferability set at creation (Lockup) or always transferable (Flow)
 
----
+______________________________________________________________________
 
 ## References
 
@@ -67,7 +61,7 @@ Each protocol has defined status transitions. See individual references for diag
 - [Airdrops Protocol](references/airdrops.md) - Merkle campaigns, claiming, clawback
 - [Comptroller](references/comptroller.md) - Admin contract, governance, Comptrollerable base
 
----
+______________________________________________________________________
 
 ## Adding a New Protocol
 
@@ -131,7 +125,7 @@ Refer to https://docs.sablier.com/llms-{protocol}.txt for up-to-date documentati
 - [ ] Add protocol-specific BTT conventions to `btt/references/sablier-conventions.md`
 - [ ] Add test conventions to `foundry-test/references/sablier-conventions.md`
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

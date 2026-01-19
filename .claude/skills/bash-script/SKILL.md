@@ -1,16 +1,7 @@
 ---
 name: bash-script
-version: "1.0.0"
-description: >
-  Write bash scripts for Sablier development workflows. Trigger phrases: "write bash script", "shell script", "automate
-  workflow", "prepare artifacts", or when working in scripts/bash/ directories.
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
+user-invocable: true
+description: 'Write bash scripts for Sablier development workflows. Trigger phrases: write bash script, shell script, automate workflow, prepare artifacts, or when working in scripts/bash/ directories.'
 ---
 
 # Bash Script Skill
@@ -33,7 +24,7 @@ scripts/
     └── dev-*.sh             # Development utilities
 ```
 
----
+______________________________________________________________________
 
 ## Header Template
 
@@ -47,7 +38,7 @@ set -euo pipefail
 # Usage: ./script.sh [args]
 ```
 
----
+______________________________________________________________________
 
 ## Strict Mode Flags
 
@@ -57,7 +48,7 @@ set -euo pipefail
 | `-u`          | Error on undefined variables |
 | `-o pipefail` | Fail pipe on first error     |
 
----
+______________________________________________________________________
 
 ## Variable Rules
 
@@ -70,7 +61,7 @@ set -euo pipefail
 | Uppercase for env vars   | `FOUNDRY_PROFILE`       |
 | Lowercase for local vars | `local file_path`       |
 
----
+______________________________________________________________________
 
 ## Function Pattern
 
@@ -83,7 +74,7 @@ function_name() {
 }
 ```
 
----
+______________________________________________________________________
 
 ## Error Handling
 
@@ -94,7 +85,7 @@ function_name() {
 | `trap cleanup EXIT`   | Cleanup on exit         |
 | `if ! command; then`  | Check command success   |
 
----
+______________________________________________________________________
 
 ## Common Patterns
 
@@ -119,9 +110,9 @@ done
 value=$(jq -r '.key' "${json_file}")
 ```
 
----
+______________________________________________________________________
 
----
+______________________________________________________________________
 
 ## Anti-Patterns
 
@@ -133,7 +124,7 @@ value=$(jq -r '.key' "${json_file}")
 | Parsing `ls` output | Globs or `find`              |
 | `cat file \| grep`  | `grep pattern file`          |
 
----
+______________________________________________________________________
 
 ## Shellcheck
 
@@ -143,7 +134,7 @@ Always run `shellcheck` on scripts before committing.
 shellcheck scripts/bash/*.sh
 ```
 
----
+______________________________________________________________________
 
 ## Example Invocations
 

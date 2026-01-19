@@ -14,7 +14,7 @@ FunctionName_Integration_Concrete_Test
 
 **Generated**: `test_WhenAIsZero()`, `test_WhenBIsZero()`
 
----
+______________________________________________________________________
 
 ## Nested Branches (Generates Modifiers)
 
@@ -35,7 +35,7 @@ FunctionName_Integration_Concrete_Test
 - `test_WhenANotExceed10() whenAIsNotZero` - has modifier
 - `test_WhenAExceeds10() whenAIsNotZero` - has modifier
 
----
+______________________________________________________________________
 
 ## Multiple Functions (Same Contract)
 
@@ -57,7 +57,7 @@ ContractName::FunctionB_Integration_Concrete_Test
 
 **Generated**: Single contract with prefixed function names.
 
----
+______________________________________________________________________
 
 ## Duplicate Branch Names
 
