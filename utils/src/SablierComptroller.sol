@@ -239,19 +239,8 @@ contract SablierComptroller is
         override
         onlyRole(FEE_MANAGEMENT_ROLE)
     {
-        // Check: the campaign address is a valid Sablier Merkle.
-        (bool success, bytes memory returnData) = campaign.staticcall(abi.encodeWithSignature("IS_SABLIER_MERKLE()"));
-        if (!success || returnData.length == 0) {
-            revert Errors.SablierComptroller_MissingIsSablierMerkle(campaign);
-        }
-
-        // Check: the campaign returns true for `IS_SABLIER_MERKLE()`.
-        if (!abi.decode(returnData, (bool))) {
-            revert Errors.SablierComptroller_IsSablierMerkleReturnsFalse(campaign);
-        }
-
-        // Interaction: call the lowerMinFeeUSD function on the campaign.
-        (success, returnData) = campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
+        // Interaction: call the `lowerMinFeeUSD` function on the campaign.
+        (bool success, bytes memory returnData) = campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
 
         // If the call fails, bubble up the revert reason.
         if (!success) {
