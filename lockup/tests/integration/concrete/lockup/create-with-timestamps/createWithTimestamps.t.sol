@@ -63,8 +63,8 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
                 (
                     _defaultParams.createWithTimestamps,
                     _defaultParams.unlockAmounts,
-                    _defaultParams.cliffTime,
-                    _defaultParams.unlockGranularity
+                    _defaultParams.unlockGranularity,
+                    _defaultParams.cliffTime
                 )
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {

@@ -141,7 +141,7 @@ abstract contract Integration_Test is Base_Test {
             streamId = lockup.createWithTimestampsLD(params, _defaultParams.segments);
         } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamId = lockup.createWithTimestampsLL(
-                params, _defaultParams.unlockAmounts, _defaultParams.cliffTime, _defaultParams.unlockGranularity
+                params, _defaultParams.unlockAmounts, _defaultParams.unlockGranularity, _defaultParams.cliffTime
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
@@ -170,7 +170,10 @@ abstract contract Integration_Test is Base_Test {
                 lockup.createWithDurationsLD(_defaultParams.createWithDurations, _defaultParams.segmentsWithDurations);
         } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamId = lockup.createWithDurationsLL(
-                _defaultParams.createWithDurations, _defaultParams.unlockAmounts, _defaultParams.durations
+                _defaultParams.createWithDurations,
+                _defaultParams.unlockAmounts,
+                _defaultParams.unlockGranularity,
+                _defaultParams.durations
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId =
@@ -187,7 +190,7 @@ abstract contract Integration_Test is Base_Test {
             streamId = lockup.createWithTimestampsLD(params, segments);
         } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamId = lockup.createWithTimestampsLL(
-                params, _defaultParams.unlockAmounts, defaults.CLIFF_TIME(), _defaultParams.unlockGranularity
+                params, _defaultParams.unlockAmounts, _defaultParams.unlockGranularity, defaults.CLIFF_TIME()
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             LockupTranched.Tranche[] memory tranches = _defaultParams.tranches;

@@ -45,8 +45,8 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
             (
                 defaults.createWithTimestamps(),
                 defaults.unlockAmounts(),
-                defaults.CLIFF_TIME(),
-                defaults.UNLOCK_GRANULARITY()
+                defaults.UNLOCK_GRANULARITY(),
+                defaults.CLIFF_TIME()
             )
         );
         // It should return nothing.
@@ -78,7 +78,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         );
         calls[1] = abi.encodeCall(
             lockup.createWithDurationsLL,
-            (defaults.createWithDurations(), defaults.unlockAmounts(), defaults.durations())
+            (defaults.createWithDurations(), defaults.unlockAmounts(), defaults.UNLOCK_GRANULARITY(), defaults.durations())
         );
         calls[2] = abi.encodeCall(
             lockup.createWithDurationsLT, (defaults.createWithDurations(), defaults.tranchesWithDurations())
@@ -89,8 +89,8 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
             (
                 defaults.createWithTimestamps(),
                 defaults.unlockAmounts(),
-                defaults.CLIFF_TIME(),
-                defaults.UNLOCK_GRANULARITY()
+                defaults.UNLOCK_GRANULARITY(),
+                defaults.CLIFF_TIME()
             )
         );
         calls[5] = abi.encodeCall(lockup.createWithTimestampsLT, (defaults.createWithTimestamps(), defaults.tranches()));

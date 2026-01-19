@@ -41,13 +41,16 @@ interface ISablierLockupLinear is ISablierLockupState {
     /// - All requirements in {createWithTimestampsLL} must be met for the calculated parameters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {Lockup} type.
-    /// @param durations Struct encapsulating (i) cliff period duration and (ii) total stream duration, both in seconds.
     /// @param unlockAmounts Struct encapsulating (i) the amount to unlock at the start time and (ii) the amount to
     /// unlock at the cliff time.
+    /// @param unlockGranularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
+    /// 1 second.
+    /// @param durations Struct encapsulating (i) cliff period duration and (ii) total stream duration, both in seconds.
     /// @return streamId The ID of the newly created stream.
     function createWithDurationsLL(
         Lockup.CreateWithDurations calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
+        uint40 unlockGranularity,
         LockupLinear.Durations calldata durations
     )
         external
@@ -81,17 +84,17 @@ interface ISablierLockupLinear is ISablierLockupState {
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {Lockup} type.
-    /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
     /// @param unlockAmounts Struct encapsulating (i) the amount to unlock at the start time and (ii) the amount to
     /// unlock at the cliff time.
-    /// @param unlockGranularity The smallest step in time between two consecutive unlocks. Zero is a sentinel value for
+    /// @param unlockGranularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
     /// 1 second.
+    /// @param cliffTime The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
     /// @return streamId The ID of the newly created stream.
     function createWithTimestampsLL(
         Lockup.CreateWithTimestamps calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 cliffTime,
-        uint40 unlockGranularity
+        uint40 unlockGranularity,
+        uint40 cliffTime
     )
         external
         payable

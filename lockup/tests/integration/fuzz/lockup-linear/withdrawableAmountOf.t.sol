@@ -95,8 +95,8 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         uint256 streamId = lockup.createWithTimestampsLL({
             params: params,
             unlockAmounts: unlockAmounts,
-            cliffTime: defaults.CLIFF_TIME(),
-            unlockGranularity: defaults.UNLOCK_GRANULARITY()
+            unlockGranularity: defaults.UNLOCK_GRANULARITY(),
+            cliffTime: defaults.CLIFF_TIME()
         });
 
         timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);

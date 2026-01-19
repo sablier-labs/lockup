@@ -75,8 +75,8 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
         lockup.createWithTimestampsLL({
             params: params.create,
             unlockAmounts: params.unlockAmounts,
-            cliffTime: params.cliffTime,
-            unlockGranularity: params.unlockGranularity
+            unlockGranularity: params.unlockGranularity,
+            cliffTime: params.cliffTime
         });
 
         // Assert that the stream is created with the correct parameters.

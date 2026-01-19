@@ -211,8 +211,8 @@ contract SablierMerkleLL is
                     shape: streamShape
                 }),
                 unlockAmounts,
-                cliffTime,
-                VESTING_UNLOCK_GRANULARITY
+                VESTING_UNLOCK_GRANULARITY,
+                cliffTime
             );
 
             // Effect: push the stream ID into the claimed streams array.

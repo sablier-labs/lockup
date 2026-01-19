@@ -29,8 +29,8 @@ contract CreateWithTimestampsLL_Integration_Test is Integration_Test {
             count: defaults.BATCH_SIZE(),
             params: defaults.createWithTimestamps(),
             unlockAmounts: defaults.unlockAmounts(),
-            cliffTime: defaults.CLIFF_TIME(),
-            unlockGranularity: defaults.UNLOCK_GRANULARITY()
+            unlockGranularity: defaults.UNLOCK_GRANULARITY(),
+            cliffTime: defaults.CLIFF_TIME()
         });
         expectMultipleCallsToTransferFrom({
             count: defaults.BATCH_SIZE(),

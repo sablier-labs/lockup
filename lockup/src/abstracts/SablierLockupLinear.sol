@@ -25,6 +25,7 @@ abstract contract SablierLockupLinear is
     function createWithDurationsLL(
         Lockup.CreateWithDurations calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
+        uint40 unlockGranularity,
         LockupLinear.Durations calldata durations
     )
         external
@@ -56,7 +57,7 @@ abstract contract SablierLockupLinear is
             token: params.token,
             transferable: params.transferable,
             unlockAmounts: unlockAmounts,
-            unlockGranularity: durations.unlockGranularity
+            unlockGranularity: unlockGranularity
         });
     }
 
@@ -64,8 +65,8 @@ abstract contract SablierLockupLinear is
     function createWithTimestampsLL(
         Lockup.CreateWithTimestamps calldata params,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 cliffTime,
-        uint40 unlockGranularity
+        uint40 unlockGranularity,
+        uint40 cliffTime
     )
         external
         payable

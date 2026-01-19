@@ -81,6 +81,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 timeJumpSeed,
         Lockup.CreateWithDurations memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 unlockGranularity,
         LockupLinear.Durations memory durations
     )
         public
@@ -92,7 +93,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // We don't want to create more than a certain number of streams.
         vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
 
-        _boundCreateWithDurationsLLParams(params, unlockAmounts, durations);
+        unlockGranularity = _boundCreateWithDurationsLLParams(params, unlockAmounts, unlockGranularity, durations);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -106,7 +107,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
-        uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, durations);
+        uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, unlockGranularity, durations);
 
         lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
@@ -234,7 +235,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
 
         // Create the stream and record the gas used.
         uint256 gasBefore = gasleft();
-        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime, unlockGranularity);
+        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, unlockGranularity, cliffTime);
 
         lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
@@ -298,10 +299,12 @@ contract LockupCreateHandler is BaseHandler, Calculations {
     function _boundCreateWithDurationsLLParams(
         Lockup.CreateWithDurations memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 unlockGranularity,
         LockupLinear.Durations memory durations
     )
         private
         pure
+        returns (uint40)
     {
         // Bound the stream parameters.
         durations.cliff = boundUint40(durations.cliff, 1 seconds, 2500 seconds);
@@ -312,7 +315,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             ? 0
             : boundUint128(unlockAmounts.cliff, 0, params.depositAmount - unlockAmounts.start);
 
-        durations.unlockGranularity = boundUint40(durations.unlockGranularity, 1, durations.total - durations.cliff);
+        return boundUint40(unlockGranularity, 1, durations.total - durations.cliff);
     }
 
     /// @notice Function to bound the params of the `createWithTimestampsLL` function so that all the requirements are

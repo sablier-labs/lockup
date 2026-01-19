@@ -56,8 +56,8 @@ abstract contract SablierLockupState is ISablierLockupState {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that actual model and expected model are equal.
-    modifier notEqual(Lockup.Model actualModel, Lockup.Model expectedModel) {
-        _notEqual(actualModel, expectedModel);
+    modifier modelCheck(Lockup.Model actualModel, Lockup.Model expectedModel) {
+        _modelCheck(actualModel, expectedModel);
         _;
     }
 
@@ -90,7 +90,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
-        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
         returns (uint40 cliffTime)
     {
         cliffTime = _cliffs[streamId];
@@ -140,7 +140,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
-        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_DYNAMIC)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_DYNAMIC)
         returns (LockupDynamic.Segment[] memory segments)
     {
         segments = _segments[streamId];
@@ -162,7 +162,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
-        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_TRANCHED)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_TRANCHED)
         returns (LockupTranched.Tranche[] memory tranches)
     {
         tranches = _tranches[streamId];
@@ -179,7 +179,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
-        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
         returns (LockupLinear.UnlockAmounts memory unlockAmounts)
     {
         unlockAmounts = _unlockAmounts[streamId];
@@ -191,7 +191,7 @@ abstract contract SablierLockupState is ISablierLockupState {
         view
         override
         notNull(streamId)
-        notEqual(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
         returns (uint40 unlockGranularity)
     {
         unlockGranularity = _unlockGranularities[streamId];
@@ -296,7 +296,7 @@ abstract contract SablierLockupState is ISablierLockupState {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Reverts if actual model and expected model are not equal.
-    function _notEqual(Lockup.Model actualModel, Lockup.Model expectedModel) private pure {
+    function _modelCheck(Lockup.Model actualModel, Lockup.Model expectedModel) private pure {
         if (actualModel != expectedModel) {
             revert Errors.SablierLockupState_NotExpectedModel(actualModel, expectedModel);
         }

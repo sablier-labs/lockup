@@ -144,7 +144,7 @@ library Helpers {
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the user-provided timestamps of an Lockup Linear stream.
+    /// @dev Checks the user-provided timestamps of an LL stream.
     function _checkTimestampsAndUnlockAmounts(
         uint40 cliffTime,
         uint128 depositAmount,
@@ -173,13 +173,13 @@ library Helpers {
                 // Calculate the streamable range as the difference between end time and cliff time.
                 streamableRange = timestamps.end - cliffTime;
             }
-        }
-        // Check: the cliff unlock amount is zero when the cliff time is zero.
-        else if (unlockAmounts.cliff > 0) {
-            revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
-        }
-        // Calculate the streamable range when cliff time is zero.
-        else {
+        } else {
+            // Check: the cliff unlock amount is zero when the cliff time is zero.
+            if (unlockAmounts.cliff > 0) {
+                revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
+            }
+
+            // Calculate the streamable range when cliff time is zero.
             unchecked {
                 streamableRange = timestamps.end - timestamps.start;
             }

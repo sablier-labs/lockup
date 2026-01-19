@@ -192,7 +192,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
         // Create the stream.
         vars.actualStreamId =
-            lockup.createWithTimestampsLL(params, unlockAmounts, cliffTime, vars.expectedUnlockGranularity);
+            lockup.createWithTimestampsLL(params, unlockAmounts, vars.expectedUnlockGranularity, cliffTime);
 
         // It should create the stream.
         assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliffTime");

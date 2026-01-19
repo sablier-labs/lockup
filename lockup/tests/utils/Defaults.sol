@@ -40,12 +40,7 @@ contract Defaults is Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     function durations() public pure returns (LockupLinear.Durations memory) {
-        return
-            LockupLinear.Durations({
-                cliff: CLIFF_DURATION,
-                total: TOTAL_DURATION,
-                unlockGranularity: UNLOCK_GRANULARITY
-            });
+        return LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
     }
 
     function lockupAmounts() public pure returns (Lockup.Amounts memory) {
@@ -224,7 +219,8 @@ contract Defaults is Constants {
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLL} parameters.
     function batchCreateWithDurationsLL() public view returns (BatchLockup.CreateWithDurationsLL[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurations(), unlockAmounts(), durations(), BATCH_SIZE);
+        batch =
+            BatchLockupBuilder.fillBatch(createWithDurations(), unlockAmounts(), UNLOCK_GRANULARITY, durations(), BATCH_SIZE);
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLT} parameters.

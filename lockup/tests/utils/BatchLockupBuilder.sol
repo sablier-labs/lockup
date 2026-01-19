@@ -65,6 +65,7 @@ library BatchLockupBuilder {
     function fillBatch(
         Lockup.CreateWithDurations memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 unlockGranularity,
         LockupLinear.Durations memory durations,
         uint256 batchSize
     )
@@ -81,6 +82,7 @@ library BatchLockupBuilder {
             transferable: params.transferable,
             durations: durations,
             unlockAmounts: unlockAmounts,
+            unlockGranularity: unlockGranularity,
             shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);

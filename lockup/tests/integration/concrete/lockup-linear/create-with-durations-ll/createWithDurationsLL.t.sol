@@ -14,7 +14,12 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
         expectRevert_DelegateCall({
             callData: abi.encodeCall(
                 lockup.createWithDurationsLL,
-                (_defaultParams.createWithDurations, _defaultParams.unlockAmounts, _defaultParams.durations)
+                (
+                    _defaultParams.createWithDurations,
+                    _defaultParams.unlockAmounts,
+                    _defaultParams.unlockGranularity,
+                    _defaultParams.durations
+                )
             )
         });
     }

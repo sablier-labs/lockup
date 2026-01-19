@@ -56,11 +56,8 @@ contract Init is BaseScript {
                     shape: "Cliff Linear"
                 }),
                 LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
-                LockupLinear.Durations({
-                    cliff: cliffDurations[i],
-                    total: totalDurations[i],
-                    unlockGranularity: 1 seconds
-                })
+                1 seconds,
+                LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
             );
         }
 

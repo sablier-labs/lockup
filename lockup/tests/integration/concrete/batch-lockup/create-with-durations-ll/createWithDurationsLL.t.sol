@@ -29,6 +29,7 @@ contract CreateWithDurationsLL_Integration_Test is Integration_Test {
             count: defaults.BATCH_SIZE(),
             params: defaults.createWithDurations(),
             unlockAmounts: defaults.unlockAmounts(),
+            unlockGranularity: defaults.UNLOCK_GRANULARITY(),
             durations: defaults.durations()
         });
         expectMultipleCallsToTransferFrom({
