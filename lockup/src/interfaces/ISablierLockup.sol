@@ -255,6 +255,14 @@ interface ISablierLockup is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ILockupNFTDescriptor newNFTDescriptor) external;
 
+    /// @notice Wrapper for {IERC721.transferFrom} with the `payable` specifier so that it can be called in conjunction
+    /// with other functions using {IBatch.batch}.
+    ///
+    /// @param from The address of the current owner of the stream NFT.
+    /// @param to The address of the new owner of the stream NFT.
+    /// @param streamId The ID of the stream NFT to transfer.
+    function transferFromPayable(address from, address to, uint256 streamId) external payable;
+
     /// @notice Withdraws the provided amount of tokens from the stream to the `to` address.
     ///
     /// @dev Emits a {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} event.
