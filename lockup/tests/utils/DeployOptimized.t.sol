@@ -17,10 +17,10 @@ abstract contract DeployOptimized is CommonBase {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys the optimized {Helpers} and {LockupMath} libraries.
+    /// @dev Deploys the optimized {LockupHelpers} and {LockupMath} libraries.
     function deployOptimizedLibraries() internal returns (address helpers, address lockupMath) {
         // Deploy public libraries.
-        helpers = deployCode("out-optimized/Helpers.sol/Helpers.json");
+        helpers = deployCode("out-optimized/LockupHelpers.sol/LockupHelpers.json");
         lockupMath = deployCode("out-optimized/LockupMath.sol/LockupMath.json");
     }
 
@@ -42,7 +42,7 @@ abstract contract DeployOptimized is CommonBase {
         // Replace the library placeholders with the library addresses to link the libraries with the contract.
         rawBytecode = vm.replace({
             input: rawBytecode,
-            from: libraryPlaceholder("src/libraries/Helpers.sol:Helpers"),
+            from: libraryPlaceholder("src/libraries/LockupHelpers.sol:LockupHelpers"),
             to: vm.replace(vm.toString(helpers), "0x", "")
         });
         rawBytecode = vm.replace({

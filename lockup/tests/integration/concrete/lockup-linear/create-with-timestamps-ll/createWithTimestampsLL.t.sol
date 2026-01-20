@@ -34,7 +34,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.cliffTime = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero.selector, _defaultParams.unlockAmounts.cliff
+                Errors.SablierLockupHelpers_CliffTimeZeroUnlockAmountNotZero.selector,
+                _defaultParams.unlockAmounts.cliff
             )
         );
         createDefaultStream();
@@ -60,7 +61,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.unlockAmounts.cliff = 0;
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanEndTime.selector, startTime, endTime)
+            abi.encodeWithSelector(Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime.selector, startTime, endTime)
         );
         createDefaultStream();
     }
@@ -102,7 +103,9 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         _defaultParams.cliffTime = cliffTime;
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime)
+            abi.encodeWithSelector(
+                Errors.SablierLockupHelpers_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
+            )
         );
         createDefaultStream();
     }
@@ -124,7 +127,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector,
+                Errors.SablierLockupHelpers_CliffTimeNotLessThanEndTime.selector,
                 _defaultParams.cliffTime,
                 _defaultParams.createWithTimestamps.timestamps.end
             )
@@ -152,7 +155,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_UnlockAmountsSumTooHigh.selector, depositAmount, depositAmount, 1
+                Errors.SablierLockupHelpers_UnlockAmountsSumTooHigh.selector, depositAmount, depositAmount, 1
             )
         );
         createDefaultStream();
@@ -179,7 +182,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_GranularityTooHigh.selector, _defaultParams.granularity, streamableRange
+                Errors.SablierLockupHelpers_GranularityTooHigh.selector, _defaultParams.granularity, streamableRange
             )
         );
         createDefaultStream();

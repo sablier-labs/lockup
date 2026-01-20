@@ -18,7 +18,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     {
         vm.assume(bytes(shapeName).length > 32);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
+            abi.encodeWithSelector(Errors.SablierLockupHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
         );
 
         _defaultParams.createWithTimestamps.shape = shapeName;
@@ -38,7 +38,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
+                Errors.SablierLockupHelpers_StartTimeNotLessThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
             )
         );
         createDefaultStream();
@@ -64,7 +64,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         _defaultParams.cliffTime = cliffTime;
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
+            abi.encodeWithSelector(Errors.SablierLockupHelpers_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime)
         );
         createDefaultStream();
     }
@@ -84,7 +84,9 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_GranularityTooHigh.selector, granularity, streamableRange)
+            abi.encodeWithSelector(
+                Errors.SablierLockupHelpers_GranularityTooHigh.selector, granularity, streamableRange
+            )
         );
         createDefaultStream();
     }

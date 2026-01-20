@@ -20,7 +20,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
     {
         vm.assume(bytes(shapeName).length > 32);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
+            abi.encodeWithSelector(Errors.SablierLockupHelpers_ShapeExceeds32Bytes.selector, bytes(shapeName).length)
         );
 
         _defaultParams.createWithTimestamps.shape = shapeName;
@@ -67,7 +67,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                Errors.SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                 defaults.START_TIME(),
                 tranches[0].timestamp
             )
@@ -103,7 +103,7 @@ contract CreateWithTimestampsLT_Integration_Fuzz_Test is Lockup_Tranched_Integra
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_DepositAmountNotEqualToTrancheAmountsSum.selector,
+                Errors.SablierLockupHelpers_DepositAmountNotEqualToTrancheAmountsSum.selector,
                 depositAmount,
                 defaultDepositAmount
             )

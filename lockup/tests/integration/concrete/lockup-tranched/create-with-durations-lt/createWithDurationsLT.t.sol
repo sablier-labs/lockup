@@ -46,7 +46,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
         tranches[index].duration = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_TrancheTimestampsNotOrdered.selector,
+                Errors.SablierLockupHelpers_TrancheTimestampsNotOrdered.selector,
                 index,
                 startTime + tranches[0].duration,
                 startTime + tranches[0].duration
@@ -67,7 +67,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
             tranches[0].duration = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
+                    Errors.SablierLockupHelpers_StartTimeNotLessThanFirstTrancheTimestamp.selector,
                     startTime,
                     startTime + tranches[0].duration
                 )
@@ -96,7 +96,7 @@ contract CreateWithDurationsLT_Integration_Concrete_Test is Lockup_Tranched_Inte
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierHelpers_TrancheTimestampsNotOrdered.selector,
+                    Errors.SablierLockupHelpers_TrancheTimestampsNotOrdered.selector,
                     index,
                     startTime + tranches[0].duration,
                     startTime + tranches[0].duration + tranches[1].duration

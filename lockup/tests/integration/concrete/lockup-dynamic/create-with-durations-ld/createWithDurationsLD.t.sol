@@ -45,7 +45,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierHelpers_SegmentTimestampsNotOrdered.selector,
+                Errors.SablierLockupHelpers_SegmentTimestampsNotOrdered.selector,
                 index,
                 startTime + segmentsWithDurations[0].duration,
                 startTime + segmentsWithDurations[0].duration
@@ -68,7 +68,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
             // Set the default segments with duration.
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
+                    Errors.SablierLockupHelpers_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                     startTime,
                     startTime + segmentsWithDurations[0].duration
                 )
@@ -102,7 +102,7 @@ contract CreateWithDurationsLD_Integration_Concrete_Test is Lockup_Dynamic_Integ
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierHelpers_SegmentTimestampsNotOrdered.selector,
+                    Errors.SablierLockupHelpers_SegmentTimestampsNotOrdered.selector,
                     index,
                     startTime + segmentsWithDurations[0].duration,
                     startTime + segmentsWithDurations[0].duration + segmentsWithDurations[1].duration

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { CommonBase as StdBase } from "forge-std/src/Base.sol";
 import { console2 } from "forge-std/src/console2.sol";
 import { StdStyle } from "forge-std/src/StdStyle.sol";
@@ -56,6 +58,16 @@ abstract contract BaseUtils is StdBase, StdUtils {
     /// @dev Retrieves the current block timestamp as an `uint40`.
     function getBlockTimestamp() internal view returns (uint40) {
         return uint40(vm.getBlockTimestamp());
+    }
+
+    /// @dev Label forked token using try catch to handle tokens with missing `symbol`.
+    function labelForkedToken(IERC20 forkedToken) internal {
+        // Use try catch to handle tokens with missing `symbol` implementation.
+        try IERC20Metadata(address(forkedToken)).symbol() returns (string memory symbol) {
+            vm.label({ account: address(forkedToken), newLabel: symbol });
+        } catch {
+            vm.label({ account: address(forkedToken), newLabel: "FORK_TOKEN" });
+        }
     }
 
     /// @dev Stops the active prank and sets a new one.

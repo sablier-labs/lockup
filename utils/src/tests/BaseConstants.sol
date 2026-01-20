@@ -15,6 +15,7 @@ abstract contract BaseConstants {
     uint40 public constant MAX_UINT40 = type(uint40).max;
     uint64 public constant MAX_UINT64 = type(uint64).max;
     uint40 public constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
+    uint128 public constant ONE_BILLION_DAI = 1_000_000_000e18;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       AIRDROPS

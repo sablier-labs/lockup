@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupLinear } from "../interfaces/ISablierLockupLinear.sol";
-import { Helpers } from "../libraries/Helpers.sol";
+import { LockupHelpers } from "../libraries/LockupHelpers.sol";
 import { Lockup } from "../types/Lockup.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
 import { SablierLockupState } from "./SablierLockupState.sol";
@@ -117,7 +117,7 @@ abstract contract SablierLockupLinear is
         }
 
         // Check: validate the user-provided parameters.
-        Helpers.checkCreateLL({
+        LockupHelpers.checkCreateLL({
             cliffTime: cliffTime,
             depositAmount: depositAmount,
             granularity: granularity,

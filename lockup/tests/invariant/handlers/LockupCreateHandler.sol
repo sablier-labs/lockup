@@ -55,7 +55,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         fuzzSegmentDurations(segments);
 
         // Fuzz the segment amounts and calculate the total amount.
-        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
+        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: ONE_BILLION_DAI, segments: segments });
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -136,7 +136,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         fuzzTrancheDurations(tranches);
 
         // Fuzz the tranche amounts and calculate the total amount.
-        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
+        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: ONE_BILLION_DAI, tranches: tranches });
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -181,7 +181,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         fuzzSegmentTimestamps(segments, params.timestamps.start);
 
         // Fuzz the segment amounts and calculate the total amount.
-        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: 1_000_000_000e18, segments: segments });
+        params.depositAmount = fuzzDynamicStreamAmounts({ upperBound: ONE_BILLION_DAI, segments: segments });
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -265,7 +265,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         fuzzTrancheTimestamps(tranches, params.timestamps.start);
 
         // Fuzz the tranche amounts and calculate the total amount.
-        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: 1_000_000_000e18, tranches: tranches });
+        params.depositAmount = fuzzTranchedStreamAmounts({ upperBound: ONE_BILLION_DAI, tranches: tranches });
 
         // Mint enough tokens to the Sender.
         deal({ token: address(token), to: params.sender, give: params.depositAmount });
@@ -308,7 +308,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         // Bound the stream parameters.
         durations.cliff = boundUint40(durations.cliff, 1 seconds, 2500 seconds);
         durations.total = boundUint40(durations.total, durations.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
-        params.depositAmount = boundUint128(params.depositAmount, 1, 1_000_000_000e18);
+        params.depositAmount = boundUint128(params.depositAmount, 1, ONE_BILLION_DAI);
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
         unlockAmounts.cliff = params.depositAmount == unlockAmounts.start
             ? 0
@@ -333,7 +333,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint40 blockTimestamp = getBlockTimestamp();
 
         params.timestamps.start = boundUint40(params.timestamps.start, 1 seconds, blockTimestamp);
-        params.depositAmount = boundUint128(params.depositAmount, 1, 1_000_000_000e18);
+        params.depositAmount = boundUint128(params.depositAmount, 1, ONE_BILLION_DAI);
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, params.depositAmount);
         unlockAmounts.cliff = 0;
 
