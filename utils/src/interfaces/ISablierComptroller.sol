@@ -149,6 +149,19 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @return result The result from the call.
     function execute(address target, bytes calldata targetCallData) external returns (bytes memory result);
 
+    /// @notice Calls `lowerMinFeeUSD` function on an existing campaign.
+    ///
+    /// @dev Notes:
+    /// - This function is a pass-through to the campaign's {ISablierMerkleBase.lowerMinFeeUSD} function.
+    /// - All validations are expected to be performed in the campaign's `lowerMinFeeUSD` function.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    ///
+    /// @param campaign The address of an existing campaign.
+    /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
+    function lowerMinFeeUSDForCampaign(address campaign, uint256 newMinFeeUSD) external;
+
     /// @notice Sets the custom USD fee for the provided user for the given protocol.
     /// @dev Emits an {UpdateCustomFeeUSD} event.
     ///

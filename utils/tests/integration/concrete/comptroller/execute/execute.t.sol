@@ -8,15 +8,15 @@ import { Errors } from "src/libraries/Errors.sol";
 import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { SablierComptroller } from "src/SablierComptroller.sol";
 
-import { Base_Test } from "tests/Base.t.sol";
-import { TargetPanic } from "./targets/TargetPanic.sol";
-import { TargetReverter } from "./targets/TargetReverter.sol";
+import { Base_Test } from "../../../../Base.t.sol";
+import { PanicContractMock } from "../../../../mocks/PanicContractMock.sol";
+import { RevertingContractMock } from "../../../../mocks/RevertingContractMock.sol";
 
 contract Execute_Concrete_Test is Base_Test {
     struct Targets {
         ComptrollerableMock comptrollerableMock;
-        TargetPanic panic;
-        TargetReverter reverter;
+        PanicContractMock panic;
+        RevertingContractMock reverter;
     }
 
     ISablierComptroller internal newComptroller;
@@ -29,8 +29,8 @@ contract Execute_Concrete_Test is Base_Test {
         // Create the targets.
         targets = Targets({
             comptrollerableMock: comptrollerableMock,
-            panic: new TargetPanic(),
-            reverter: new TargetReverter()
+            panic: new PanicContractMock(),
+            reverter: new RevertingContractMock()
         });
 
         // Deploy a new comptroller.
@@ -80,8 +80,8 @@ contract Execute_Concrete_Test is Base_Test {
 
         // It should revert with a custom error.
         revertingPayload = bytes.concat(targets.reverter.withCustomError.selector);
-        vm.expectRevert(TargetReverter.SomeError.selector);
-        comptroller.execute({ target: address(targets.reverter), targetCallData: revertingPayload });
+        vm.expectRevert(RevertingContractMock.SomeError.selector);
+        comptroller.execute(address(targets.reverter), revertingPayload);
 
         // It should revert with a require.
         revertingPayload = bytes.concat(targets.reverter.withRequire.selector);

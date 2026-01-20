@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
+// solhint-disable no-inline-assembly
 pragma solidity >=0.8.22;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
@@ -227,6 +228,31 @@ contract SablierComptroller is
 
         // Log the execution.
         emit ISablierComptroller.Execute(target, targetCallData, result);
+    }
+
+    /// @inheritdoc ISablierComptroller
+    function lowerMinFeeUSDForCampaign(
+        address campaign,
+        uint256 newMinFeeUSD
+    )
+        external
+        override
+        onlyRole(FEE_MANAGEMENT_ROLE)
+    {
+        // Interaction: call the `lowerMinFeeUSD` function on the campaign.
+        (bool success, bytes memory returnData) =
+            campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
+
+        // If the call fails, bubble up the revert reason.
+        if (!success) {
+            assembly {
+                // Get the length of the result stored in the first 32 bytes.
+                let returnDataSize := mload(returnData)
+
+                // Forward the pointer by 32 bytes to skip the length argument, and revert with the result.
+                revert(add(32, returnData), returnDataSize)
+            }
+        }
     }
 
     /// @inheritdoc ISablierComptroller

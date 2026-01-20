@@ -4,7 +4,7 @@
  */
 function resolveDevkit() {
   try {
-    return require("@sablier/devkit/prettier");
+    return require("@sablier/devkit/.prettierrc.json");
   } catch {
     for (const pkg of ["airdrops", "flow", "lockup", "utils"]) {
       try {

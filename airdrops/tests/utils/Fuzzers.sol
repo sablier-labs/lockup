@@ -3,8 +3,8 @@ pragma solidity >=0.8.22;
 
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
+import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { MerkleLT } from "src/types/DataTypes.sol";
 
 import { LeafData, MerkleBuilder } from "./MerkleBuilder.sol";
