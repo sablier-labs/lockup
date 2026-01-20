@@ -1,7 +1,7 @@
 ---
 name: handbook
 user-invocable: false
-description: Protocol domain knowledge - Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). Use when implementing business logic.
+description: Protocol domain knowledge - Lockup (vesting), Flow (streaming), Airdrops (merkle distribution). This skill provides context when implementing business logic, understanding protocol formulas, state transitions, or answering questions about how Sablier protocols work.
 ---
 
 # Protocol Handbook
@@ -10,12 +10,12 @@ Protocol concepts essential for writing contracts and understanding business log
 
 ## Protocol Registry
 
-| Protocol        | Purpose                   | Key Concept                                     | Reference                   |
-| --------------- | ------------------------- | ----------------------------------------------- | --------------------------- |
-| **Lockup**      | Fixed-term token vesting  | Deposit upfront, stream over defined period     | `references/lockup.md`      |
-| **Flow**        | Open-ended streaming      | Rate-per-second with debt tracking, no end time | `references/flow.md`        |
-| **Airdrops**    | Merkle-based distribution | Recipients claim via proofs, optional vesting   | `references/airdrops.md`    |
-| **Comptroller** | Cross-protocol admin      | Governance, fees, hook allowlisting             | `references/comptroller.md` |
+| Protocol        | Purpose                   | Key Concept                                     | Reference                                           |
+| --------------- | ------------------------- | ----------------------------------------------- | --------------------------------------------------- |
+| **Lockup**      | Fixed-term token vesting  | Deposit upfront, stream over defined period     | `.claude/skills/handbook/references/lockup.md`      |
+| **Flow**        | Open-ended streaming      | Rate-per-second with debt tracking, no end time | `.claude/skills/handbook/references/flow.md`        |
+| **Airdrops**    | Merkle-based distribution | Recipients claim via proofs, optional vesting   | `.claude/skills/handbook/references/airdrops.md`    |
+| **Comptroller** | Cross-protocol admin      | Governance, fees, hook allowlisting             | `.claude/skills/handbook/references/comptroller.md` |
 
 > **Adding a new protocol?** See [Protocol Template](#adding-a-new-protocol) below.
 
@@ -56,10 +56,10 @@ ______________________________________________________________________
 
 ## References
 
-- [Lockup Protocol](references/lockup.md) - Vesting streams, shapes (Linear, Dynamic, Tranched), hooks
-- [Flow Protocol](references/flow.md) - Debt model, rate adjustments, solvency
-- [Airdrops Protocol](references/airdrops.md) - Merkle campaigns, claiming, clawback
-- [Comptroller](references/comptroller.md) - Admin contract, governance, Comptrollerable base
+- [Lockup Protocol](.claude/skills/handbook/references/lockup.md) - Vesting streams, shapes (Linear, Dynamic, Tranched), hooks
+- [Flow Protocol](.claude/skills/handbook/references/flow.md) - Debt model, rate adjustments, solvency
+- [Airdrops Protocol](.claude/skills/handbook/references/airdrops.md) - Merkle campaigns, claiming, clawback
+- [Comptroller](.claude/skills/handbook/references/comptroller.md) - Admin contract, governance, Comptrollerable base
 
 ______________________________________________________________________
 
@@ -69,7 +69,7 @@ When implementing a new Sablier protocol, create a reference file following this
 
 ### Reference File Template
 
-Create `references/{protocol-name}.md`:
+Create `.claude/skills/handbook/references/{protocol-name}.md`:
 
 ```markdown
 # {Protocol Name} Protocol
@@ -118,12 +118,12 @@ Refer to https://docs.sablier.com/llms-{protocol}.txt for up-to-date documentati
 
 ### Checklist for New Protocol
 
-- [ ] Create `references/{protocol}.md` following template
+- [ ] Create `.claude/skills/handbook/references/{protocol}.md` following template
 - [ ] Add to Protocol Registry table above
 - [ ] Add to Protocol Comparison table
 - [ ] Update agent's package structure in `solidity-engineer.md`
-- [ ] Add protocol-specific BTT conventions to `btt/references/sablier-conventions.md`
-- [ ] Add test conventions to `foundry-test/references/sablier-conventions.md`
+- [ ] Add protocol-specific BTT conventions to `.claude/skills/btt-testing/references/sablier-conventions.md`
+- [ ] Add test conventions to `.claude/skills/foundry-testing/references/sablier-conventions.md`
 
 ______________________________________________________________________
 

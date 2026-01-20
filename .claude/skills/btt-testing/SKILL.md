@@ -1,20 +1,19 @@
 ---
-name: btt
+name: btt-testing
 user-invocable: true
-description: 'Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases: write a tree, create test tree, BTT spec, bulloak tree, or when writing integration tests for contract functions.'
+description: Write bulloak tree specifications (.tree files) for smart contract integration tests. Trigger phrases - write a tree, create test tree, BTT spec, bulloak tree, Branching Tree Technique, or when writing integration tests for contract functions.
 ---
 
 # Branching Tree Technique (BTT) Skill
 
-This skill provides expertise in writing bulloak tree specifications for smart contract tests using the Branching Tree
-Technique (BTT).
+Write bulloak tree specifications for smart contract tests.
 
 ## Bundled References
 
-| Reference                           | Content                                   | When to Read                  |
-| ----------------------------------- | ----------------------------------------- | ----------------------------- |
-| `references/examples.md`            | Complete tree and generated test examples | When learning BTT syntax      |
-| `references/sablier-conventions.md` | Sablier-specific terminology and examples | When working in Sablier repos |
+| Reference                                                      | Content                                   | When to Read                  |
+| -------------------------------------------------------------- | ----------------------------------------- | ----------------------------- |
+| `.claude/skills/btt-testing/references/examples.md`            | Complete tree and generated test examples | When learning BTT syntax      |
+| `.claude/skills/btt-testing/references/sablier-conventions.md` | Sablier-specific terminology and examples | When working in Sablier repos |
 
 ## What is Bulloak?
 
@@ -82,7 +81,7 @@ FunctionName_ContractName_Integration_Test
 
 ## Examples
 
-For examples, see [examples](references/examples.md).
+For examples, see [examples](.claude/skills/btt-testing/references/examples.md).
 
 ## Rules
 

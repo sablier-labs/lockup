@@ -1,21 +1,21 @@
 ---
-name: code-review
+name: audit
 agent: Plan
 user-invocable: true
-description: 'Code review for Solidity smart contracts. Trigger phrases: review code, check PR, audit code, security review, or when preparing code for submission.'
+description: Security audit and code review for Solidity smart contracts. Trigger phrases - audit, check PR, security review, pre-audit preparation, vulnerability check, or when preparing code for external audit.
 ---
 
-# Code Review Skill
+# Audit Skill
 
-Code review guidance for Solidity smart contracts. For detailed vulnerability patterns, see bundled references.
+Audit and code review guidance for Solidity smart contracts. For detailed vulnerability patterns, see bundled references.
 
 ## Bundled References
 
-| Reference                               | Content                     | When to Read                  |
-| --------------------------------------- | --------------------------- | ----------------------------- |
-| `references/vulnerability-checklist.md` | 17 vulnerability categories | During security reviews       |
-| `references/audit-workflow.md`          | Step-by-step audit process  | When conducting formal audits |
-| `references/pre-audit-checklist.md`     | Code quality + testing prep | Before external audit         |
+| Reference                                                    | Content                     | When to Read                  |
+| ------------------------------------------------------------ | --------------------------- | ----------------------------- |
+| `.claude/skills/audit/references/vulnerability-checklist.md` | 17 vulnerability categories | During security reviews       |
+| `.claude/skills/audit/references/audit-workflow.md`          | Step-by-step audit process  | When conducting formal audits |
+| `.claude/skills/audit/references/pre-audit-checklist.md`     | Code quality + testing prep | Before external audit         |
 
 **Workflow**: Use `pre-audit-checklist` to prepare → `vulnerability-checklist` to review → `audit-workflow` for formal
 process.
@@ -98,7 +98,7 @@ ______________________________________________________________________
 
 ## Quick Vulnerability Reference
 
-> **Full checklist**: See `references/vulnerability-checklist.md` for comprehensive patterns.
+> **Full checklist**: See `.claude/skills/audit/references/vulnerability-checklist.md` for comprehensive patterns.
 
 | Severity     | Key Checks                                                                                    |
 | ------------ | --------------------------------------------------------------------------------------------- |

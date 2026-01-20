@@ -1,7 +1,7 @@
 ---
 name: solidity-coding
 user-invocable: true
-description: 'Write production-quality Solidity contracts. Trigger phrases: write contract, implement function, add feature, contract architecture, or when working in src/ directories.'
+description: Write production-quality Solidity contracts. Trigger phrases - write contract, implement function, add feature, add error, gas optimization, event design, contract architecture, or when working in src/ directories.
 ---
 
 # Solidity Contract Development Skill
@@ -12,14 +12,15 @@ This skill provides expertise for writing production-quality Solidity contracts 
 
 For detailed patterns and code examples, read these reference files:
 
-| Reference                            | Content                                              | When to Read                         |
-| ------------------------------------ | ---------------------------------------------------- | ------------------------------------ |
-| `references/coding-patterns.md`      | NatSpec, errors, modifiers, imports, section headers | Before writing any contract code     |
-| `references/security-practices.md`   | CEI, access control, EIP-7702, upgrades              | When implementing state changes      |
-| `references/gas-optimization.md`     | EIP-1153, L2 patterns, Solady, storage caching       | When optimizing contract efficiency  |
-| `references/event-design.md`         | Event design for The Graph and indexers              | When adding events to contracts      |
-| `references/versioning-migration.md` | Interface versioning, storage migration, deprecation | When releasing new contract versions |
-| `references/sablier-conventions.md`  | Sablier-specific naming, patterns, and examples      | When working in Sablier repos        |
+| Reference                                                           | Content                                              | When to Read                         |
+| ------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
+| `.claude/skills/solidity-coding/references/coding-patterns.md`      | NatSpec, errors, modifiers, imports, section headers | Before writing any contract code     |
+| `.claude/skills/solidity-coding/references/security-practices.md`   | CEI, access control, EIP-7702, upgrades              | When implementing state changes      |
+| `.claude/skills/solidity-coding/references/gas-optimization.md`     | EIP-1153, L2 patterns, Solady, storage caching       | When optimizing contract efficiency  |
+| `.claude/skills/solidity-coding/references/event-design.md`         | Event design for The Graph and indexers              | When adding events to contracts      |
+| `.claude/skills/solidity-coding/references/versioning-migration.md` | Interface versioning, storage migration, deprecation | When releasing new contract versions |
+| `.claude/skills/solidity-coding/references/sablier-conventions.md`  | Sablier-specific naming, patterns, and examples      | When working in Sablier repos        |
+| `.claude/skills/solidity-coding/references/nft-descriptor.md`       | Onchain NFT metadata and SVG generation              | When implementing tokenURI           |
 
 > **Note**: Your repo's agent will provide repo-specific structure (package locations, inheritance hierarchies, etc.)
 
@@ -223,56 +224,9 @@ token.safeTransferFrom(from, to, amount);
 ### Add a new struct
 
 1. Define in `types/` directory
-2. Pack fields for gas efficiency (see `references/coding-patterns.md`)
+2. Pack fields for gas efficiency (see `.claude/skills/solidity-coding/references/coding-patterns.md`)
 3. Add NatSpec for struct and each field
 4. Use `@param` for each field in struct NatSpec
-
-______________________________________________________________________
-
-## NFT Descriptor Pattern
-
-For on-chain NFT metadata and SVG generation:
-
-### Architecture
-
-```
-src/
-├── NFTDescriptor.sol       # Main descriptor (tokenURI logic)
-└── libraries/
-    ├── NFTSVG.sol          # SVG generation
-    └── SVGElements.sol     # Reusable SVG components
-```
-
-### Pattern
-
-| Component       | Responsibility                               |
-| --------------- | -------------------------------------------- |
-| `NFTDescriptor` | Implements `tokenURI()`, composes JSON + SVG |
-| `NFTSVG`        | Generates complete SVG from params struct    |
-| `SVGElements`   | Reusable cards, circles, text elements       |
-
-### Key Techniques
-
-| Technique                         | Purpose                          |
-| --------------------------------- | -------------------------------- |
-| `Base64.encode()`                 | Encode SVG/JSON as data URI      |
-| `Strings.toHexString()`           | Convert addresses to strings     |
-| `*Vars` struct                    | Avoid Stack Too Deep in tokenURI |
-| Disable solhint `max-line-length` | SVG strings are long             |
-
-### tokenURI Return Format
-
-```
-data:application/json;base64,{base64EncodedJSON}
-
-where JSON = {
-  "attributes": [...],
-  "description": "...",
-  "external_url": "...",
-  "name": "...",
-  "image": "data:image/svg+xml;base64,{base64EncodedSVG}"
-}
-```
 
 ______________________________________________________________________
 

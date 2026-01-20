@@ -1,18 +1,18 @@
 ---
-name: bash-script
+name: bash-scripting
 user-invocable: true
-description: 'Write bash scripts for Sablier development workflows. Trigger phrases: write bash script, shell script, automate workflow, prepare artifacts, or when working in scripts/bash/ directories.'
+description: Write bash scripts for Sablier development workflows. Trigger phrases - write bash script, bash scripting, shell script, automate workflow, prepare artifacts, CI automation, GitHub Actions, or when working in scripts/bash/ directories.
 ---
 
-# Bash Script Skill
+# Bash Scripting Skill
 
 Rules and patterns for shell scripts. Find examples in the actual codebase.
 
 ## Bundled References
 
-| Reference                   | Content                      | When to Read            |
-| --------------------------- | ---------------------------- | ----------------------- |
-| `references/ci-patterns.md` | CI templates, GitHub Actions | When writing CI scripts |
+| Reference                                                 | Content                      | When to Read            |
+| --------------------------------------------------------- | ---------------------------- | ----------------------- |
+| `.claude/skills/bash-scripting/references/ci-patterns.md` | CI templates, GitHub Actions | When writing CI scripts |
 
 ## Script Location
 
@@ -109,8 +109,6 @@ done
 ```bash
 value=$(jq -r '.key' "${json_file}")
 ```
-
-______________________________________________________________________
 
 ______________________________________________________________________
 
