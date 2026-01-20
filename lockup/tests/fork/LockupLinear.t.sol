@@ -67,8 +67,8 @@ abstract contract Lockup_Linear_Fork_Test is Lockup_Fork_Test {
                 token_: FORK_TOKEN
             }),
             cliffTime: params.cliffTime,
-            unlockAmounts: params.unlockAmounts,
-            granularity: vars.expectedGranularity
+            granularity: vars.expectedGranularity,
+            unlockAmounts: params.unlockAmounts
         });
 
         // Create the stream.

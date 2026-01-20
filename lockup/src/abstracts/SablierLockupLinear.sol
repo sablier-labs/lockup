@@ -169,8 +169,8 @@ abstract contract SablierLockupLinear is
                 shape: shape
             }),
             cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts,
-            granularity: granularity
+            granularity: granularity,
+            unlockAmounts: unlockAmounts
         });
     }
 }

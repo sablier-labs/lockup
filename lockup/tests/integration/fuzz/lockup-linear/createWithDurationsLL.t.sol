@@ -44,14 +44,14 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts,
-            granularity: expectedGranularity
+            granularity: expectedGranularity,
+            unlockAmounts: unlockAmounts
         });
 
         // Create the stream.
         _defaultParams.durations = durations;
-        _defaultParams.unlockAmounts = unlockAmounts;
         _defaultParams.granularity = granularity;
+        _defaultParams.unlockAmounts = unlockAmounts;
         uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.

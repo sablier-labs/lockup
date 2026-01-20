@@ -182,8 +182,8 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
             streamId: vars.expectedStreamId,
             commonParams: defaults.lockupCreateEvent(funder, params, dai),
             cliffTime: cliffTime,
-            unlockAmounts: unlockAmounts,
-            granularity: vars.expectedGranularity
+            granularity: vars.expectedGranularity,
+            unlockAmounts: unlockAmounts
         });
 
         params.token = dai;

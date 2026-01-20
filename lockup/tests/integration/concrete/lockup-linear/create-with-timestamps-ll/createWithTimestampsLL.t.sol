@@ -214,8 +214,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: _defaultParams.cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts,
-            granularity: expectedGranularity
+            granularity: expectedGranularity,
+            unlockAmounts: _defaultParams.unlockAmounts
         });
 
         // Create the stream.
@@ -268,8 +268,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
             cliffTime: _defaultParams.cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts,
-            granularity: defaults.GRANULARITY()
+            granularity: defaults.GRANULARITY(),
+            unlockAmounts: _defaultParams.unlockAmounts
         });
 
         // Create the stream.
@@ -330,8 +330,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts,
-            granularity: defaults.GRANULARITY()
+            granularity: defaults.GRANULARITY(),
+            unlockAmounts: _defaultParams.unlockAmounts
         });
 
         // Create the stream.

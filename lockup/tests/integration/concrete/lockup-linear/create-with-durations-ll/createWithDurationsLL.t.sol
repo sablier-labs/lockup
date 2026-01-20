@@ -59,8 +59,8 @@ contract CreateWithDurationsLL_Integration_Concrete_Test is Lockup_Linear_Integr
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(timestamps),
             cliffTime: cliffTime,
-            unlockAmounts: _defaultParams.unlockAmounts,
-            granularity: defaults.GRANULARITY()
+            granularity: defaults.GRANULARITY(),
+            unlockAmounts: _defaultParams.unlockAmounts
         });
 
         // Create the stream.
