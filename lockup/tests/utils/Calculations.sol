@@ -81,6 +81,11 @@ abstract contract Calculations is BaseUtils {
     {
         uint40 blockTimestamp = getBlockTimestamp();
 
+        // If sentinel value of zero is used for granularity, change it to one second.
+        if (granularity == 0) {
+            granularity = 1 seconds;
+        }
+
         if (startTime > blockTimestamp) {
             return 0;
         }
@@ -92,32 +97,17 @@ abstract contract Calculations is BaseUtils {
         }
 
         unchecked {
-            UD60x18 unlockAmountsSum = ud(unlockAmounts.start).add(ud(unlockAmounts.cliff));
-
-            if (unlockAmountsSum.unwrap() >= depositAmount) {
+            uint128 unlockAmountsSum = unlockAmounts.start + unlockAmounts.cliff;
+            if (unlockAmountsSum >= depositAmount) {
                 return depositAmount;
             }
 
-            UD60x18 elapsedTime;
-            UD60x18 streamableDuration;
+            uint40 referenceTime = cliffTime > 0 ? cliffTime : startTime;
+            UD60x18 elapsedTime = convert((blockTimestamp - referenceTime) / granularity);
+            UD60x18 streamableDuration = ud(endTime - referenceTime).div(ud(granularity));
+            UD60x18 streamableAmount = ud(depositAmount - unlockAmountsSum);
 
-            if (granularity == 1 seconds) {
-                elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
-                streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
-            } else {
-                elapsedTime = cliffTime > 0
-                    ? convert((blockTimestamp - cliffTime) / granularity)
-                    : convert((blockTimestamp - startTime) / granularity);
-                streamableDuration = cliffTime > 0
-                    ? ud(endTime - cliffTime).div(ud(granularity))
-                    : ud(endTime - startTime).div(ud(granularity));
-            }
-
-            UD60x18 elapsedTimePercentage = elapsedTime.div(streamableDuration);
-
-            UD60x18 streamableAmount = ud(depositAmount).sub(unlockAmountsSum);
-            UD60x18 streamedAmount = elapsedTimePercentage.mul(streamableAmount);
-            return streamedAmount.add(unlockAmountsSum).intoUint128();
+            return unlockAmountsSum + elapsedTime.mul(streamableAmount).div(streamableDuration).intoUint128();
         }
     }
 

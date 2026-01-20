@@ -47,10 +47,11 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Concrete_Test is
 
     function test_GivenStartAmount() external givenSTREAMINGStatus givenCliffTimeNotZero givenCliffTimeInPast {
         _defaultParams.unlockAmounts.start = 1;
+        _defaultParams.unlockAmounts.cliff -= 1;
         uint256 streamId = createDefaultStream();
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT() + 1;
+        uint128 expectedStreamedAmount = defaults.STREAMED_AMOUNT_26_PERCENT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

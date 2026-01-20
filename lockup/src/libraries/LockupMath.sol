@@ -211,15 +211,14 @@ library LockupMath {
                 streamablePeriodInGranularityUnits = ud(endTime - cliffTime).div(ud(granularity));
             }
 
-            // Calculate the elapsed time percentage taking into account the granularity.
-            UD60x18 elapsedTimePercentage = elapsedTimeInGranularityUnits.div(streamablePeriodInGranularityUnits);
-
             // Calculate the streamable amount.
             UD60x18 streamableAmount = ud(depositedAmount - unlockAmountsSum);
 
-            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time percentage and
-            // streamable amount.
-            uint128 streamedAmount = unlockAmountsSum + (elapsedTimePercentage.mul(streamableAmount)).intoUint128();
+            // The streamed amount is the sum of the unlock amounts plus the streamable amount multiplied by
+            // elapsed time in granularity units divided by streamable period in granularity units.
+            uint128 streamedAmount = unlockAmountsSum
+                + elapsedTimeInGranularityUnits.mul(streamableAmount).div(streamablePeriodInGranularityUnits)
+                    .intoUint128();
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn
