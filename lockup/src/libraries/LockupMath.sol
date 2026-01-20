@@ -214,8 +214,8 @@ library LockupMath {
             // Calculate the streamable amount.
             UD60x18 streamableAmount = ud(depositedAmount - unlockAmountsSum);
 
-            // The streamed amount is the sum of the unlock amounts plus the streamable amount multiplied by
-            // elapsed time in granularity units divided by streamable period in granularity units.
+            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time percentage and the
+            // streamable amount.
             uint128 streamedAmount = unlockAmountsSum
                 + elapsedTimeInGranularityUnits.mul(streamableAmount).div(streamablePeriodInGranularityUnits)
                     .intoUint128();
