@@ -4,18 +4,6 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-[3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1
-[3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
-[2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
-[1.2.0]: https://github.com/sablier-labs/lockup/compare/v1.1.2...v1.2.0
-[1.1.2]: https://github.com/sablier-labs/lockup/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/sablier-labs/lockup/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/sablier-labs/lockup/compare/v1.0.2...v1.1.0
-[1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
-
 ## [3.0.1] - 2025-10-14
 
 ### Changed
@@ -199,3 +187,15 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 ### Added
 
 - Initial release
+
+[1.0.0]: https://github.com/sablier-labs/lockup/releases/tag/v1.0.0
+[1.0.1]: https://github.com/sablier-labs/lockup/compare/v1.0.0...v1.0.1
+[1.0.2]: https://github.com/sablier-labs/lockup/compare/v1.0.1...v1.0.2
+[1.1.0]: https://github.com/sablier-labs/lockup/compare/v1.0.2...v1.1.0
+[1.1.1]: https://github.com/sablier-labs/lockup/compare/v1.1.0...v1.1.1
+[1.1.2]: https://github.com/sablier-labs/lockup/compare/v1.1.1...v1.1.2
+[1.2.0]: https://github.com/sablier-labs/lockup/compare/v1.1.2...v1.2.0
+[2.0.0]: https://github.com/sablier-labs/lockup/compare/v1.2.0...v2.0.0
+[2.0.1]: https://github.com/sablier-labs/lockup/compare/v2.0.0...v2.0.1
+[3.0.0]: https://github.com/sablier-labs/lockup/compare/v2.0.1...v3.0.0
+[3.0.1]: https://github.com/sablier-labs/lockup/compare/v3.0.0...v3.0.1

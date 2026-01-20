@@ -1,16 +1,5 @@
 # Sablier Airdrops [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord] [![Twitter][twitter-badge]][twitter]
 
-[gha]: https://github.com/sablier-labs/airdrops/actions
-[gha-badge]: https://github.com/sablier-labs/airdrops/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/sablier-labs/airdrops
-[codecov-badge]: https://codecov.io/gh/sablier-labs/airdrops/branch/main/graph/badge.svg
-[discord]: https://discord.gg/bSwRCwWRsT
-[discord-badge]: https://img.shields.io/discord/659709894315868191
-[foundry]: https://getfoundry.sh
-[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
-[twitter-badge]: https://img.shields.io/twitter/follow/Sablier
-[twitter]: https://x.com/Sablier
-
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
 ## Introduction
@@ -95,3 +84,14 @@ For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) gui
 ## License
 
 See [LICENSE.md](./LICENSE.md).
+
+[codecov]: https://codecov.io/gh/sablier-labs/airdrops
+[codecov-badge]: https://codecov.io/gh/sablier-labs/airdrops/branch/main/graph/badge.svg
+[discord]: https://discord.gg/bSwRCwWRsT
+[discord-badge]: https://img.shields.io/discord/659709894315868191
+[foundry]: https://getfoundry.sh
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[gha]: https://github.com/sablier-labs/airdrops/actions
+[gha-badge]: https://github.com/sablier-labs/airdrops/actions/workflows/ci.yml/badge.svg
+[twitter]: https://x.com/Sablier
+[twitter-badge]: https://img.shields.io/twitter/follow/Sablier

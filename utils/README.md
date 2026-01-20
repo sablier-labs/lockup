@@ -1,14 +1,5 @@
 # Sablier EVM Utils [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
-[gha]: https://github.com/sablier-labs/evm-utils/actions
-[gha-badge]: https://github.com/sablier-labs/evm-utils/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/sablier-labs/evm-utils
-[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-utils/graph/badge.svg?token=iWxbU4RAsi
-[discord]: https://discord.gg/bSwRCwWRsT
-[discord-badge]: https://img.shields.io/discord/659709894315868191
-[foundry]: https://getfoundry.sh
-[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
-
 This repository contains the following two sets of contracts:
 
 ### Sablier comptroller
@@ -89,3 +80,12 @@ For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) gui
 ## License
 
 See [LICENSE.md](./LICENSE.md).
+
+[codecov]: https://codecov.io/gh/sablier-labs/evm-utils
+[codecov-badge]: https://codecov.io/gh/sablier-labs/evm-utils/graph/badge.svg?token=iWxbU4RAsi
+[discord]: https://discord.gg/bSwRCwWRsT
+[discord-badge]: https://img.shields.io/discord/659709894315868191
+[foundry]: https://getfoundry.sh
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[gha]: https://github.com/sablier-labs/evm-utils/actions
+[gha-badge]: https://github.com/sablier-labs/evm-utils/actions/workflows/ci.yml/badge.svg

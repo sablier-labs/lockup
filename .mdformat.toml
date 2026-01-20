@@ -1,0 +1,11 @@
+exclude = [
+  # Directories
+  "**/broadcast/**",
+  "**/cache/**",
+  "**/coverage/**",
+  "**/node_modules/**",
+  "**/out/**",
+  "**/out-*/**",
+  "docs/**",
+]
+number = true

@@ -17,6 +17,8 @@ efficiency, or extending the protocol via new features.
 - [Foundry](https://github.com/foundry-rs/foundry) (EVM development framework)
 - [Rust](https://rust-lang.org/tools/install) (Rust compiler)
 - [Bulloak](https://bulloak.dev) (CLI for checking tests)
+- [uv](https://github.com/astral-sh/uv) (tool manager for MDFormat)
+- [MDFormat](https://mdformat.readthedocs.io) (Markdown formatter; install via `just install-mdformat`)
 
 In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 

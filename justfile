@@ -44,8 +44,15 @@ install package:
 install-all:
     for dir in airdrops flow lockup utils; do (cd $dir && ni); done
 
+# Install mdformat with plugins
+install-mdformat:
+    uv tool install mdformat \
+        --with mdformat-frontmatter \
+        --with mdformat-gfm
+alias im := install-mdformat
+
 # Setup script
-setup: setup-env install-all
+setup: setup-env install-all install-mdformat
 
 # ---------------------------------------------------------------------------- #
 #                                    LINTING                                   #
@@ -66,6 +73,18 @@ full-write package:
 # Run full write on all packages
 full-write-all:
     just for-each full-write
+
+# Check Markdown formatting
+[group("checks")]
+@mdformat-check +paths=".":
+    mdformat --check {{ paths }}
+alias mc := mdformat-check
+
+# Format Markdown files
+[group("checks")]
+@mdformat-write +paths=".":
+    mdformat {{ paths }}
+alias mw := mdformat-write
 
 # ---------------------------------------------------------------------------- #
 #                                    FOUNDRY                                   #
