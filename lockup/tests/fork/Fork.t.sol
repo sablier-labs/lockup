@@ -4,10 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ILockupNFTDescriptor } from "src/interfaces/ILockupNFTDescriptor.sol";
-import { ISablierBatchLockup } from "src/interfaces/ISablierBatchLockup.sol";
-import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
-
 import { Base_Test } from "./../Base.t.sol";
 import { Defaults } from "./../utils/Defaults.sol";
 
@@ -37,16 +33,16 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet at the latest block number.
         vm.createSelectFork({ urlOrAlias: "ethereum" });
 
-        // Load deployed addresses from Ethereum mainnet.
-        batchLockup = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
-        nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
-        lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
+        // TODO: Load deployed addresses from Ethereum mainnet.
+        // batchLockup = ISablierBatchLockup(0x0636D83B184D65C242c43de6AAd10535BFb9D45a);
+        // nftDescriptor = ILockupNFTDescriptor(0xA9dC6878C979B5cc1d98a1803F0664ad725A1f56);
+        // lockup = ISablierLockup(0xcF8ce57fa442ba50aCbC57147a62aD03873FfA73);
 
         defaults = new Defaults();
 
         // We need these in case we work on a new iteration.
-        // Base_Test.setUp();
-        // vm.etch(address(FORK_TOKEN), address(usdc).code);
+        Base_Test.setUp();
+        vm.etch(address(FORK_TOKEN), address(usdc).code);
 
         // Create a random user for this test suite.
         forkTokenHolder = vm.randomAddress();
@@ -88,23 +84,28 @@ abstract contract Fork_Test is Base_Test {
 
     /// @dev Labels the most relevant addresses.
     function labelContracts() internal {
-        vm.label({ account: address(FORK_TOKEN), newLabel: IERC20Metadata(address(FORK_TOKEN)).symbol() });
+        // Use try catch to handle tokens with missing `symbol` implementation.
+        try IERC20Metadata(address(FORK_TOKEN)).symbol() returns (string memory symbol) {
+            vm.label({ account: address(FORK_TOKEN), newLabel: symbol });
+        } catch {
+            vm.label({ account: address(FORK_TOKEN), newLabel: "FORK_TOKEN" });
+        }
         vm.label({ account: forkTokenHolder, newLabel: "Fork Token Holder" });
     }
 
     // We need this function in case we work on a new iteration.
-    // function getTokenBalances(
-    //     address token,
-    //     address[] memory addresses
-    // )
-    //     internal
-    //     view
-    //     override
-    //     returns (uint256[] memory balances)
-    // {
-    //     balances = new uint256[](addresses.length);
-    //     for (uint256 i = 0; i < addresses.length; ++i) {
-    //         balances[i] = IERC20(token).balanceOf(addresses[i]);
-    //     }
-    // }
+    function getTokenBalances(
+        address token,
+        address[] memory addresses
+    )
+        internal
+        view
+        override
+        returns (uint256[] memory balances)
+    {
+        balances = new uint256[](addresses.length);
+        for (uint256 i = 0; i < addresses.length; ++i) {
+            balances[i] = IERC20(token).balanceOf(addresses[i]);
+        }
+    }
 }

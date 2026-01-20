@@ -449,6 +449,32 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
+    /// @dev The streamed amount should not exceed the amount that would have been streamed if the stream had a
+    /// granularity of 1.
+    function invariant_StreamedAmountLteStreamedAmountIfGranularity1() external view {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            if (lockup.getLockupModel(streamId) == Lockup.Model.LOCKUP_LINEAR) {
+                // Calculate the amount that would have been streamed if the stream had a granularity of 1.
+                uint128 streamedAmountIfGranularity1 = calculateStreamedAmountLL({
+                    startTime: lockup.getStartTime(streamId),
+                    cliffTime: lockup.getCliffTime(streamId),
+                    endTime: lockup.getEndTime(streamId),
+                    depositAmount: lockup.getDepositedAmount(streamId),
+                    unlockAmounts: lockup.getUnlockAmounts(streamId),
+                    granularity: 1 seconds
+                });
+
+                assertLe(
+                    lockup.streamedAmountOf(streamId),
+                    streamedAmountIfGranularity1,
+                    "Invariant violation: streamed amount > amount that would have been streamed if granularity = 1"
+                );
+            }
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 LT MODEL INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -153,6 +153,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         uint64 count,
         Lockup.CreateWithDurations memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 granularity,
         LockupLinear.Durations memory durations
     )
         internal
@@ -160,7 +161,9 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithDurationsLL, (params, unlockAmounts, durations))
+            data: abi.encodeCall(
+                ISablierLockupLinear.createWithDurationsLL, (params, unlockAmounts, granularity, durations)
+            )
         });
     }
 
@@ -199,6 +202,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         uint64 count,
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 granularity,
         uint40 cliffTime
     )
         internal
@@ -206,7 +210,9 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         vm.expectCall({
             callee: address(lockup),
             count: count,
-            data: abi.encodeCall(ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, cliffTime))
+            data: abi.encodeCall(
+                ISablierLockupLinear.createWithTimestampsLL, (params, unlockAmounts, granularity, cliffTime)
+            )
         });
     }
 

@@ -219,7 +219,9 @@ contract Defaults is Constants {
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLL} parameters.
     function batchCreateWithDurationsLL() public view returns (BatchLockup.CreateWithDurationsLL[] memory batch) {
-        batch = BatchLockupBuilder.fillBatch(createWithDurations(), unlockAmounts(), durations(), BATCH_SIZE);
+        batch = BatchLockupBuilder.fillBatch(
+            createWithDurations(), unlockAmounts(), GRANULARITY, durations(), BATCH_SIZE
+        );
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithDurationsLT} parameters.
@@ -252,7 +254,9 @@ contract Defaults is Constants {
         view
         returns (BatchLockup.CreateWithTimestampsLL[] memory batch)
     {
-        batch = BatchLockupBuilder.fillBatch(createWithTimestamps(), unlockAmounts(), CLIFF_TIME, batchSize);
+        batch = BatchLockupBuilder.fillBatch(
+            createWithTimestamps(), unlockAmounts(), CLIFF_TIME, GRANULARITY, batchSize
+        );
     }
 
     /// @dev Returns a default-size batch of {BatchLockup.CreateWithTimestampsLT} parameters.

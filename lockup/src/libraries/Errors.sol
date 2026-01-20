@@ -42,6 +42,9 @@ library Errors {
     /// @notice Thrown when trying to create a tranched stream with end time not equal to the last tranche's timestamp.
     error SablierHelpers_EndTimeNotEqualToLastTrancheTimestamp(uint40 endTime, uint40 lastTrancheTimestamp);
 
+    /// @notice Thrown when trying to create a linear stream with granularity greater than the streamable range.
+    error SablierHelpers_GranularityTooHigh(uint40 granularity, uint40 streamableRange);
+
     /// @notice Thrown when trying to create a dynamic stream with no segments.
     error SablierHelpers_SegmentCountZero();
 

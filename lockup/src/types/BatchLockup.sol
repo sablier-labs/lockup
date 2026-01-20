@@ -30,6 +30,7 @@ library BatchLockup {
         bool transferable;
         LockupLinear.Durations durations;
         LockupLinear.UnlockAmounts unlockAmounts;
+        uint40 granularity;
         string shape;
     }
 
@@ -69,6 +70,7 @@ library BatchLockup {
         Lockup.Timestamps timestamps;
         uint40 cliffTime;
         LockupLinear.UnlockAmounts unlockAmounts;
+        uint40 granularity;
         string shape;
     }
 

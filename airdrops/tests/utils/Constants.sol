@@ -24,6 +24,7 @@ abstract contract Constants {
     uint40 public constant VALID_FROM = FEB_1_2025;
     uint40 public constant VESTING_CLIFF_DURATION = 2 days;
     uint40 public constant VESTING_END_TIME = VESTING_START_TIME + VESTING_TOTAL_DURATION;
+    uint40 public constant VESTING_GRANULARITY = 1 seconds;
     uint40 public constant VESTING_START_TIME = FEB_1_2025 - 2 days;
     uint40 public constant VESTING_TOTAL_DURATION = 10 days;
     uint40 public constant VCA_END_TIME = VESTING_END_TIME;

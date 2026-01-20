@@ -158,6 +158,73 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         createDefaultStream();
     }
 
+    function test_RevertWhen_GranularityTooHigh()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
+    {
+        // Set granularity such that it exceeds the streamable range.
+        uint40 streamableRange = defaults.END_TIME() - defaults.CLIFF_TIME();
+        _defaultParams.granularity = streamableRange + 1;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierHelpers_GranularityTooHigh.selector, _defaultParams.granularity, streamableRange
+            )
+        );
+        createDefaultStream();
+    }
+
+    function test_WhenGranularityZero()
+        external
+        whenNoDelegateCall
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
+        whenCliffTimeNotZero
+        whenStartTimeLessThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenUnlockAmountsSumNotExceedDepositAmount
+        whenGranularityNotTooHigh
+    {
+        // Use sentinel value zero.
+        _defaultParams.granularity = 0;
+
+        uint256 expectedStreamId = lockup.nextStreamId();
+
+        uint40 expectedGranularity = 1 seconds;
+
+        // It should emit granularity as 1 second.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupLinear.CreateLockupLinearStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
+            cliffTime: _defaultParams.cliffTime,
+            granularity: expectedGranularity,
+            unlockAmounts: _defaultParams.unlockAmounts
+        });
+
+        // Create the stream.
+        uint256 streamId = createDefaultStream();
+
+        // It should create stream with granularity as 1 second.
+        assertEq(lockup.getGranularity(streamId), expectedGranularity, "granularity");
+    }
+
     function test_WhenTokenMissesERC20ReturnValue()
         external
         whenNoDelegateCall
@@ -172,6 +239,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
+        whenGranularityNotTooHigh
+        whenGranularityNotZero
     {
         IERC20 _usdt = IERC20(address(usdt));
 
@@ -199,6 +268,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(_usdt, defaults.DEPOSIT_AMOUNT_6D()),
             cliffTime: _defaultParams.cliffTime,
+            granularity: defaults.GRANULARITY(),
             unlockAmounts: _defaultParams.unlockAmounts
         });
 
@@ -229,6 +299,8 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
         whenStartTimeLessThanCliffTime
         whenCliffTimeLessThanEndTime
         whenUnlockAmountsSumNotExceedDepositAmount
+        whenGranularityNotTooHigh
+        whenGranularityNotZero
     {
         _testCreateWithTimestampsLL(_defaultParams.cliffTime);
     }
@@ -258,6 +330,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
             streamId: expectedStreamId,
             commonParams: defaults.lockupCreateEvent(dai, defaults.DEPOSIT_AMOUNT()),
             cliffTime: cliffTime,
+            granularity: defaults.GRANULARITY(),
             unlockAmounts: _defaultParams.unlockAmounts
         });
 

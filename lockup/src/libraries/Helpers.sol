@@ -100,14 +100,15 @@ library Helpers {
 
     /// @dev Checks the parameters of the {SablierLockup-_createLL} function.
     function checkCreateLL(
-        address sender,
-        Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
         uint128 depositAmount,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
-        address token,
+        uint40 granularity,
         address nativeToken,
-        string memory shape
+        address sender,
+        string memory shape,
+        Lockup.Timestamps memory timestamps,
+        address token,
+        LockupLinear.UnlockAmounts memory unlockAmounts
     )
         public
         pure
@@ -115,8 +116,8 @@ library Helpers {
         // Check: validate the user-provided common parameters.
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
-        // Check: validate the user-provided cliff and end times.
-        _checkTimestampsAndUnlockAmounts(depositAmount, timestamps, cliffTime, unlockAmounts);
+        // Check: validate the user-provided timestamps.
+        _checkTimestampsAndUnlockAmounts(cliffTime, depositAmount, granularity, timestamps, unlockAmounts);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
@@ -143,16 +144,19 @@ library Helpers {
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the user-provided cliff, end times, and unlock amounts of an LL stream.
+    /// @dev Checks the user-provided timestamps of an LL stream.
     function _checkTimestampsAndUnlockAmounts(
-        uint128 depositAmount,
-        Lockup.Timestamps memory timestamps,
         uint40 cliffTime,
+        uint128 depositAmount,
+        uint40 granularity,
+        Lockup.Timestamps memory timestamps,
         LockupLinear.UnlockAmounts memory unlockAmounts
     )
         private
         pure
     {
+        uint40 streamableRange;
+
         // Since a cliff time of zero means there is no cliff, the following checks are performed only if it's not zero.
         if (cliffTime > 0) {
             // Check: the start time is strictly less than the cliff time.
@@ -164,10 +168,26 @@ library Helpers {
             if (cliffTime >= timestamps.end) {
                 revert Errors.SablierHelpers_CliffTimeNotLessThanEndTime(cliffTime, timestamps.end);
             }
+
+            unchecked {
+                // Calculate the streamable range as the difference between end time and cliff time.
+                streamableRange = timestamps.end - cliffTime;
+            }
+        } else {
+            // Check: the cliff unlock amount is zero when the cliff time is zero.
+            if (unlockAmounts.cliff > 0) {
+                revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
+            }
+
+            // Calculate the streamable range when cliff time is zero.
+            unchecked {
+                streamableRange = timestamps.end - timestamps.start;
+            }
         }
-        // Check: the cliff unlock amount is zero when the cliff time is zero.
-        else if (unlockAmounts.cliff > 0) {
-            revert Errors.SablierHelpers_CliffTimeZeroUnlockAmountNotZero(unlockAmounts.cliff);
+
+        // Check: `granularity` does not exceed the streamable range.
+        if (granularity > streamableRange) {
+            revert Errors.SablierHelpers_GranularityTooHigh(granularity, streamableRange);
         }
 
         // Check: the start time is strictly less than the end time.

@@ -17,17 +17,23 @@ CreateWithTimestampsLL_Integration_Concrete_Test
             ├── when unlock amounts sum exceeds deposit amount
             │  └── it should revert
             └── when unlock amounts sum not exceed deposit amount
-               ├── when token misses ERC20 return value
-               │  ├── it should create the stream
-               │  ├── it should bump the next stream ID
-               │  ├── it should increase the aggregate amount
-               │  ├── it should mint the NFT
-               │  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
-               │  └── it should perform the ERC-20 transfers
-               └── when token not miss ERC20 return value
-                  ├── it should create the stream
-                  ├── it should bump the next stream ID
-                  ├── it should increase the aggregate amount
-                  ├── it should mint the NFT
-                  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
-                  └── it should perform the ERC-20 transfers
+               ├── when granularity too high
+               │  └── it should revert
+               └── when granularity not too high
+                  ├── when granularity zero
+                  │  └── it should create stream with granularity as 1 second
+                  └── when granularity not zero
+                     ├── when token misses ERC20 return value
+                     │  ├── it should create the stream
+                     │  ├── it should bump the next stream ID
+                     │  ├── it should increase the aggregate amount
+                     │  ├── it should mint the NFT
+                     │  ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                     │  └── it should perform the ERC-20 transfers
+                     └── when token not miss ERC20 return value
+                        ├── it should create the stream
+                        ├── it should bump the next stream ID
+                        ├── it should increase the aggregate amount
+                        ├── it should mint the NFT
+                        ├── it should emit {MetadataUpdate} and {CreateLockupLinearStream} events
+                        └── it should perform the ERC-20 transfers

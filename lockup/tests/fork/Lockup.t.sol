@@ -25,6 +25,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         LockupDynamic.Segment[] segments;
         LockupTranched.Tranche[] tranches;
         LockupLinear.UnlockAmounts unlockAmounts;
+        uint40 granularity;
         uint40 warpTimestamp;
         uint128 withdrawAmount;
     }
@@ -32,6 +33,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
     // Struct to manage storage variables to be used across contracts.
     struct Vars {
         // Initial values
+        uint256 initialAggregateAmount;
         uint256 initialComptrollerBalanceETH;
         uint256 initialLockupBalance;
         uint256 initialRecipientBalance;
@@ -42,7 +44,9 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         uint256 actualRecipientBalance;
         uint256 actualSenderBalance;
         // Expected values
+        uint256 expectedAggregateAmount;
         Lockup.Status expectedStatus;
+        uint40 expectedGranularity;
         // Generics
         bool hasCliff;
         bool isDepleted;
@@ -73,6 +77,9 @@ abstract contract Lockup_Fork_Test is Fork_Test {
     /// @dev A pre-create helper function to set up the parameters for the stream creation.
     function preCreateStream(Params memory params) internal {
         checkUsers(params.create.sender, params.create.recipient, address(lockup));
+
+        // Store the pre-create aggregate amount.
+        vars.initialAggregateAmount = lockup.aggregateAmount(FORK_TOKEN);
 
         // Store the pre-create token balances of Lockup and Holder.
         uint256[] memory balances =
@@ -121,6 +128,14 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             params.unlockAmounts.cliff = vars.hasCliff
                 ? boundUint128(params.unlockAmounts.cliff, 0, params.create.depositAmount - params.unlockAmounts.start)
                 : 0;
+
+            // Bound the granularity.
+            uint40 streamableRange = vars.hasCliff
+                ? params.create.timestamps.end - params.cliffTime
+                : params.create.timestamps.end - params.create.timestamps.start;
+            params.granularity = boundUint40(params.granularity, 0, streamableRange);
+
+            vars.expectedGranularity = params.granularity == 0 ? 1 : params.granularity;
         }
 
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
@@ -174,11 +189,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         }
 
         // Assert that the aggregate amount has been updated.
-        assertEq(
-            lockup.aggregateAmount(FORK_TOKEN),
-            vars.initialLockupBalance + params.create.depositAmount,
-            "aggregateAmount"
-        );
+        vars.expectedAggregateAmount = vars.initialAggregateAmount + params.create.depositAmount;
+        assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
         // Store the post-create token balances of Lockup and Holder.
         uint256[] memory balances =
@@ -251,9 +263,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             assertEq(lockup.getWithdrawnAmount(vars.streamId), params.withdrawAmount, "post-withdraw withdrawnAmount");
 
             // Assert that the aggregate amount has been updated.
-            assertEq(
-                lockup.aggregateAmount(FORK_TOKEN), vars.initialLockupBalance - params.withdrawAmount, "aggregateAmount"
-            );
+            vars.expectedAggregateAmount -= params.withdrawAmount;
+            assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
             // Load the post-withdraw token balances.
             uint256[] memory balances =
@@ -321,7 +332,8 @@ abstract contract Lockup_Fork_Test is Fork_Test {
             assertEq(lockup.statusOf(vars.streamId), vars.expectedStatus, "post-cancel stream status");
 
             // Assert that the aggregate amount has been updated.
-            assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.initialLockupBalance - refundedAmount, "aggregateAmount");
+            vars.expectedAggregateAmount -= refundedAmount;
+            assertEq(lockup.aggregateAmount(FORK_TOKEN), vars.expectedAggregateAmount, "aggregateAmount");
 
             // Load the post-cancel token balances.
             balances = getTokenBalances(

@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
+import { convert, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
@@ -72,7 +72,8 @@ abstract contract Calculations is BaseUtils {
         uint40 cliffTime,
         uint40 endTime,
         uint128 depositAmount,
-        LockupLinear.UnlockAmounts memory unlockAmounts
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 granularity
     )
         internal
         view
@@ -80,7 +81,12 @@ abstract contract Calculations is BaseUtils {
     {
         uint40 blockTimestamp = getBlockTimestamp();
 
-        if (startTime >= blockTimestamp) {
+        // If sentinel value of zero is used for granularity, change it to one second.
+        if (granularity == 0) {
+            granularity = 1 seconds;
+        }
+
+        if (startTime > blockTimestamp) {
             return 0;
         }
         if (cliffTime > blockTimestamp) {
@@ -91,19 +97,17 @@ abstract contract Calculations is BaseUtils {
         }
 
         unchecked {
-            UD60x18 unlockAmountsSum = ud(unlockAmounts.start).add(ud(unlockAmounts.cliff));
-
-            if (unlockAmountsSum.unwrap() >= depositAmount) {
+            uint128 unlockAmountsSum = unlockAmounts.start + unlockAmounts.cliff;
+            if (unlockAmountsSum >= depositAmount) {
                 return depositAmount;
             }
 
-            UD60x18 elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
-            UD60x18 streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
-            UD60x18 elapsedTimePercentage = elapsedTime.div(streamableDuration);
+            uint40 referenceTime = cliffTime > 0 ? cliffTime : startTime;
+            UD60x18 elapsedTime = convert((blockTimestamp - referenceTime) / granularity);
+            UD60x18 streamableDuration = ud(endTime - referenceTime).div(ud(granularity));
+            UD60x18 streamableAmount = ud(depositAmount - unlockAmountsSum);
 
-            UD60x18 streamableAmount = ud(depositAmount).sub(unlockAmountsSum);
-            UD60x18 streamedAmount = elapsedTimePercentage.mul(streamableAmount);
-            return streamedAmount.add(unlockAmountsSum).intoUint128();
+            return unlockAmountsSum + elapsedTime.mul(streamableAmount).div(streamableDuration).intoUint128();
         }
     }
 

@@ -465,6 +465,7 @@ contract SablierLockup is
                 cliffTime: _cliffs[streamId],
                 depositedAmount: stream.amounts.deposited,
                 endTime: stream.endTime,
+                granularity: _granularities[streamId],
                 startTime: stream.startTime,
                 unlockAmounts: _unlockAmounts[streamId],
                 withdrawnAmount: stream.amounts.withdrawn

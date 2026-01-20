@@ -20,7 +20,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -47,10 +47,12 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
     /// - Multiple deposit amounts
     /// - Status streaming
     /// - Status settled
+    /// - Multiple values for granularity
     function testFuzz_StreamedAmountOf_Calculation(
         uint40 timeJump,
         uint128 depositAmount,
-        LockupLinear.UnlockAmounts memory unlockAmounts
+        LockupLinear.UnlockAmounts memory unlockAmounts,
+        uint40 granularity
     )
         external
         givenNotNull
@@ -62,7 +64,10 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
+
+        // Bound the granularity.
+        granularity = boundUint40(granularity, 0, defaults.END_TIME() - defaults.CLIFF_TIME());
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -73,7 +78,10 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         // Create the stream with the fuzzed deposit amount.
         _defaultParams.createWithTimestamps.depositAmount = depositAmount;
         _defaultParams.unlockAmounts = unlockAmounts;
+        _defaultParams.granularity = granularity;
         uint256 streamId = createDefaultStream();
+
+        uint40 expectedGranularity = granularity == 0 ? 1 seconds : granularity;
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
@@ -81,7 +89,12 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
         // Run the test.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountLL(
-            defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
+            defaults.START_TIME(),
+            defaults.CLIFF_TIME(),
+            defaults.END_TIME(),
+            depositAmount,
+            unlockAmounts,
+            expectedGranularity
         );
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -104,7 +117,7 @@ contract StreamedAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Linear_I
 
         // Bound the unlock amounts.
         unlockAmounts.start = boundUint128(unlockAmounts.start, 0, depositAmount);
-        unlockAmounts.cliff = boundUint128(unlockAmounts.start, 0, depositAmount - unlockAmounts.start);
+        unlockAmounts.cliff = boundUint128(unlockAmounts.cliff, 0, depositAmount - unlockAmounts.start);
 
         // Mint enough tokens to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });

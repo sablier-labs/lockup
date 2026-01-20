@@ -55,7 +55,8 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
             defaults.CLIFF_TIME(),
             defaults.END_TIME(),
             depositAmount,
-            _defaultParams.unlockAmounts
+            _defaultParams.unlockAmounts,
+            defaults.GRANULARITY()
         );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -91,7 +92,12 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
         Lockup.CreateWithTimestamps memory params = defaults.createWithTimestamps();
         params.depositAmount = depositAmount;
         LockupLinear.UnlockAmounts memory unlockAmounts = defaults.unlockAmountsZero();
-        uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, defaults.CLIFF_TIME());
+        uint256 streamId = lockup.createWithTimestampsLL({
+            params: params,
+            unlockAmounts: unlockAmounts,
+            granularity: defaults.GRANULARITY(),
+            cliffTime: defaults.CLIFF_TIME()
+        });
 
         timeJump = boundUint40(timeJump, defaults.WARP_26_PERCENT_DURATION(), defaults.TOTAL_DURATION() * 2);
 
@@ -100,7 +106,12 @@ contract WithdrawableAmountOf_Lockup_Linear_Integration_Fuzz_Test is Lockup_Line
 
         // Bound the withdraw amount.
         uint128 streamedAmount = calculateStreamedAmountLL(
-            defaults.START_TIME(), defaults.CLIFF_TIME(), defaults.END_TIME(), depositAmount, unlockAmounts
+            defaults.START_TIME(),
+            defaults.CLIFF_TIME(),
+            defaults.END_TIME(),
+            depositAmount,
+            unlockAmounts,
+            defaults.GRANULARITY()
         );
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 

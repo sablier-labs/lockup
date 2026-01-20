@@ -7,7 +7,7 @@ abstract contract Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint64 public constant BATCH_SIZE = 10;
-    uint128 public constant CLIFF_AMOUNT = 2500e18 + 2534;
+    uint128 public constant CLIFF_AMOUNT = 2500e18;
     uint128 public constant CLIFF_AMOUNT_6D = CLIFF_AMOUNT / 1e12;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint40 public constant CLIFF_TIME = START_TIME + CLIFF_DURATION;
@@ -24,6 +24,7 @@ abstract contract Constants {
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
     uint128 public constant TOTAL_TRANSFER_AMOUNT = DEPOSIT_AMOUNT * uint128(BATCH_SIZE);
     uint256 public constant TRANCHE_COUNT = 2;
+    uint40 public constant GRANULARITY = 1 seconds;
     uint40 public constant WARP_26_PERCENT = START_TIME + WARP_26_PERCENT_DURATION;
     uint40 public constant WARP_26_PERCENT_DURATION = 2600 seconds; // 26% of the way through the stream
     uint128 public constant WITHDRAW_AMOUNT = STREAMED_AMOUNT_26_PERCENT;

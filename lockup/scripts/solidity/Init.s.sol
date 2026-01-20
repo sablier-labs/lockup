@@ -45,8 +45,8 @@ contract Init is BaseScript {
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 24 hours, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
         for (uint256 i = 0; i < totalDurations.length; ++i) {
-            lockup.createWithDurationsLL(
-                Lockup.CreateWithDurations({
+            lockup.createWithDurationsLL({
+                params: Lockup.CreateWithDurations({
                     sender: sender,
                     recipient: recipient,
                     depositAmount: depositAmounts[i],
@@ -55,9 +55,10 @@ contract Init is BaseScript {
                     transferable: true,
                     shape: "Cliff Linear"
                 }),
-                LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
-                LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
-            );
+                unlockAmounts: LockupLinear.UnlockAmounts({ start: 0, cliff: 0 }),
+                granularity: 1 seconds,
+                durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] })
+            });
         }
 
         // Renounce the 5th stream.
