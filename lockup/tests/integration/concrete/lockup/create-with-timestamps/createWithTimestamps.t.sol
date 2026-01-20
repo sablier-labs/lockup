@@ -63,7 +63,7 @@ abstract contract CreateWithTimestamps_Integration_Concrete_Test is Integration_
                 (
                     _defaultParams.createWithTimestamps,
                     _defaultParams.unlockAmounts,
-                    _defaultParams.unlockGranularity,
+                    _defaultParams.granularity,
                     _defaultParams.cliffTime
                 )
             );

@@ -73,7 +73,7 @@ abstract contract Calculations is BaseUtils {
         uint40 endTime,
         uint128 depositAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 unlockGranularity
+        uint40 granularity
     )
         internal
         view
@@ -101,16 +101,16 @@ abstract contract Calculations is BaseUtils {
             UD60x18 elapsedTime;
             UD60x18 streamableDuration;
 
-            if (unlockGranularity == 1 seconds) {
+            if (granularity == 1 seconds) {
                 elapsedTime = cliffTime > 0 ? ud(blockTimestamp - cliffTime) : ud(blockTimestamp - startTime);
                 streamableDuration = cliffTime > 0 ? ud(endTime - cliffTime) : ud(endTime - startTime);
             } else {
                 elapsedTime = cliffTime > 0
-                    ? convert((blockTimestamp - cliffTime) / unlockGranularity)
-                    : convert((blockTimestamp - startTime) / unlockGranularity);
+                    ? convert((blockTimestamp - cliffTime) / granularity)
+                    : convert((blockTimestamp - startTime) / granularity);
                 streamableDuration = cliffTime > 0
-                    ? ud(endTime - cliffTime).div(ud(unlockGranularity))
-                    : ud(endTime - startTime).div(ud(unlockGranularity));
+                    ? ud(endTime - cliffTime).div(ud(granularity))
+                    : ud(endTime - startTime).div(ud(granularity));
             }
 
             UD60x18 elapsedTimePercentage = elapsedTime.div(streamableDuration);

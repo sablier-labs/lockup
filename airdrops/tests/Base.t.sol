@@ -464,6 +464,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             cliffDuration: VESTING_CLIFF_DURATION,
             cliffUnlockPercentage: VESTING_CLIFF_UNLOCK_PERCENTAGE,
             expiration: expiration,
+            granularity: VESTING_GRANULARITY,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
             lockup: lockupAddress,
@@ -473,7 +474,6 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             token: tokenAddress,
             totalDuration: VESTING_TOTAL_DURATION,
             transferable: STREAM_TRANSFERABLE,
-            unlockGranularity: VESTING_UNLOCK_GRANULARITY,
             vestingStartTime: vestingStartTime
         });
     }

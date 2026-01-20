@@ -144,22 +144,22 @@ library LockupMath {
     ///       streamable time / granularity
     /// $$
     ///
-    /// The floor division in the numerator creates discrete unlock steps at every unlock granularity seconds.
+    /// The floor division in the numerator creates discrete unlock steps at every granularity seconds.
     ///
     /// Assumptions:
     /// 1. The sum of the unlock amounts (start and cliff) does not overflow uint128 and is less than or equal to
     /// the deposit amount.
     /// 2. The start time is before the end time.
     /// 3. If the cliff time is not zero, it is after the start time and before the end time.
-    /// 4. Unlock granularity is less than or equal to the streamable range.
-    /// 5. Unlock granularity is not zero.
+    /// 4. Granularity is less than or equal to the streamable range.
+    /// 5. Granularity is not zero.
     function calculateStreamedAmountLL(
         uint40 cliffTime,
         uint128 depositedAmount,
         uint40 endTime,
+        uint40 granularity,
         uint40 startTime,
         LockupLinear.UnlockAmounts calldata unlockAmounts,
-        uint40 unlockGranularity,
         uint128 withdrawnAmount
     )
         external
@@ -193,25 +193,25 @@ library LockupMath {
                 return depositedAmount;
             }
 
-            // Calculate the time elapsed in unlock granularity units as the floor division of time elapsed and unlock
+            // Calculate the time elapsed in granularity units as the floor division of time elapsed and unlock
             // granularity.
             UD60x18 elapsedTimeInGranularityUnits;
 
-            // Calculate the streamable period in unlock granularity units as exact division of streamable period and
-            // unlock granularity.
+            // Calculate the streamable period in granularity units as exact division of streamable period and
+            // granularity.
             UD60x18 streamablePeriodInGranularityUnits;
 
-            // The time elapsed in unlock granularity units is scaled to 1e18 to match the scale of the streamable time
-            // in unlock granularity units.
+            // The time elapsed in granularity units is scaled to 1e18 to match the scale of the streamable time
+            // in granularity units.
             if (cliffTime == 0) {
-                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - startTime) / unlockGranularity);
-                streamablePeriodInGranularityUnits = ud(endTime - startTime).div(ud(unlockGranularity));
+                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - startTime) / granularity);
+                streamablePeriodInGranularityUnits = ud(endTime - startTime).div(ud(granularity));
             } else {
-                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - cliffTime) / unlockGranularity);
-                streamablePeriodInGranularityUnits = ud(endTime - cliffTime).div(ud(unlockGranularity));
+                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - cliffTime) / granularity);
+                streamablePeriodInGranularityUnits = ud(endTime - cliffTime).div(ud(granularity));
             }
 
-            // Calculate the elapsed time percentage taking into account the unlock granularity.
+            // Calculate the elapsed time percentage taking into account the granularity.
             UD60x18 elapsedTimePercentage = elapsedTimeInGranularityUnits.div(streamablePeriodInGranularityUnits);
 
             // Calculate the streamable amount.

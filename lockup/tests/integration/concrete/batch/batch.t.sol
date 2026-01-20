@@ -42,12 +42,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         // It should return the stream ID created.
         calls[3] = abi.encodeCall(
             lockup.createWithTimestampsLL,
-            (
-                defaults.createWithTimestamps(),
-                defaults.unlockAmounts(),
-                defaults.UNLOCK_GRANULARITY(),
-                defaults.CLIFF_TIME()
-            )
+            (defaults.createWithTimestamps(), defaults.unlockAmounts(), defaults.GRANULARITY(), defaults.CLIFF_TIME())
         );
         // It should return nothing.
         calls[4] = abi.encodeCall(lockup.renounce, (ids.notTransferableStream));
@@ -78,7 +73,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         );
         calls[1] = abi.encodeCall(
             lockup.createWithDurationsLL,
-            (defaults.createWithDurations(), defaults.unlockAmounts(), defaults.UNLOCK_GRANULARITY(), defaults.durations())
+            (defaults.createWithDurations(), defaults.unlockAmounts(), defaults.GRANULARITY(), defaults.durations())
         );
         calls[2] = abi.encodeCall(
             lockup.createWithDurationsLT, (defaults.createWithDurations(), defaults.tranchesWithDurations())
@@ -86,12 +81,7 @@ contract Batch_Integration_Concrete_Test is Integration_Test {
         calls[3] = abi.encodeCall(lockup.createWithTimestampsLD, (defaults.createWithTimestamps(), defaults.segments()));
         calls[4] = abi.encodeCall(
             lockup.createWithTimestampsLL,
-            (
-                defaults.createWithTimestamps(),
-                defaults.unlockAmounts(),
-                defaults.UNLOCK_GRANULARITY(),
-                defaults.CLIFF_TIME()
-            )
+            (defaults.createWithTimestamps(), defaults.unlockAmounts(), defaults.GRANULARITY(), defaults.CLIFF_TIME())
         );
         calls[5] = abi.encodeCall(lockup.createWithTimestampsLT, (defaults.createWithTimestamps(), defaults.tranches()));
 

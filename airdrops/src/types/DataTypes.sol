@@ -41,6 +41,8 @@ library MerkleLL {
     /// a fixed-point number where 1e18 is 100%
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
+    /// @param granularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel
+    /// value for 1 second.
     /// @param initialAdmin The initial admin of the campaign.
     /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
     /// features that depend upon the IPFS CID.
@@ -52,8 +54,6 @@ library MerkleLL {
     /// @param token The contract address of the ERC-20 token to be distributed.
     /// @param totalDuration The total duration of the vesting stream, in seconds.
     /// @param transferable Indicates if the Lockup stream will be transferable after claiming.
-    /// @param unlockGranularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel
-    /// value for 1 second.
     /// @param vestingStartTime The start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
     /// `block.timestamp`.
     struct ConstructorParams {
@@ -63,6 +63,7 @@ library MerkleLL {
         uint40 cliffDuration;
         UD60x18 cliffUnlockPercentage;
         uint40 expiration;
+        uint40 granularity;
         address initialAdmin;
         string ipfsCID;
         ISablierLockup lockup;
@@ -72,7 +73,6 @@ library MerkleLL {
         IERC20 token;
         uint40 totalDuration;
         bool transferable;
-        uint40 unlockGranularity;
         uint40 vestingStartTime;
     }
 }

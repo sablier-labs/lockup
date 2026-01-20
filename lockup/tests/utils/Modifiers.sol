@@ -287,11 +287,11 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
-    modifier whenUnlockGranularityNotTooHigh() {
+    modifier whenGranularityNotTooHigh() {
         _;
     }
 
-    modifier whenUnlockGranularityNotZero() {
+    modifier whenGranularityNotZero() {
         _;
     }
 

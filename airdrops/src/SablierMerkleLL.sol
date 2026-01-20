@@ -47,6 +47,9 @@ contract SablierMerkleLL is
     UD60x18 public immutable override VESTING_CLIFF_UNLOCK_PERCENTAGE;
 
     /// @inheritdoc ISablierMerkleLL
+    uint40 public immutable override VESTING_GRANULARITY;
+
+    /// @inheritdoc ISablierMerkleLL
     uint40 public immutable override VESTING_START_TIME;
 
     /// @inheritdoc ISablierMerkleLL
@@ -54,9 +57,6 @@ contract SablierMerkleLL is
 
     /// @inheritdoc ISablierMerkleLL
     uint40 public immutable override VESTING_TOTAL_DURATION;
-
-    /// @inheritdoc ISablierMerkleLL
-    uint40 public immutable override VESTING_UNLOCK_GRANULARITY;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -91,7 +91,7 @@ contract SablierMerkleLL is
         VESTING_START_TIME = campaignParams.vestingStartTime;
         VESTING_START_UNLOCK_PERCENTAGE = campaignParams.startUnlockPercentage;
         VESTING_TOTAL_DURATION = campaignParams.totalDuration;
-        VESTING_UNLOCK_GRANULARITY = campaignParams.unlockGranularity;
+        VESTING_GRANULARITY = campaignParams.granularity;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ contract SablierMerkleLL is
                     shape: streamShape
                 }),
                 unlockAmounts,
-                VESTING_UNLOCK_GRANULARITY,
+                VESTING_GRANULARITY,
                 cliffTime
             );
 

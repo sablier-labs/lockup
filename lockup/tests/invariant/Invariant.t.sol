@@ -463,7 +463,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                     endTime: lockup.getEndTime(streamId),
                     depositAmount: lockup.getDepositedAmount(streamId),
                     unlockAmounts: lockup.getUnlockAmounts(streamId),
-                    unlockGranularity: 1 seconds
+                    granularity: 1 seconds
                 });
 
                 assertLe(

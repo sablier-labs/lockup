@@ -6,9 +6,9 @@ import { Lockup } from "src/types/Lockup.sol";
 
 import { Lockup_Linear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
-contract GetUnlockGranularity_Integration_Concrete_Test is Lockup_Linear_Integration_Concrete_Test {
+contract GetGranularity_Integration_Concrete_Test is Lockup_Linear_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
-        expectRevert_Null({ callData: abi.encodeCall(lockup.getUnlockGranularity, ids.nullStream) });
+        expectRevert_Null({ callData: abi.encodeCall(lockup.getGranularity, ids.nullStream) });
     }
 
     function test_RevertGiven_NotLinearModel() external givenNotNull {
@@ -21,12 +21,12 @@ contract GetUnlockGranularity_Integration_Concrete_Test is Lockup_Linear_Integra
                 Lockup.Model.LOCKUP_LINEAR
             )
         );
-        lockup.getUnlockGranularity(streamId);
+        lockup.getGranularity(streamId);
     }
 
     function test_GivenLinearModel() external view givenNotNull {
-        uint40 actualGranularity = lockup.getUnlockGranularity(ids.defaultStream);
-        uint40 expectedGranularity = defaults.UNLOCK_GRANULARITY();
-        assertEq(actualGranularity, expectedGranularity, "unlockGranularity");
+        uint40 actualGranularity = lockup.getGranularity(ids.defaultStream);
+        uint40 expectedGranularity = defaults.GRANULARITY();
+        assertEq(actualGranularity, expectedGranularity, "granularity");
     }
 }

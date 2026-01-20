@@ -47,6 +47,10 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     /// fixed-point number where 1e18 is 100%.
     function VESTING_CLIFF_UNLOCK_PERCENTAGE() external view returns (UD60x18);
 
+    /// @notice Retrieves the smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
+    /// 1 second.
+    function VESTING_GRANULARITY() external view returns (uint40);
+
     /// @notice Retrieves the start time of the vesting stream, as a Unix timestamp. Zero is a sentinel value for
     /// `block.timestamp`.
     function VESTING_START_TIME() external view returns (uint40);
@@ -57,10 +61,6 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
 
     /// @notice Retrieves the total duration of the vesting stream, in seconds.
     function VESTING_TOTAL_DURATION() external view returns (uint40);
-
-    /// @notice Retrieves the smallest step in time between two consecutive token unlocks. Zero is a sentinel value for
-    /// 1 second.
-    function VESTING_UNLOCK_GRANULARITY() external view returns (uint40);
 
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS

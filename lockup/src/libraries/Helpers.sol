@@ -102,13 +102,13 @@ library Helpers {
     function checkCreateLL(
         uint40 cliffTime,
         uint128 depositAmount,
+        uint40 granularity,
         address nativeToken,
         address sender,
         string memory shape,
         Lockup.Timestamps memory timestamps,
         address token,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 unlockGranularity
+        LockupLinear.UnlockAmounts memory unlockAmounts
     )
         public
         pure
@@ -117,7 +117,7 @@ library Helpers {
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: validate the user-provided timestamps.
-        _checkTimestampsAndUnlockAmounts(cliffTime, depositAmount, timestamps, unlockAmounts, unlockGranularity);
+        _checkTimestampsAndUnlockAmounts(cliffTime, depositAmount, granularity, timestamps, unlockAmounts);
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.
@@ -148,9 +148,9 @@ library Helpers {
     function _checkTimestampsAndUnlockAmounts(
         uint40 cliffTime,
         uint128 depositAmount,
+        uint40 granularity,
         Lockup.Timestamps memory timestamps,
-        LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 unlockGranularity
+        LockupLinear.UnlockAmounts memory unlockAmounts
     )
         private
         pure
@@ -185,6 +185,11 @@ library Helpers {
             }
         }
 
+        // Check: `granularity` does not exceed the streamable range.
+        if (granularity > streamableRange) {
+            revert Errors.SablierHelpers_GranularityTooHigh(granularity, streamableRange);
+        }
+
         // Check: the start time is strictly less than the end time.
         if (timestamps.start >= timestamps.end) {
             revert Errors.SablierHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
@@ -197,11 +202,6 @@ library Helpers {
                 unlockAmounts.start,
                 unlockAmounts.cliff
             );
-        }
-
-        // Check: `unlockGranularity` does not exceed the streamable range.
-        if (unlockGranularity > streamableRange) {
-            revert Errors.SablierHelpers_UnlockGranularityTooHigh(unlockGranularity, streamableRange);
         }
     }
 

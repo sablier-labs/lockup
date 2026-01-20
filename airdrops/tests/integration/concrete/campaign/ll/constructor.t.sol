@@ -24,6 +24,7 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
         assertEq(constructedLL.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(constructedLL.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLL.EXPIRATION(), EXPIRATION, "expiration");
+        assertEq(constructedLL.VESTING_GRANULARITY(), VESTING_GRANULARITY, "vesting granularity");
         assertEq(constructedLL.ipfsCID(), IPFS_CID, "IPFS CID");
         assertEq(constructedLL.IS_SABLIER_MERKLE(), true, "is sablier merkle");
         assertEq(constructedLL.MERKLE_ROOT(), MERKLE_ROOT, "merkleRoot");
@@ -50,6 +51,5 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
             "vesting start unlock percentage"
         );
         assertEq(constructedLL.VESTING_TOTAL_DURATION(), VESTING_TOTAL_DURATION, "vesting total duration");
-        assertEq(constructedLL.VESTING_UNLOCK_GRANULARITY(), VESTING_UNLOCK_GRANULARITY, "vesting unlock granularity");
     }
 }

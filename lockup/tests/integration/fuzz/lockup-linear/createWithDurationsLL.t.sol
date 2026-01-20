@@ -8,19 +8,25 @@ import { LockupLinear } from "src/types/LockupLinear.sol";
 import { Lockup_Linear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
 contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integration_Fuzz_Test {
-    function testFuzz_CreateWithDurationsLL(LockupLinear.Durations memory durations, uint40 unlockGranularity) external whenNoDelegateCall {
+    function testFuzz_CreateWithDurationsLL(
+        LockupLinear.Durations memory durations,
+        uint40 granularity
+    )
+        external
+        whenNoDelegateCall
+    {
         durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Bound the cliff duration so that its less than the total duration.
         durations.cliff = boundUint40(durations.cliff, 0, durations.total - 1 seconds);
 
-        // Bound the unlock granularity so that its within the streamable range.
-        unlockGranularity = durations.cliff > 0
-            ? boundUint40(unlockGranularity, 0, durations.total - durations.cliff)
-            : boundUint40(unlockGranularity, 0, durations.total);
+        // Bound the granularity so that its within the streamable range.
+        granularity = durations.cliff > 0
+            ? boundUint40(granularity, 0, durations.total - durations.cliff)
+            : boundUint40(granularity, 0, durations.total);
 
         uint256 expectedStreamId = lockup.nextStreamId();
-        uint40 expectedUnlockGranularity = unlockGranularity == 0 ? 1 : unlockGranularity;
+        uint40 expectedGranularity = granularity == 0 ? 1 : granularity;
 
         // Expect the tokens to be transferred from the sender to {SablierLockup}.
         expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
@@ -33,19 +39,19 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         unlockAmounts.cliff = durations.cliff > 0 ? unlockAmounts.cliff : 0;
 
         // Expect the relevant event to be emitted.
-        // vm.expectEmit({ emitter: address(lockup) });
-        // emit ISablierLockupLinear.CreateLockupLinearStream({
-        //     streamId: expectedStreamId,
-        //     commonParams: defaults.lockupCreateEvent(timestamps),
-        //     cliffTime: cliffTime,
-        //     unlockAmounts: unlockAmounts,
-        //     unlockGranularity: expectedUnlockGranularity
-        // });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit ISablierLockupLinear.CreateLockupLinearStream({
+            streamId: expectedStreamId,
+            commonParams: defaults.lockupCreateEvent(timestamps),
+            cliffTime: cliffTime,
+            unlockAmounts: unlockAmounts,
+            granularity: expectedGranularity
+        });
 
         // Create the stream.
         _defaultParams.durations = durations;
         _defaultParams.unlockAmounts = unlockAmounts;
-        _defaultParams.unlockGranularity = unlockGranularity;
+        _defaultParams.granularity = granularity;
         uint256 streamId = createDefaultStreamWithDurations();
 
         // It should create the stream.
@@ -63,7 +69,7 @@ contract CreateWithDurationsLL_Integration_Fuzz_Test is Lockup_Linear_Integratio
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertEq(lockup.getUnlockAmounts(streamId), unlockAmounts);
-        assertEq(lockup.getUnlockGranularity(streamId), expectedUnlockGranularity, "unlockGranularity");
+        assertEq(lockup.getGranularity(streamId), expectedGranularity, "granularity");
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

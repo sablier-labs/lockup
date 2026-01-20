@@ -36,6 +36,9 @@ abstract contract SablierLockupState is ISablierLockupState {
     /// @dev Cliff timestamp mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => uint40 cliffTime) internal _cliffs;
 
+    /// @dev Granularity mapped by stream IDs, used in LL streams.
+    mapping(uint256 streamId => uint40 granularity) internal _granularities;
+
     /// @dev Stream segments mapped by stream IDs, used in LD streams.
     mapping(uint256 streamId => LockupDynamic.Segment[] segments) internal _segments;
 
@@ -47,9 +50,6 @@ abstract contract SablierLockupState is ISablierLockupState {
 
     /// @dev Unlock amounts mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => LockupLinear.UnlockAmounts unlockAmounts) internal _unlockAmounts;
-
-    /// @dev Unlock granularity mapped by stream IDs, used in LL streams.
-    mapping(uint256 streamId => uint40 unlockGranularity) internal _unlockGranularities;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -110,6 +110,18 @@ abstract contract SablierLockupState is ISablierLockupState {
     /// @inheritdoc ISablierLockupState
     function getEndTime(uint256 streamId) external view override notNull(streamId) returns (uint40 endTime) {
         endTime = _streams[streamId].endTime;
+    }
+
+    /// @inheritdoc ISablierLockupState
+    function getGranularity(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
+        returns (uint40 granularity)
+    {
+        granularity = _granularities[streamId];
     }
 
     /// @inheritdoc ISablierLockupState
@@ -183,18 +195,6 @@ abstract contract SablierLockupState is ISablierLockupState {
         returns (LockupLinear.UnlockAmounts memory unlockAmounts)
     {
         unlockAmounts = _unlockAmounts[streamId];
-    }
-
-    /// @inheritdoc ISablierLockupState
-    function getUnlockGranularity(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_LINEAR)
-        returns (uint40 unlockGranularity)
-    {
-        unlockGranularity = _unlockGranularities[streamId];
     }
 
     /// @inheritdoc ISablierLockupState

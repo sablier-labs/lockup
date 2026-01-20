@@ -65,7 +65,7 @@ library BatchLockupBuilder {
     function fillBatch(
         Lockup.CreateWithDurations memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 unlockGranularity,
+        uint40 granularity,
         LockupLinear.Durations memory durations,
         uint256 batchSize
     )
@@ -82,7 +82,7 @@ library BatchLockupBuilder {
             transferable: params.transferable,
             durations: durations,
             unlockAmounts: unlockAmounts,
-            unlockGranularity: unlockGranularity,
+            granularity: granularity,
             shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);
@@ -185,7 +185,7 @@ library BatchLockupBuilder {
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         uint40 cliffTime,
-        uint40 unlockGranularity,
+        uint40 granularity,
         uint256 batchSize
     )
         internal
@@ -202,7 +202,7 @@ library BatchLockupBuilder {
             timestamps: params.timestamps,
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
-            unlockGranularity: unlockGranularity,
+            granularity: granularity,
             shape: params.shape
         });
         batch = fillBatch(batchSingle, batchSize);

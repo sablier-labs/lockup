@@ -69,7 +69,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         createDefaultStream();
     }
 
-    function testFuzz_RevertWhen_UnlockGranularityTooHigh(uint40 unlockGranularity)
+    function testFuzz_RevertWhen_GranularityTooHigh(uint40 granularity)
         external
         whenNoDelegateCall
         whenShapeNotExceed32Bytes
@@ -79,14 +79,12 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         whenCliffTimeLessThanEndTime
     {
         uint40 streamableRange = defaults.END_TIME() - defaults.CLIFF_TIME();
-        unlockGranularity = boundUint40(unlockGranularity, streamableRange + 1, MAX_UNIX_TIMESTAMP);
-        _defaultParams.unlockGranularity = unlockGranularity;
+        granularity = boundUint40(granularity, streamableRange + 1, MAX_UNIX_TIMESTAMP);
+        _defaultParams.granularity = granularity;
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierHelpers_UnlockGranularityTooHigh.selector, unlockGranularity, streamableRange
-            )
+            abi.encodeWithSelector(Errors.SablierHelpers_GranularityTooHigh.selector, granularity, streamableRange)
         );
         createDefaultStream();
     }
@@ -100,7 +98,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         Lockup.Status expectedStatus;
-        uint40 expectedUnlockGranularity;
+        uint40 expectedGranularity;
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -115,13 +113,13 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
     /// - Cliff time zero and not zero
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for start unlock amount and cliff unlock amount
-    /// - Multiple values for unlock granularity not exceeding the streamable range
+    /// - Multiple values for granularity not exceeding the streamable range
     function testFuzz_CreateWithTimestampsLL(
         address funder,
         Lockup.CreateWithTimestamps memory params,
         LockupLinear.UnlockAmounts memory unlockAmounts,
         uint40 cliffTime,
-        uint40 unlockGranularity
+        uint40 granularity
     )
         external
         whenNoDelegateCall
@@ -133,7 +131,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         whenCliffTimeLessThanEndTime
         whenTokenContract
         whenTokenERC20
-        whenUnlockGranularityNotTooHigh
+        whenGranularityNotTooHigh
     {
         vm.assume(funder != address(0) && params.sender != address(0) && params.recipient != address(0));
         vm.assume(params.depositAmount != 0);
@@ -145,11 +143,11 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         if (cliffTime > 0) {
             cliffTime = boundUint40(cliffTime, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks);
             params.timestamps.end = boundUint40(params.timestamps.end, cliffTime + 1 seconds, MAX_UNIX_TIMESTAMP);
-            unlockGranularity = boundUint40(unlockGranularity, 0, params.timestamps.end - cliffTime);
+            granularity = boundUint40(granularity, 0, params.timestamps.end - cliffTime);
         } else {
             params.timestamps.end =
                 boundUint40(params.timestamps.end, params.timestamps.start + 1 seconds, MAX_UNIX_TIMESTAMP);
-            unlockGranularity = boundUint40(unlockGranularity, 0, params.timestamps.end - params.timestamps.start);
+            granularity = boundUint40(granularity, 0, params.timestamps.end - params.timestamps.start);
         }
 
         // If the shape exceeds 32 bytes, use the default value.
@@ -167,7 +165,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         // Make the fuzzed funder the caller in this test.
         setMsgSender(funder);
         vars.expectedStreamId = lockup.nextStreamId();
-        vars.expectedUnlockGranularity = unlockGranularity == 0 ? 1 : unlockGranularity;
+        vars.expectedGranularity = granularity == 0 ? 1 : granularity;
 
         // Mint enough tokens to the funder.
         deal({ token: address(dai), to: funder, give: params.depositAmount });
@@ -185,14 +183,13 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
             commonParams: defaults.lockupCreateEvent(funder, params, dai),
             cliffTime: cliffTime,
             unlockAmounts: unlockAmounts,
-            unlockGranularity: vars.expectedUnlockGranularity
+            granularity: vars.expectedGranularity
         });
 
         params.token = dai;
 
         // Create the stream.
-        vars.actualStreamId =
-            lockup.createWithTimestampsLL(params, unlockAmounts, vars.expectedUnlockGranularity, cliffTime);
+        vars.actualStreamId = lockup.createWithTimestampsLL(params, unlockAmounts, vars.expectedGranularity, cliffTime);
 
         // It should create the stream.
         assertEq(lockup.getCliffTime(vars.actualStreamId), cliffTime, "cliffTime");

@@ -46,10 +46,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         Params memory params,
         uint40 cliffDuration,
         UD60x18 cliffUnlockPercentage,
+        uint40 granularity,
         UD60x18 startUnlockPercentage,
         uint40 totalDuration,
-        uint40 vestingStartTime,
-        uint40 unlockGranularity
+        uint40 vestingStartTime
     )
         external
     {
@@ -74,12 +74,12 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
             cliffDuration,
             cliffUnlockPercentage,
             expiration_,
+            granularity,
             params.feeForUser,
             merkleRoot,
             startUnlockPercentage,
             totalDuration,
-            vestingStartTime,
-            unlockGranularity
+            vestingStartTime
         );
 
         // Test claiming the airdrop for the given indexes.
@@ -98,12 +98,12 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         uint40 cliffDuration,
         UD60x18 cliffUnlockPercentage,
         uint40 expiration,
+        uint40 granularity,
         uint256 feeForUser,
         bytes32 merkleRoot,
         UD60x18 startUnlockPercentage,
         uint40 totalDuration,
-        uint40 vestingStartTime,
-        uint40 unlockGranularity
+        uint40 vestingStartTime
     )
         private
         givenCampaignNotExists
@@ -122,10 +122,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // Bound the total duration so that the vesting end time to be greater than the cliff time.
         totalDuration = boundUint40(totalDuration, cliffDuration + 1, MAX_UNIX_TIMESTAMP - expectedVestingStartTime);
 
-        // Bound the unlock granularity so that it is within the streamable range.
-        unlockGranularity = cliffDuration == 0
-            ? boundUint40(unlockGranularity, 0, totalDuration)
-            : boundUint40(unlockGranularity, 0, totalDuration - cliffDuration);
+        // Bound the granularity so that it is within the streamable range.
+        granularity = cliffDuration == 0
+            ? boundUint40(granularity, 0, totalDuration)
+            : boundUint40(granularity, 0, totalDuration - cliffDuration);
 
         // Bound unlock percentages so that the sum does not exceed 100%.
         startUnlockPercentage = _bound(startUnlockPercentage, 0, 1e18);
@@ -140,10 +140,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams(expiration);
         params.cliffDuration = cliffDuration;
         params.cliffUnlockPercentage = cliffUnlockPercentage;
-        params.startUnlockPercentage = startUnlockPercentage;
+        params.granularity = granularity;
         params.merkleRoot = merkleRoot;
+        params.startUnlockPercentage = startUnlockPercentage;
         params.totalDuration = totalDuration;
-        params.unlockGranularity = unlockGranularity;
         params.vestingStartTime = vestingStartTime;
 
         // Precompute the deterministic address.
@@ -173,10 +173,10 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
         // It should return the correct contract state.
         assertEq(merkleLL.VESTING_CLIFF_DURATION(), cliffDuration, "vesting cliff duration");
         assertEq(merkleLL.VESTING_CLIFF_UNLOCK_PERCENTAGE(), cliffUnlockPercentage, "vesting cliff unlock percentage");
+        assertEq(merkleLL.VESTING_GRANULARITY(), granularity, "vesting granularity");
         assertEq(merkleLL.VESTING_START_TIME(), vestingStartTime, "vesting start time");
         assertEq(merkleLL.VESTING_START_UNLOCK_PERCENTAGE(), startUnlockPercentage, "vesting start unlock percentage");
         assertEq(merkleLL.VESTING_TOTAL_DURATION(), totalDuration, "vesting total duration");
-        assertEq(merkleLL.VESTING_UNLOCK_GRANULARITY(), unlockGranularity, "vesting unlock granularity");
 
         // Fund the MerkleLL contract.
         deal({ token: address(dai), to: address(merkleLL), give: aggregateAmount });

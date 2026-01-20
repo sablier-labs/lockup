@@ -25,7 +25,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         LockupDynamic.Segment[] segments;
         LockupTranched.Tranche[] tranches;
         LockupLinear.UnlockAmounts unlockAmounts;
-        uint40 unlockGranularity;
+        uint40 granularity;
         uint40 warpTimestamp;
         uint128 withdrawAmount;
     }
@@ -46,7 +46,7 @@ abstract contract Lockup_Fork_Test is Fork_Test {
         // Expected values
         uint256 expectedAggregateAmount;
         Lockup.Status expectedStatus;
-        uint40 expectedUnlockGranularity;
+        uint40 expectedGranularity;
         // Generics
         bool hasCliff;
         bool isDepleted;
@@ -129,13 +129,13 @@ abstract contract Lockup_Fork_Test is Fork_Test {
                 ? boundUint128(params.unlockAmounts.cliff, 0, params.create.depositAmount - params.unlockAmounts.start)
                 : 0;
 
-            // Bound the unlock granularity.
+            // Bound the granularity.
             uint40 streamableRange = vars.hasCliff
                 ? params.create.timestamps.end - params.cliffTime
                 : params.create.timestamps.end - params.create.timestamps.start;
-            params.unlockGranularity = boundUint40(params.unlockGranularity, 0, streamableRange);
+            params.granularity = boundUint40(params.granularity, 0, streamableRange);
 
-            vars.expectedUnlockGranularity = params.unlockGranularity == 0 ? 1 : params.unlockGranularity;
+            vars.expectedGranularity = params.granularity == 0 ? 1 : params.granularity;
         }
 
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {

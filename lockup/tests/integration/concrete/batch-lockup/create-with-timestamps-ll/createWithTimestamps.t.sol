@@ -29,7 +29,7 @@ contract CreateWithTimestampsLL_Integration_Test is Integration_Test {
             count: defaults.BATCH_SIZE(),
             params: defaults.createWithTimestamps(),
             unlockAmounts: defaults.unlockAmounts(),
-            unlockGranularity: defaults.UNLOCK_GRANULARITY(),
+            granularity: defaults.GRANULARITY(),
             cliffTime: defaults.CLIFF_TIME()
         });
         expectMultipleCallsToTransferFrom({

@@ -17,12 +17,12 @@ CreateWithTimestampsLL_Integration_Concrete_Test
             ├── when unlock amounts sum exceeds deposit amount
             │  └── it should revert
             └── when unlock amounts sum not exceed deposit amount
-               ├── when unlock granularity too high
+               ├── when granularity too high
                │  └── it should revert
-               └── when unlock granularity not too high
-                  ├── when unlock granularity zero
-                  │  └── it should create stream with unlock granularity as 1 second
-                  └── when unlock granularity not zero
+               └── when granularity not too high
+                  ├── when granularity zero
+                  │  └── it should create stream with granularity as 1 second
+                  └── when granularity not zero
                      ├── when token misses ERC20 return value
                      │  ├── it should create the stream
                      │  ├── it should bump the next stream ID

@@ -1,8 +1,8 @@
-GetUnlockGranularity_Integration_Concrete_Test
+GetGranularity_Integration_Concrete_Test
 ├── given null
 │  └── it should revert
 └── given not null
    ├── given not linear model
    │  └── it should revert
    └── given linear model
-      └── it should return the correct unlock granularity
+      └── it should return the correct granularity
