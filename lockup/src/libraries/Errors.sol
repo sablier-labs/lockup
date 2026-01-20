@@ -49,7 +49,7 @@ library Errors {
     error SablierLockupHelpers_EndTimeNotEqualToLastTrancheTimestamp(uint40 endTime, uint40 lastTrancheTimestamp);
 
     /// @notice Thrown when trying to create a linear stream with granularity greater than the streamable range.
-    error SablierHelpers_GranularityTooHigh(uint40 granularity, uint40 streamableRange);
+    error SablierLockupHelpers_GranularityTooHigh(uint40 granularity, uint40 streamableRange);
 
     /// @notice Thrown when trying to create a dynamic stream with no segments.
     error SablierLockupHelpers_SegmentCountZero();

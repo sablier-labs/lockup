@@ -187,7 +187,7 @@ library LockupHelpers {
 
         // Check: `granularity` does not exceed the streamable range.
         if (granularity > streamableRange) {
-            revert Errors.SablierHelpers_GranularityTooHigh(granularity, streamableRange);
+            revert Errors.SablierLockupHelpers_GranularityTooHigh(granularity, streamableRange);
         }
 
         // Check: the start time is strictly less than the end time.
