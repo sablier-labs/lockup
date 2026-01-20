@@ -182,9 +182,7 @@ contract CreateWithTimestampsLL_Integration_Concrete_Test is CreateWithTimestamp
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupHelpers_UnlockGranularityTooHigh.selector,
-                _defaultParams.granularity,
-                streamableRange
+                Errors.SablierLockupHelpers_GranularityTooHigh.selector, _defaultParams.granularity, streamableRange
             )
         );
         createDefaultStream();

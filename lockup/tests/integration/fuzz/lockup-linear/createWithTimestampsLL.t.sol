@@ -85,7 +85,7 @@ contract CreateWithTimestampsLL_Integration_Fuzz_Test is Lockup_Linear_Integrati
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockupHelpers_UnlockGranularityTooHigh.selector, granularity, streamableRange
+                Errors.SablierLockupHelpers_GranularityTooHigh.selector, granularity, streamableRange
             )
         );
         createDefaultStream();
