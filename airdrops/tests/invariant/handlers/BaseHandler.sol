@@ -4,11 +4,10 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
-
-import { LeafData } from "../../utils/MerkleBuilder.sol";
-import { Fuzzers } from "../../utils/Fuzzers.sol";
-import { Utils } from "../../utils/Utils.sol";
-import { Store } from "../stores/Store.sol";
+import { Store } from "./../stores/Store.sol";
+import { Fuzzers } from "./../../utils/Fuzzers.sol";
+import { LeafData } from "./../../utils/MerkleBuilder.sol";
+import { Utils } from "./../../utils/Utils.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
 abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
