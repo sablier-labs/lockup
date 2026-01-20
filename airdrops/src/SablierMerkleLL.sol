@@ -88,10 +88,10 @@ contract SablierMerkleLL is
         // Effect: set the immutable variables.
         VESTING_CLIFF_DURATION = campaignParams.cliffDuration;
         VESTING_CLIFF_UNLOCK_PERCENTAGE = campaignParams.cliffUnlockPercentage;
+        VESTING_GRANULARITY = campaignParams.granularity;
         VESTING_START_TIME = campaignParams.vestingStartTime;
         VESTING_START_UNLOCK_PERCENTAGE = campaignParams.startUnlockPercentage;
         VESTING_TOTAL_DURATION = campaignParams.totalDuration;
-        VESTING_GRANULARITY = campaignParams.granularity;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
