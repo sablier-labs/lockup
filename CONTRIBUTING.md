@@ -18,7 +18,7 @@ efficiency, or extending the protocol via new features.
 - [Rust](https://rust-lang.org/tools/install) (Rust compiler)
 - [Bulloak](https://bulloak.dev) (CLI for checking tests)
 - [uv](https://github.com/astral-sh/uv) (tool manager for MDFormat)
-- [MDFormat](https://mdformat.readthedocs.io) (Markdown formatter; install via `just install-mdformat`)
+- [MDFormat](https://mdformat.readthedocs.io) (Markdown formatter; requires Python 3.13+ and install via `just setup`)
 
 In addition, familiarity with [Solidity](https://soliditylang.org) is requisite.
 

@@ -16,7 +16,7 @@ contract LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test is Base_Test {
     MerkleMockReverting internal merkleMockReverting;
     MerkleMockWithFalseIsSablierMerkle internal merkleMockWithFalseIsSablierMerkle;
     MerkleMockWithMissingIsSablierMerkle internal merkleMockWithMissingIsSablierMerkle;
-    uint256 internal constant NEW_MIN_FEE_USD = AIRDROP_MIN_FEE_USD - 1;
+    uint256 internal newMinFeeUSD = AIRDROP_MIN_FEE_USD - 1;
 
     function setUp() public override {
         Base_Test.setUp();
@@ -33,14 +33,14 @@ contract LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.UnauthorizedAccess.selector, users.eve, FEE_MANAGEMENT_ROLE));
-        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), NEW_MIN_FEE_USD);
+        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), newMinFeeUSD);
     }
 
     function test_WhenCallerWithFeeManagementRole() external whenCallerNotAdmin {
         setMsgSender(users.accountant);
 
         // It should not revert.
-        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), NEW_MIN_FEE_USD);
+        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), newMinFeeUSD);
     }
 
     function test_RevertWhen_CallReverts()
@@ -51,7 +51,7 @@ contract LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test is Base_Test {
     {
         // It should revert.
         vm.expectRevert("Not gonna happen");
-        comptroller.lowerMinFeeUSDForCampaign(address(merkleMockReverting), NEW_MIN_FEE_USD);
+        comptroller.lowerMinFeeUSDForCampaign(address(merkleMockReverting), newMinFeeUSD);
     }
 
     function test_WhenCallDoesNotRevert()
@@ -61,6 +61,6 @@ contract LowerMinFeeUSDForCampaign_Comptroller_Concrete_Test is Base_Test {
         whenCampaignReturnsTrueForSablierMerkle
     {
         // It should succeed.
-        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), NEW_MIN_FEE_USD);
+        comptroller.lowerMinFeeUSDForCampaign(address(merkleMock), newMinFeeUSD);
     }
 }
