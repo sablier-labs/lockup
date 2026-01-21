@@ -13,17 +13,17 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- **BREAKING**: Replace single factory with separate factories for each campaign type
+- **Breaking**: Replace single factory with separate factories for each campaign type
   ([#70](https://github.com/sablier-labs/airdrops/pull/70))
-- **BREAKING**: Store fee as USD value instead of native token value
+- **Breaking**: Store fee as USD value instead of native token value
   ([#68](https://github.com/sablier-labs/airdrops/pull/68))
-- Refactor existing `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
-- Refactor schedule struct into `immutable` variables in `SablierMerkleLL`
+- **Breaking**: Refactor existing `Claim` events ([#163](https://github.com/sablier-labs/airdrops/pull/163))
+- **Breaking**: Rename `STREAM_START_TIME` to `VESTING_START_TIME` in `SablierMerkleLT`
   ([#125](https://github.com/sablier-labs/airdrops/pull/125))
-- Rename `STREAM_START_TIME` to `VESTING_START_TIME` in `SablierMerkleLT`
+- **Breaking**: Rename `getTranchesWithPercentages` to `tranchesWithPercentages`
+- **Breaking**: Rename `getFirstClaimTime()` to `firstClaimTime()`
+- **Breaking**: Refactor schedule struct into `immutable` variables in `SablierMerkleLL`
   ([#125](https://github.com/sablier-labs/airdrops/pull/125))
-- Rename `getTranchesWithPercentages` to `tranchesWithPercentages`
-- Rename `getFirstClaimTime()` to `firstClaimTime()`
 
 ### Added
 
@@ -40,7 +40,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Removed
 
-- Remove `collectFees()` from campaign contracts (moved to factory)
+- **Breaking**: Remove `collectFees()` from campaign contracts (moved to factory)
 
 ## [1.3.0] - 2025-01-29
 

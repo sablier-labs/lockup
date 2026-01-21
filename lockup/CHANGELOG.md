@@ -14,7 +14,9 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- **Breaking:** Refactor `SablierLockup` contract into model-specific abstract contracts
+- **Breaking:** Rename `aggregateBalance` to `aggregateAmount`
+  ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
+- Refactor `SablierLockup` contract into model-specific abstract contracts
   ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
 - Refactor `DataTypes` into separate type files ([#1261](https://github.com/sablier-labs/lockup/pull/1261))
   - `DataTypes` is kept for backward compatibility and will be deprecated in the future versions.
@@ -23,7 +25,6 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Rename `VestingMath` library to `LockupMath`
 - Rename `SablierLockupBase` to `SablierLockupState` ([#1247](https://github.com/sablier-labs/lockup/pull/1247))
 - Make `cancelMultiple` non-reverting ([#1173](https://github.com/sablier-labs/lockup/pull/1173))
-- Rename `aggregateBalance` to `aggregateAmount` ([#1228](https://github.com/sablier-labs/lockup/pull/1228))
 - Bump Solidity compiler to 0.8.29 ([#1207](https://github.com/sablier-labs/lockup/pull/1207))
 - Bump `@openzeppelin/contracts` from 5.0.2 to 5.3.0
 
