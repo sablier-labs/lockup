@@ -5,7 +5,7 @@ import { Lockup } from "src/types/Lockup.sol";
 import { StreamAction } from "tests/utils/Types.sol";
 
 /// @dev Storage variables needed by all lockup handlers.
-contract LockupStore {
+contract Store {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

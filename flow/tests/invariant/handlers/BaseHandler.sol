@@ -7,7 +7,7 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Utils } from "../../utils/Utils.sol";
-import { FlowStore } from "../stores/FlowStore.sol";
+import { Store } from "../stores/Store.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
 abstract contract BaseHandler is StdCheats, Utils {
@@ -33,7 +33,7 @@ abstract contract BaseHandler is StdCheats, Utils {
 
     ISablierComptroller public comptroller;
     ISablierFlow public flow;
-    FlowStore public flowStore;
+    Store public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -58,7 +58,7 @@ abstract contract BaseHandler is StdCheats, Utils {
     }
 
     modifier useFuzzedToken(uint256 tokenIndex) {
-        IERC20[] memory tokens = flowStore.getTokens();
+        IERC20[] memory tokens = store.getTokens();
         tokenIndex = bound(tokenIndex, 0, tokens.length - 1);
         currentToken = tokens[tokenIndex];
         _;
@@ -68,9 +68,9 @@ abstract contract BaseHandler is StdCheats, Utils {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_) {
+    constructor(Store store_, ISablierFlow flow_) {
         comptroller = flow_.comptroller();
-        flowStore = flowStore_;
+        store = store_;
         flow = flow_;
     }
 }
