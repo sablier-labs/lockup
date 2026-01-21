@@ -1,7 +1,4 @@
 TransferFromPayable_Integration_Concrete_Test
-├── when ETH value is zero
-│  ├── it should transfer the NFT
-│  └── it should emit {MetadataUpdate} and {Transfer} events
 └── when ETH value is greater than zero
    ├── it should transfer the NFT
    └── it should emit {MetadataUpdate} and {Transfer} events

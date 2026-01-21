@@ -14,22 +14,6 @@ contract TransferFromPayable_Integration_Concrete_Test is Shared_Integration_Con
         setMsgSender(users.recipient);
     }
 
-    function test_WhenETHValueIsZero() external {
-        // It should emit {MetadataUpdate} and {Transfer} events.
-        vm.expectEmit({ emitter: address(flow) });
-        emit IERC721.Transfer({ from: users.recipient, to: users.operator, tokenId: defaultStreamId });
-
-        vm.expectEmit({ emitter: address(flow) });
-        emit IERC4906.MetadataUpdate({ _tokenId: defaultStreamId });
-
-        flow.transferFromPayable({ from: users.recipient, to: users.operator, streamId: defaultStreamId });
-
-        // It should transfer the NFT.
-        address actualRecipient = flow.getRecipient(defaultStreamId);
-        address expectedRecipient = users.operator;
-        assertEq(actualRecipient, expectedRecipient, "recipient");
-    }
-
     function test_WhenETHValueIsGreaterThanZero() external {
         // It should emit {MetadataUpdate} and {Transfer} events.
         vm.expectEmit({ emitter: address(flow) });

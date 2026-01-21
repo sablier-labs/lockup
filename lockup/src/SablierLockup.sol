@@ -140,11 +140,6 @@ contract SablierLockup is
     }
 
     /// @inheritdoc ISablierLockup
-    function transferFromPayable(address from, address to, uint256 streamId) external payable {
-        ERC721.transferFrom({ from: from, to: to, tokenId: streamId });
-    }
-
-    /// @inheritdoc ISablierLockup
     function withdrawableAmountOf(uint256 streamId)
         external
         view

@@ -462,6 +462,9 @@ interface ISablierFlow is
     /// @notice Wrapper for {IERC721.transferFrom} with the `payable` specifier so that it can be called in conjunction
     /// with other functions using {IBatch.batch}.
     ///
+    /// Requirements:
+    /// - Refer to the requirements in https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/IERC721.sol.
+    ///
     /// @param from The address of the current owner of the stream NFT.
     /// @param to The address of the new owner of the stream NFT.
     /// @param streamId The ID of the stream NFT to transfer.
