@@ -7,7 +7,7 @@ import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { StreamAction } from "tests/utils/Types.sol";
 
-import { LockupStore } from "../stores/LockupStore.sol";
+import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 contract LockupHandler is BaseHandler {
@@ -15,7 +15,7 @@ contract LockupHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    LockupStore public lockupStore;
+    Store public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -29,8 +29,8 @@ contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 token_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
-        lockupStore = lockupStore_;
+    constructor(IERC20 token_, Store store_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -40,21 +40,21 @@ contract LockupHandler is BaseHandler {
     /// @dev Picks a random stream from the store.
     /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
     modifier useFuzzedStream(uint256 streamIndexSeed) {
-        uint256 lastStreamId = lockupStore.lastStreamId();
+        uint256 lastStreamId = store.lastStreamId();
         vm.assume(lastStreamId != 0);
         uint256 fuzzedStreamId = _bound(streamIndexSeed, 0, lastStreamId - 1);
-        currentStreamId = lockupStore.streamIds(fuzzedStreamId);
+        currentStreamId = store.streamIds(fuzzedStreamId);
         _;
     }
 
     modifier useFuzzedStreamRecipient() {
-        currentRecipient = lockupStore.recipients(currentStreamId);
+        currentRecipient = store.recipients(currentStreamId);
         setMsgSender(currentRecipient);
         _;
     }
 
     modifier useFuzzedStreamSender() {
-        currentSender = lockupStore.senders(currentStreamId);
+        currentSender = store.senders(currentStreamId);
         setMsgSender(currentSender);
         _;
     }
@@ -83,7 +83,7 @@ contract LockupHandler is BaseHandler {
         lockup.burn(currentStreamId);
 
         // Set the recipient associated with this stream to the zero address.
-        lockupStore.updateRecipient(currentStreamId, address(0));
+        store.updateRecipient(currentStreamId, address(0));
     }
 
     function cancel(
@@ -107,11 +107,7 @@ contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({
-            streamId: currentStreamId,
-            action: StreamAction.CANCEL,
-            gas: gasBefore - gasAfter
-        });
+        store.recordGasUsage({ streamId: currentStreamId, action: StreamAction.CANCEL, gas: gasBefore - gasAfter });
     }
 
     function renounce(
@@ -162,7 +158,7 @@ contract LockupHandler is BaseHandler {
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
-        address sender = lockupStore.senders(currentStreamId);
+        address sender = store.senders(currentStreamId);
         if (sender == currentRecipient && to != currentRecipient) {
             to = currentRecipient;
         }
@@ -172,11 +168,7 @@ contract LockupHandler is BaseHandler {
         lockup.withdraw{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: withdrawAmount });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({
-            streamId: currentStreamId,
-            action: StreamAction.WITHDRAW,
-            gas: gasBefore - gasAfter
-        });
+        store.recordGasUsage({ streamId: currentStreamId, action: StreamAction.WITHDRAW, gas: gasBefore - gasAfter });
     }
 
     function withdrawMax(
@@ -202,7 +194,7 @@ contract LockupHandler is BaseHandler {
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
-        address sender = lockupStore.senders(currentStreamId);
+        address sender = store.senders(currentStreamId);
         if (sender == currentRecipient && to != currentRecipient) {
             to = currentRecipient;
         }
@@ -212,11 +204,7 @@ contract LockupHandler is BaseHandler {
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: currentStreamId, to: to });
         uint256 gasAfter = gasleft();
 
-        lockupStore.recordGasUsage({
-            streamId: currentStreamId,
-            action: StreamAction.WITHDRAW,
-            gas: gasBefore - gasAfter
-        });
+        store.recordGasUsage({ streamId: currentStreamId, action: StreamAction.WITHDRAW, gas: gasBefore - gasAfter });
     }
 
     function withdrawMaxAndTransfer(
@@ -253,7 +241,7 @@ contract LockupHandler is BaseHandler {
         });
 
         // Update the recipient associated with this stream ID.
-        lockupStore.updateRecipient(currentStreamId, newRecipient);
+        store.updateRecipient(currentStreamId, newRecipient);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -284,6 +272,6 @@ contract LockupHandler is BaseHandler {
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
         // Update the recipient associated with this stream ID.
-        lockupStore.updateRecipient(currentStreamId, newRecipient);
+        store.updateRecipient(currentStreamId, newRecipient);
     }
 }

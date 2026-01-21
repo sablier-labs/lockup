@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { FlowStore } from "./../stores/FlowStore.sol";
+import { Store } from "./../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 contract FlowComptrollerHandler is BaseHandler {
@@ -20,7 +20,7 @@ contract FlowComptrollerHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
+    constructor(Store store_, ISablierFlow flow_) BaseHandler(store_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-FLOW

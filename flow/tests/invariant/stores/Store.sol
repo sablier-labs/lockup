@@ -6,7 +6,7 @@ import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 /// @dev Storage variables needed for handlers.
-contract FlowStore is BaseUtils {
+contract Store is BaseUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

@@ -7,7 +7,7 @@ import { UD21x18, UNIT } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { FlowStore } from "../stores/FlowStore.sol";
+import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 contract FlowHandler is BaseHandler {
@@ -23,7 +23,7 @@ contract FlowHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
+    constructor(Store store_, ISablierFlow flow_) BaseHandler(store_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -31,7 +31,7 @@ contract FlowHandler is BaseHandler {
 
     /// @dev Updates the states of handler right before calling each Flow function.
     modifier updateFlowHandlerStates() {
-        flowStore.updatePreviousValues(
+        store.updatePreviousValues(
             currentStreamId,
             flow.getSnapshotTime(currentStreamId),
             flow.statusOf(currentStreamId),
@@ -43,14 +43,14 @@ contract FlowHandler is BaseHandler {
     }
 
     /// @dev Picks a random stream from the store.
-    /// @param streamIndex A fuzzed value to pick a stream from flowStore.
+    /// @param streamIndex A fuzzed value to pick a stream from store.
     modifier useFuzzedStream(uint256 streamIndex) {
-        uint256 lastStreamId = flowStore.lastStreamId();
+        uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
         streamIndex = bound(streamIndex, 0, lastStreamId - 1);
-        currentStreamId = flowStore.streamIds(streamIndex);
+        currentStreamId = store.streamIds(streamIndex);
         _;
     }
 
@@ -130,7 +130,7 @@ contract FlowHandler is BaseHandler {
         // Adjust the rate per second.
         flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
 
-        flowStore.pushPeriod({
+        store.pushPeriod({
             streamId: currentStreamId,
             newRatePerSecond: newRatePerSecond.unwrap(),
             blockTimestamp: getBlockTimestamp()
@@ -177,7 +177,7 @@ contract FlowHandler is BaseHandler {
         });
 
         // Update the deposit totals.
-        flowStore.updateTotalDeposits(currentStreamId, token, depositAmount);
+        store.updateTotalDeposits(currentStreamId, token, depositAmount);
     }
 
     function pause(
@@ -200,7 +200,7 @@ contract FlowHandler is BaseHandler {
         // Pause the stream.
         flow.pause(currentStreamId);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, blockTimestamp: getBlockTimestamp() });
+        store.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, blockTimestamp: getBlockTimestamp() });
     }
 
     function refund(
@@ -227,7 +227,7 @@ contract FlowHandler is BaseHandler {
         flow.refund(currentStreamId, refundAmount);
 
         // Update the refund totals.
-        flowStore.updateTotalRefunds(currentStreamId, flow.getToken(currentStreamId), refundAmount);
+        store.updateTotalRefunds(currentStreamId, flow.getToken(currentStreamId), refundAmount);
     }
 
     function restart(
@@ -271,7 +271,7 @@ contract FlowHandler is BaseHandler {
         // Restart the stream.
         flow.restart(currentStreamId, ratePerSecond);
 
-        flowStore.pushPeriod({
+        store.pushPeriod({
             streamId: currentStreamId,
             newRatePerSecond: ratePerSecond.unwrap(),
             blockTimestamp: getBlockTimestamp()
@@ -295,7 +295,7 @@ contract FlowHandler is BaseHandler {
         // Void the stream.
         flow.void(currentStreamId);
 
-        flowStore.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, blockTimestamp: getBlockTimestamp() });
+        store.pushPeriod({ streamId: currentStreamId, newRatePerSecond: 0, blockTimestamp: getBlockTimestamp() });
     }
 
     function withdraw(
@@ -330,6 +330,6 @@ contract FlowHandler is BaseHandler {
         flow.withdraw{ value: MIN_FEE_WEI }({ streamId: currentStreamId, to: to, amount: amount });
 
         // Update the total withdrawn by stream.
-        flowStore.updateTotalWithdrawn(currentStreamId, flow.getToken(currentStreamId), amount);
+        store.updateTotalWithdrawn(currentStreamId, flow.getToken(currentStreamId), amount);
     }
 }

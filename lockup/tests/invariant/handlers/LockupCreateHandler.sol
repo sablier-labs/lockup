@@ -11,7 +11,7 @@ import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Calculations } from "tests/utils/Calculations.sol";
 import { StreamAction } from "tests/utils/Types.sol";
-import { LockupStore } from "../stores/LockupStore.sol";
+import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev This contract is a complement of {LockupHandler}.
@@ -20,14 +20,14 @@ contract LockupCreateHandler is BaseHandler, Calculations {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    LockupStore public lockupStore;
+    Store public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 token_, LockupStore lockupStore_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
-        lockupStore = lockupStore_;
+    constructor(IERC20 token_, Store store_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty segment arrays.
         vm.assume(segments.length != 0);
@@ -71,10 +71,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLD(params, segments);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithDurationsLL(
@@ -91,7 +91,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         granularity = _boundCreateWithDurationsLLParams(params, unlockAmounts, granularity, durations);
 
@@ -109,10 +109,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, granularity, durations);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithDurationsLT(
@@ -127,7 +127,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty tranche arrays.
         vm.assume(tranches.length != 0);
@@ -152,10 +152,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLT(params, tranches);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithTimestampsLD(
@@ -170,7 +170,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty segment arrays.
         vm.assume(segments.length != 0);
@@ -198,10 +198,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLD(params, segments);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithTimestampsLL(
@@ -218,7 +218,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         (cliffTime, granularity) = _boundCreateWithTimestampsLLParams(params, unlockAmounts, cliffTime, granularity);
 
@@ -236,10 +236,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLL(params, unlockAmounts, granularity, cliffTime);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithTimestampsLT(
@@ -254,7 +254,7 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        vm.assume(lockupStore.lastStreamId() <= MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
 
         // The protocol doesn't allow empty tranche arrays.
         vm.assume(tranches.length != 0);
@@ -282,10 +282,10 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithTimestampsLT(params, tranches);
 
-        lockupStore.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
-        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

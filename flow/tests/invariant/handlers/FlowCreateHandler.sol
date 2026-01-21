@@ -7,7 +7,7 @@ import { ud21x18 } from "@prb/math/src/UD21x18.sol";
 
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { FlowStore } from "../stores/FlowStore.sol";
+import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev This contract is a complement of {FlowHandler}. The goal is to bias the invariant calls
@@ -24,7 +24,7 @@ contract FlowCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(FlowStore flowStore_, ISablierFlow flow_) BaseHandler(flowStore_, flow_) { }
+    constructor(Store store_, ISablierFlow flow_) BaseHandler(store_, flow_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS
@@ -50,7 +50,7 @@ contract FlowCreateHandler is BaseHandler {
     {
         _checkParams(params);
 
-        vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() < MAX_STREAM_COUNT);
 
         // Create the stream.
         streamId = flow.create(
@@ -63,7 +63,7 @@ contract FlowCreateHandler is BaseHandler {
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
+        store.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
     }
 
     /// @dev We assume a start time earlier than the current block timestamp to avoid having too many PENDING
@@ -77,7 +77,7 @@ contract FlowCreateHandler is BaseHandler {
     {
         _checkParams(params);
 
-        vm.assume(flowStore.lastStreamId() < MAX_STREAM_COUNT);
+        vm.assume(store.lastStreamId() < MAX_STREAM_COUNT);
         params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
 
         // Bound the deposit amount.
@@ -110,10 +110,10 @@ contract FlowCreateHandler is BaseHandler {
         );
 
         // Store the stream id and rate per second.
-        flowStore.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
+        store.initStreamId(streamId, params.ratePerSecond, params.startTime, getBlockTimestamp());
 
         // Store the deposit totals.
-        flowStore.updateTotalDeposits(streamId, currentToken, params.depositAmount);
+        store.updateTotalDeposits(streamId, currentToken, params.depositAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
