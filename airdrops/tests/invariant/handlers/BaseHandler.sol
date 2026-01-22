@@ -79,7 +79,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
     /// @dev Limits the number of calls to a specific function.
     modifier limitNumberOfCalls(string memory functionName, uint256 max) {
-        vm.assume(totalCalls[functionName] < max);
+        vm.assume(totalCalls[functionName] <= max);
         _;
     }
 

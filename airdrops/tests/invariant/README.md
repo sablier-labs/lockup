@@ -4,8 +4,7 @@
 
 1. token.balanceOf(campaign) = total deposit - $\\sum$ claimed - $\\sum$ clawbacked
 2. `hasClaimed` should never change its value from `true` to `false`
-3. `hasExpired` should never change its value from `true` to `false`
-4. `minFeeUSD` should never increase
+3. `minFeeUSD` should never increase
 
 #### For VCA campaign:
 

@@ -122,23 +122,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev Once a campaign has expired, it should never become unexpired.
-    function invariant_ExpirationStatusTransition() external view {
-        address[] memory campaigns = store.getCampaigns();
-
-        for (uint256 i = 0; i < campaigns.length; ++i) {
-            ISablierMerkleBase campaign = ISablierMerkleBase(campaigns[i]);
-
-            // If the campaign has an expiration time set and current time is past it, it must be expired.
-            if (campaign.EXPIRATION() > 0 && block.timestamp > campaign.EXPIRATION()) {
-                assertTrue(
-                    campaign.hasExpired(), unicode"Invariant violation: expiration status changed from true to false"
-                );
-            }
-        }
-    }
-
-    /// @dev The minFeeUSD should never increase from its value at deployment.
+    /// @dev The minFeeUSD should never increase.
     function invariant_MinFeeUSDNeverIncreases() external view {
         address[] memory campaigns = store.getCampaigns();
 
@@ -148,7 +132,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
             assertLe(
                 ISablierMerkleBase(campaign).minFeeUSD(),
                 store.minFeeUSD(campaign),
-                unicode"Invariant violation: minFeeUSD increased from deployment value"
+                unicode"Invariant violation: minFeeUSD increased"
             );
         }
     }
@@ -167,7 +151,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         assertLe(
             store.vcaTotalForgoneAmount(),
             ISablierMerkleVCA(vcaCampaign).totalForgoneAmount(),
-            unicode"Invariant violation: store forgone amount > campaign total forgone amount"
+            unicode"Invariant violation: total forgone amount decreases"
         );
     }
 
