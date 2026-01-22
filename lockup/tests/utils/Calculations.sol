@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { convert, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
@@ -102,12 +101,22 @@ abstract contract Calculations is BaseUtils {
                 return depositAmount;
             }
 
+            // Determine the reference time (cliff or start).
             uint40 referenceTime = cliffTime > 0 ? cliffTime : startTime;
-            UD60x18 elapsedTime = convert((blockTimestamp - referenceTime) / granularity);
-            UD60x18 streamableDuration = ud(endTime - referenceTime).div(ud(granularity));
-            UD60x18 streamableAmount = ud(depositAmount - unlockAmountsSum);
 
-            return unlockAmountsSum + elapsedTime.mul(streamableAmount).div(streamableDuration).intoUint128();
+            // Calculate elapsed granularity units (floored).
+            uint256 elapsedTimeInGranularityUnits = (blockTimestamp - referenceTime) / granularity;
+
+            // Calculate the streamable period scaled. Cast to uint256 to avoid overflow.
+            uint256 streamableTotalDurationScaled = uint256(endTime - referenceTime) * 1e18;
+
+            // Calculate the streamable amount.
+            uint256 streamableAmount = depositAmount - unlockAmountsSum;
+
+            // Formula: streamedPortion = floor(elapsed/g) * streamableAmount * g / totalDuration
+            uint256 streamedPortionScaled = elapsedTimeInGranularityUnits * streamableAmount * granularity * 1e18;
+
+            return unlockAmountsSum + uint128(streamedPortionScaled / streamableTotalDurationScaled);
         }
     }
 
