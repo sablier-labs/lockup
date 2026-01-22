@@ -215,7 +215,7 @@ library LockupMath {
             uint256 streamableAmount = depositedAmount - unlockAmountsSum;
 
             // Scaled numerator: floor(elapsed/g) * streamableAmount * g * 1e18.
-            uint256 streamedPortionScaled = elapsedTimeInGranularityUnits * streamableAmount * granularity * 1e18;
+            uint256 streamedPortionScaled = elapsedTimeInGranularityUnits * streamableAmount * uint256(granularity) * 1e18;
 
             // Unlock amounts plus the streamed portion.
             uint128 streamedAmount =
