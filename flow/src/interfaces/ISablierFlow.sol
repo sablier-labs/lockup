@@ -463,11 +463,11 @@ interface ISablierFlow is
     /// with other functions using {IBatch.batch}.
     ///
     /// Requirements:
-    /// - Refer to the requirements in:
-    /// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v5.3.0/contracts/token/ERC721/IERC721.sol.
-    ///
+    /// - Refer to the requirements of `transferFrom` in:
+    /// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/e4f70216d759d8e6a64144a9e1f7bbeed78e7079/contracts/token/ERC721/IERC721.sol#L75-L91.
+    /// 
     /// @param from The owner of the stream ID.
-    /// @param to The address of the new owner of the stream NFT.
+    /// @param to The address of the new owner of the stream ID.
     /// @param streamId The ID of the stream NFT to transfer.
     function transferFromPayable(address from, address to, uint256 streamId) external payable;
 
