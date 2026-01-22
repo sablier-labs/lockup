@@ -2,6 +2,7 @@
 // solhint-disable max-line-length,quotes
 pragma solidity >=0.8.22;
 
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { Constants } from "./Constants.sol";
 import { Claim, EIP712Domain } from "./Types.sol";
@@ -79,5 +80,40 @@ abstract contract Utils is BaseUtils, Constants {
 
         // Return the signature.
         signature = abi.encodePacked(r, s, v);
+    }
+
+    /// @dev Mirrors the logic from {SablierMerkleVCA._calculateClaimAmount}.
+    function calculateMerkleVCAAmounts(
+        uint128 fullAmount,
+        UD60x18 unlockPercentage,
+        uint40 vestingEndTime,
+        uint40 vestingStartTime
+    )
+        public
+        view
+        returns (uint128 claimAmount, uint128 forgoneAmount)
+    {
+        uint40 blockTime = getBlockTimestamp();
+        if (blockTime < vestingStartTime) {
+            return (0, 0);
+        }
+
+        uint128 unlockAmount = uint128(uint256(fullAmount) * unlockPercentage.unwrap() / 1e18);
+
+        if (blockTime == vestingStartTime) {
+            return (unlockAmount, fullAmount - unlockAmount);
+        }
+
+        if (blockTime < vestingEndTime) {
+            uint40 elapsedTime = (blockTime - vestingStartTime);
+            uint40 totalDuration = vestingEndTime - vestingStartTime;
+
+            uint256 remainderAmount = uint256(fullAmount - unlockAmount);
+            claimAmount = unlockAmount + uint128((remainderAmount * elapsedTime) / totalDuration);
+            forgoneAmount = fullAmount - claimAmount;
+        } else {
+            claimAmount = fullAmount;
+            forgoneAmount = 0;
+        }
     }
 }

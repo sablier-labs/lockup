@@ -71,9 +71,15 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
         totalCalls[functionName]++;
     }
 
-    /// @dev Checks if the campaign has been deployed.
+    /// @dev Ensures the campaign has been deployed.
     modifier isDeployed() {
-        vm.assume(totalCalls["deployCampaign"] == 1);
+        vm.assume(address(campaign) != address(0));
+        _;
+    }
+
+    /// @dev Limits the number of calls to a specific function.
+    modifier limitNumberOfCalls(string memory functionName, uint256 max) {
+        vm.assume(totalCalls[functionName] < max);
         _;
     }
 
@@ -142,8 +148,8 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     )
         external
         adjustTimestamp(timeJump)
-        instrument("clawback")
         isDeployed
+        instrument("clawback")
     {
         // Ensure clawback conditions are met.
         bool noClaimMade = campaign.firstClaimTime() == 0;
@@ -191,6 +197,9 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
         // Add the campaign to store.
         store.addCampaign(address(campaign));
+
+        // Store the minFeeUSD at deployment.
+        store.updateMinFeeUSD(address(campaign), campaign.minFeeUSD());
     }
 
     function fundCampaign(
@@ -199,11 +208,12 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     )
         external
         adjustTimestamp(timeJump)
-        instrument("fundCampaign")
         isDeployed
+        instrument("fundCampaign")
+        limitNumberOfCalls("fundCampaign", 10)
     {
         // Bound amount to be less than aggregate amount.
-        amount = bound(amount, 1, aggregateAmount);
+        amount = bound(amount, aggregateAmount / 2, aggregateAmount);
 
         // Fund the campaign using deal cheatcode.
         uint256 currentBalance = campaignToken.balanceOf(address(campaign));
@@ -211,5 +221,26 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
         // Update deposit amount in store.
         store.updateTotalDepositAmount(address(campaign), amount);
+    }
+
+    function lowerMinFeeUSD(uint256 newMinFeeUSD)
+        external
+        isDeployed
+        instrument("lowerMinFeeUSD")
+        limitNumberOfCalls("lowerMinFeeUSD", 5)
+    {
+        uint256 currentMinFeeUSD = campaign.minFeeUSD();
+
+        // Skip if new fee is not lower than current.
+        vm.assume(newMinFeeUSD < currentMinFeeUSD);
+
+        // Change caller to the comptroller.
+        setMsgSender(comptroller);
+
+        // Lower the min fee USD.
+        campaign.lowerMinFeeUSD(newMinFeeUSD);
+
+        // Update the minFeeUSD in store.
+        store.updateMinFeeUSD(address(campaign), newMinFeeUSD);
     }
 }

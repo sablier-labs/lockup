@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Base_Test } from "./../Base.t.sol";
 import { MerkleInstantHandler } from "./handlers/MerkleInstantHandler.sol";
 import { MerkleLLHandler } from "./handlers/MerkleLLHandler.sol";
@@ -121,9 +122,54 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
+    /// @dev Once a campaign has expired, it should never become unexpired.
+    function invariant_ExpirationStatusTransition() external view {
+        address[] memory campaigns = store.getCampaigns();
+
+        for (uint256 i = 0; i < campaigns.length; ++i) {
+            ISablierMerkleBase campaign = ISablierMerkleBase(campaigns[i]);
+
+            // If the campaign has an expiration time set and current time is past it, it must be expired.
+            if (campaign.EXPIRATION() > 0 && block.timestamp > campaign.EXPIRATION()) {
+                assertTrue(
+                    campaign.hasExpired(), unicode"Invariant violation: expiration status changed from true to false"
+                );
+            }
+        }
+    }
+
+    /// @dev The minFeeUSD should never increase from its value at deployment.
+    function invariant_MinFeeUSDNeverIncreases() external view {
+        address[] memory campaigns = store.getCampaigns();
+
+        for (uint256 i = 0; i < campaigns.length; ++i) {
+            address campaign = campaigns[i];
+
+            assertLe(
+                ISablierMerkleBase(campaign).minFeeUSD(),
+                store.minFeeUSD(campaign),
+                unicode"Invariant violation: minFeeUSD increased from deployment value"
+            );
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    VCA INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev For a VCA campaign, the total forgone amount should never decrease.
+    function invariant_ForgoneMonotonicity() external view {
+        address vcaCampaign = store.vcaCampaign();
+
+        // Skip if no VCA campaign is deployed.
+        if (vcaCampaign == address(0)) return;
+
+        assertLe(
+            store.vcaTotalForgoneAmount(),
+            ISablierMerkleVCA(vcaCampaign).totalForgoneAmount(),
+            unicode"Invariant violation: store forgone amount > campaign total forgone amount"
+        );
+    }
 
     /// @dev For a VCA campaign, the total forgone amount should be equal to total claim amount requested by users minus
     /// the total claimed amount.
