@@ -523,6 +523,11 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function transferFromPayable(address from, address to, uint256 streamId) external payable {
+        ERC721.transferFrom({ from: from, to: to, tokenId: streamId });
+    }
+
+    /// @inheritdoc ISablierFlow
     function transferTokens(IERC20 token, address to, uint128 amount) external payable {
         // Interaction: transfer the amount.
         token.safeTransferFrom({ from: msg.sender, to: to, value: amount });

@@ -459,6 +459,18 @@ interface ISablierFlow is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(IFlowNFTDescriptor newNFTDescriptor) external;
 
+    /// @notice Wrapper for {IERC721.transferFrom} with the `payable` specifier so that it can be called in conjunction
+    /// with other functions using {IBatch.batch}.
+    ///
+    /// Requirements:
+    /// - Refer to the requirements of `transferFrom` in:
+    /// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/e4f70216d759d8e6a64144a9e1f7bbeed78e7079/contracts/token/ERC721/IERC721.sol#L75-L91.
+    /// 
+    /// @param from The owner of the stream ID.
+    /// @param to The address of the new owner of the stream ID.
+    /// @param streamId The ID of the stream NFT to transfer.
+    function transferFromPayable(address from, address to, uint256 streamId) external payable;
+
     /// @notice A helper to transfer ERC-20 tokens from the caller to the provided address. Useful for paying one-time
     /// bonuses.
     ///
