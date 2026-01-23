@@ -174,7 +174,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
     /// @dev Invariants: For a VCA campaign, if redistribution is enabled and aggregate amount is correctly set,
     /// - The redistribution rewards for a fixed amount should never decrease.
     /// - If vesting has ended, redistribution rewards for a fixed amount should never change.
-    /// - `calculateRedistributionRewards` should never revert.
     /// - Rewards distributed should never exceed total forgone amount.
     function invariant_RedistributionRewardsGivenSufficientFunds() external view {
         ISablierMerkleVCA merkleVCA = ISablierMerkleVCA(store.vcaCampaign());

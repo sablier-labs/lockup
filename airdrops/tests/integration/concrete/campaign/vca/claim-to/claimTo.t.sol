@@ -65,11 +65,19 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         merkleVCA = createMerkleVCA(params);
         merkleBase = merkleVCA;
 
-        _test_ClaimTo({ expectedTransferAmount: VCA_UNLOCK_AMOUNT, isRedistributionEnabled: false });
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_UNLOCK_AMOUNT,
+            forgoneAmount: VCA_FULL_AMOUNT - VCA_UNLOCK_AMOUNT,
+            isRedistributionEnabled: false
+        });
     }
 
     function test_WhenVestingEndTimeInFuture() external whenMerkleProofValid whenVestingStartTimeInPast {
-        _test_ClaimTo({ expectedTransferAmount: VCA_CLAIM_AMOUNT, isRedistributionEnabled: false });
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_CLAIM_AMOUNT,
+            forgoneAmount: VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT,
+            isRedistributionEnabled: false
+        });
     }
 
     function test_GivenRedistributionNotEnabled()
@@ -81,7 +89,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         // Forward in time so that the vesting end time is not in the future.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        _test_ClaimTo({ expectedTransferAmount: VCA_FULL_AMOUNT, isRedistributionEnabled: false });
+        _test_ClaimTo({ expectedTransferAmount: VCA_FULL_AMOUNT, forgoneAmount: 0, isRedistributionEnabled: false });
     }
 
     function test_GivenRedistributionEnabled()
@@ -101,36 +109,29 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         setMsgSender(users.recipient);
         _test_ClaimTo({
             expectedTransferAmount: VCA_FULL_AMOUNT + VCA_REWARD_AMOUNT_PER_USER,
+            forgoneAmount: 0,
             isRedistributionEnabled: true
         });
     }
 
     /// @dev Shared private function.
-    function _test_ClaimTo(uint128 expectedTransferAmount, bool isRedistributionEnabled) private {
+    function _test_ClaimTo(
+        uint128 expectedTransferAmount,
+        uint128 forgoneAmount,
+        bool isRedistributionEnabled
+    )
+        private
+    {
         // Cast the {MerkleVCA} contract as {ISablierMerkleBase}.
         merkleBase = merkleVCA;
 
         uint256 index = getIndexInMerkleTree();
-
-        // If vesting end time is in the future, calculate the forgone amount.
-        uint128 forgoneAmount;
-        if (getBlockTimestamp() < VESTING_END_TIME) {
-            forgoneAmount = VCA_FULL_AMOUNT - expectedTransferAmount;
-        }
-
-        // Get current values.
-        uint256 initialTotalForgoneAmount = merkleVCA.totalForgoneAmount();
-
-        // If current claim is made after vesting end time, the value of total forgone amount remains the same.
-        uint256 expectedTotalForgoneAmount = getBlockTimestamp() >= VESTING_END_TIME
-            ? initialTotalForgoneAmount
-            : initialTotalForgoneAmount + forgoneAmount;
-
+        uint256 expectedTotalForgoneAmount = merkleVCA.totalForgoneAmount() + forgoneAmount;
         uint256 previousFeeAccrued = address(comptroller).balance;
 
         // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
         // redistribution is enabled.
-        if (isRedistributionEnabled && getBlockTimestamp() >= VESTING_END_TIME) {
+        if (isRedistributionEnabled) {
             vm.expectEmit({ emitter: address(merkleVCA) });
             emit ISablierMerkleVCA.RedistributionReward({
                 index: index,
@@ -151,7 +152,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
             viaSig: false
         });
 
-        // It should transfer the expected amount to Eve.
+        // It should transfer the expected amount to the recipient.
         expectCallToTransfer({ to: users.eve, value: expectedTransferAmount });
         expectCallToClaimToWithMsgValue(address(merkleVCA), AIRDROP_MIN_FEE_WEI);
 

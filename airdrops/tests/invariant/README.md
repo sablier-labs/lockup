@@ -15,5 +15,4 @@
 4. If redistribution is enabled and aggregate amount is correctly set,
    - Redistribution rewards for a fixed amount should never decrease.
    - If vesting has ended, redistribution rewards for a fixed amount should never change.
-   - `calculateRedistributionRewardsPerToken` should never revert.
    - Rewards distributed should never exceed total forgone amount.

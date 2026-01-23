@@ -99,7 +99,7 @@ library Errors {
     /// @notice Thrown when the claim amount is zero.
     error SablierMerkleVCA_ClaimAmountZero(address recipient);
 
-    /// @notice Thrown when trying to switch to REDISTRIBUTE strategy when already using it.
+    /// @notice Thrown when trying to switch to redistribute strategy when already using it.
     error SablierMerkleVCA_RedistributionAlreadyEnabled();
 
     /// @notice Thrown when trying to calculate the rewards amount without redistribution enabled.

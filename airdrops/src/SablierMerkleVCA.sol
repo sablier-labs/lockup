@@ -91,8 +91,8 @@ contract SablierMerkleVCA is
         VESTING_END_TIME = campaignParams.vestingEndTime;
         VESTING_START_TIME = campaignParams.vestingStartTime;
 
-        // Effect: enable redistribution if true.
-        if (campaignParams.enableRedistribution) isRedistributionEnabled = true;
+        // Effect: set the enable redistribution flag.
+        isRedistributionEnabled = campaignParams.enableRedistribution;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -280,12 +280,12 @@ contract SablierMerkleVCA is
 
         // Effect: update the total forgone amount and the total amount claimed by early claimers.
         if (claimAmount < fullAmount) {
-            // Its safe to use unchecked because none of these values can overflow.
+            // Its safe to use unchecked because the value can't underflow.
             unchecked {
                 forgoneAmount = fullAmount - claimAmount;
-                totalForgoneAmount += forgoneAmount;
-                _fullAmountAllocatedToEarlyClaimers += fullAmount;
             }
+            totalForgoneAmount += forgoneAmount;
+            _fullAmountAllocatedToEarlyClaimers += fullAmount;
         } else {
             // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
             // in case of a calculation error.

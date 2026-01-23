@@ -7,7 +7,7 @@ import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 /// @title ISablierMerkleVCA
 /// @notice VCA stands for Variable Claim Amount, and is an airdrop model where the claim amount increases linearly
 /// until the airdrop period ends. Claiming early results in forgoing the remaining amount, whereas claiming after the
-/// period grants the full amount that was allocated.
+/// period grants the full amount that was allocated, plus redistribution rewards if enabled.
 interface ISablierMerkleVCA is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -98,11 +98,9 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @dev It emits a {ClaimVCA} event, and a {RedistributionReward} event if the redistribution is enabled.
     ///
     /// Notes:
-    /// - If `AGGREGATE_AMOUNT` is set lower than actual total allocations in the Merkle tree, it can either cause a
-    /// race condition among the recipients or rewards would be calculated as 0 if its too low depending on how low the
-    /// value is set.
-    /// - If the campaign creator does not sufficiently fund the campaign with the actual total allocations (or
-    /// `AGGREGATE_AMOUNT`), it can cause a race condition among the recipients.
+    /// - There can be a race condition among recipients if:
+    ///   1. `AGGREGATE_AMOUNT` is set lower than the actual total allocations in the Merkle tree.
+    ///   2. The campaign is not sufficiently funded with the actual total allocations.
     /// - The rewards are transferred to the recipients at the time of claiming. If the campaign creator turns the
     /// redistribution on after the vesting end time, the recipients who have already claimed the full amount would miss
     /// on the rewards while subsequent recipients would get them.
