@@ -627,41 +627,6 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
                                     MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Mirrors the logic from {SablierMerkleVCA._calculateClaimAmount}.
-    function calculateMerkleVCAAmounts(
-        uint128 fullAmount,
-        UD60x18 unlockPercentage,
-        uint40 vestingEndTime,
-        uint40 vestingStartTime
-    )
-        public
-        view
-        returns (uint128 claimAmount, uint128 forgoneAmount)
-    {
-        uint40 blockTime = getBlockTimestamp();
-        if (blockTime < vestingStartTime) {
-            return (0, 0);
-        }
-
-        uint128 unlockAmount = uint128(uint256(fullAmount) * unlockPercentage.unwrap() / 1e18);
-
-        if (blockTime == vestingStartTime) {
-            return (unlockAmount, fullAmount - unlockAmount);
-        }
-
-        if (blockTime < vestingEndTime) {
-            uint40 elapsedTime = (blockTime - vestingStartTime);
-            uint40 totalDuration = vestingEndTime - vestingStartTime;
-
-            uint256 remainderAmount = uint256(fullAmount - unlockAmount);
-            claimAmount = unlockAmount + uint128((remainderAmount * elapsedTime) / totalDuration);
-            forgoneAmount = fullAmount - claimAmount;
-        } else {
-            claimAmount = fullAmount;
-            forgoneAmount = 0;
-        }
-    }
-
     function computeMerkleVCAAddress() internal view returns (address) {
         return computeMerkleVCAAddress(
             merkleVCAConstructorParams({
