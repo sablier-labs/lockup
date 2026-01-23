@@ -198,7 +198,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
         // Add the campaign to store.
         store.addCampaign(address(campaign));
 
-        // Store the minFeeUSD at deployment.
+        // Update the minFeeUSD in store.
         store.updateMinFeeUSD(address(campaign), campaign.minFeeUSD());
     }
 
@@ -229,10 +229,8 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
         instrument("lowerMinFeeUSD")
         limitNumberOfCalls("lowerMinFeeUSD", 5)
     {
-        uint256 currentMinFeeUSD = campaign.minFeeUSD();
-
-        // Skip if new fee is not lower than current.
-        vm.assume(newMinFeeUSD < currentMinFeeUSD);
+        // Skip if new fee is not less than the existing min fee.
+        vm.assume(newMinFeeUSD < campaign.minFeeUSD());
 
         // Change caller to the comptroller.
         setMsgSender(comptroller);

@@ -29,7 +29,7 @@ contract Store {
     /// @dev Track claimed indexes for each campaign.
     mapping(address campaign => uint256[] indexes) public claimedIndexes;
 
-    /// @dev Track minFeeUSD for each campaign at deployment.
+    /// @dev Track min fee in USD for each campaign.
     mapping(address campaign => uint256 fee) public minFeeUSD;
 
     /// @dev Track total claimed amounts from each campaign.
@@ -85,8 +85,8 @@ contract Store {
         return tokens;
     }
 
-    function updateMinFeeUSD(address campaign, uint256 fee) public {
-        minFeeUSD[campaign] = fee;
+    function updateMinFeeUSD(address campaign, uint256 feeUSD) public {
+        minFeeUSD[campaign] = feeUSD;
     }
 
     function updateTotalClaimAmount(address campaign, uint256 amount) public {

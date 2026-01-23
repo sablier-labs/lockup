@@ -8,5 +8,5 @@
 
 #### For VCA campaign:
 
-1. total forgone = $\\sum$ claim requested - $\\sum$ claimed
-2. total forgone should never decrease
+1. total forgone amount = $\\sum$ claim amount requested - $\\sum$ claimed amount
+2. total forgone amount should never decrease

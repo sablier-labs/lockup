@@ -122,7 +122,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
         }
     }
 
-    /// @dev The minFeeUSD should never increase.
+    /// @dev The min fee in USD should never increase.
     function invariant_MinFeeUSDNeverIncreases() external view {
         address[] memory campaigns = store.getCampaigns();
 
@@ -141,20 +141,6 @@ contract Invariant_Test is Base_Test, StdInvariant {
                                    VCA INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev For a VCA campaign, the total forgone amount should never decrease.
-    function invariant_ForgoneMonotonicity() external view {
-        address vcaCampaign = store.vcaCampaign();
-
-        // Skip if no VCA campaign is deployed.
-        if (vcaCampaign == address(0)) return;
-
-        assertLe(
-            store.vcaTotalForgoneAmount(),
-            ISablierMerkleVCA(vcaCampaign).totalForgoneAmount(),
-            unicode"Invariant violation: total forgone amount decreases"
-        );
-    }
-
     /// @dev For a VCA campaign, the total forgone amount should be equal to total claim amount requested by users minus
     /// the total claimed amount.
     function invariant_TotalForgoneEqualsClaimRequestedMinusClaimed() external view {
@@ -167,6 +153,20 @@ contract Invariant_Test is Base_Test, StdInvariant {
             store.vcaTotalForgoneAmount(),
             store.vcaTotalClaimAmountRequested() - store.totalClaimAmount(vcaCampaign),
             unicode"Invariant violation: total forgone amount != total claim amount requested - total claimed amount"
+        );
+    }
+
+    /// @dev For a VCA campaign, the total forgone amount should never decrease.
+    function invariant_TotalForgoneMonotonicity() external view {
+        address vcaCampaign = store.vcaCampaign();
+
+        // Skip if no VCA campaign is deployed.
+        if (vcaCampaign == address(0)) return;
+
+        assertLe(
+            store.vcaTotalForgoneAmount(),
+            ISablierMerkleVCA(vcaCampaign).totalForgoneAmount(),
+            unicode"Invariant violation: total forgone amount decreased"
         );
     }
 }
