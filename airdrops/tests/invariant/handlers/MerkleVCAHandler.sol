@@ -22,13 +22,9 @@ contract MerkleVCAHandler is BaseHandler {
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal override {
         SablierMerkleVCA merkleVCA = SablierMerkleVCA(address(campaign));
 
-        // Calculate the claim and forgone amounts.
-        (uint128 claimAmount, uint128 forgoneAmount) = calculateMerkleVCAAmounts({
-            fullAmount: leafData.amount,
-            unlockPercentage: merkleVCA.UNLOCK_PERCENTAGE(),
-            vestingEndTime: merkleVCA.VESTING_END_TIME(),
-            vestingStartTime: merkleVCA.VESTING_START_TIME()
-        });
+        // Calculate the forgone and claim amounts.
+        uint128 forgoneAmount = merkleVCA.calculateForgoneAmount(leafData.amount, getBlockTimestamp());
+        uint128 claimAmount = leafData.amount - forgoneAmount;
 
         // Skip if claim amount is zero.
         vm.assume(claimAmount > 0);
