@@ -1,0 +1,9 @@
+EnableRedistribution_MerkleVCA_Integration_Test
+├── when caller not campaign creator
+│  └── it should revert
+└── when caller campaign creator
+   ├── given redistribution enabled
+   │  └── it should revert
+   └── given redistribution not enabled
+      ├── it should enable redistribution
+      └── it should emit {RedistributionEnabled} event

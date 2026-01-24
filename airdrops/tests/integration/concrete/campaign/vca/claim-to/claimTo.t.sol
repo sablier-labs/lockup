@@ -18,13 +18,25 @@ contract ClaimTo_MerkleVCA_Integration_Test is
     ClaimTo_Integration_Test,
     MerkleVCA_Integration_Shared_Test
 {
-    function setUp()
-        public
-        virtual
-        override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test, Integration_Test)
-    {
+    function setUp() public override(MerkleVCA_Integration_Shared_Test, ClaimTo_Integration_Test, Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
         ClaimTo_Integration_Test.setUp();
+
+        // Warp to campaign start time.
+        vm.warp({ newTimestamp: CAMPAIGN_START_TIME });
+
+        // Claim early for a user so that there is some forgone amount.
+        setMsgSender(users.unknownRecipient);
+        claimTo({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(users.unknownRecipient),
+            to: users.unknownRecipient,
+            amount: VCA_FULL_AMOUNT,
+            merkleProof: getMerkleProof(users.unknownRecipient)
+        });
+
+        // Set the recipient as the caller for this test.
+        setMsgSender(users.recipient);
     }
 
     function test_RevertWhen_VestingStartTimeInFuture() external whenMerkleProofValid {
@@ -32,6 +44,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp() + 1 seconds;
         merkleVCA = createMerkleVCA(params);
+        merkleBase = merkleVCA;
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleVCA_ClaimAmountZero.selector, users.recipient));
@@ -45,48 +58,102 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         });
     }
 
-    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
+    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid {
         // Create a new campaign with vesting start time in the present.
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp();
         merkleVCA = createMerkleVCA(params);
+        merkleBase = merkleVCA;
 
-        _test_ClaimTo(VCA_UNLOCK_AMOUNT);
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_UNLOCK_AMOUNT,
+            forgoneAmount: VCA_FULL_AMOUNT - VCA_UNLOCK_AMOUNT,
+            isRedistributionEnabled: false
+        });
     }
 
-    function test_WhenVestingEndTimeInPast() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
-        // Forward in time so that the vesting end time is in the past.
+    function test_WhenVestingEndTimeInFuture() external whenMerkleProofValid whenVestingStartTimeInPast {
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_CLAIM_AMOUNT,
+            forgoneAmount: VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT,
+            isRedistributionEnabled: false
+        });
+    }
+
+    function test_GivenRedistributionNotEnabled()
+        external
+        whenMerkleProofValid
+        whenVestingStartTimeInPast
+        whenVestingEndTimeNotInFuture
+    {
+        // Forward in time so that the vesting end time is not in the future.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
-        _test_ClaimTo(VCA_FULL_AMOUNT);
+        _test_ClaimTo({ expectedTransferAmount: VCA_FULL_AMOUNT, forgoneAmount: 0, isRedistributionEnabled: false });
     }
 
-    function test_WhenVestingEndTimeNotInPast() external whenMerkleProofValid whenVestingStartTimeNotInFuture {
-        _test_ClaimTo(VCA_CLAIM_AMOUNT);
+    function test_GivenRedistributionEnabled()
+        external
+        whenMerkleProofValid
+        whenVestingStartTimeInPast
+        whenVestingEndTimeNotInFuture
+    {
+        // Enable the redistribution.
+        setMsgSender(users.campaignCreator);
+        merkleVCA.enableRedistribution();
+
+        // Forward in time so that the vesting end time is not in the future.
+        vm.warp({ newTimestamp: VESTING_END_TIME });
+
+        // Change the caller to the recipient and test the claim.
+        setMsgSender(users.recipient);
+        _test_ClaimTo({
+            expectedTransferAmount: VCA_FULL_AMOUNT + VCA_REWARD_AMOUNT_PER_USER,
+            forgoneAmount: 0,
+            isRedistributionEnabled: true
+        });
     }
 
-    function _test_ClaimTo(uint128 claimAmount) private {
+    /// @dev Shared private function.
+    function _test_ClaimTo(
+        uint128 expectedTransferAmount,
+        uint128 forgoneAmount,
+        bool isRedistributionEnabled
+    )
+        private
+    {
         // Cast the {MerkleVCA} contract as {ISablierMerkleBase}.
         merkleBase = merkleVCA;
 
         uint256 index = getIndexInMerkleTree();
-
-        uint128 forgoneAmount = VCA_FULL_AMOUNT - claimAmount;
+        uint256 expectedTotalForgoneAmount = merkleVCA.totalForgoneAmount() + forgoneAmount;
         uint256 previousFeeAccrued = address(comptroller).balance;
+
+        // It should emit a {RedistributionReward} event for claims made after the vesting end time only if
+        // redistribution is enabled.
+        if (isRedistributionEnabled) {
+            vm.expectEmit({ emitter: address(merkleVCA) });
+            emit ISablierMerkleVCA.RedistributionReward({
+                index: index,
+                recipient: users.recipient,
+                amount: VCA_REWARD_AMOUNT_PER_USER,
+                to: users.eve
+            });
+        }
 
         // It should emit a {ClaimVCA} event.
         vm.expectEmit({ emitter: address(merkleVCA) });
         emit ISablierMerkleVCA.ClaimVCA({
             index: index,
             recipient: users.recipient,
-            claimAmount: claimAmount,
+            claimAmount: VCA_FULL_AMOUNT - forgoneAmount,
             forgoneAmount: forgoneAmount,
             to: users.eve,
             viaSig: false
         });
 
-        // It should transfer a portion of the amount to Eve.
-        expectCallToTransfer({ to: users.eve, value: claimAmount });
+        // It should transfer the expected amount to the recipient.
+        expectCallToTransfer({ to: users.eve, value: expectedTransferAmount });
         expectCallToClaimToWithMsgValue(address(merkleVCA), AIRDROP_MIN_FEE_WEI);
 
         claimTo();
@@ -95,7 +162,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
 
         // It should update the total forgone amount.
-        assertEq(merkleVCA.totalForgoneAmount(), forgoneAmount, "total forgone amount");
+        assertEq(merkleVCA.totalForgoneAmount(), expectedTotalForgoneAmount, "total forgone amount");
 
         assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }

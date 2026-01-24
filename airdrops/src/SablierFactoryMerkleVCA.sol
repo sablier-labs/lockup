@@ -55,11 +55,12 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     {
         // Check: validate the deployment parameters.
         _checkDeploymentParams(
-            address(campaignParams.token),
-            campaignParams.vestingStartTime,
-            campaignParams.vestingEndTime,
+            campaignParams.aggregateAmount,
             campaignParams.expiration,
-            campaignParams.unlockPercentage
+            address(campaignParams.token),
+            campaignParams.unlockPercentage,
+            campaignParams.vestingEndTime,
+            campaignParams.vestingStartTime
         );
 
         // Hash the parameters to generate a salt.
@@ -84,7 +85,6 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     /// @inheritdoc ISablierFactoryMerkleVCA
     function createMerkleVCA(
         MerkleVCA.ConstructorParams calldata campaignParams,
-        uint256 aggregateAmount,
         uint256 recipientCount
     )
         external
@@ -92,11 +92,12 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
     {
         // Check: validate the deployment parameters.
         _checkDeploymentParams(
-            address(campaignParams.token),
-            campaignParams.vestingStartTime,
-            campaignParams.vestingEndTime,
+            campaignParams.aggregateAmount,
             campaignParams.expiration,
-            campaignParams.unlockPercentage
+            address(campaignParams.token),
+            campaignParams.unlockPercentage,
+            campaignParams.vestingEndTime,
+            campaignParams.vestingStartTime
         );
 
         // Hash the parameters to generate a salt.
@@ -113,7 +114,6 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         emit CreateMerkleVCA({
             merkleVCA: merkleVCA,
             campaignParams: campaignParams,
-            aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
             comptroller: address(comptroller),
             minFeeUSD: comptroller.getMinFeeUSDFor({
@@ -129,17 +129,23 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
 
     /// @dev Validate the deployment parameters.
     function _checkDeploymentParams(
-        address token,
-        uint40 vestingStartTime,
-        uint40 vestingEndTime,
+        uint256 aggregateAmount,
         uint40 expiration,
-        UD60x18 unlockPercentage
+        address token,
+        UD60x18 unlockPercentage,
+        uint40 vestingEndTime,
+        uint40 vestingStartTime
     )
         private
         view
     {
         // Check: user-provided token is not the native token.
         _forbidNativeToken(token);
+
+        // Check: aggregate amount is not zero.
+        if (aggregateAmount == 0) {
+            revert Errors.SablierFactoryMerkleVCA_AggregateAmountZero();
+        }
 
         // Check: vesting start time is not zero.
         if (vestingStartTime == 0) {

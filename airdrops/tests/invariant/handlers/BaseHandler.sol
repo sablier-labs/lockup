@@ -15,7 +15,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal aggregateAmount;
+    uint128 internal aggregateAmount;
 
     /// @dev The campaign token being used in the handler.
     IERC20 public campaignToken;
@@ -53,8 +53,8 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
     /// @dev Assume common deployment parameters.
     modifier assumeDeployParams(address campaignCreator, LeafData[] memory rawLeavesData) {
-        // Deploy campaign only if it hasn't been deployed yet.
-        vm.assume(totalCalls["deployCampaign"] == 0);
+        // Limits the number of campaigns that can be deployed.
+        vm.assume(totalCalls["deployCampaign"] < _maxCampaignsDeployed());
 
         // Ensure raw leaves data has more than one leaf.
         vm.assume(rawLeavesData.length > 1);
@@ -108,6 +108,11 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
     /// @dev An internal deploy campaign function that must be overridden by the handler contract.
     function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (address);
+
+    /// @dev Returns the maximum number of campaigns to deploy, can be overridden by the handler contract.
+    function _maxCampaignsDeployed() internal pure virtual returns (uint256) {
+        return 1;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS

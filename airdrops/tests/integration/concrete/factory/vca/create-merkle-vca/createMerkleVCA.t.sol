@@ -24,7 +24,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFactoryMerkleBase_ForbidNativeToken.selector, newNativeToken)
         );
-        factoryMerkleVCA.createMerkleVCA(params, AGGREGATE_AMOUNT, AGGREGATE_AMOUNT);
+        factoryMerkleVCA.createMerkleVCA(params, RECIPIENT_COUNT);
     }
 
     /// @dev This test reverts because a default MerkleVCA contract is deployed in {Integration_Test.setUp}
@@ -37,7 +37,21 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         createMerkleVCA(params);
     }
 
-    function test_RevertWhen_VestingStartTimeZero() external whenNativeTokenNotFound givenCampaignNotExists {
+    function test_RevertWhen_AggregateAmountZero() external whenNativeTokenNotFound givenCampaignNotExists {
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.aggregateAmount = 0;
+
+        // It should revert.
+        vm.expectRevert(Errors.SablierFactoryMerkleVCA_AggregateAmountZero.selector);
+        factoryMerkleVCA.createMerkleVCA(params, RECIPIENT_COUNT);
+    }
+
+    function test_RevertWhen_VestingStartTimeZero()
+        external
+        whenNativeTokenNotFound
+        whenAggregateAmountNotZero
+        givenCampaignNotExists
+    {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = 0;
 
@@ -49,6 +63,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_VestingEndTimeLessThanVestingStartTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
     {
@@ -70,6 +85,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_VestingEndTimeEqualsVestingStartTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
     {
@@ -91,6 +107,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_ZeroExpiration()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
@@ -106,6 +123,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_ExpirationNotExceedOneWeekFromVestingEndTime()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
@@ -126,6 +144,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_RevertWhen_UnlockPercentageGreaterThan100()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
@@ -147,6 +166,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_GivenCustomFeeUSDSet()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
@@ -171,7 +191,6 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             campaignParams: params,
-            aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),
             minFeeUSD: customFeeUSD
@@ -197,6 +216,7 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
     function test_GivenCustomFeeUSDNotSet()
         external
         whenNativeTokenNotFound
+        whenAggregateAmountNotZero
         givenCampaignNotExists
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
@@ -214,7 +234,6 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
         emit ISablierFactoryMerkleVCA.CreateMerkleVCA({
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             campaignParams: params,
-            aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             comptroller: address(comptroller),
             minFeeUSD: AIRDROP_MIN_FEE_USD

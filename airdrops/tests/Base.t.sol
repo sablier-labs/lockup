@@ -630,8 +630,10 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     function computeMerkleVCAAddress() internal view returns (address) {
         return computeMerkleVCAAddress(
             merkleVCAConstructorParams({
+                aggregateAmount: AGGREGATE_AMOUNT,
                 campaignCreator: users.campaignCreator,
                 campaignStartTime: CAMPAIGN_START_TIME,
+                enableRedistribution: false,
                 expiration: EXPIRATION,
                 merkleRoot: MERKLE_ROOT,
                 tokenAddress: dai,
@@ -681,8 +683,10 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
 
     function merkleVCAConstructorParams(uint40 expiration) public view returns (MerkleVCA.ConstructorParams memory) {
         return merkleVCAConstructorParams({
+            aggregateAmount: AGGREGATE_AMOUNT,
             campaignCreator: users.campaignCreator,
             campaignStartTime: CAMPAIGN_START_TIME,
+            enableRedistribution: false,
             expiration: expiration,
             merkleRoot: MERKLE_ROOT,
             tokenAddress: dai,
@@ -693,8 +697,10 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     }
 
     function merkleVCAConstructorParams(
+        uint128 aggregateAmount,
         address campaignCreator,
         uint40 campaignStartTime,
+        bool enableRedistribution,
         uint40 expiration,
         bytes32 merkleRoot,
         IERC20 tokenAddress,
@@ -707,8 +713,10 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         returns (MerkleVCA.ConstructorParams memory)
     {
         return MerkleVCA.ConstructorParams({
+            aggregateAmount: aggregateAmount,
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
+            enableRedistribution: enableRedistribution,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,

@@ -3,6 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
@@ -34,11 +35,15 @@ contract SablierMerkleVCA is
     ISablierMerkleVCA, // 2 inherited components
     SablierMerkleBase // 3 inherited components
 {
+    using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleVCA
+    uint128 public immutable override AGGREGATE_AMOUNT;
 
     /// @inheritdoc ISablierMerkleVCA
     UD60x18 public immutable override UNLOCK_PERCENTAGE;
@@ -50,7 +55,13 @@ contract SablierMerkleVCA is
     uint40 public immutable override VESTING_START_TIME;
 
     /// @inheritdoc ISablierMerkleVCA
-    uint256 public override totalForgoneAmount;
+    bool public override isRedistributionEnabled;
+
+    /// @inheritdoc ISablierMerkleVCA
+    uint128 public override totalForgoneAmount;
+
+    /// @dev Tracks the full amount allocated to the recipients who claimed before the vesting end time.
+    uint128 private _fullAmountAllocatedToEarlyClaimers;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -75,9 +86,13 @@ contract SablierMerkleVCA is
         )
     {
         // Effect: set the immutable variables.
+        AGGREGATE_AMOUNT = campaignParams.aggregateAmount;
         UNLOCK_PERCENTAGE = campaignParams.unlockPercentage;
         VESTING_END_TIME = campaignParams.vestingEndTime;
         VESTING_START_TIME = campaignParams.vestingStartTime;
+
+        // Effect: set the enable redistribution flag.
+        isRedistributionEnabled = campaignParams.enableRedistribution;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -85,7 +100,7 @@ contract SablierMerkleVCA is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleVCA
-    function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
+    function calculateClaimAmount(uint128 fullAmount, uint40 claimTime) external view override returns (uint128) {
         // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
@@ -96,7 +111,7 @@ contract SablierMerkleVCA is
     }
 
     /// @inheritdoc ISablierMerkleVCA
-    function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128) {
+    function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view override returns (uint128) {
         // Zero is a sentinel value for `block.timestamp`.
         if (claimTime == 0) {
             claimTime = uint40(block.timestamp);
@@ -111,6 +126,17 @@ contract SablierMerkleVCA is
         }
 
         return fullAmount - _calculateClaimAmount(fullAmount, claimTime);
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function calculateRedistributionRewards(uint128 fullAmount) external view override returns (uint128) {
+        // Check: redistribution is enabled.
+        if (!isRedistributionEnabled) {
+            revert Errors.SablierMerkleVCA_RedistributionNotEnabled();
+        }
+
+        // Calculate and return the redistribution rewards.
+        return _calculateRedistributionRewards(fullAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -161,6 +187,20 @@ contract SablierMerkleVCA is
         _postProcessClaim({ index: index, recipient: recipient, to: to, fullAmount: fullAmount, viaSig: true });
     }
 
+    /// @inheritdoc ISablierMerkleVCA
+    function enableRedistribution() external override onlyAdmin {
+        // Check: the redistribution is not already enabled.
+        if (isRedistributionEnabled) {
+            revert Errors.SablierMerkleVCA_RedistributionAlreadyEnabled();
+        }
+
+        // Effect: set the value to true.
+        isRedistributionEnabled = true;
+
+        // Log the event.
+        emit RedistributionEnabled();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -197,6 +237,29 @@ contract SablierMerkleVCA is
         }
     }
 
+    /// @notice Calculates the redistribution rewards for a given full amount.
+    function _calculateRedistributionRewards(uint256 fullAmount) private view returns (uint128 rewards) {
+        // Return zero if total forgone amount is zero.
+        if (totalForgoneAmount == 0) {
+            return 0;
+        }
+
+        // Return zero if aggregate amount does not exceed the amount allocated to early claimers.
+        if (AGGREGATE_AMOUNT <= _fullAmountAllocatedToEarlyClaimers) {
+            return 0;
+        }
+
+        // Calculate the total amount allocated to the remaining claimers.
+        uint128 fullAmountAllocatedToRemainingClaimers;
+        unchecked {
+            // Safe to use unchecked because it cannot overflow due to above check.
+            fullAmountAllocatedToRemainingClaimers = AGGREGATE_AMOUNT - _fullAmountAllocatedToEarlyClaimers;
+        }
+
+        // Calculate the rewards.
+        rewards = ((fullAmount * totalForgoneAmount) / fullAmountAllocatedToRemainingClaimers).toUint128();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                           PRIVATE STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -212,21 +275,38 @@ contract SablierMerkleVCA is
         }
 
         uint128 forgoneAmount;
+        uint128 rewardAmount;
+        uint128 transferAmount = claimAmount;
 
-        // Effect: update the total forgone amount.
+        // Effect: update the total forgone amount and the total amount claimed by early claimers.
         if (claimAmount < fullAmount) {
+            // Its safe to use unchecked because the value can't underflow.
             unchecked {
                 forgoneAmount = fullAmount - claimAmount;
-                totalForgoneAmount += forgoneAmount;
             }
+            totalForgoneAmount += forgoneAmount;
+            _fullAmountAllocatedToEarlyClaimers += fullAmount;
         } else {
             // Although the claim amount should never exceed the full amount, this assertion prevents excessive claiming
             // in case of a calculation error.
             assert(claimAmount == fullAmount);
+
+            if (isRedistributionEnabled) {
+                // Calculate the reward amount.
+                rewardAmount = _calculateRedistributionRewards(fullAmount);
+
+                // Update the transfer amount if there are rewards to distribute.
+                if (rewardAmount > 0) {
+                    transferAmount += rewardAmount;
+
+                    // Log the event.
+                    emit RedistributionReward(index, recipient, rewardAmount, to);
+                }
+            }
         }
 
         // Interaction: transfer the tokens to the recipient.
-        TOKEN.safeTransfer({ to: to, value: claimAmount });
+        TOKEN.safeTransfer({ to: to, value: transferAmount });
 
         // Emit claim event.
         emit ClaimVCA(index, recipient, claimAmount, forgoneAmount, to, viaSig);

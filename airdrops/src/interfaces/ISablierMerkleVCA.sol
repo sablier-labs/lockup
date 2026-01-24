@@ -7,7 +7,7 @@ import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 /// @title ISablierMerkleVCA
 /// @notice VCA stands for Variable Claim Amount, and is an airdrop model where the claim amount increases linearly
 /// until the airdrop period ends. Claiming early results in forgoing the remaining amount, whereas claiming after the
-/// period grants the full amount that was allocated.
+/// period grants the full amount that was allocated, plus redistribution rewards if enabled.
 interface ISablierMerkleVCA is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -29,9 +29,23 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
         bool viaSig
     );
 
+    /// @notice Emitted when the redistribution is enabled.
+    event RedistributionEnabled();
+
+    /// @notice Emitted when a recipient receives rewards from the forgone tokens pool.
+    /// @dev Only emitted when redistribution is enabled.
+    /// @param index The index of the airdrop recipient in the Merkle tree.
+    /// @param recipient The address of the airdrop recipient.
+    /// @param amount The amount of ERC-20 tokens distributed as a reward.
+    /// @param to The address receiving the reward tokens.
+    event RedistributionReward(uint256 index, address indexed recipient, uint128 amount, address to);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Retrieves the total amount of ERC-20 tokens allocated to the campaign.
+    function AGGREGATE_AMOUNT() external view returns (uint128);
 
     /// @notice Retrieves the percentage of the full amount that will unlock immediately at the start time. The
     /// value is denominated as a fixed-point number where 1e18 is 100%.
@@ -58,17 +72,38 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     /// @return The amount that would be forgone, denominated in the token's decimals.
     function calculateForgoneAmount(uint128 fullAmount, uint40 claimTime) external view returns (uint128);
 
+    /// @notice Calculates the redistribution rewards for a given full amount.
+    /// @dev Notes:
+    /// - Reverts if redistribution is not enabled.
+    /// - If `AGGREGATE_AMOUNT` is set lower than actual total allocations in the Merkle tree, this might return 0
+    /// rather than reverting.
+    /// @param fullAmount The amount of tokens that the redistribution rewards are to be calculated for.
+    function calculateRedistributionRewards(uint128 fullAmount) external view returns (uint128);
+
+    /// @notice Retrieves a bool indicating whether the redistribution of forgone tokens is enabled or not.
+    function isRedistributionEnabled() external view returns (bool);
+
     /// @notice Retrieves the total amount of tokens forgone by early claimers.
-    function totalForgoneAmount() external view returns (uint256);
+    function totalForgoneAmount() external view returns (uint128);
 
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Claim airdrop. If the vesting end time is in the future, it calculates the claim amount to transfer to
-    /// the `to` address, otherwise it transfers the full amount.
+    /// the `to` address, otherwise it transfers the full amount. If the redistribution is enabled, it calculates the
+    /// reward amount based on the total amount of tokens forgone by early claimers and transfers it to the recipients
+    /// claiming after the vesting end time.
     ///
-    /// @dev It emits a {ClaimVCA} event.
+    /// @dev It emits a {ClaimVCA} event, and a {RedistributionReward} event if the redistribution is enabled.
+    ///
+    /// Notes:
+    /// - There can be a race condition among recipients if:
+    ///   1. `AGGREGATE_AMOUNT` is set lower than the actual total allocations in the Merkle tree.
+    ///   2. The campaign is not sufficiently funded with the actual total allocations.
+    /// - The rewards are transferred to the recipients at the time of claiming. If the campaign creator turns the
+    /// redistribution on after the vesting end time, the recipients who have already claimed the full amount would miss
+    /// on the rewards while subsequent recipients would get them.
     ///
     /// Requirements:
     /// - The current time must be greater than or equal to the campaign start time.
@@ -150,4 +185,18 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     )
         external
         payable;
+
+    /// @notice Enable the redistribution of forgone tokens among recipients claiming after the vesting end time,
+    /// proportional to their allocation amount. Once enabled, it cannot be disabled.
+    ///
+    /// @dev Notes while calling this function:
+    /// - If the function is called after the vesting end time, the recipients who have already claimed the full amount
+    /// would miss on the rewards while subsequent recipients would get them.
+    /// - It is also recommended to fund the campaign with the actual total allocation in the Merkle tree (ideally
+    /// equivalent to `AGGREGATE_AMOUNT`) to avoid race conditions among the recipients.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - Redistribution must not be already enabled.
+    function enableRedistribution() external;
 }

@@ -30,6 +30,9 @@ library Errors {
                              SABLIER-FACTORY-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when trying to create a Merkle VCA campaign with zero aggregate amount.
+    error SablierFactoryMerkleVCA_AggregateAmountZero();
+
     /// @notice Thrown if expiration time is within 1 week from the vesting end time.
     error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
 
@@ -93,9 +96,15 @@ library Errors {
                                  SABLIER-MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when calculating the forgone amount with claim time less than the vesting start time.
-    error SablierMerkleVCA_VestingNotStarted(uint40 claimTime, uint40 vestingStartTime);
-
     /// @notice Thrown when the claim amount is zero.
     error SablierMerkleVCA_ClaimAmountZero(address recipient);
+
+    /// @notice Thrown when trying to switch to redistribute strategy when already using it.
+    error SablierMerkleVCA_RedistributionAlreadyEnabled();
+
+    /// @notice Thrown when trying to calculate the rewards amount without redistribution enabled.
+    error SablierMerkleVCA_RedistributionNotEnabled();
+
+    /// @notice Thrown when calculating the forgone amount with claim time less than the vesting start time.
+    error SablierMerkleVCA_VestingNotStarted(uint40 claimTime, uint40 vestingStartTime);
 }
