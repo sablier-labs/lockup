@@ -36,45 +36,45 @@ FunctionName_Integration_Concrete_Test
 ### Flow Withdraw
 
 ```
-└── it should make the withdrawal.
-   ├── it should reduce the stream balance by the withdrawn amount.
-   ├── it should reduce the aggregate amount by the withdrawn amount.
-   ├── it should update snapshot debt.
-   ├── it should update snapshot time to current time.
-   └── it should emit {Transfer}, {WithdrawFromFlowStream} and {MetadataUpdate} events.
+└── it should make the withdrawal
+   ├── it should reduce the stream balance by the withdrawn amount
+   ├── it should reduce the aggregate amount by the withdrawn amount
+   ├── it should update snapshot debt
+   ├── it should update snapshot time to current time
+   └── it should emit {Transfer}, {WithdrawFromFlowStream} and {MetadataUpdate} events
 ```
 
 ### Lockup Withdraw
 
 ```
-└── it should make the withdrawal.
-   ├── it should mark the stream as depleted.
-   ├── it should make the stream not cancelable.
-   ├── it should update the withdrawn amount.
-   ├── it should reduce the aggregate amount.
-   └── it should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events.
+└── it should make the withdrawal
+   ├── it should mark the stream as depleted
+   ├── it should make the stream not cancelable
+   ├── it should update the withdrawn amount
+   ├── it should reduce the aggregate amount
+   └── it should emit {Transfer}, {WithdrawFromLockupStream} and {MetadataUpdate} events
 ```
 
 ### Lockup Cancel
 
 ```
-└── it should cancel the stream.
-   ├── it should mark the stream as canceled.
-   ├── it should make the stream not cancelable.
-   ├── it should set the refunded amount.
-   ├── it should refund the sender.
-   ├── it should reduce the aggregate amount.
-   ├── it should emit {Transfer} event.
-   └── it should emit {CancelLockupStream} event.
+└── it should cancel the stream
+   ├── it should mark the stream as canceled
+   ├── it should make the stream not cancelable
+   ├── it should set the refunded amount
+   ├── it should refund the sender
+   ├── it should reduce the aggregate amount
+   ├── it should emit {Transfer} event
+   └── it should emit {CancelLockupStream} event
 ```
 
 ### Airdrop Claim
 
 ```
-└── it should claim.
-   ├── it should mark the index as claimed.
-   ├── it should create the lockup stream.
-   └── it should emit {Claim} event.
+└── it should claim
+   ├── it should mark the index as claimed
+   ├── it should create the lockup stream
+   └── it should emit {Claim} event
 ```
 
 ## Sablier State Condition Order
@@ -84,16 +84,16 @@ For Sablier streams, typical guard condition order:
 ```
 FunctionName_Integration_Concrete_Test
 ├── when delegate call
-│  └── it should revert.
+│  └── it should revert
 └── when no delegate call
    ├── given null
-   │  └── it should revert.
+   │  └── it should revert
    └── given not null
       ├── given stream depleted
-      │  └── it should revert.
+      │  └── it should revert
       └── given stream not depleted
          ├── when caller unknown
-         │  └── it should revert.
+         │  └── it should revert
          └── when caller authorized
             └── ...
 ```
@@ -106,9 +106,9 @@ When testing model-specific behavior (Linear, Dynamic, Tranched):
 StreamedAmountOf_Integration_Concrete_Test
 ├── given model LL
 │  ├── when current time before cliff
-│  │  └── it should return zero.
+│  │  └── it should return zero
 │  └── when current time after cliff
-│     └── it should return correct streamed amount.
+│     └── it should return correct streamed amount
 ├── given model LD
 │  └── ...
 └── given model LT
