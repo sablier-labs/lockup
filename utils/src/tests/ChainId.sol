@@ -7,14 +7,13 @@ library ChainId {
                                       MAINNETS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 public constant MAINNETS_COUNT = 27;
+    uint256 public constant MAINNETS_COUNT = 26;
 
     uint256 public constant ABSTRACT = 2741;
     uint256 public constant ARBITRUM = 42_161;
     uint256 public constant AVALANCHE = 43_114;
     uint256 public constant BASE = 8453;
     uint256 public constant BERACHAIN = 80_094;
-    uint256 public constant BLAST = 81_457;
     uint256 public constant BSC = 56;
     uint256 public constant CHILIZ = 88_888;
     uint256 public constant COREDAO = 1116;
@@ -62,28 +61,27 @@ library ChainId {
         supportedIds[2] = AVALANCHE;
         supportedIds[3] = BASE;
         supportedIds[4] = BERACHAIN;
-        supportedIds[5] = BLAST;
-        supportedIds[6] = BSC;
-        supportedIds[7] = CHILIZ;
-        supportedIds[8] = COREDAO;
-        supportedIds[9] = ETHEREUM;
-        supportedIds[10] = GNOSIS;
-        supportedIds[11] = HYPEREVM;
-        supportedIds[12] = LIGHTLINK;
-        supportedIds[13] = LINEA;
-        supportedIds[14] = MODE;
-        supportedIds[15] = MONAD;
-        supportedIds[16] = MORPH;
-        supportedIds[17] = OPTIMISM;
-        supportedIds[18] = POLYGON;
-        supportedIds[19] = SCROLL;
-        supportedIds[20] = SEI;
+        supportedIds[5] = BSC;
+        supportedIds[6] = CHILIZ;
+        supportedIds[7] = COREDAO;
+        supportedIds[8] = ETHEREUM;
+        supportedIds[9] = GNOSIS;
+        supportedIds[10] = HYPEREVM;
+        supportedIds[11] = LIGHTLINK;
+        supportedIds[12] = LINEA;
+        supportedIds[13] = MODE;
+        supportedIds[14] = MONAD;
+        supportedIds[15] = MORPH;
+        supportedIds[16] = OPTIMISM;
+        supportedIds[17] = POLYGON;
+        supportedIds[18] = SCROLL;
+        supportedIds[19] = SEI;
+        supportedIds[20] = SONIC;
         supportedIds[21] = SOPHON;
         supportedIds[22] = SUPERSEED;
-        supportedIds[23] = SONIC;
-        supportedIds[24] = UNICHAIN;
-        supportedIds[25] = XDC;
-        supportedIds[26] = ZKSYNC;
+        supportedIds[23] = UNICHAIN;
+        supportedIds[24] = XDC;
+        supportedIds[25] = ZKSYNC;
     }
 
     /// @notice Returns the full list of supported testnet chain IDs.
@@ -105,7 +103,6 @@ library ChainId {
         if (chainId == ChainId.AVALANCHE) return "avalanche";
         if (chainId == ChainId.BASE) return "base";
         if (chainId == ChainId.BERACHAIN) return "berachain";
-        if (chainId == ChainId.BLAST) return "blast";
         if (chainId == ChainId.BSC) return "bsc";
         if (chainId == ChainId.CHILIZ) return "chiliz";
         if (chainId == ChainId.COREDAO) return "core_dao";

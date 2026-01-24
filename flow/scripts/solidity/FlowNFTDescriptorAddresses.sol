@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 
 import { ChainId } from "@sablier/evm-utils/src/tests/ChainId.sol";
 
-abstract contract NFTDescriptorAddresses {
+abstract contract FlowNFTDescriptorAddresses {
     /// @notice Returns the FlowNFTDescriptor for the supported chains.
     /// @dev If the chain does not have a FlowNFTDescriptor contract, return 0.
     function nftDescriptorAddress() public view returns (address addr) {
@@ -16,7 +16,6 @@ abstract contract NFTDescriptorAddresses {
         if (chainId == ChainId.AVALANCHE) return 0xb09b714B0feC83675E09fc997B7D532cF6620326;
         if (chainId == ChainId.BASE) return 0x5b5e742305Be3A484EacCB124C83456463c24E6a;
         if (chainId == ChainId.BERACHAIN) return 0x581250eE4311F7Dc1afCF965cF8024004B423e9E;
-        if (chainId == ChainId.BLAST) return 0x92f1dB592C771D9Ec7708abFEe79771AbC1b4fAd;
         if (chainId == ChainId.BSC) return 0xAE557c04B46d47Ecac24edA63F22cabB4571Da61;
         if (chainId == ChainId.CHILIZ) return 0xC7fd18CA19938d559dC45aDE362a850015CF0bd8;
         if (chainId == ChainId.COREDAO) return 0x7293F2D4A4e676EF67C085E92277AdF560AECb88;

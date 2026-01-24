@@ -118,7 +118,7 @@ ______________________________________________________________________
 | ----------------- | ------------ | ------------------------------ |
 | L1 Mainnet        | Computation  | Execution gas expensive        |
 | Arbitrum/Optimism | Calldata     | L1 data posting dominates cost |
-| Base/Blast        | Calldata     | Same as above                  |
+| Base              | Calldata     | Same as above                  |
 
 ### L2 Patterns
 

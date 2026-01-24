@@ -6,10 +6,10 @@ import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { FlowNFTDescriptor } from "../../src/FlowNFTDescriptor.sol";
 import { SablierFlow } from "../../src/SablierFlow.sol";
 
-import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
+import { FlowNFTDescriptorAddresses } from "./FlowNFTDescriptorAddresses.sol";
 
 /// @notice Deploys the protocol.
-contract DeployProtocol is BaseScript, NFTDescriptorAddresses {
+contract DeployProtocol is BaseScript, FlowNFTDescriptorAddresses {
     function run() public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
         // If the contract is not already deployed, deploy it.
         if (nftDescriptorAddress() == address(0)) {

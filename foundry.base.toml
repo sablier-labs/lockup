@@ -77,7 +77,6 @@
   avalanche = "https://direct.routeme.sh/rpc/43114/${ROUTEMESH_API_KEY}"
   base = "https://direct.routeme.sh/rpc/8453/${ROUTEMESH_API_KEY}"
   berachain = "https://direct.routeme.sh/rpc/80094/${ROUTEMESH_API_KEY}"
-  blast = "https://direct.routeme.sh/rpc/81457/${ROUTEMESH_API_KEY}"
   bsc = "https://direct.routeme.sh/rpc/56/${ROUTEMESH_API_KEY}"
   chiliz = "https://direct.routeme.sh/rpc/88888/${ROUTEMESH_API_KEY}"
   core_dao = "https://direct.routeme.sh/rpc/1116/${ROUTEMESH_API_KEY}"
