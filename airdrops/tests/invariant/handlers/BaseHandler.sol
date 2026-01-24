@@ -53,7 +53,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
     /// @dev Assume common deployment parameters.
     modifier assumeDeployParams(address campaignCreator, LeafData[] memory rawLeavesData) {
-        // Deploy campaign only if it hasn't been deployed yet.
+        // Limits the number of campaigns that can be deployed.
         vm.assume(totalCalls["deployCampaign"] < _maxCampaignsDeployed());
 
         // Ensure raw leaves data has more than one leaf.
@@ -109,7 +109,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     /// @dev An internal deploy campaign function that must be overridden by the handler contract.
     function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (address);
 
-    /// @dev Overridden by VCA handler to allow two campaigns.
+    /// @dev Returns the maximum number of campaigns to deploy, can be overridden by the handler contract.
     function _maxCampaignsDeployed() internal pure virtual returns (uint256) {
         return 1;
     }
