@@ -14,6 +14,26 @@ FunctionName_Integration_Concrete_Test
 
 **Generated**: `test_WhenAIsZero()`, `test_WhenBIsZero()`
 
+### Test Implementation with Comments
+
+Each test function must have a comment as its first line, matching the leaf node from the tree:
+
+```solidity
+function test_WhenAIsZero() external {
+    // It should return b.
+    uint256 result = contract.myFunction(0, 5);
+    assertEq(result, 5, "should return b when a is zero");
+}
+
+function test_WhenBIsZero() external {
+    // It should return a.
+    uint256 result = contract.myFunction(5, 0);
+    assertEq(result, 5, "should return a when b is zero");
+}
+```
+
+The comment format is: `// It should {branch text}.` (capitalized "It", period at end)
+
 ______________________________________________________________________
 
 ## Nested Branches (Generates Modifiers)

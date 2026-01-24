@@ -48,6 +48,21 @@ where:
 bulloak check --skip-modifiers <path/to/file.tree>
 ```
 
+### Important: Tree Files Should NOT Have Periods
+
+Tree files should **not** have periods at the end of `it` branches. The `--format-descriptions` flag automatically:
+
+1. Capitalizes the first letter
+2. Adds a period at the end
+
+```
+# Correct (no period)
+└── it should revert
+
+# Wrong (has period)
+└── it should revert.
+```
+
 ## Tree Syntax
 
 ### Structure
