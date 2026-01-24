@@ -54,7 +54,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     /// @dev Assume common deployment parameters.
     modifier assumeDeployParams(address campaignCreator, LeafData[] memory rawLeavesData) {
         // Deploy campaign only if it hasn't been deployed yet.
-        vm.assume(totalCalls["deployCampaign"] == 0);
+        vm.assume(totalCalls["deployCampaign"] < _maxCampaignsDeployed());
 
         // Ensure raw leaves data has more than one leaf.
         vm.assume(rawLeavesData.length > 1);
@@ -107,14 +107,12 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
     function _claim(LeafData memory leafData, bytes32[] memory merkleProof) internal virtual;
 
     /// @dev An internal deploy campaign function that must be overridden by the handler contract.
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot,
-        bool vcaRedistributionEnabled
-    )
-        internal
-        virtual
-        returns (address);
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal virtual returns (address);
+
+    /// @dev Overridden by VCA handler to allow two campaigns.
+    function _maxCampaignsDeployed() internal pure virtual returns (uint256) {
+        return 1;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS
@@ -184,10 +182,8 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
 
     /// @notice Helper function to deploy a Merkle campaign with fuzzed leaves data and token.
     /// @dev This will be called only once.
-    /// - `enableRedistribution` is only relevant for Merkle VCA campaigns.
     function deployCampaign(
         address campaignCreator,
-        bool vcaRedistributionEnabled,
         uint256 tokenIndex,
         LeafData[] memory rawLeavesData
     )
@@ -202,7 +198,7 @@ abstract contract BaseHandler is Fuzzers, StdCheats, Utils {
             fuzzMerkleDataAndComputeRoot(leaves, leavesData, rawLeavesData, store.getExcludedAddresses());
 
         // This must be overridden by the handler contract.
-        campaign = ISablierMerkleBase(_deployCampaign(campaignCreator, merkleRoot, vcaRedistributionEnabled));
+        campaign = ISablierMerkleBase(_deployCampaign(campaignCreator, merkleRoot));
 
         // Add the campaign to store.
         store.addCampaign(address(campaign));

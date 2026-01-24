@@ -31,7 +31,7 @@ contract MerkleInstantHandler is BaseHandler {
         store.updateTotalClaimAmount(address(campaign), leafData.amount);
     }
 
-    function _deployCampaign(address campaignCreator, bytes32 merkleRoot, bool) internal override returns (address) {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address) {
         // Prepare constructor parameters.
         MerkleInstant.ConstructorParams memory params;
 

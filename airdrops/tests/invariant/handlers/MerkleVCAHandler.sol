@@ -40,18 +40,18 @@ contract MerkleVCAHandler is BaseHandler {
         // Update redistribution rewards per 1e18 before claiming.
         if (merkleVCA.isRedistributionEnabled()) {
             store.updatePreviousVcaRedistributionRewardsPer1e18(
-                merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 })
+                address(campaign), merkleVCA.calculateRedistributionRewards({ fullAmount: 1e18 })
             );
         }
 
         // Update forgone amount for VCA campaign in store before calling the claim.
-        store.updatePreviousVcaTotalForgoneAmount(leafData.amount - claimAmount);
+        store.updatePreviousVcaTotalForgoneAmount(address(campaign), leafData.amount - claimAmount);
 
         // Update claim amount in store.
         store.updateTotalClaimAmount(address(campaign), claimAmount);
 
         // Update total full amount requested for VCA campaign in store.
-        store.updateVcaTotalFullAmountRequested(leafData.amount);
+        store.updateVcaTotalFullAmountRequested(address(campaign), leafData.amount);
 
         if (merkleVCA.isRedistributionEnabled()) {
             // Get final balance of recipient for rewards calculation.
@@ -59,26 +59,20 @@ contract MerkleVCAHandler is BaseHandler {
 
             // Calculate the rewards transferred to the recipient and update in store.
             uint256 rewardsTransferred = finalRecipientBalance - initialRecipientBalance - claimAmount;
-            store.updateTotalRewardsDistributed(rewardsTransferred);
+            store.updateTotalRewardsDistributed(address(campaign), rewardsTransferred);
         }
     }
 
-    function _deployCampaign(
-        address campaignCreator,
-        bytes32 merkleRoot,
-        bool vcaRedistributionEnabled
-    )
-        internal
-        override
-        returns (address campaign)
-    {
+    function _deployCampaign(address campaignCreator, bytes32 merkleRoot) internal override returns (address campaign) {
         // Load pre-defined constructor parameters.
         MerkleVCA.ConstructorParams memory params;
+
+        // First campaign deployed has redistribution disabled, second has it enabled.
+        params.enableRedistribution = totalCalls["deployCampaign"] == 1;
 
         params.aggregateAmount = aggregateAmount;
         params.campaignName = CAMPAIGN_NAME;
         params.campaignStartTime = getBlockTimestamp();
-        params.enableRedistribution = vcaRedistributionEnabled;
         params.expiration = getBlockTimestamp() + 365 days;
         params.initialAdmin = campaignCreator;
         params.ipfsCID = IPFS_CID;
@@ -91,7 +85,11 @@ contract MerkleVCAHandler is BaseHandler {
         // Deploy and return the campaign address.
         campaign = address(new SablierMerkleVCA(params, campaignCreator, comptroller));
 
-        // Update VCA campaign in store.
-        store.updateVcaCampaign(campaign);
+        // Mark as VCA campaign in store.
+        store.setVcaCampaign(campaign);
+    }
+
+    function _maxCampaignsDeployed() internal pure override returns (uint256) {
+        return 2;
     }
 }
