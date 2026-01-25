@@ -6,7 +6,6 @@ skills:
   - solidity-coding
   - btt-testing
   - foundry-testing
-  - bash-scripting
   - audit
   - handbook
 ---
