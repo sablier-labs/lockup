@@ -7,6 +7,35 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
+library MerkleExecute {
+    /// @notice Struct encapsulating the constructor parameters of Merkle Execute campaigns.
+    /// @dev The fields are arranged alphabetically.
+    /// @param approveTarget Whether to approve the claimed amount to the target contract before calling it.
+    /// @param campaignName The name of the campaign.
+    /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
+    /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
+    /// not expire.
+    /// @param initialAdmin The initial admin of the campaign.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
+    /// @param merkleRoot The Merkle root of the claim data.
+    /// @param selector The function selector to call on the target contract.
+    /// @param target The address of the target contract to call after claiming (e.g., staking contract, lending pool).
+    /// @param token The contract address of the ERC-20 token to be distributed.
+    struct ConstructorParams {
+        bool approveTarget;
+        string campaignName;
+        uint40 campaignStartTime;
+        uint40 expiration;
+        address initialAdmin;
+        string ipfsCID;
+        bytes32 merkleRoot;
+        bytes4 selector;
+        address target;
+        IERC20 token;
+    }
+}
+
 library MerkleInstant {
     /// @notice Struct encapsulating the constructor parameters of Merkle Instant campaigns.
     /// @dev The fields are arranged alphabetically.

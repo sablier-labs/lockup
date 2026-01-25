@@ -1,0 +1,124 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity >=0.8.22;
+
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
+import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
+import { MerkleExecute } from "./types/DataTypes.sol";
+
+/*
+
+███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗
+██╔════╝██╔══██╗██╔══██╗██║     ██║██╔════╝██╔══██╗
+███████╗███████║██████╔╝██║     ██║█████╗  ██████╔╝
+╚════██║██╔══██║██╔══██╗██║     ██║██╔══╝  ██╔══██╗
+███████║██║  ██║██████╔╝███████╗██║███████╗██║  ██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝
+
+███╗   ███╗███████╗██████╗ ██╗  ██╗██╗     ███████╗    ███████╗██╗  ██╗███████╗ ██████╗██╗   ██╗████████╗███████╗
+████╗ ████║██╔════╝██╔══██╗██║ ██╔╝██║     ██╔════╝    ██╔════╝╚██╗██╔╝██╔════╝██╔════╝██║   ██║╚══██╔══╝██╔════╝
+██╔████╔██║█████╗  ██████╔╝█████╔╝ ██║     █████╗      █████╗   ╚███╔╝ █████╗  ██║     ██║   ██║   ██║   █████╗
+██║╚██╔╝██║██╔══╝  ██╔══██╗██╔═██╗ ██║     ██╔══╝      ██╔══╝   ██╔██╗ ██╔══╝  ██║     ██║   ██║   ██║   ██╔══╝
+██║ ╚═╝ ██║███████╗██║  ██║██║  ██╗███████╗███████╗    ███████╗██╔╝ ██╗███████╗╚██████╗╚██████╔╝   ██║   ███████╗
+╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚══════╝
+
+*/
+
+/// @title SablierMerkleExecute
+/// @notice See the documentation in {ISablierMerkleExecute}.
+contract SablierMerkleExecute is
+    ISablierMerkleExecute, // 2 inherited components
+    ReentrancyGuard, // 1 inherited component
+    SablierMerkleBase // 3 inherited components
+{
+    using SafeERC20 for IERC20;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  STATE VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleExecute
+    bool public immutable override APPROVE_TARGET;
+
+    /// @inheritdoc ISablierMerkleExecute
+    bytes4 public immutable override SELECTOR;
+
+    /// @inheritdoc ISablierMerkleExecute
+    address public immutable override TARGET;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Constructs the contract by initializing the immutable state variables.
+    constructor(
+        MerkleExecute.ConstructorParams memory campaignParams,
+        address campaignCreator,
+        address comptroller
+    )
+        SablierMerkleBase(
+            campaignCreator,
+            campaignParams.campaignName,
+            campaignParams.campaignStartTime,
+            comptroller,
+            campaignParams.expiration,
+            campaignParams.initialAdmin,
+            campaignParams.ipfsCID,
+            campaignParams.merkleRoot,
+            campaignParams.token
+        )
+    {
+        // Effect: set the immutable state variables.
+        APPROVE_TARGET = campaignParams.approveTarget;
+        SELECTOR = campaignParams.selector;
+        TARGET = campaignParams.target;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleExecute
+    function claimAndExecute(
+        uint256 index,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata arguments
+    )
+        external
+        payable
+        override
+        nonReentrant
+    {
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
+
+        // Interaction: Give the airdropped amount as allowance to the target contract if required.
+        if (APPROVE_TARGET) {
+            TOKEN.forceApprove(TARGET, amount);
+        }
+
+        // Interaction: Execute the call on the target contract using selector + arguments.
+        (bool success, bytes memory returnData) = TARGET.call(abi.encodePacked(SELECTOR, arguments));
+        if (!success) {
+            assembly {
+                // Get the length of the result stored in the first 32 bytes.
+                let returnDataSize := mload(returnData)
+
+                // Forward the pointer by 32 bytes to skip the length argument, and revert with the result.
+                revert(add(32, returnData), returnDataSize)
+            }
+        }
+
+        // Interaction: Revoke the allowance if it was granted.
+        if (APPROVE_TARGET) {
+            TOKEN.forceApprove(TARGET, 0);
+        }
+
+        // Emit claim event.
+        emit ClaimExecute(index, msg.sender, amount, TARGET);
+    }
+}
