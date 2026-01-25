@@ -6,11 +6,11 @@ import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { FlowNFTDescriptor } from "../../src/FlowNFTDescriptor.sol";
 import { SablierFlow } from "../../src/SablierFlow.sol";
 
-import { NFTDescriptorAddresses } from "./NFTDescriptorAddresses.sol";
+import { FlowNFTDescriptorAddresses } from "./FlowNFTDescriptorAddresses.sol";
 
 /// @notice Deploys {SablierFlow} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicFlow is BaseScript, NFTDescriptorAddresses {
+contract DeployDeterministicFlow is BaseScript, FlowNFTDescriptorAddresses {
     function run() public broadcast returns (SablierFlow flow, FlowNFTDescriptor nftDescriptor) {
         // If the contract is not already deployed, deploy it.
         if (nftDescriptorAddress() == address(0)) {
