@@ -3,7 +3,6 @@
   "permissions": {
     "allow": [
       "Skill(audit)",
-      "Skill(bash-scripting)",
       "Skill(btt-testing)",
       "Skill(foundry-testing)",
       "Skill(handbook)",
