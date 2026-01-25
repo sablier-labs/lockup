@@ -158,7 +158,11 @@ abstract contract Modifiers is EvmUtilsBase {
     modifier whenSignerSameAsRecipient() {
         _;
     }
-
+    
+    modifier whenTargetIsContract() {
+        _;
+    }
+    
     modifier whenToAddressNotZero() {
         _;
     }
