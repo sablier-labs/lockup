@@ -18,11 +18,6 @@ contract MockStaking {
         token.safeTransferFrom(msg.sender, address(this), amount);
     }
 
-    function stakeFor(address user, uint128 amount) external {
-        user;
-        token.safeTransferFrom(msg.sender, address(this), amount);
-    }
-
     function revertingFunction(uint128) external pure {
         revert("Shall not pass!");
     }
