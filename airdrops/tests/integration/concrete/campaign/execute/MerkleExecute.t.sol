@@ -29,38 +29,6 @@ abstract contract MerkleExecute_Integration_Shared_Test is Integration_Test {
         // Set the campaign type.
         campaignType = "execute";
     }
-
-    /// @dev Override the claim function to use claimAndExecute since MerkleExecute has a different signature.
-    /// The recipient is always msg.sender in MerkleExecute.
-    function claim() internal virtual override {
-        claimAndExecute();
-    }
-
-    /// @dev Override to use claimAndExecute with custom parameters.
-    function claim(
-        uint256 msgValue,
-        uint256 index,
-        address, /* recipient - ignored, always msg.sender */
-        uint128 amount,
-        bytes32[] memory merkleProof
-    )
-        internal
-        virtual
-        override
-    {
-        claimAndExecute({
-            msgValue: msgValue,
-            index: index,
-            amount: amount,
-            merkleProof: merkleProof,
-            arguments: abi.encode(amount)
-        });
-    }
-
-    /// @dev Override claimTo to use claimAndExecute since MerkleExecute doesn't have claimTo.
-    function claimTo() internal virtual override {
-        claimAndExecute();
-    }
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -80,6 +48,15 @@ contract Clawback_MerkleExecute_Integration_Test is MerkleExecute_Integration_Sh
     function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OVERRIDDEN-FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Override the {claimTo} function to use {claimAndExecute} since MerkleExecute doesn't have claimTo.
+    function claimTo() internal override {
+        claimAndExecute();
+    }
 }
 
 contract DomainSeparator_MerkleExecute_Integration_Test is
@@ -97,6 +74,15 @@ contract HasClaimed_MerkleExecute_Integration_Test is
 {
     function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OVERRIDDEN-FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Override the {claimTo} function to use {claimAndExecute} since MerkleExecute doesn't have claimTo.
+    function claimTo() internal override {
+        claimAndExecute();
     }
 }
 

@@ -20,6 +20,10 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenApproveTarget() {
+        _;
+    }
+
     modifier givenCallerNotClaimed() {
         _;
     }
@@ -37,6 +41,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier givenMsgValueNotLessThanFee() {
+        _;
+    }
+
+    modifier givenNotApproveTarget() {
         _;
     }
 
@@ -158,11 +166,11 @@ abstract contract Modifiers is EvmUtilsBase {
     modifier whenSignerSameAsRecipient() {
         _;
     }
-    
+
     modifier whenTargetIsContract() {
         _;
     }
-    
+
     modifier whenToAddressNotZero() {
         _;
     }

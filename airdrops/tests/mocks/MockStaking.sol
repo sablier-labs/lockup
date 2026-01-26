@@ -21,6 +21,6 @@ contract MockStaking {
     }
 
     function revertingFunction(uint128) external pure {
-        revert("Shall not pass!!");
+        revert("Shall not pass!");
     }
 }
