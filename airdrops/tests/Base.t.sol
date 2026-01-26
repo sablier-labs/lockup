@@ -148,7 +148,6 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             factoryMerkleExecute = new SablierFactoryMerkleExecute(address(comptroller));
             factoryMerkleInstant = new SablierFactoryMerkleInstant(address(comptroller));
             factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
-            factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
             factoryMerkleLT = new SablierFactoryMerkleLT(address(comptroller));
             factoryMerkleVCA = new SablierFactoryMerkleVCA(address(comptroller));
         } else {
