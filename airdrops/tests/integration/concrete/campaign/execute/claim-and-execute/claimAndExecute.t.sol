@@ -49,36 +49,6 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         });
     }
 
-    function test_RevertWhen_TargetCallFails()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenAmountValid
-        whenMerkleProofValid
-        whenArgumentsValid
-    {
-        // Deploy the reverting staking contract.
-        MockStakingRevert mockStakingRevert = new MockStakingRevert();
-
-        // Create a campaign with a reverting target function.
-        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
-        params.target = address(mockStakingRevert);
-        params.campaignName = "Reverting campaign";
-
-        setMsgSender(users.campaignCreator);
-        ISablierMerkleExecute revertingCampaign = createMerkleExecute(params);
-
-        setMsgSender(users.recipient);
-
-        vm.expectRevert("Shall not pass!");
-        revertingCampaign.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }(
-            getIndexInMerkleTree(), CLAIM_AMOUNT, getMerkleProof(), abi.encode(CLAIM_AMOUNT)
-        );
-    }
-
     function test_RevertWhen_Reentrancy()
         external
         givenCampaignStartTimeNotInFuture
@@ -89,6 +59,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsValid
+        whenNotReentrancy
     {
         // Deploy the malicious staking contract.
         MockStakingReentrant reentrantStaking = new MockStakingReentrant(dai);
@@ -114,35 +85,35 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         );
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                    SUCCESS TESTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Override the virtual test from Claim_Integration_Test to test MerkleExecute-specific behavior.
-    function test_WhenMerkleProofValid()
+    function test_RevertWhen_TargetCallFails()
         external
-        override
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
-        whenRecipientEligible
         whenAmountValid
+        whenMerkleProofValid
+        whenArgumentsValid
+        whenNotReentrancy
     {
-        uint256 previousFeeAccrued = address(comptroller).balance;
-        uint256 index = getIndexInMerkleTree();
-        uint256 initialCampaignBalance = dai.balanceOf(address(merkleExecute));
+        // Deploy the reverting staking contract.
+        MockStakingRevert mockStakingRevert = new MockStakingRevert();
 
-        vm.expectEmit({ emitter: address(merkleExecute) });
-        emit ISablierMerkleExecute.ClaimExecute(index, users.recipient, CLAIM_AMOUNT, address(mockStaking));
+        // Create a campaign with a reverting target function.
+        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
+        params.target = address(mockStakingRevert);
+        params.campaignName = "Reverting campaign";
 
-        claim();
+        setMsgSender(users.campaignCreator);
+        ISablierMerkleExecute revertingCampaign = createMerkleExecute(params);
 
-        assertTrue(merkleExecute.hasClaimed(index), "not claimed");
-        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee not collected");
-        assertEq(dai.balanceOf(address(merkleExecute)), initialCampaignBalance - CLAIM_AMOUNT, "tokens not transferred");
-        assertEq(dai.balanceOf(address(mockStaking)), CLAIM_AMOUNT, "tokens not received by target");
+        setMsgSender(users.recipient);
+
+        vm.expectRevert("Shall not pass!");
+        revertingCampaign.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }(
+            getIndexInMerkleTree(), CLAIM_AMOUNT, getMerkleProof(), abi.encode(CLAIM_AMOUNT)
+        );
     }
 
     function test_GivenApproveTarget()
@@ -156,7 +127,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsValid
-        givenApproveTarget
+        whenNotReentrancy
     {
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
@@ -191,7 +162,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsValid
-        givenNotApproveTarget
+        whenNotReentrancy
     {
         // Deploy the mock staking contract that doesn't require token transfers.
         MockStakingNoTransfer mockStakingNoTransfer = new MockStakingNoTransfer();
