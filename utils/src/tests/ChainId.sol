@@ -133,6 +133,15 @@ library ChainId {
         if (chainId == ChainId.SEPOLIA) return "sepolia";
     }
 
+    /// @notice Returns `true` if the given chain ID is a supported mainnet.
+    function isMainnet(uint256 chainId) internal pure returns (bool) {
+        uint256[] memory mainnets = getAllMainnets();
+        for (uint256 i = 0; i < mainnets.length; ++i) {
+            if (mainnets[i] == chainId) return true;
+        }
+        return false;
+    }
+
     /// @notice Returns `true` if the given chain ID is supported.
     function isSupported(uint256 chainId) internal pure returns (bool) {
         // Return true if the chain ID is in the mainnet list.

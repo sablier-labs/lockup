@@ -45,30 +45,12 @@ contract BaseScript_Fuzz_Test is StdAssertions {
     }
 
     function testFuzz_GetAdmin(uint64 chainId) external setChainId(chainId) {
-        if (chainId == ChainId.ARBITRUM) {
-            assertEq(baseScript.getAdmin(), 0xF34E41a6f6Ce5A45559B1D3Ee92E141a3De96376, "arbitrum admin");
-        } else if (chainId == ChainId.AVALANCHE) {
-            assertEq(baseScript.getAdmin(), 0x4735517616373c5137dE8bcCDc887637B8ac85Ce, "avalanche admin");
-        } else if (chainId == ChainId.BASE) {
-            assertEq(baseScript.getAdmin(), 0x83A6fA8c04420B3F9C7A4CF1c040b63Fbbc89B66, "base admin");
-        } else if (chainId == ChainId.BSC) {
-            assertEq(baseScript.getAdmin(), 0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3, "bsc admin");
-        } else if (chainId == ChainId.CHILIZ) {
+        if (chainId == ChainId.CHILIZ) {
             assertEq(baseScript.getAdmin(), 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935, "chiliz admin");
-        } else if (chainId == ChainId.ETHEREUM) {
-            assertEq(baseScript.getAdmin(), 0x79Fb3e81aAc012c08501f41296CCC145a1E15844, "ethereum admin");
-        } else if (chainId == ChainId.GNOSIS) {
-            assertEq(baseScript.getAdmin(), 0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399, "gnosis admin");
-        } else if (chainId == ChainId.LINEA) {
-            assertEq(baseScript.getAdmin(), 0x72dCfa0483d5Ef91562817C6f20E8Ce07A81319D, "linea admin");
-        } else if (chainId == ChainId.OPTIMISM) {
-            assertEq(baseScript.getAdmin(), 0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350, "optimism admin");
-        } else if (chainId == ChainId.POLYGON) {
-            assertEq(baseScript.getAdmin(), 0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6, "polygon admin");
-        } else if (chainId == ChainId.SCROLL) {
-            assertEq(baseScript.getAdmin(), 0x0F7Ad835235Ede685180A5c611111610813457a9, "scroll admin");
         } else if (chainId == ChainId.ZKSYNC) {
             assertEq(baseScript.getAdmin(), 0xaFeA787Ef04E280ad5Bb907363f214E4BAB9e288, "zksync admin");
+        } else if (ChainId.isMainnet(chainId)) {
+            assertEq(baseScript.getAdmin(), 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd, "mainnets admin");
         } else {
             assertEq(baseScript.getAdmin(), baseScript.DEFAULT_SABLIER_ADMIN(), "default admin");
         }
