@@ -17,7 +17,7 @@ abstract contract Integration_Test is Base_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Type of the campaign, e.g., "instant", "ll", "lt", or "vca".
+    /// @dev Type of the campaign, e.g., "execute", "instant", "ll", "lt", or "vca".
     string internal campaignType;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ abstract contract Integration_Test is Base_Test {
     }
 
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
-    function claimTo() internal virtual {
+    function claimTo() internal {
         claimTo({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
@@ -147,20 +147,6 @@ abstract contract Integration_Test is Base_Test {
                                     MERKLE-EXECUTE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createMerkleExecute() internal returns (ISablierMerkleExecute) {
-        return createMerkleExecute(merkleExecuteConstructorParams());
-    }
-
-    function createMerkleExecute(MerkleExecute.ConstructorParams memory params)
-        internal
-        returns (ISablierMerkleExecute campaignAddress)
-    {
-        campaignAddress = factoryMerkleExecute.createMerkleExecute(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
-
-        // Fund the campaign.
-        fundCampaignWithDai(address(campaignAddress));
-    }
-
     /// @dev Helper to call claimAndExecute for MerkleExecute campaigns.
     function claimIfMerkleExecute() internal returns (bool) {
         return claimIfMerkleExecute({
@@ -187,6 +173,20 @@ abstract contract Integration_Test is Base_Test {
             return true;
         }
         return false;
+    }
+
+    function createMerkleExecute() internal returns (ISablierMerkleExecute) {
+        return createMerkleExecute(merkleExecuteConstructorParams());
+    }
+
+    function createMerkleExecute(MerkleExecute.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleExecute campaignAddress)
+    {
+        campaignAddress = factoryMerkleExecute.createMerkleExecute(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

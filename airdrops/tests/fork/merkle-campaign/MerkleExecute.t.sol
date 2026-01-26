@@ -102,6 +102,14 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
             target: address(forkMockStaking)
         });
 
+        // Expect the token transfer from to the target (forkMockStaking).
+        expectCallToTransferFrom({
+            token: FORK_TOKEN,
+            from: address(merkleExecute),
+            to: address(forkMockStaking),
+            value: vars.leafToClaim.amount
+        });
+
         // Claim and execute with the amount as arguments.
         merkleExecute.claimAndExecute{ value: vars.minFeeWei }({
             index: vars.leafToClaim.index,

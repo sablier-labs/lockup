@@ -121,13 +121,7 @@ contract MerkleExecute_Fuzz_Test is Shared_Fuzz_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expect the {ClaimExecute} event and token transfer to the target.
-    function expectClaimEvent(
-        LeafData memory leafData,
-        address /* to */
-    )
-        internal
-        override
-    {
+    function expectClaimEvent(LeafData memory leafData, address) internal override {
         vm.expectEmit({ emitter: address(merkleExecute) });
         emit ISablierMerkleExecute.ClaimExecute({
             index: leafData.index,
