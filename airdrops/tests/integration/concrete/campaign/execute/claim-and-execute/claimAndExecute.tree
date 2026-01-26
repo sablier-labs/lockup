@@ -5,18 +5,19 @@ ClaimAndExecute_MerkleExecute_Integration_Test
    └── when arguments valid
       ├── when reentrancy
       │  └── it should revert
-      ├── when target call fails
-      │  └── it should revert with target error
-      └── when target call succeeds
-         ├── given approve target
-         │  ├── it should mark the index as claimed
-         │  ├── it should transfer the ETH to the comptroller
-         │  ├── it should transfer the tokens to the target
-         │  ├── it should execute the target call
-         │  └── it should emit a {ClaimExecute} event
-         └── given not approve target
-            ├── it should mark the index as claimed
-            ├── it should transfer the ETH to the comptroller
-            ├── it should not transfer the tokens
-            ├── it should execute the target call
-            └── it should emit a {ClaimExecute} event
+      └── when not reentrancy
+         ├── when target call fails
+         │  └── it should revert
+         └── when target call succeeds
+            ├── given approve target
+            │  ├── it should mark the index as claimed
+            │  ├── it should transfer the ETH to the comptroller
+            │  ├── it should transfer the tokens to the target
+            │  ├── it should execute the target call
+            │  └── it should emit a {ClaimExecute} event
+            └── given not approve target
+               ├── it should mark the index as claimed
+               ├── it should transfer the ETH to the comptroller
+               ├── it should not transfer the tokens
+               ├── it should execute the target call
+               └── it should emit a {ClaimExecute} event
