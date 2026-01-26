@@ -96,13 +96,16 @@ contract SablierMerkleExecute is
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
-        // Interaction: Give the airdropped amount as allowance to the target contract if required.
+        // Interaction: Give allowance to the target contract if required.
         if (APPROVE_TARGET) {
             TOKEN.forceApprove(TARGET, amount);
         }
 
-        // Interaction: Execute the call on the target contract using selector + arguments.
-        (bool success, bytes memory returnData) = TARGET.call(abi.encodePacked(SELECTOR, arguments));
+        // Prepare the call data by concatenating the selector and the arguments.
+        bytes memory callData = abi.encodePacked(SELECTOR, arguments);
+
+        // Interaction: Execute the call on the target contract.
+        (bool success, bytes memory returnData) = TARGET.call(callData);
         if (!success) {
             assembly {
                 // Get the length of the result stored in the first 32 bytes.

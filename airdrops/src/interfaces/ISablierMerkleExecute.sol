@@ -47,7 +47,8 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     /// - Unlike other Merkle campaigns, this function does not have a `recipient` parameter. The recipient is always
     /// `msg.sender` to prevent security risks where someone could claim on behalf of another user and execute
     /// arbitrary calls.
-    /// - The function approves the exact claim amount to the {TARGET}, executes the call, then revokes the approval.
+    /// - If `APPROVE_TARGET` is true, the function approves the exact claim amount to the {TARGET}, executes the call,
+    /// then revokes the approval.
     /// - If the target contract transfers tokens and if there is an amount encoded in `arguments`, it must match the
     /// airdropped `amount`. Otherwise, the remaining tokens will be left in the campaign contract.
     ///
