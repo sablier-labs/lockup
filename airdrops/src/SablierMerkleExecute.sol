@@ -100,7 +100,7 @@ contract SablierMerkleExecute is
         // The {SafeERC20.forceApprove} function is used to handle special ERC-20 tokens (e.g. USDT) that require the
         // current allowance to be zero before setting it to a non-zero value.
         if (APPROVE_TARGET) {
-            TOKEN.forceApprove({ spender: TARGET, value:amount });
+            TOKEN.forceApprove({ spender: TARGET, value: amount });
         }
 
         // Prepare the call data by concatenating the selector and the arguments.
