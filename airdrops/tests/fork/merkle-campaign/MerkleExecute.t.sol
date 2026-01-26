@@ -64,7 +64,7 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
         vars.expectedMerkleCampaign =
             computeMerkleExecuteAddress({ params: constructorParams, campaignCreator: params.campaignCreator });
 
-        // vm.expectEmit({ emitter: address(factoryMerkleExecute) });
+        vm.expectEmit({ emitter: address(factoryMerkleExecute) });
         emit ISablierFactoryMerkleExecute.CreateMerkleExecute({
             merkleExecute: ISablierMerkleExecute(vars.expectedMerkleCampaign),
             campaignParams: constructorParams,
@@ -93,7 +93,7 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
 
         preClaim(params);
 
-        // // Expect the {ClaimExecute} event.
+        // Expect the {ClaimExecute} event.
         vm.expectEmit({ emitter: address(merkleExecute) });
         emit ISablierMerkleExecute.ClaimExecute({
             index: vars.leafToClaim.index,
