@@ -88,6 +88,14 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenArgumentsNotValid() {
+        _;
+    }
+
+    modifier whenArgumentsValid() {
+        _;
+    }
+
     modifier whenCallerComptroller() {
         setMsgSender(address(comptroller));
         _;

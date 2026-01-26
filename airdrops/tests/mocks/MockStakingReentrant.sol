@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 
 /// @notice A malicious staking contract that attempts to re-enter the MerkleExecute campaign.
-contract MockReentrantStaking {
+contract MockStakingReentrant {
     IERC20 public token;
 
     constructor(IERC20 token_) {
