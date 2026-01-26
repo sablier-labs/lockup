@@ -141,9 +141,9 @@ library LockupMath {
     /// $$
     ///
     ///     ⌊time elapsed / granularity⌋ * granularity
-    /// x =
-    /// ───────────────────────────────────────────
+    /// x = －－－－－－－－－－－－－－－－－－－－－－－－－
     ///                streamable time
+    ///
     /// $$
     ///
     /// The floor division in the numerator creates discrete unlock steps at every granularity seconds.
@@ -199,27 +199,26 @@ library LockupMath {
             // granularity.
             uint256 elapsedTimeInGranularityUnits;
 
-            // Calculate the streamable period scaled.
-            uint256 streamableTotalDurationScaled;
+            // Calculate the streamable duration.
+            uint256 streamableTotalDuration;
 
             if (cliffTime == 0) {
                 elapsedTimeInGranularityUnits = (blockTimestamp - startTime) / granularity;
-                streamableTotalDurationScaled = uint256(endTime - startTime) * 1e18;
+                streamableTotalDuration = uint256(endTime - startTime);
             } else {
                 elapsedTimeInGranularityUnits = (blockTimestamp - cliffTime) / granularity;
-                streamableTotalDurationScaled = uint256(endTime - cliffTime) * 1e18;
+                streamableTotalDuration = uint256(endTime - cliffTime);
             }
 
             // Calculate the streamable amount.
             uint256 streamableAmount = depositedAmount - unlockAmountsSum;
 
-            // Scaled numerator: floor(elapsed/g) * streamableAmount * g * 1e18.
-            uint256 streamedPortionScaled =
-                elapsedTimeInGranularityUnits * streamableAmount * uint256(granularity) * 1e18;
+            // Calculate the streamed portion: floor(elapsed/g) * streamableAmount * g / streamableTotalDuration.
+            uint256 streamedPortion =
+                elapsedTimeInGranularityUnits * streamableAmount * uint256(granularity) / streamableTotalDuration;
 
-            // Unlock amounts plus the streamed portion.
-            uint128 streamedAmount =
-                unlockAmountsSum + SafeCast.toUint128(streamedPortionScaled / streamableTotalDurationScaled);
+            // The streamed amount is the sum of the unlock amounts plus the streamed portion.
+            uint128 streamedAmount = unlockAmountsSum + SafeCast.toUint128(streamedPortion);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn
