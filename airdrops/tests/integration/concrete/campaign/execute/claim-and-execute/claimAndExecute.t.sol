@@ -2,13 +2,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { MerkleExecute } from "src/types/DataTypes.sol";
-
-import { MockReentrantStaking } from "../../../../../mocks/MockReentrantStaking.sol";
-import { MockStakingNoTransfer } from "../../../../../mocks/MockStakingNoTransfer.sol";
+import { MockStakingNoTransfer } from "./../../../../../mocks/MockStakingNoTransfer.sol";
+import { MockStakingReentrant } from "./../../../../../mocks/MockStakingReentrant.sol";
+import { MockStakingRevert } from "./../../../../../mocks/MockStakingRevert.sol";
 import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
 contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integration_Shared_Test {
@@ -124,6 +123,32 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         });
     }
 
+    function test_RevertWhen_ArgumentsNotValid()
+        external
+        givenCampaignStartTimeNotInFuture
+        givenCampaignNotExpired
+        givenMsgValueNotLessThanFee
+        givenRecipientNotClaimed
+        whenIndexValid
+        whenAmountValid
+        whenMerkleProofValid
+        whenArgumentsNotValid
+    {
+        // Pass arguments that encode a larger amount than approved.
+        // The campaign approves CLAIM_AMOUNT, but arguments request more.
+        uint128 invalidArgumentsAmount = CLAIM_AMOUNT + 1;
+
+        // The target's transferFrom will fail because the allowance is only CLAIM_AMOUNT.
+        vm.expectRevert();
+        claimAndExecute({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof(),
+            arguments: abi.encode(invalidArgumentsAmount)
+        });
+    }
+
     function test_RevertWhen_TargetCallFails()
         external
         givenCampaignStartTimeNotInFuture
@@ -132,18 +157,15 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenRecipientNotClaimed
         whenIndexValid
         whenAmountValid
+        whenMerkleProofValid
+        whenArgumentsValid
     {
+        // Deploy the reverting staking contract.
+        MockStakingRevert mockStakingRevert = new MockStakingRevert();
+
         // Create a campaign with a reverting target function.
-        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams({
-            campaignCreator: users.campaignCreator,
-            campaignStartTime: CAMPAIGN_START_TIME,
-            expiration: EXPIRATION,
-            merkleRoot: MERKLE_ROOT,
-            tokenAddress: dai,
-            targetAddress: address(mockStaking),
-            selector: mockStaking.revertingFunction.selector,
-            approveTarget: true
-        });
+        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
+        params.target = address(mockStakingRevert);
         params.campaignName = "Reverting campaign";
 
         setMsgSender(users.campaignCreator);
@@ -166,9 +188,10 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         whenIndexValid
         whenAmountValid
         whenMerkleProofValid
+        whenArgumentsValid
     {
         // Deploy the malicious staking contract.
-        MockReentrantStaking reentrantStaking = new MockReentrantStaking(dai);
+        MockStakingReentrant reentrantStaking = new MockStakingReentrant(dai);
 
         // Create a campaign with the malicious staking contract as the target.
         MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
@@ -203,6 +226,8 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenRecipientNotClaimed
         whenIndexValid
         whenAmountValid
+        whenMerkleProofValid
+        whenArgumentsValid
         givenApproveTarget
     {
         uint256 previousFeeAccrued = address(comptroller).balance;
@@ -235,6 +260,8 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenRecipientNotClaimed
         whenIndexValid
         whenAmountValid
+        whenMerkleProofValid
+        whenArgumentsValid
         givenNotApproveTarget
     {
         // Deploy the mock staking contract that doesn't require token transfers.

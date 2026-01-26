@@ -48,15 +48,6 @@ contract Clawback_MerkleExecute_Integration_Test is MerkleExecute_Integration_Sh
     function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                OVERRIDDEN-FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Override the {claimTo} function to use {claimAndExecute} since MerkleExecute doesn't have claimTo.
-    function claimTo() internal override {
-        claimAndExecute();
-    }
 }
 
 contract DomainSeparator_MerkleExecute_Integration_Test is
@@ -74,15 +65,6 @@ contract HasClaimed_MerkleExecute_Integration_Test is
 {
     function setUp() public override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                OVERRIDDEN-FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Override the {claimTo} function to use {claimAndExecute} since MerkleExecute doesn't have claimTo.
-    function claimTo() internal override {
-        claimAndExecute();
     }
 }
 

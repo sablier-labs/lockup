@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
@@ -61,10 +63,8 @@ abstract contract Integration_Test is Base_Test {
         internal
         virtual
     {
-        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
-        // claim function signature.
-        address campaignAddr = address(merkleBase);
-        ISablierMerkleInstant(campaignAddr).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+        if (claimIfMerkleExecute(msgValue, index, amount, merkleProof)) return;
+        ISablierMerkleInstant(address(merkleBase)).claim{ value: msgValue }(index, recipient, amount, merkleProof);
     }
 
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
@@ -87,10 +87,8 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
-        // claimTo function signature.
-        address campaignAddr = address(merkleBase);
-        ISablierMerkleInstant(campaignAddr).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+        if (claimIfMerkleExecute(msgValue, index, amount, merkleProof)) return;
+        ISablierMerkleInstant(address(merkleBase)).claimTo{ value: msgValue }(index, to, amount, merkleProof);
     }
 
     /// @dev Claim using default values for {claimViaSig} function.
@@ -186,6 +184,33 @@ abstract contract Integration_Test is Base_Test {
         merkleExecute.claimAndExecute{ value: msgValue }(index, amount, merkleProof, arguments);
     }
 
+    /// @dev Helper to call claimAndExecute for MerkleExecute campaigns.
+    function claimIfMerkleExecute() internal returns (bool) {
+        if (Strings.equal(campaignType, "execute")) {
+            claimAndExecute();
+            return true;
+        }
+        return false;
+    }
+
+    function claimIfMerkleExecute(
+        uint256 msgValue,
+        uint256 index,
+        uint128 amount,
+        bytes32[] memory merkleProof
+    )
+        internal
+        returns (bool)
+    {
+        if (Strings.equal(campaignType, "execute")) {
+            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
+                index, amount, merkleProof, abi.encode(amount)
+            );
+            return true;
+        }
+        return false;
+    }
+    
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-INSTANT
     //////////////////////////////////////////////////////////////////////////*/

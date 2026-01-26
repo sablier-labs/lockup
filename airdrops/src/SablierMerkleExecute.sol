@@ -97,8 +97,10 @@ contract SablierMerkleExecute is
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
         // Interaction: Give allowance to the target contract if required.
+        // The {SafeERC20.forceApprove} function is used to handle special ERC-20 tokens (e.g. USDT) that require the
+        // current allowance to be zero before setting it to a non-zero value.
         if (APPROVE_TARGET) {
-            TOKEN.forceApprove(TARGET, amount);
+            TOKEN.forceApprove({ spender: TARGET, value:amount });
         }
 
         // Prepare the call data by concatenating the selector and the arguments.
@@ -118,7 +120,7 @@ contract SablierMerkleExecute is
 
         // Interaction: Revoke the allowance if it was granted.
         if (APPROVE_TARGET) {
-            TOKEN.forceApprove(TARGET, 0);
+            TOKEN.forceApprove({ spender: TARGET, value: 0 });
         }
 
         // Emit claim event.
