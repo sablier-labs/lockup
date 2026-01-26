@@ -161,36 +161,14 @@ abstract contract Integration_Test is Base_Test {
         fundCampaignWithDai(address(campaignAddress));
     }
 
-    /// @dev Claim and execute using default values.
-    function claimAndExecute() internal {
-        claimAndExecute({
+    /// @dev Helper to call claimAndExecute for MerkleExecute campaigns.
+    function claimIfMerkleExecute() internal returns (bool) {
+        return claimIfMerkleExecute({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
             amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(),
-            arguments: abi.encode(CLAIM_AMOUNT)
+            merkleProof: getMerkleProof()
         });
-    }
-
-    function claimAndExecute(
-        uint256 msgValue,
-        uint256 index,
-        uint128 amount,
-        bytes32[] memory merkleProof,
-        bytes memory arguments
-    )
-        internal
-    {
-        merkleExecute.claimAndExecute{ value: msgValue }(index, amount, merkleProof, arguments);
-    }
-
-    /// @dev Helper to call claimAndExecute for MerkleExecute campaigns.
-    function claimIfMerkleExecute() internal returns (bool) {
-        if (Strings.equal(campaignType, "execute")) {
-            claimAndExecute();
-            return true;
-        }
-        return false;
     }
 
     function claimIfMerkleExecute(
@@ -210,7 +188,7 @@ abstract contract Integration_Test is Base_Test {
         }
         return false;
     }
-    
+
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-INSTANT
     //////////////////////////////////////////////////////////////////////////*/

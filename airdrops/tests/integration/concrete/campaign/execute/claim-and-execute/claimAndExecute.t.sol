@@ -3,124 +3,24 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { MerkleExecute } from "src/types/DataTypes.sol";
+
 import { MockStakingNoTransfer } from "./../../../../../mocks/MockStakingNoTransfer.sol";
 import { MockStakingReentrant } from "./../../../../../mocks/MockStakingReentrant.sol";
 import { MockStakingRevert } from "./../../../../../mocks/MockStakingRevert.sol";
+import { Integration_Test } from "./../../../../Integration.t.sol";
+import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
-contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integration_Shared_Test {
-    function setUp() public virtual override {
+contract ClaimAndExecute_MerkleExecute_Integration_Test is
+    MerkleExecute_Integration_Shared_Test,
+    Claim_Integration_Test
+{
+    function setUp() public virtual override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
 
         // Make the recipient the caller.
         setMsgSender(users.recipient);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    REVERT TESTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_RevertGiven_CampaignStartTimeInFuture() external {
-        uint40 warpTime = CAMPAIGN_START_TIME - 1 seconds;
-        vm.warp({ newTimestamp: warpTime });
-
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignNotStarted.selector, warpTime, CAMPAIGN_START_TIME)
-        );
-        claimAndExecute();
-    }
-
-    function test_RevertGiven_CampaignExpired() external givenCampaignStartTimeNotInFuture {
-        uint40 warpTime = EXPIRATION + 1 seconds;
-        vm.warp({ newTimestamp: warpTime });
-
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_CampaignExpired.selector, warpTime, EXPIRATION));
-        claimAndExecute();
-    }
-
-    function test_RevertGiven_MsgValueLessThanFee() external givenCampaignStartTimeNotInFuture givenCampaignNotExpired {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, AIRDROP_MIN_FEE_WEI)
-        );
-        claimAndExecute({
-            msgValue: 0,
-            index: getIndexInMerkleTree(),
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(),
-            arguments: abi.encode(CLAIM_AMOUNT)
-        });
-    }
-
-    function test_RevertGiven_IndexClaimed()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-    {
-        claimAndExecute();
-
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_IndexClaimed.selector, getIndexInMerkleTree()));
-        claimAndExecute();
-    }
-
-    function test_RevertWhen_IndexNotValid()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-    {
-        uint256 invalidIndex = 1337;
-
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        claimAndExecute({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: invalidIndex,
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(),
-            arguments: abi.encode(CLAIM_AMOUNT)
-        });
-    }
-
-    function test_RevertWhen_AmountNotValid()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-    {
-        uint128 invalidAmount = 1337;
-
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        claimAndExecute({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            amount: invalidAmount,
-            merkleProof: getMerkleProof(),
-            arguments: abi.encode(invalidAmount)
-        });
-    }
-
-    function test_RevertWhen_MerkleProofNotValid()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenAmountValid
-    {
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
-        claimAndExecute({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(users.unknownRecipient),
-            arguments: abi.encode(CLAIM_AMOUNT)
-        });
     }
 
     function test_RevertWhen_ArgumentsNotValid()
@@ -130,6 +30,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
+        whenRecipientEligible
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsNotValid
@@ -140,8 +41,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
 
         // The target's transferFrom will fail because the allowance is only CLAIM_AMOUNT.
         vm.expectRevert();
-        claimAndExecute({
-            msgValue: AIRDROP_MIN_FEE_WEI,
+        merkleExecute.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }({
             index: getIndexInMerkleTree(),
             amount: CLAIM_AMOUNT,
             merkleProof: getMerkleProof(),
@@ -218,6 +118,33 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
                                     SUCCESS TESTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Override the virtual test from Claim_Integration_Test to test MerkleExecute-specific behavior.
+    function test_WhenMerkleProofValid()
+        external
+        override
+        givenCampaignStartTimeNotInFuture
+        givenCampaignNotExpired
+        givenMsgValueNotLessThanFee
+        givenRecipientNotClaimed
+        whenIndexValid
+        whenRecipientEligible
+        whenAmountValid
+    {
+        uint256 previousFeeAccrued = address(comptroller).balance;
+        uint256 index = getIndexInMerkleTree();
+        uint256 initialCampaignBalance = dai.balanceOf(address(merkleExecute));
+
+        vm.expectEmit({ emitter: address(merkleExecute) });
+        emit ISablierMerkleExecute.ClaimExecute(index, users.recipient, CLAIM_AMOUNT, address(mockStaking));
+
+        claim();
+
+        assertTrue(merkleExecute.hasClaimed(index), "not claimed");
+        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee not collected");
+        assertEq(dai.balanceOf(address(merkleExecute)), initialCampaignBalance - CLAIM_AMOUNT, "tokens not transferred");
+        assertEq(dai.balanceOf(address(mockStaking)), CLAIM_AMOUNT, "tokens not received by target");
+    }
+
     function test_GivenApproveTarget()
         external
         givenCampaignStartTimeNotInFuture
@@ -225,6 +152,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
+        whenRecipientEligible
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsValid
@@ -239,7 +167,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         emit ISablierMerkleExecute.ClaimExecute(index, users.recipient, CLAIM_AMOUNT, address(mockStaking));
 
         // Claim and execute.
-        claimAndExecute();
+        claim();
 
         // Assert the index is marked as claimed.
         assertTrue(merkleExecute.hasClaimed(index), "not claimed");
@@ -259,6 +187,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integra
         givenMsgValueNotLessThanFee
         givenRecipientNotClaimed
         whenIndexValid
+        whenRecipientEligible
         whenAmountValid
         whenMerkleProofValid
         whenArgumentsValid
