@@ -1,0 +1,262 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity >=0.8.22;
+
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
+import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
+
+import { Bob } from "../types/Bob.sol";
+import { IBobVaultShare } from "./IBobVaultShare.sol";
+import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
+import { ISablierBobState } from "./ISablierBobState.sol";
+
+/// @title ISablierBob
+/// @notice Interface for the Sablier Bob protocol.
+interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a new vault is created.
+    /// @param vaultId The ID of the newly created vault.
+    /// @param token The ERC-20 token accepted for deposits.
+    /// @param oracle The address of the oracle used to fetch the price.
+    /// @param adapter The yield adapter configured for the vault (if any)
+    /// @param shareToken The address of the share token deployed for the vault.
+    /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
+    /// @param expiry The Unix timestamp when the vault expires.
+    event CreateVault(
+        uint256 indexed vaultId,
+        IERC20 indexed token,
+        AggregatorV3Interface indexed oracle,
+        ISablierBobAdapter adapter,
+        IBobVaultShare shareToken,
+        uint128 targetPrice,
+        uint40 expiry
+    );
+
+    /// @notice Emitted when a user deposits tokens into a vault.
+    /// @param vaultId The ID of the vault.
+    /// @param user The address of the depositor.
+    /// @param amountReceived The amount of tokens deposited by the user.
+    /// @param sharesMinted The amount of shares minted to the user.
+    event Enter(uint256 indexed vaultId, address indexed user, uint128 amountReceived, uint128 sharesMinted);
+
+    /// @notice Emitted when a user exits a vault during the grace period.
+    /// @param vaultId The ID of the vault.
+    /// @param user The address of the user exiting.
+    /// @param amountReceived The amount of tokens received to the user.
+    /// @param sharesBurned The amount of shares burned by the user.
+    event ExitWithinGracePeriod(
+        uint256 indexed vaultId,
+        address indexed user,
+        uint128 amountReceived,
+        uint128 sharesBurned
+    );
+
+    /// @notice Emitted when a user redeems their shares from a settled vault.
+    /// @param vaultId The ID of the vault.
+    /// @param user The address of the user redeeming.
+    /// @param amountReceived The amount of tokens received by the user.
+    /// @param sharesBurned The amount of shares burned by the user.
+    /// @param fee The fee paid in the deposit token, only applicable if adapter is set.
+    event Redeem(
+        uint256 indexed vaultId,
+        address indexed user,
+        uint128 amountReceived,
+        uint128 sharesBurned,
+        uint256 fee
+    );
+
+    /// @notice Emitted when the comptroller sets a new default adapter for a token.
+    /// @param token The token address for which the adapter is set.
+    /// @param adapter The new adapter address.
+    event SetDefaultAdapter(IERC20 indexed token, ISablierBobAdapter indexed adapter);
+
+    /// @notice Emitted when a vault's price is synced from the oracle.
+    /// @param vaultId The ID of the vault.
+    /// @param oracle The address of the oracle used to fetch the price.
+    /// @param latestPrice The price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
+    /// @param syncedAt The timestamp when the sync occurred.
+    event SyncPriceFromOracle(
+        uint256 indexed vaultId,
+        AggregatorV3Interface indexed oracle,
+        uint128 latestPrice,
+        uint40 syncedAt
+    );
+
+    /// @notice Emitted when tokens staked in the adapter for a given vault are unstaked.
+    /// @param vaultId The ID of the vault.
+    /// @param adapter The address of the adapter configured for the vault.
+    /// @param amountStakedInAdapter The amount of vault tokens originally staked in the adapter.
+    /// @param amountReceivedFromAdapter The amount of vault tokens received from the adapter.
+    event UnstakeFromAdapter(
+        uint256 indexed vaultId,
+        ISablierBobAdapter indexed adapter,
+        uint128 amountStakedInAdapter,
+        uint128 amountReceivedFromAdapter
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        USER-FACING STATE-CHANGING FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Creates a new vault with the specified parameters.
+    ///
+    /// @dev Emits a {CreateVault} event.
+    ///
+    /// Notes:
+    /// - A new ERC-20 share token is deployed for each vault to represent user's share of deposits in the vault.
+    /// - The default adapter for the token is copied as the vault adapter. Any change in the default adapter does not
+    /// affect existing vaults.
+    /// - Vault creator is responsible for choosing a valid oracle. Using Chainlink oracles are highly recommended.
+    ///
+    /// Requirements:
+    /// - `token` must not be the zero address.
+    /// - `token` must implement `symbol()` and `decimals()` functions.
+    /// - `expiry` must be in the future.
+    /// - `oracle` must implement the Chainlink {AggregatorV3Interface} interface.
+    /// - `oracle` must return a positive price when `latestRoundData()` is called.
+    /// - `oracle` must return 8 when `decimals()` is called.
+    /// - `targetPrice` must be greater than the current price returned by the provided oracle.
+    ///
+    /// @param token The address of the ERC-20 token that will be accepted for deposits.
+    /// @param oracle The address of the price feed oracle for the deposit token.
+    /// @param expiry The Unix timestamp when the vault expires.
+    /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
+    /// @return vaultId The ID of the newly created vault.
+    function createVault(
+        IERC20 token,
+        AggregatorV3Interface oracle,
+        uint40 expiry,
+        uint128 targetPrice
+    )
+        external
+        returns (uint256 vaultId);
+
+    /// @notice Enter into a vault by depositing tokens into it and minting share tokens to the caller.
+    ///
+    /// @dev Emits an {Enter} event.
+    ///
+    /// Notes:
+    /// - If an adapter is configured for the vault, tokens are automatically staked for yield using the adapter.
+    /// - `depositedAt` timestamp is set only on the first deposit and subsequent deposits do not update it.
+    /// - Within grace period, which is 4 hours after the first deposit, the user can exit the vault and get back their
+    /// deposited tokens.
+    /// - Share tokens are minted 1:1 with the deposited amount.
+    ///
+    /// Requirements:
+    /// - The vault must have ACTIVE status.
+    /// - `amount` must be greater than zero.
+    /// - The caller must have approved this contract to transfer `amount` tokens.
+    /// - Since it also updates the oracle price, oracle must return a valid price for the token.
+    ///
+    /// @param vaultId The ID of the vault to deposit into.
+    /// @param amount The amount of tokens to deposit.
+    function enter(uint256 vaultId, uint128 amount) external;
+
+    /// @notice Exit from a vault during the grace period, returning deposited tokens.
+    ///
+    /// @dev Emits an {ExitWithinGracePeriod} event.
+    ///
+    /// Notes:
+    /// - User's share tokens are burned and the full deposit is returned.
+    /// - Only original depositors can use the grace period exit. If a depositor transfers their share tokens, they
+    /// forfeit their grace period exit rights until they get those shares back. The grace period is a protection for
+    /// depositors in case the oracle in the vault is misconfigured.
+    ///
+    /// Requirements:
+    /// - The vault must have ACTIVE status.
+    /// - The share balance of the caller must be greater than zero.
+    /// - Current timestamp must be within the grace period.
+    ///
+    /// @param vaultId The ID of the vault to exit from.
+    function exitWithinGracePeriod(uint256 vaultId) external;
+
+    /// @notice Redeem deposited tokens  from a settled vault by burning shares.
+    ///
+    /// @dev Emits a {Redeem} event.
+    ///
+    /// Notes:
+    /// - If no adapter is configured for the vault, a fee in the native token is applied.
+    /// - If an adapter is configured for the vault, a fee, in the deposit token, is deducted from yield generated by
+    /// the adapter.
+    ///
+    /// Requirements:
+    /// - The vault must have SETTLED status.
+    /// - The share balance of the caller must be greater than zero.
+    /// - If no adapter is configured for the vault, `msg.value` must be greater than or equal to the min fee required
+    /// in the native token.
+    ///
+    /// @param vaultId The ID of the vault to redeem from.
+    /// @return transferredAmount The amount of tokens transferred to the caller, after fees are deducted (only
+    /// applicable if adapter is set).
+    /// @return feeAmount The fee amount deducted from the yield.
+    function redeem(uint256 vaultId) external payable returns (uint128 transferredAmount, uint128 feeAmount);
+
+    /// @notice Sets the default adapter for a specific token.
+    ///
+    /// @dev Emits a {SetDefaultAdapter} event.
+    ///
+    /// Notes:
+    /// - This only affects future vaults.
+    ///
+    /// Requirements:
+    /// - The caller must be the comptroller.
+    /// - If new adapter is not zero address, it must implement {ISablierBobAdapter} interface.
+    ///
+    /// @param token The token address to set the adapter for.
+    /// @param newAdapter The address of the new adapter.
+    function setDefaultAdapter(IERC20 token, ISablierBobAdapter newAdapter) external;
+
+    /// @notice Fetches the latest price from the oracle set for a vault and updates it in the vault storage.
+    ///
+    /// @dev Emits a {SyncPriceFromOracle} event.
+    ///
+    /// Notes:
+    /// - Oracle staleness is not validated on-chain when calling this function. Any price returned by the oracle is
+    /// accepted.
+    ///
+    /// Requirements:
+    /// - The vault must have ACTIVE status.
+    /// - The oracle must return a positive price.
+    ///
+    /// @param vaultId The ID of the vault to sync.
+    /// @return latestPrice The latest price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
+    function syncPriceFromOracle(uint256 vaultId) external returns (uint128 latestPrice);
+
+    /// @notice Unstake all tokens from the adapter for a given vault.
+    ///
+    /// @dev Emits an {UnstakeFromAdapter} event.
+    ///
+    /// Requirements:
+    /// - The adapter set in the vault must not be zero address.
+    /// - The vault must have SETTLED status.
+    /// - The vault must not have been unstaked already.
+    /// - The amount staked must be greater than zero.
+    ///
+    /// @param vaultId The ID of the vault.
+    /// @return amountReceivedFromAdapter The amount of tokens received from the adapter.
+    function unstakeTokensViaAdapter(uint256 vaultId) external returns (uint128 amountReceivedFromAdapter);
+
+    /// @notice Called by adapter when share tokens for a given vault are transferred between users. This is required
+    /// for accounting of the yield generated by the adapter.
+    ///
+    /// Requirements:
+    /// - The caller must be the share token contract stored in the given vault.
+    ///
+    /// @param vaultId The ID of the vault.
+    /// @param from The address transferring share tokens.
+    /// @param to The address receiving share tokens.
+    /// @param amount The number of share tokens being transferred.
+    /// @param fromBalanceBefore The number of share tokens the sender had before the transfer.
+    function onShareTransfer(
+        uint256 vaultId,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 fromBalanceBefore
+    )
+        external;
+}

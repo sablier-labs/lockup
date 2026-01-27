@@ -1,0 +1,69 @@
+# Sablier Bob
+
+Price-gated vault protocol for conditional token releases with optional yield generation.
+
+@../CLAUDE.md
+
+## Protocol Overview
+
+Bob enables depositing ERC-20 tokens into vaults that release based on price conditions. Key features:
+
+- **Price-gated vaults**: Tokens locked until target price reached or expiry
+- **Oracle integration**: Chainlink-compatible price feeds (must return 8 decimals)
+- **Yield adapters**: Optional Lido integration for staking rewards (wstETH)
+- **Grace period**: 4-hour window for depositors to exit after deposit
+
+Uses singleton architecture - all vaults managed in `SablierBob` contract.
+
+## Package Structure
+
+```
+src/
+├── SablierBob.sol          # Main contract
+├── SablierLidoAdapter.sol   # Lido yield adapter
+├── BobVaultShare.sol       # Vault share ERC20
+├── abstracts/              # SablierBobState
+├── interfaces/             # ISablierBob, ISablierLidoAdapter
+├── libraries/              # Errors, Helpers
+└── types/                  # Structs, enums
+tests/
+├── integration/
+│   └── concrete/           # BTT-based tests
+└── mocks/                  # MockOracle, MockAdapter
+```
+
+## Commands
+
+```bash
+just build bob              # Build
+just test bob               # Run tests
+just test-lite bob          # Fast tests (no optimizer)
+just full-check bob         # All checks
+```
+
+## Key Concepts
+
+- **Vault ID**: Unique identifier for each vault (starts from 1)
+- **Share Token**: ERC-20 minted on deposit (1:1 with deposited tokens)
+- **Grace Period**: 4 hours to exit after deposit without settlement
+- **Settlement**: When price target is met or vault expires
+- **Adapter**: Optional yield strategy (e.g., Lido for WETH)
+- **Token requirements**: Must implement `symbol()` and `decimals()`
+- **Oracle requirements**: Must return 8 decimals and positive price
+
+## Vault States
+
+- **ACTIVE**: Accepting deposits, not yet settled
+- **SETTLED**: Price target reached, pending redemptions
+- **EXPIRED**: Expiry reached without settling, pending redemptions
+
+## Fee Structure
+
+- **Non-adapter vaults**: Native token fee on redeem (via comptroller)
+- **Adapter vaults**: Yield fee (% of staking rewards, max 20%)
+
+## Import Path
+
+```solidity
+import { ISablierBob } from "@sablier/bob/src/interfaces/ISablierBob.sol";
+```
