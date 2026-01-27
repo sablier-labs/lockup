@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
@@ -217,8 +216,9 @@ library LockupMath {
             uint256 streamedPortion =
                 elapsedTimeInGranularityUnits * streamableAmount * uint256(granularity) / streamableTotalDuration;
 
-            // The streamed amount is the sum of the unlock amounts plus the streamed portion.
-            uint128 streamedAmount = unlockAmountsSum + SafeCast.toUint128(streamedPortion);
+            // The streamed amount is the sum of the unlock amounts plus the streamed portion. The cast to uint128 is
+            // safe because `floor(elapsed/g) * g < streamableTotalDuration`, so `streamedPortion < streamableAmount`.
+            uint128 streamedAmount = unlockAmountsSum + uint128(streamedPortion);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn
