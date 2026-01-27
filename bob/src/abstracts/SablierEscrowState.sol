@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
-import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierEscrowState } from "../interfaces/ISablierEscrowState.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Escrow } from "../types/Escrow.sol";
 
 /// @title SablierEscrowState
-/// @notice Abstract contract containing state variables, modifiers, and view functions for the SablierEscrow contract.
-abstract contract SablierEscrowState is Comptrollerable, ISablierEscrowState {
+/// @notice See the documentation in {ISablierEscrowState}.
+abstract contract SablierEscrowState is ISablierEscrowState {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierEscrowState
-    UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.01e18);
+    UD60x18 public constant override MAX_TRADE_FEE = UD60x18.wrap(0.02e18);
 
     /*//////////////////////////////////////////////////////////////////////////
                                    STATE VARIABLES
@@ -26,7 +26,7 @@ abstract contract SablierEscrowState is Comptrollerable, ISablierEscrowState {
     uint256 public override nextOrderId;
 
     /// @inheritdoc ISablierEscrowState
-    UD60x18 public override protocolFee;
+    UD60x18 public override tradeFee;
 
     /// @dev Orders mapped by order ID.
     mapping(uint256 orderId => Escrow.Order order) internal _orders;
@@ -35,21 +35,23 @@ abstract contract SablierEscrowState is Comptrollerable, ISablierEscrowState {
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) Comptrollerable(initialComptroller) {
-        // Set the next order ID to 1 (order IDs start from 1).
+    /// @notice Initializes the state variables.
+    /// @param initialTradeFee The initial trade fee percentage.
+    constructor(UD60x18 initialTradeFee) {
+        // Set the next order ID to 1.
         nextOrderId = 1;
 
-        // Protocol fee defaults to 0.
+        // Set the initial trade fee.
+        tradeFee = initialTradeFee;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that `orderId` references an existing order.
-    modifier orderExists(uint256 orderId) {
-        _orderExists(orderId);
+    /// @dev Checks that `orderId` does not reference a null order.
+    modifier notNull(uint256 orderId) {
+        _notNull(orderId);
         _;
     }
 
@@ -58,40 +60,72 @@ abstract contract SablierEscrowState is Comptrollerable, ISablierEscrowState {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierEscrowState
-    function getOrder(uint256 orderId) external view override orderExists(orderId) returns (Escrow.Order memory order) {
-        order = _orders[orderId];
+    function getBuyer(uint256 orderId) external view override notNull(orderId) returns (address buyer) {
+        buyer = _orders[orderId].buyer;
     }
 
     /// @inheritdoc ISablierEscrowState
-    function statusOf(uint256 orderId) external view override orderExists(orderId) returns (Escrow.Status status) {
+    function getBuyToken(uint256 orderId) external view override notNull(orderId) returns (IERC20 buyToken) {
+        buyToken = _orders[orderId].buyToken;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function getExpireAt(uint256 orderId) external view override notNull(orderId) returns (uint40 expireAt) {
+        expireAt = _orders[orderId].expireAt;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function getMinBuyAmount(uint256 orderId) external view override notNull(orderId) returns (uint128 minBuyAmount) {
+        minBuyAmount = _orders[orderId].minBuyAmount;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function getSellAmount(uint256 orderId) external view override notNull(orderId) returns (uint128 sellAmount) {
+        sellAmount = _orders[orderId].sellAmount;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function getSeller(uint256 orderId) external view override notNull(orderId) returns (address seller) {
+        seller = _orders[orderId].seller;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function getSellToken(uint256 orderId) external view override notNull(orderId) returns (IERC20 sellToken) {
+        sellToken = _orders[orderId].sellToken;
+    }
+
+    /// @inheritdoc ISablierEscrowState
+    function statusOf(uint256 orderId) external view override notNull(orderId) returns (Escrow.Status status) {
         status = _statusOf(orderId);
     }
 
     /// @inheritdoc ISablierEscrowState
-    function wasAccepted(uint256 orderId) external view override orderExists(orderId) returns (bool result) {
-        result = _orders[orderId].wasAccepted;
+    function wasCanceled(uint256 orderId) external view override notNull(orderId) returns (bool result) {
+        result = _orders[orderId].wasCanceled;
     }
 
     /// @inheritdoc ISablierEscrowState
-    function wasCanceled(uint256 orderId) external view override orderExists(orderId) returns (bool result) {
-        result = _orders[orderId].wasCanceled;
+    function wasFilled(uint256 orderId) external view override notNull(orderId) returns (bool result) {
+        result = _orders[orderId].wasFilled;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Derives the current status of an order from boolean flags and timestamps.
+    /// @dev Return the order status without performing a null check.
     function _statusOf(uint256 orderId) internal view returns (Escrow.Status) {
         Escrow.Order storage order = _orders[orderId];
 
-        if (order.wasAccepted) {
-            return Escrow.Status.COMPLETED;
+        if (order.wasFilled) {
+            return Escrow.Status.FILLED;
         }
         if (order.wasCanceled) {
             return Escrow.Status.CANCELLED;
         }
-        if (block.timestamp >= order.expiry) {
+
+        // Return EXPIRED if the order has an expiry timestamp and it has expired.
+        if (order.expireAt != 0 && block.timestamp >= order.expireAt) {
             return Escrow.Status.EXPIRED;
         }
         return Escrow.Status.OPEN;
@@ -101,13 +135,13 @@ abstract contract SablierEscrowState is Comptrollerable, ISablierEscrowState {
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Reverts if `orderId` references a non-existent order.
+    /// @dev Reverts if `orderId` references a null order.
     /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
     /// into every function that uses them.
-    function _orderExists(uint256 orderId) private view {
-        // An order is considered non-existent if its seller address is zero (seller is always set on creation).
+    function _notNull(uint256 orderId) private view {
+        // An order is considered null if its seller address is zero.
         if (_orders[orderId].seller == address(0)) {
-            revert Errors.SablierEscrow_OrderNotFound(orderId);
+            revert Errors.SablierEscrowState_Null(orderId);
         }
     }
 }

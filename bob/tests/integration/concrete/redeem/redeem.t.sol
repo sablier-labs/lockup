@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MockRejectETH } from "../../../mocks/MockAdapter.sol";
 import { Integration_Test } from "./../../Integration.t.sol";
 
 contract Redeem_Integration_Concrete_Test is Integration_Test {
@@ -61,22 +60,14 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         bob.redeem{ value: minFee - 1 }(vaultId);
     }
 
-    function test_RevertWhen_NativeFeeTransferFails()
+    function test_WhenNativeFeeTransferredToComptroller()
         external
         givenNotNullVault
         givenVaultSettled
         whenCallerHasShares
         givenVaultHasNoAdapter
     {
-        // It should revert when the native fee transfer to comptroller admin fails.
-        // Deploy a contract that rejects ETH.
-        MockRejectETH rejectETH = new MockRejectETH();
-
-        // Transfer the comptroller admin to the contract that rejects ETH.
-        setMsgSender(admin);
-        comptroller.transferAdmin(address(rejectETH));
-        setMsgSender(users.depositor);
-
+        // It should transfer the native fee to the comptroller address.
         // Create a fresh vault and deposit.
         uint256 vaultId = createDefaultVault();
         bob.enter(vaultId, DEPOSIT_AMOUNT);
@@ -84,9 +75,15 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         // Warp past expiry to settle the vault.
         vm.warp(EXPIRY + 1);
 
-        // Attempt to redeem with a non-zero msg.value (to trigger native fee transfer).
-        vm.expectRevert(Errors.SablierBob_NativeFeeTransferFailed.selector);
-        bob.redeem{ value: 1 wei }(vaultId);
+        // Get comptroller balance before.
+        uint256 comptrollerBalanceBefore = address(comptroller).balance;
+
+        // Redeem with a non-zero msg.value.
+        bob.redeem{ value: 1 ether }(vaultId);
+
+        // Assert native fee was transferred to comptroller.
+        uint256 comptrollerBalanceAfter = address(comptroller).balance;
+        assertEq(comptrollerBalanceAfter - comptrollerBalanceBefore, 1 ether, "fee should be sent to comptroller");
     }
 
     function test_WhenFeePaymentSufficient()
@@ -240,7 +237,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
 
         // Get state before.
         uint256 wethBalanceBefore = IERC20(address(weth)).balanceOf(users.depositor);
-        uint256 adminBalanceBefore = IERC20(address(weth)).balanceOf(comptroller.admin());
+        uint256 comptrollerBalanceBefore = IERC20(address(weth)).balanceOf(address(comptroller));
 
         // Redeem.
         (uint256 transferredAmount, uint256 feeAmount) = bob.redeem(vaultId);
@@ -259,12 +256,12 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         // User should receive more than deposited amount due to yield.
         assertGt(wethReturned, 0, "WETH returned should be non-zero");
 
-        // Assert fee was sent to comptroller admin (if there was positive yield).
-        uint256 adminBalanceAfter = IERC20(address(weth)).balanceOf(comptroller.admin());
-        uint256 feeReceived = adminBalanceAfter - adminBalanceBefore;
-        assertGt(feeReceived, 0, "fee should be sent to admin");
+        // Assert fee was sent to comptroller (if there was positive yield).
+        uint256 comptrollerBalanceAfter = IERC20(address(weth)).balanceOf(address(comptroller));
+        uint256 feeReceived = comptrollerBalanceAfter - comptrollerBalanceBefore;
+        assertGt(feeReceived, 0, "fee should be sent to comptroller");
 
-        // Assert feeAmount return value matches actual fee sent to admin.
-        assertEq(feeAmount, feeReceived, "feeAmount should match actual fee sent to admin");
+        // Assert feeAmount return value matches actual fee sent to comptroller.
+        assertEq(feeAmount, feeReceived, "feeAmount should match actual fee sent to comptroller");
     }
 }

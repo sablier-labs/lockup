@@ -267,7 +267,7 @@ contract SablierBob is
             // Check: the deposit token is staked with the adapter.
             if (vault.isStakedWithAdapter == true) {
                 // Interaction: unstake all tokens via the adapter.
-                // TODO: transfer fee to comptroller admin that transferring per user basis.
+                // TODO: transfer entire fee to comptroller admin instead of transferring when user redeems.
                 _unstakeFullAmountViaAdapter(vaultId);
 
                 // Effect: set isStakedWithAdapter to false.
@@ -281,9 +281,9 @@ contract SablierBob is
             // Interaction: transfer the amount to the caller.
             vault.token.safeTransfer(msg.sender, amountToTransfer);
 
-            // Interaction: transfer the fee to the comptroller admin.
+            // Interaction: transfer the fee to the comptroller address.
             if (feeAmount > 0) {
-                vault.token.safeTransfer(comptroller.admin(), feeAmount);
+                vault.token.safeTransfer(address(comptroller), feeAmount);
             }
         }
         // Otherwise, check that `msg.value` is greater than or equal to the minimum fee required.
@@ -296,9 +296,9 @@ contract SablierBob is
                 revert Errors.SablierBob_InsufficientFeePayment(msg.value, minFeeWei);
             }
 
-            // Interaction: forward native token fee to comptroller admin.
+            // Interaction: forward native token fee to comptroller.
             if (msg.value > 0) {
-                (bool success,) = comptroller.admin().call{ value: msg.value }("");
+                (bool success,) = address(comptroller).call{ value: msg.value }("");
                 if (!success) {
                     revert Errors.SablierBob_NativeFeeTransferFailed();
                 }

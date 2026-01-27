@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC1822Proxiable } from "@openzeppelin/contracts/interfaces/draft-IERC1822.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { IRoleAdminable } from "./IRoleAdminable.sol";
 
@@ -63,6 +64,9 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
         uint256 previousMinFeeUSD,
         uint256 newMinFeeUSD
     );
+
+    /// @notice Emitted when the admin withdraws ERC-20 tokens from the comptroller.
+    event WithdrawERC20Token(address indexed admin, IERC20 indexed token, address indexed to, uint256 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
@@ -223,4 +227,16 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @param protocolAddresses An array of addresses of the Sablier protocols from which fees is transferred from.
     /// @param feeRecipient The address to which the entire fee from this contract is transferred.
     function transferFees(address[] calldata protocolAddresses, address feeRecipient) external;
+
+    /// @notice Withdraws the entire ERC-20 token balance from the comptroller to a specified recipient.
+    /// @dev Emits a {WithdrawERC20Token} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the admin.
+    /// - `to` must not be the zero address.
+    /// - The token balance of this contract must not be zero.
+    ///
+    /// @param token The ERC-20 token to withdraw.
+    /// @param to The address to send the tokens to.
+    function withdrawERC20Token(IERC20 token, address to) external;
 }

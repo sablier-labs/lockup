@@ -1,18 +1,8 @@
 # Bob Architecture Diagrams
 
-High-level architectural overview of the SablierBob protocol.
-
 ## Contract Architecture
 
 ```
-                                    ┌─────────────────────┐
-                                    │  SablierComptroller │
-                                    │  (fee management)   │
-                                    └──────────┬──────────┘
-                                               │
-                              fee queries + admin configuration
-                                               │
-                                               ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                              SablierBob                                      │
 │                                                                              │
@@ -235,5 +225,260 @@ High-level architectural overview of the SablierBob protocol.
     │                                                                         │
     │    No fee charged (full refund within 4 hours of deposit)               │
     │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
+```
+
+______________________________________________________________________
+
+# Sablier Escrow Architecture Diagrams
+
+High-level architectural overview of the SablierEscrow OTC token swap protocol.
+
+## Contract Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            SablierEscrow                                     │
+│                                                                              │
+│  OTC (over-the-counter) token swap protocol                                  │
+│  • Creates and manages escrow orders                                         │
+│  • Holds seller's tokens in escrow                                           │
+│  • Facilitates atomic token swaps                                            │
+│  • Supports open and private orders                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+         │                              │                              │
+         │                              │                              │
+    sell tokens                    buy tokens                    trade fees
+    (escrowed)                    (from buyer)                   (to admin)
+         │                              │                              │
+         ▼                              ▼                              ▼
+┌─────────────────┐          ┌─────────────────┐          ┌─────────────────┐
+│ Seller's ERC20  │          │ Buyer's ERC20   │          │ Comptroller     │
+│                 │          │                 │          │ Admin           │
+│ Held in escrow  │          │ Transferred to  │          │                 │
+│ until order     │          │ seller when     │          │ Receives trade  │
+│ completion      │          │ order filled    │          │ fees (max 2%)   │
+└─────────────────┘          └─────────────────┘          └─────────────────┘
+```
+
+## Order Lifecycle
+
+```
+                              ┌─────────────┐
+                              │   CREATE    │
+                              │   ORDER     │
+                              └──────┬──────┘
+                                     │
+                          seller deposits sell tokens
+                                     │
+                                     ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                  OPEN                                        │
+│                                                                              │
+│  • Sell tokens are held in escrow                                            │
+│  • Waiting for buyer to fill                                                 │
+│  • Seller can cancel at any time                                             │
+│  • Open order: anyone can fill                                               │
+│  • Private order: only designated buyer can fill                           │
+│                                                                              │
+│  Transitions when:                                                           │
+│  • Buyer fills → FILLED                                                      │
+│  • Seller cancels → CANCELLED                                                │
+│  • Expiry passes (no action) → EXPIRED                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                     │
+           ┌─────────────────────────┼─────────────────────────┐
+           │                         │                         │
+           ▼                         ▼                         ▼
+    ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
+    │    FILLED    │         │  CANCELLED   │         │   EXPIRED    │
+    │              │         │              │         │              │
+    │ Buyer paid   │         │ Seller       │         │ No buyer     │
+    │ buy tokens   │         │ reclaimed    │         │ filled       │
+    │              │         │ sell tokens  │         │ before       │
+    │ Seller got   │         │              │         │ expiry       │
+    │ buy tokens   │         │ No fees      │         │              │
+    │              │         │ charged      │         │ Seller can   │
+    │ Buyer got    │         │              │         │ still cancel │
+    │ sell tokens  │         │              │         │ to reclaim   │
+    │              │         │              │         │              │
+    │ Trade fees   │         │              │         │              │
+    │ deducted     │         │              │         │              │
+    └──────────────┘         └──────────────┘         └──────────────┘
+```
+
+## User Flows
+
+```
+                              USER INTERACTIONS
+                              ═════════════════
+
+    ┌─────────┐
+    │ SELLER  │
+    └────┬────┘
+         │
+         ├─────────── CREATE ORDER ────────────────────────────────────────────┐
+         │                                                                     │
+         │            ┌────────────────┐                                       │
+         │            │ SablierEscrow  │                                       │
+         │            │                │                                       │
+         │  sell      │  Escrows sell  │                                       │
+         │  tokens ──►│  tokens        │                                       │
+         │            │                │                                       │
+         │            │  Creates order │                                       │
+         │            │  with params:  │                                       │
+         │            │  • sellToken   │                                       │
+         │            │  • sellAmount  │                                       │
+         │            │  • buyToken    │                                       │
+         │            │  • minBuyAmt   │                                       │
+         │            │  • buyer (opt) │                                       │
+         │            │  • expiry      │                                       │
+         │            └────────────────┘                                       │
+         │                                                                     │
+         ├─────────── CANCEL ORDER ────────────────────────────────────────────┤
+         │                                                                     │
+         │            ┌────────────────┐                                       │
+         │            │ SablierEscrow  │                                       │
+         │            │                │                                       │
+         │            │  Returns sell  │───► sell tokens back to seller        │
+         │            │  tokens        │                                       │
+         │            │                │                                       │
+         │            │  Order status  │                                       │
+         │            │  → CANCELLED   │                                       │
+         │            └────────────────┘                                       │
+         │                                                                     │
+         └─────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────┐
+    │  BUYER  │
+    └────┬────┘
+         │
+         └─────────── FILL ORDER ──────────────────────────────────────────────┐
+                                                                               │
+                      ┌────────────────┐                                       │
+                      │ SablierEscrow  │                                       │
+                      │                │                                       │
+            buy       │  Validates:    │                                       │
+            tokens ──►│  • Order OPEN  │                                       │
+                      │  • Not expired │                                       │
+                      │  • Buyer auth  │                                       │
+                      │  • Amount OK   │                                       │
+                      │                │                                       │
+                      │  Executes:     │                                       │
+                      │  ┌───────────────────────────────────────────┐         │
+                      │  │ sell tokens ──► buyer (minus fee)        │         │
+                      │  │ buy tokens  ──► seller (minus fee)       │         │
+                      │  │ trade fees  ──► comptroller admin        │         │
+                      │  └───────────────────────────────────────────┘         │
+                      │                │                                       │
+                      │  Order status  │                                       │
+                      │  → FILLED      │                                       │
+                      └────────────────┘                                       │
+                                                                               │
+                      Note: Buyer can pay MORE than minBuyAmount               │
+                      for price improvement (better deal for seller)           │
+                                                                               │
+                      ─────────────────────────────────────────────────────────┘
+```
+
+## Order Types
+
+```
+                              ORDER TYPES
+                              ═══════════
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                         OPEN ORDER                                      │
+    │                                                                         │
+    │    buyer = address(0)                                                   │
+    │                                                                         │
+    │    • Anyone can fill the order                                          │
+    │    • First come, first served                                           │
+    │    • Useful for public OTC offers                                       │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                        PRIVATE ORDER                                    │
+    │                                                                         │
+    │    buyer = specific address                                             │
+    │                                                                         │
+    │    • Only designated buyer can fill                                     │
+    │    • Pre-negotiated deal between parties                                │
+    │    • Useful for private OTC trades                                      │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
+```
+
+## Fee Model
+
+```
+                              FEE STRUCTURE
+                              ═════════════
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                         TRADE FEE                                       │
+    │                                                                         │
+    │    Applied when order is filled (atomic swap)                           │
+    │                                                                         │
+    │    • Maximum: 2% (0.02e18 in UD60x18)                                    │
+    │    • Set by comptroller admin via setTradeFee()                         │
+    │    • Applied to both sell and buy amounts                               │
+    │    • Fees sent to comptroller admin                                     │
+    │                                                                         │
+    │    Example (1% fee, 100 TOKEN_A for 200 TOKEN_B):                       │
+    │    ┌───────────────────────────────────────────────────────────────┐    │
+    │    │ Seller receives: 200 - 2 = 198 TOKEN_B                        │    │
+    │    │ Buyer receives:  100 - 1 = 99 TOKEN_A                         │    │
+    │    │ Admin receives:  1 TOKEN_A + 2 TOKEN_B (fees)                 │    │
+    │    └───────────────────────────────────────────────────────────────┘    │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                      ORDER CANCELLATION                                 │
+    │                                                                         │
+    │    No fee charged                                                       │
+    │    Seller gets full sell amount back                                    │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
+```
+
+## Trade Flow Example
+
+```
+                           COMPLETE TRADE EXAMPLE
+                           ══════════════════════
+
+    Alice wants to sell 1000 USDC for at least 0.5 ETH
+    Bob wants to buy USDC with ETH
+
+    Step 1: Alice creates order
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  createOrder(                                                           │
+    │      sellToken: USDC,                                                   │
+    │      sellAmount: 1000e6,      // 1000 USDC                              │
+    │      buyToken: WETH,                                                    │
+    │      minBuyAmount: 0.5e18,    // 0.5 ETH minimum                        │
+    │      buyer: address(0),       // open order                             │
+    │      expiry: block.timestamp + 1 days                                   │
+    │  )                                                                      │
+    │                                                                         │
+    │  → 1000 USDC transferred from Alice to Escrow                           │
+    │  → Order #1 created                                                     │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+    Step 2: Bob fills order (offers 0.6 ETH for price improvement)
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  fillOrder(                                                             │
+    │      orderId: 1,                                                        │
+    │      buyAmount: 0.6e18        // 0.6 ETH (better than min)              │
+    │  )                                                                      │
+    │                                                                         │
+    │  Assuming 1% trade fee:                                                 │
+    │  → Alice receives: 0.6 ETH - 0.006 ETH = 0.594 ETH                      │
+    │  → Bob receives: 1000 USDC - 10 USDC = 990 USDC                         │
+    │  → Admin receives: 0.006 ETH + 10 USDC                                  │
+    │  → Order #1 status → FILLED                                             │
     └─────────────────────────────────────────────────────────────────────────┘
 ```
