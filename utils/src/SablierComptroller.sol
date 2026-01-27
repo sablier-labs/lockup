@@ -5,6 +5,8 @@ pragma solidity >=0.8.22;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
@@ -41,6 +43,8 @@ contract SablierComptroller is
     RoleAdminable, // 3 inherited components
     UUPSUpgradeable // 1 inherited component
 {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -403,6 +407,28 @@ contract SablierComptroller is
 
         // Log the fee withdrawal.
         emit TransferFees(feeRecipient, feeAmount);
+    }
+
+    /// @inheritdoc ISablierComptroller
+    function withdrawERC20Token(IERC20 token, address to) external override onlyAdmin {
+        // Check: the recipient is not the zero address.
+        if (to == address(0)) {
+            revert Errors.SablierComptroller_ToZeroAddress();
+        }
+
+        // Get the entire token balance of this contract.
+        uint256 amount = token.balanceOf(address(this));
+
+        // Check: the token balance is not zero.
+        if (amount == 0) {
+            revert Errors.SablierComptroller_TokenBalanceZero(address(token));
+        }
+
+        // Interaction: transfer the tokens to the recipient.
+        token.safeTransfer(to, amount);
+
+        // Log the withdrawal.
+        emit WithdrawERC20Token({ admin: msg.sender, token: token, to: to, amount: amount });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

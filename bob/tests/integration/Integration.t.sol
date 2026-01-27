@@ -74,7 +74,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "null vault call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierBob_VaultNotFound.selector, nullVaultId),
+            abi.encodeWithSelector(Errors.SablierBobState_Null.selector, nullVaultId),
             "null vault call return data"
         );
     }

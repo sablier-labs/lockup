@@ -11,8 +11,8 @@ Redeem_Integration_Concrete_Test
          ├── given vault has no adapter
          │  ├── when fee payment insufficient
          │  │  └── it should revert
-         │  ├── when native fee transfer fails
-         │  │  └── it should revert
+         │  ├── when native fee transferred to comptroller
+         │  │  └── it should transfer the native fee to the comptroller address
          │  └── when fee payment sufficient
          │     └── it should redeem with native fee
          └── given vault has adapter

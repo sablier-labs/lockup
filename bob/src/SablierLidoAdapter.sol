@@ -266,7 +266,7 @@ contract SablierLidoAdapter is
         IWETH9(WETH).withdraw(amount);
 
         // Interaction: Stake ETH to get stETH.
-        uint256 stETHAmount = IStETH(STETH).submit{ value: amount }({ referral: comptroller.admin() });
+        uint256 stETHAmount = IStETH(STETH).submit{ value: amount }({ referral: address(comptroller) });
 
         // Interaction: Wrap stETH into wstETH.
         uint256 wstETHAmount = IWstETH(WSTETH).wrap(stETHAmount);

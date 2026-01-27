@@ -38,6 +38,7 @@ tests/
 just build bob              # Build
 just test bob               # Run tests
 just test-lite bob          # Fast tests (no optimizer)
+just coverage bob           # Coverage report
 just full-check bob         # All checks
 ```
 
@@ -48,19 +49,7 @@ just full-check bob         # All checks
 - **Grace Period**: 4 hours to exit after deposit without settlement
 - **Settlement**: When price target is met or vault expires
 - **Adapter**: Optional yield strategy (e.g., Lido for WETH)
-- **Token requirements**: Must implement `symbol()` and `decimals()`
-- **Oracle requirements**: Must return 8 decimals and positive price
-
-## Vault States
-
-- **ACTIVE**: Accepting deposits, not yet settled
-- **SETTLED**: Price target reached, pending redemptions
-- **EXPIRED**: Expiry reached without settling, pending redemptions
-
-## Fee Structure
-
-- **Non-adapter vaults**: Native token fee on redeem (via comptroller)
-- **Adapter vaults**: Yield fee (% of staking rewards, max 20%)
+- **Vault States**: ACTIVE (open for deposits), SETTLED (target reached or expired)
 
 ## Import Path
 

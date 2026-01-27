@@ -9,22 +9,17 @@ import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptroller
 import { ISablierEscrowState } from "./ISablierEscrowState.sol";
 
 /// @title ISablierEscrow
-/// @notice Interface for the Sablier Escrow OTC (over-the-counter) token swap protocol.
+/// @notice Interface for the Sablier Escrow protocol.
 interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when an order is cancelled by the seller.
+    event CancelOrder(uint256 indexed orderId, address indexed seller, uint128 sellAmount);
+
     /// @notice Emitted when a new order is created.
-    /// @param orderId The unique identifier of the order.
-    /// @param seller The address of the order creator (seller).
-    /// @param buyer The designated counterparty address, or zero address for open orders.
-    /// @param sellToken The ERC-20 token being sold.
-    /// @param buyToken The ERC-20 token the seller wants to receive.
-    /// @param sellAmount The amount of sell token escrowed.
-    /// @param minBuyAmount The minimum amount of buy token the seller will accept.
-    /// @param expiry The Unix timestamp when the order expires.
-    event OrderCreated(
+    event CreateOrder(
         uint256 indexed orderId,
         address indexed seller,
         address indexed buyer,
@@ -32,124 +27,94 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
         IERC20 buyToken,
         uint128 sellAmount,
         uint128 minBuyAmount,
-        uint40 expiry
+        uint40 expireAt
     );
 
-    /// @notice Emitted when an order is accepted and the trade is settled.
-    /// @param orderId The unique identifier of the order.
-    /// @param buyer The address that accepted the order.
-    /// @param sellAmount The amount of sell token transferred to the buyer (after fees).
-    /// @param buyAmount The actual amount of buy token paid by the buyer (after fees deducted to seller).
-    event OrderAccepted(uint256 indexed orderId, address indexed buyer, uint128 sellAmount, uint128 buyAmount);
+    /// @notice Emitted when an order is filled.
+    event FillOrder(
+        uint256 indexed orderId,
+        address indexed buyer,
+        address indexed seller,
+        uint128 sellAmount,
+        uint128 buyAmount,
+        uint128 feeDeductedFromBuyerAmount,
+        uint128 feeDeductedFromSellerAmount
+    );
 
-    /// @notice Emitted when an order is cancelled by the seller.
-    /// @param orderId The unique identifier of the order.
-    /// @param seller The address of the seller who cancelled.
-    /// @param sellAmount The amount of sell token returned to the seller.
-    event OrderCancelled(uint256 indexed orderId, address indexed seller, uint128 sellAmount);
-
-    /// @notice Emitted when the protocol fee is updated.
-    /// @param admin The address of the admin who updated the fee.
-    /// @param oldProtocolFee The previous protocol fee.
-    /// @param newProtocolFee The new protocol fee.
-    event SetProtocolFee(address indexed admin, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
+    /// @notice Emitted when the trade fee is updated.
+    event SetTradeFee(address indexed caller, UD60x18 previousTradeFee, UD60x18 newTradeFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a new OTC order with the specified parameters.
+    /// @notice Cancels an order and returns the escrowed tokens to the caller.
     ///
-    /// @dev Emits an {OrderCreated} event.
+    /// @dev Emits a {CancelOrder} event.
     ///
-    /// Notes:
-    /// - The sell tokens are transferred to the escrow contract upon order creation.
-    /// - The order ID is an incremental counter starting from 1.
-    /// - If `buyer` is the zero address, anyone can accept the order (open order).
-    /// - If `buyer` is a non-zero address, only that address can accept the order (private order).
+    /// Requirements:
+    /// - The order must exist.
+    /// - The order status must either be OPEN or EXPIRED.
+    /// - The caller must be the seller of the order.
+    ///
+    /// @param orderId The order ID to cancel.
+    function cancelOrder(uint256 orderId) external;
+
+    /// @notice Creates a new order for a peer-to-peer token swap.
+    ///
+    /// @dev Emits a {CreateOrder} event.
     ///
     /// Requirements:
     /// - `sellToken` must not be the zero address.
     /// - `buyToken` must not be the zero address.
-    /// - `sellToken` and `buyToken` must be different addresses.
+    /// - `sellToken` and `buyToken` must not be the same token.
     /// - `sellAmount` must be greater than zero.
     /// - `minBuyAmount` must be greater than zero.
-    /// - `expiry` must be in the future.
-    /// - The caller must have approved this contract to transfer `sellAmount` of `sellToken`.
+    /// - If `expireAt` is non-zero, it must be in the future. Zero is sentinel for orders that never expire.
+    /// - The caller must have approved this contract to transfer atleast `sellAmount` of `sellToken`.
     ///
-    /// Supported Tokens:
-    /// - Standard ERC-20 tokens
-    /// - Fee-on-transfer and rebasing tokens are NOT supported
-    ///
-    /// @param sellToken The ERC-20 token to sell.
-    /// @param sellAmount The amount of sell token to escrow.
-    /// @param buyToken The ERC-20 token to receive.
-    /// @param minBuyAmount The minimum amount of buy token to accept.
-    /// @param buyer The designated counterparty address, or zero address for open orders.
-    /// @param expiry The Unix timestamp when the order expires.
-    /// @return orderId The unique identifier of the newly created order.
+    /// @param sellToken The address of the ERC-20 token to sell.
+    /// @param sellAmount The amount of sell token to exchange.
+    /// @param buyToken The address of the ERC-20 token to receive.
+    /// @param minBuyAmount The minimum amount of buy token to fill this trade.
+    /// @param buyer The designated counterparty address specified by the seller. If its zero address, the order can be
+    /// filled by anyone.
+    /// @param expireAt The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
+    /// @return orderId The order ID of the newly created order.
     function createOrder(
         IERC20 sellToken,
         uint128 sellAmount,
         IERC20 buyToken,
         uint128 minBuyAmount,
         address buyer,
-        uint40 expiry
+        uint40 expireAt
     )
         external
         returns (uint256 orderId);
 
-    /// @notice Accepts an open order and settles the trade by exchanging tokens.
+    /// @notice Fill an open order.
     ///
-    /// @dev Emits an {OrderAccepted} event.
-    ///
-    /// Notes:
-    /// - The escrowed sell tokens are transferred to the caller (buyer).
-    /// - The buy tokens are transferred from the caller to the seller.
-    /// - The order status becomes COMPLETED after acceptance.
-    /// - Buyers can pay more than `minBuyAmount` for price improvement (offering a better deal to the seller).
+    /// @dev Emits an {FillOrder} event.
     ///
     /// Requirements:
     /// - The order must exist.
-    /// - The order must be in OPEN status (not completed, cancelled, or expired).
-    /// - The order must not have expired (`block.timestamp < expiry`).
-    /// - If the order has a designated buyer, the caller must be that buyer.
-    /// - `buyAmount` must be greater than or equal to the order's `minBuyAmount`.
-    /// - The caller must have approved this contract to transfer `buyAmount` of `buyToken`.
+    /// - The order must be in OPEN status.
+    /// - If the order has buyer specified, the caller must be the buyer.
+    /// - `buyAmount` must be greater than or equal to the `minBuyAmount`.
+    /// - The caller must have approved this contract to transfer atleast `buyAmount` of `buyToken`.
     ///
-    /// @param orderId The unique identifier of the order to accept.
-    /// @param buyAmount The amount of buy token to pay (must be >= minBuyAmount for price improvement).
-    function acceptOrder(uint256 orderId, uint128 buyAmount) external;
+    /// @param orderId The order ID to fill.
+    /// @param buyAmount The amount of buy token to exchange.
+    function fillOrder(uint256 orderId, uint128 buyAmount) external;
 
-    /// @notice Cancels an open order and returns the escrowed tokens to the seller.
+    /// @notice Sets the fee to apply on each trade.
     ///
-    /// @dev Emits an {OrderCancelled} event.
-    ///
-    /// Notes:
-    /// - The escrowed sell tokens are returned to the seller.
-    /// - The order status becomes CANCELLED after cancellation.
-    /// - Can be called at any time while the order is OPEN (even after expiry).
-    ///
-    /// Requirements:
-    /// - The order must exist.
-    /// - The order must be in OPEN status (not completed or already cancelled).
-    /// - The caller must be the seller.
-    ///
-    /// @param orderId The unique identifier of the order to cancel.
-    function cancelOrder(uint256 orderId) external;
-
-    /// @notice Sets the protocol fee percentage.
-    ///
-    /// @dev Emits a {SetProtocolFee} event.
-    ///
-    /// Notes:
-    /// - The fee is represented as a UD60x18 value where 1e18 = 100%.
-    /// - The maximum fee is 1% (0.01e18 in UD60x18 format).
+    /// @dev Emits a {SetTradeFee} event.
     ///
     /// Requirements:
     /// - The caller must be the comptroller admin.
-    /// - `newProtocolFee` must not exceed {MAX_FEE}.
+    /// - `newTradeFee` must not exceed the maximum trade fee.
     ///
-    /// @param newProtocolFee The new protocol fee to set.
-    function setProtocolFee(UD60x18 newProtocolFee) external;
+    /// @param newTradeFee The new trade fee to set, denominated in UD60x18, where 1e18 = 100%.
+    function setTradeFee(UD60x18 newTradeFee) external;
 }

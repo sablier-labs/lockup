@@ -156,7 +156,7 @@ abstract contract SablierBobState is ISablierBobState {
     function _notNull(uint256 vaultId) private view {
         // A vault is considered null if its token address is zero, as tokens are always checked on creation.
         if (address(_vaults[vaultId].token) == address(0)) {
-            revert Errors.SablierBob_VaultNotFound(vaultId);
+            revert Errors.SablierBobState_Null(vaultId);
         }
     }
 }

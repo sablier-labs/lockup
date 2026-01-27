@@ -158,6 +158,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenRecipientNotZeroAddress() {
+        _;
+    }
+
     modifier whenSafeOraclePriceNotZero() {
         _;
     }
@@ -175,6 +179,10 @@ abstract contract Modifiers is BaseTest {
     }
 
     modifier whenTargetContract() {
+        _;
+    }
+
+    modifier givenTokenBalanceNotZero() {
         _;
     }
 }
