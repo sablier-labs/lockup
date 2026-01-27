@@ -42,7 +42,7 @@ install package:
 
 # Install dependencies in all packages
 install-all:
-    for dir in airdrops flow lockup utils; do (cd $dir && ni); done
+    for dir in airdrops bob flow lockup utils; do (cd $dir && ni); done
 
 # Setup script
 setup: setup-env install-all base::install-mdformat
@@ -160,7 +160,7 @@ test-optimized-all:
 for-each recipe *args:
     #!/usr/bin/env bash
     set -euo pipefail
-    for dir in airdrops flow lockup utils; do
+    for dir in airdrops bob flow lockup utils; do
         just "$dir/{{ recipe }}" {{ args }}
     done
 
@@ -171,7 +171,7 @@ setup-env:
     # Create root .env if it doesn't exist
     [ ! -f .env ] && touch .env
     # Create symlinks in each package
-    for dir in airdrops flow lockup utils; do
+    for dir in airdrops bob flow lockup utils; do
         [ ! -L "$dir/.env" ] && ln -sf ../.env "$dir/.env" || true
         [ ! -L "$dir/.prettierignore" ] && ln -sf ../.prettierignore "$dir/.prettierignore" || true
     done

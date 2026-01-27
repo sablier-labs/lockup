@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------------- #
+#                                   BOB CONFIG                                 #
+# ---------------------------------------------------------------------------- #
+
+[profile.default]
+  extends = "../foundry.base.toml"
+  optimizer_runs = 500
+
+[profile.default.fuzz]
+  runs = 50
+
+[profile.default.invariant]
+  depth = 20
+  runs = 20
+
+[profile.lite]
+  extends = "../foundry.base.toml"
+
+[profile.optimized]
+  extends = "../foundry.base.toml"
+  test = "tests/mocks"
+
+[profile.test-optimized]
+  extends = "../foundry.base.toml"

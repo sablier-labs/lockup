@@ -1,0 +1,25 @@
+Redeem_Integration_Concrete_Test
+├── given null vault
+│  └── it should revert
+└── given not null vault
+   ├── given vault not settled
+   │  └── it should revert
+   └── given vault settled
+      ├── when no shares to redeem
+      │  └── it should revert
+      └── when caller has shares
+         ├── given vault has no adapter
+         │  ├── when fee payment insufficient
+         │  │  └── it should revert
+         │  ├── when native fee transfer fails
+         │  │  └── it should revert
+         │  └── when fee payment sufficient
+         │     └── it should redeem with native fee
+         └── given vault has adapter
+            ├── given vault not unstaked
+            │  └── it should unstake all and redeem
+            └── given vault already unstaked
+               ├── given no positive yield
+               │  └── it should redeem without fee
+               └── given positive yield
+                  └── it should redeem with yield fee

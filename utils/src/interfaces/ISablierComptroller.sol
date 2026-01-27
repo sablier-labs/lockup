@@ -26,7 +26,8 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
         Airdrops,
         Flow,
         Lockup,
-        Staking
+        Staking,
+        Bob
     }
 
     /// @notice Struct encapsulating the fees for a protocol.
