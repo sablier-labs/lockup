@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { convert as toScaledUD60x18, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
@@ -139,9 +138,11 @@ library LockupMath {
     /// - $x$ is the elapsed time percentage with discrete unlocks:
     ///
     /// $$
-    ///        ⌊time elapsed / granularity⌋
-    /// x = ────────────────────────────────────
-    ///       streamable time / granularity
+    ///
+    ///     ⌊time elapsed / granularity⌋ * granularity
+    /// x = －－－－－－－－－－－－－－－－－－－－－－－－－
+    ///                streamable time
+    ///
     /// $$
     ///
     /// The floor division in the numerator creates discrete unlock steps at every granularity seconds.
@@ -195,30 +196,29 @@ library LockupMath {
 
             // Calculate the time elapsed in granularity units as the floor division of time elapsed and unlock
             // granularity.
-            UD60x18 elapsedTimeInGranularityUnits;
+            uint256 elapsedTimeInGranularityUnits;
 
-            // Calculate the streamable period in granularity units as exact division of streamable period and
-            // granularity.
-            UD60x18 streamablePeriodInGranularityUnits;
+            // Calculate the streamable duration.
+            uint256 streamableTotalDuration;
 
-            // The time elapsed in granularity units is scaled to 1e18 to match the scale of the streamable time
-            // in granularity units.
             if (cliffTime == 0) {
-                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - startTime) / granularity);
-                streamablePeriodInGranularityUnits = ud(endTime - startTime).div(ud(granularity));
+                elapsedTimeInGranularityUnits = (blockTimestamp - startTime) / granularity;
+                streamableTotalDuration = uint256(endTime - startTime);
             } else {
-                elapsedTimeInGranularityUnits = toScaledUD60x18((blockTimestamp - cliffTime) / granularity);
-                streamablePeriodInGranularityUnits = ud(endTime - cliffTime).div(ud(granularity));
+                elapsedTimeInGranularityUnits = (blockTimestamp - cliffTime) / granularity;
+                streamableTotalDuration = uint256(endTime - cliffTime);
             }
 
             // Calculate the streamable amount.
-            UD60x18 streamableAmount = ud(depositedAmount - unlockAmountsSum);
+            uint256 streamableAmount = depositedAmount - unlockAmountsSum;
 
-            // The streamed amount is the sum of the unlock amounts plus the product of elapsed time percentage and the
-            // streamable amount.
-            uint128 streamedAmount = unlockAmountsSum
-                + elapsedTimeInGranularityUnits.mul(streamableAmount).div(streamablePeriodInGranularityUnits)
-                    .intoUint128();
+            // Calculate the streamed portion: floor(elapsed/g) * streamableAmount * g / streamableTotalDuration.
+            uint256 streamedPortion =
+                elapsedTimeInGranularityUnits * streamableAmount * granularity / streamableTotalDuration;
+
+            // The streamed amount is the sum of the unlock amounts plus the streamed portion. The cast to uint128 is
+            // safe because `floor(elapsed/g) * g < streamableTotalDuration`, so `streamedPortion < streamableAmount`.
+            uint128 streamedAmount = unlockAmountsSum + uint128(streamedPortion);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking tokens in case of a bug. If this situation occurs, the withdrawn

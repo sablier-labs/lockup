@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { convert, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
@@ -35,35 +34,33 @@ abstract contract Calculations is BaseUtils {
             return depositAmount;
         }
 
-        unchecked {
-            uint128 previousSegmentAmounts;
-            uint40 currentSegmentTimestamp = segments[0].timestamp;
-            uint256 index = 0;
-            while (currentSegmentTimestamp < blockTimestamp) {
-                previousSegmentAmounts += segments[index].amount;
-                index += 1;
-                currentSegmentTimestamp = segments[index].timestamp;
-            }
-
-            SD59x18 currentSegmentAmount = segments[index].amount.intoSD59x18();
-            SD59x18 currentSegmentExponent = segments[index].exponent.intoSD59x18();
+        uint128 previousSegmentAmounts;
+        uint40 currentSegmentTimestamp = segments[0].timestamp;
+        uint256 index = 0;
+        while (currentSegmentTimestamp < blockTimestamp) {
+            previousSegmentAmounts += segments[index].amount;
+            index += 1;
             currentSegmentTimestamp = segments[index].timestamp;
-
-            uint40 previousTimestamp;
-            if (index > 0) {
-                previousTimestamp = segments[index - 1].timestamp;
-            } else {
-                previousTimestamp = startTime;
-            }
-
-            SD59x18 elapsedTime = (blockTimestamp - previousTimestamp).intoSD59x18();
-            SD59x18 segmentDuration = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
-
-            SD59x18 elapsedTimePercentage = elapsedTime.div(segmentDuration);
-            SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
-            SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
-            return previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
+
+        SD59x18 currentSegmentAmount = segments[index].amount.intoSD59x18();
+        SD59x18 currentSegmentExponent = segments[index].exponent.intoSD59x18();
+        currentSegmentTimestamp = segments[index].timestamp;
+
+        uint40 previousTimestamp;
+        if (index > 0) {
+            previousTimestamp = segments[index - 1].timestamp;
+        } else {
+            previousTimestamp = startTime;
+        }
+
+        SD59x18 elapsedTime = (blockTimestamp - previousTimestamp).intoSD59x18();
+        SD59x18 segmentDuration = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
+
+        SD59x18 elapsedTimePercentage = elapsedTime.div(segmentDuration);
+        SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
+        SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
+        return previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
     }
 
     /// @dev Replicates the logic of {LockupMath._calculateStreamedAmountLL}.
@@ -73,7 +70,7 @@ abstract contract Calculations is BaseUtils {
         uint40 endTime,
         uint128 depositAmount,
         LockupLinear.UnlockAmounts memory unlockAmounts,
-        uint40 granularity
+        uint256 granularity
     )
         internal
         view
@@ -96,19 +93,28 @@ abstract contract Calculations is BaseUtils {
             return depositAmount;
         }
 
-        unchecked {
-            uint128 unlockAmountsSum = unlockAmounts.start + unlockAmounts.cliff;
-            if (unlockAmountsSum >= depositAmount) {
-                return depositAmount;
-            }
-
-            uint40 referenceTime = cliffTime > 0 ? cliffTime : startTime;
-            UD60x18 elapsedTime = convert((blockTimestamp - referenceTime) / granularity);
-            UD60x18 streamableDuration = ud(endTime - referenceTime).div(ud(granularity));
-            UD60x18 streamableAmount = ud(depositAmount - unlockAmountsSum);
-
-            return unlockAmountsSum + elapsedTime.mul(streamableAmount).div(streamableDuration).intoUint128();
+        uint128 unlockAmountsSum = unlockAmounts.start + unlockAmounts.cliff;
+        if (unlockAmountsSum >= depositAmount) {
+            return depositAmount;
         }
+
+        // Determine the reference time (cliff or start).
+        uint40 referenceTime = cliffTime > 0 ? cliffTime : startTime;
+
+        // Calculate elapsed granularity units (floored).
+        uint256 elapsedTimeInGranularityUnits = (blockTimestamp - referenceTime) / granularity;
+
+        // Calculate the streamable period scaled. Cast to uint256 to avoid overflow.
+        uint256 streamableTotalDuration = uint256(endTime - referenceTime);
+
+        // Calculate the streamable amount.
+        uint256 streamableAmount = depositAmount - unlockAmountsSum;
+
+        // Formula: streamedPortion = floor(elapsed/g) * streamableAmount * g / totalDuration
+        uint256 streamedPortionScaled =
+            (elapsedTimeInGranularityUnits * streamableAmount * granularity) / streamableTotalDuration;
+
+        return unlockAmountsSum + uint128(streamedPortionScaled);
     }
 
     /// @dev Replicates the logic of {LockupMath._calculateStreamedAmountLT}.
@@ -135,12 +141,10 @@ abstract contract Calculations is BaseUtils {
         uint256 index = 1;
 
         // Using unchecked arithmetic is safe because the tranches amounts sum equal to total amount at this point.
-        unchecked {
-            while (currentTrancheTimestamp <= blockTimestamp) {
-                streamedAmount += tranches[index].amount;
-                index += 1;
-                currentTrancheTimestamp = tranches[index].timestamp;
-            }
+        while (currentTrancheTimestamp <= blockTimestamp) {
+            streamedAmount += tranches[index].amount;
+            index += 1;
+            currentTrancheTimestamp = tranches[index].timestamp;
         }
 
         return streamedAmount;
