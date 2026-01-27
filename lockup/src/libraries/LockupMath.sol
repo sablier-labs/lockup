@@ -214,7 +214,7 @@ library LockupMath {
 
             // Calculate the streamed portion: floor(elapsed/g) * streamableAmount * g / streamableTotalDuration.
             uint256 streamedPortion =
-                elapsedTimeInGranularityUnits * streamableAmount * uint256(granularity) / streamableTotalDuration;
+                elapsedTimeInGranularityUnits * streamableAmount * granularity / streamableTotalDuration;
 
             // The streamed amount is the sum of the unlock amounts plus the streamed portion. The cast to uint128 is
             // safe because `floor(elapsed/g) * g < streamableTotalDuration`, so `streamedPortion < streamableAmount`.
