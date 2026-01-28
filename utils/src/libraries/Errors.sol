@@ -36,6 +36,12 @@ library Errors {
     /// @notice Thrown when the provided campaign address does not implement `IS_SABLIER_MERKLE()`.
     error SablierComptroller_MissingIsSablierMerkle(address campaign);
 
+    /// @notice Thrown when trying to withdraw ERC-20 tokens when the balance is zero.
+    error SablierComptroller_TokenBalanceZero(address token);
+
+    /// @notice Thrown when trying to withdraw ERC-20 tokens to the zero address.
+    error SablierComptroller_ToZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                   COMPTROLLERABLE
     //////////////////////////////////////////////////////////////////////////*/
