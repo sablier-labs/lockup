@@ -50,6 +50,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    address internal attestor;
     bytes internal eip712Signature;
     uint256 internal recipientPrivateKey;
     Users internal users;
@@ -89,6 +90,9 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         // Deploy the mock staking contract.
         mockStaking = new MockStaking(dai);
         vm.label({ account: address(mockStaking), newLabel: "MockStaking" });
+
+        // Create the attestor address.
+        attestor = makeAddr("Attestor");
 
         // Deploy the factories.
         deployFactoriesConditionally();
@@ -145,14 +149,14 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     /// @dev Deploys the factories conditionally based on the test profile.
     function deployFactoriesConditionally() internal {
         if (!isTestOptimizedProfile()) {
-            factoryMerkleExecute = new SablierFactoryMerkleExecute(address(comptroller));
-            factoryMerkleInstant = new SablierFactoryMerkleInstant(address(comptroller));
-            factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
-            factoryMerkleLT = new SablierFactoryMerkleLT(address(comptroller));
-            factoryMerkleVCA = new SablierFactoryMerkleVCA(address(comptroller));
+            factoryMerkleExecute = new SablierFactoryMerkleExecute(attestor, address(comptroller));
+            factoryMerkleInstant = new SablierFactoryMerkleInstant(attestor, address(comptroller));
+            factoryMerkleLL = new SablierFactoryMerkleLL(attestor, address(comptroller));
+            factoryMerkleLT = new SablierFactoryMerkleLT(attestor, address(comptroller));
+            factoryMerkleVCA = new SablierFactoryMerkleVCA(attestor, address(comptroller));
         } else {
             (factoryMerkleExecute, factoryMerkleInstant, factoryMerkleLL, factoryMerkleLT, factoryMerkleVCA) =
-                deployOptimizedFactories(address(comptroller));
+                deployOptimizedFactories(attestor, address(comptroller));
         }
         vm.label({ account: address(factoryMerkleExecute), newLabel: "FactoryMerkleExecute" });
         vm.label({ account: address(factoryMerkleInstant), newLabel: "FactoryMerkleInstant" });
@@ -432,20 +436,21 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(params)));
         bytes32 creationBytecodeHash;
 
         if (!isTestOptimizedProfile()) {
             creationBytecodeHash = keccak256(
                 bytes.concat(
-                    type(SablierMerkleInstant).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                    type(SablierMerkleInstant).creationCode,
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json"),
-                    abi.encode(params, campaignCreator, address(comptroller))
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -524,20 +529,21 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
             creationBytecodeHash = keccak256(
                 bytes.concat(
-                    type(SablierMerkleLL).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                    type(SablierMerkleLL).creationCode,
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json"),
-                    abi.encode(params, campaignCreator, address(comptroller))
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -625,20 +631,21 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
             creationBytecodeHash = keccak256(
                 bytes.concat(
-                    type(SablierMerkleLT).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                    type(SablierMerkleLT).creationCode,
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json"),
-                    abi.encode(params, campaignCreator, address(comptroller))
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         }
@@ -773,20 +780,21 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         view
         returns (address)
     {
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(params)));
 
         bytes32 creationBytecodeHash;
         if (!isTestOptimizedProfile()) {
             creationBytecodeHash = keccak256(
                 bytes.concat(
-                    type(SablierMerkleVCA).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                    type(SablierMerkleVCA).creationCode,
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         } else {
             creationBytecodeHash = keccak256(
                 bytes.concat(
                     vm.getCode("out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json"),
-                    abi.encode(params, campaignCreator, address(comptroller))
+                    abi.encode(params, attestor, campaignCreator, address(comptroller))
                 )
             );
         }

@@ -166,6 +166,19 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
     function lowerMinFeeUSDForCampaign(address campaign, uint256 newMinFeeUSD) external;
 
+    /// @notice Calls `setAttestor` function on a factory or campaign contract.
+    ///
+    /// @dev Notes:
+    /// - This function is a pass-through to the target's `setAttestor` function.
+    /// - All validations are expected to be performed in the target's `setAttestor` function.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    ///
+    /// @param target The address of a factory or campaign contract.
+    /// @param newAttestor The new attestor address.
+    function setAttestorForTarget(address target, address newAttestor) external;
+
     /// @notice Sets the custom USD fee for the provided user for the given protocol.
     /// @dev Emits an {UpdateCustomFeeUSD} event.
     ///

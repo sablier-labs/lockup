@@ -2,13 +2,14 @@
 pragma solidity >=0.8.22;
 
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
-import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
+
+import { ISablierMerkleSignature } from "./ISablierMerkleSignature.sol";
 
 /// @title ISablierMerkleLockup
 /// @notice MerkleLockup enables Airstreams (a portmanteau of "airdrop" and "stream"), an airdrop model where the
 /// tokens are vested over time, as opposed to being unlocked at once. The vesting is provided by Sablier Lockup.
 /// @dev Common interface between MerkleLL and MerkleLT.
-interface ISablierMerkleLockup is ISablierMerkleBase {
+interface ISablierMerkleLockup is ISablierMerkleSignature {
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

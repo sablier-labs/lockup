@@ -60,6 +60,6 @@ contract MerkleLLHandler is BaseHandler {
         params.vestingStartTime = 0; // Use block.timestamp as sentinel value
 
         // Deploy and return the campaign address.
-        return address(new SablierMerkleLL(params, campaignCreator, comptroller));
+        return address(new SablierMerkleLL(params, address(0), campaignCreator, comptroller));
     }
 }
