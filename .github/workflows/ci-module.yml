@@ -11,8 +11,28 @@ on:
         default: false
         required: false
         type: boolean
+      match-path-coverage:
+        default: "tests/{integration,unit}/**/*.sol"
+        required: false
+        type: string
+      match-path-fork:
+        default: "tests/fork/**/*.sol"
+        required: false
+        type: string
+      match-path-integration:
+        default: "tests/{integration,utils}/**/*.sol"
+        required: false
+        type: string
+      match-path-invariant:
+        default: "tests/invariant/**/*.sol"
+        required: false
+        type: string
+      match-path-unit:
+        default: "tests/unit/**/*.sol"
+        required: false
+        type: string
       module:
-        description: "Module name (e.g., airdrops, flow, lockup, utils)"
+        description: "Module name (e.g. flow, lockup)"
         required: true
         type: string
     secrets:
@@ -66,7 +86,7 @@ jobs:
       foundry-fuzz-runs: 20
       foundry-profile: "test-optimized"
       foundry-version: "v1.5.0"
-      match-path: "tests/fork/**/*.sol"
+      match-path: ${{ inputs.match-path-fork }}
       name: "Fork tests"
       working-directory: ${{ inputs.module }}
 
@@ -82,7 +102,7 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
       foundry-version: "v1.5.0"
-      match-path: "tests/{integration,utils}/**/*.sol"
+      match-path: ${{ inputs.match-path-integration }}
       name: "Integration tests"
       working-directory: ${{ inputs.module }}
 
@@ -98,7 +118,7 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
       foundry-version: "v1.5.0"
-      match-path: "tests/invariant/**/*.sol"
+      match-path: ${{ inputs.match-path-invariant }}
       name: "Invariant tests"
       working-directory: ${{ inputs.module }}
 
@@ -114,7 +134,7 @@ jobs:
         ${{ inputs.module }}/out-optimized
       foundry-profile: "test-optimized"
       foundry-version: "v1.5.0"
-      match-path: "tests/unit/**/*.sol"
+      match-path: ${{ inputs.match-path-unit }}
       name: "Unit tests"
       working-directory: ${{ inputs.module }}
 
@@ -131,7 +151,7 @@ jobs:
         ${{ inputs.module }}/out
         ${{ inputs.module }}/out-optimized
       foundry-version: "v1.5.0"
-      match-path: "tests/{integration,unit}/**/*.sol"
+      match-path: ${{ inputs.match-path-coverage }}
       name: "Coverage"
       via-ir-minimum: true
       working-directory: ${{ inputs.module }}
