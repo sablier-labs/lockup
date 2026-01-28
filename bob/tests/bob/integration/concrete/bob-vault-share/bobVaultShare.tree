@@ -1,6 +1,3 @@
-BobVaultShare::decimals
-└── it should return the decimals set in constructor
-
 BobVaultShare::mint
 ├── when caller is not SablierBob
 │  └── it should revert

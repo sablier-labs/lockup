@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
 import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 
-import { Bob } from "../types/Bob.sol";
 import { IBobVaultShare } from "./IBobVaultShare.sol";
 import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
 import { ISablierBobState } from "./ISablierBobState.sol";
@@ -15,17 +14,17 @@ import { ISablierBobState } from "./ISablierBobState.sol";
 /// @notice Interface for the Sablier Bob protocol.
 interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
+                                      CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice The grace period duration during which depositors can exit and reclaim their tokens.
+    function GRACE_PERIOD() external view returns (uint40);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a new vault is created.
-    /// @param vaultId The ID of the newly created vault.
-    /// @param token The ERC-20 token accepted for deposits.
-    /// @param oracle The address of the oracle used to fetch the price.
-    /// @param adapter The yield adapter configured for the vault (if any)
-    /// @param shareToken The address of the share token deployed for the vault.
-    /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
-    /// @param expiry The Unix timestamp when the vault expires.
     event CreateVault(
         uint256 indexed vaultId,
         IERC20 indexed token,
@@ -37,17 +36,9 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     );
 
     /// @notice Emitted when a user deposits tokens into a vault.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the depositor.
-    /// @param amountReceived The amount of tokens deposited by the user.
-    /// @param sharesMinted The amount of shares minted to the user.
     event Enter(uint256 indexed vaultId, address indexed user, uint128 amountReceived, uint128 sharesMinted);
 
     /// @notice Emitted when a user exits a vault during the grace period.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user exiting.
-    /// @param amountReceived The amount of tokens received to the user.
-    /// @param sharesBurned The amount of shares burned by the user.
     event ExitWithinGracePeriod(
         uint256 indexed vaultId,
         address indexed user,
@@ -56,11 +47,6 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     );
 
     /// @notice Emitted when a user redeems their shares from a settled vault.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user redeeming.
-    /// @param amountReceived The amount of tokens received by the user.
-    /// @param sharesBurned The amount of shares burned by the user.
-    /// @param fee The fee paid in the deposit token, only applicable if adapter is set.
     event Redeem(
         uint256 indexed vaultId,
         address indexed user,
@@ -70,15 +56,9 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     );
 
     /// @notice Emitted when the comptroller sets a new default adapter for a token.
-    /// @param token The token address for which the adapter is set.
-    /// @param adapter The new adapter address.
     event SetDefaultAdapter(IERC20 indexed token, ISablierBobAdapter indexed adapter);
 
     /// @notice Emitted when a vault's price is synced from the oracle.
-    /// @param vaultId The ID of the vault.
-    /// @param oracle The address of the oracle used to fetch the price.
-    /// @param latestPrice The price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
-    /// @param syncedAt The timestamp when the sync occurred.
     event SyncPriceFromOracle(
         uint256 indexed vaultId,
         AggregatorV3Interface indexed oracle,
@@ -87,10 +67,6 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     );
 
     /// @notice Emitted when tokens staked in the adapter for a given vault are unstaked.
-    /// @param vaultId The ID of the vault.
-    /// @param adapter The address of the adapter configured for the vault.
-    /// @param amountStakedInAdapter The amount of vault tokens originally staked in the adapter.
-    /// @param amountReceivedFromAdapter The amount of vault tokens received from the adapter.
     event UnstakeFromAdapter(
         uint256 indexed vaultId,
         ISablierBobAdapter indexed adapter,
@@ -142,8 +118,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// Notes:
     /// - If an adapter is configured for the vault, tokens are automatically staked for yield using the adapter.
     /// - `depositedAt` timestamp is set only on the first deposit and subsequent deposits do not update it.
-    /// - Within grace period, which is 4 hours after the first deposit, the user can exit the vault and get back their
-    /// deposited tokens.
+    /// - Within grace period, the user can exit the vault and get back their deposited tokens.
     /// - Share tokens are minted 1:1 with the deposited amount.
     ///
     /// Requirements:

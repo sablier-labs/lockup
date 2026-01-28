@@ -71,16 +71,16 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev wstETH amount held for each user in each vault.
-    mapping(uint256 vaultId => mapping(address user => uint256 wstETHAmount)) internal _userWstETH;
+    mapping(uint256 vaultId => mapping(address user => uint128 wstETHAmount)) internal _userWstETH;
 
     /// @dev Total wstETH amount held in each vault.
-    mapping(uint256 vaultId => uint256 totalWstETH) internal _vaultTotalWstETH;
+    mapping(uint256 vaultId => uint128 totalWstETH) internal _vaultTotalWstETH;
 
     /// @dev Yield fee snapshotted for each vault at creation time.
     mapping(uint256 vaultId => UD60x18 fee) internal _vaultYieldFee;
 
     /// @dev Total WETH received after unstaking all tokens in a vault.
-    mapping(uint256 vaultId => uint256 wethReceived) internal _wethReceivedAfterUnstaking;
+    mapping(uint256 vaultId => uint128 wethReceived) internal _wethReceivedAfterUnstaking;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -155,10 +155,10 @@ contract SablierLidoAdapter is
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
         // Get wstETH allocated to the user before unstaking.
-        uint256 userWstETH = _userWstETH[vaultId][user];
+        uint128 userWstETH = _userWstETH[vaultId][user];
 
         // Get total amount of wstETH in the vault before unstaking.
-        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
+        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
 
         // Get total amount of WETH received after unstaking all tokens in the vault.
         uint256 totalWeth = _wethReceivedAfterUnstaking[vaultId];
@@ -169,28 +169,26 @@ contract SablierLidoAdapter is
         }
 
         // Calculate user's proportional share of WETH.
-        uint256 userWethShare = (userWstETH * totalWeth) / totalWstETH;
+        uint128 userWethShare = (userWstETH * totalWeth / totalWstETH).toUint128();
 
         // If the user's share of WETH is greater than the user's vault share, the yield is positive and we need to
         // calculate the fee.
         if (userWethShare > shareBalance) {
-            uint256 yieldAmount = userWethShare - shareBalance;
+            uint128 yieldAmount = userWethShare - shareBalance;
 
             // Calculate the fee.
-            uint256 fee = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).unwrap();
-            amountToTransfer = (userWethShare - fee).toUint128();
-            feeAmount = fee.toUint128();
+            feeAmount = ud(yieldAmount).mul(_vaultYieldFee[vaultId]).intoUint128();
+            amountToTransfer = userWethShare - feeAmount;
         }
         // Otherwise, the yield is negative or zero, so no fee is applicable.
         else {
-            amountToTransfer = userWethShare.toUint128();
-            feeAmount = 0;
+            amountToTransfer = userWethShare;
         }
     }
 
     /// @inheritdoc ISablierBobAdapter
     function getTotalYieldBearingTokenBalance(uint256 vaultId) external view override returns (uint128) {
-        return _vaultTotalWstETH[vaultId].toUint128();
+        return _vaultTotalWstETH[vaultId];
     }
 
     /// @inheritdoc ISablierBobAdapter
@@ -204,7 +202,7 @@ contract SablierLidoAdapter is
     }
 
     /// @inheritdoc ISablierBobAdapter
-    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view override returns (uint256) {
+    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view override returns (uint128) {
         return _userWstETH[vaultId][user];
     }
 
@@ -240,7 +238,7 @@ contract SablierLidoAdapter is
         // Effect: set the new slippage tolerance.
         slippageTolerance = newTolerance;
 
-        // Log the slippage tolerance change.
+        // Log the event.
         emit SetSlippageTolerance(previousTolerance, newTolerance);
     }
 
@@ -256,7 +254,7 @@ contract SablierLidoAdapter is
         // Effect: set the new fee.
         feeOnYield = newFee;
 
-        // Log the fee change.
+        // Log the event.
         emit SetYieldFee(previousFee, newFee);
     }
 
@@ -269,32 +267,32 @@ contract SablierLidoAdapter is
         uint256 stETHAmount = IStETH(STETH).submit{ value: amount }({ referral: address(comptroller) });
 
         // Interaction: Wrap stETH into wstETH.
-        uint256 wstETHAmount = IWstETH(WSTETH).wrap(stETHAmount);
+        uint128 wstETHAmount = IWstETH(WSTETH).wrap(stETHAmount).toUint128();
 
         // Effect: track user's wstETH.
         _userWstETH[vaultId][user] += wstETHAmount;
         _vaultTotalWstETH[vaultId] += wstETHAmount;
 
-        // Log the stake.
+        // Log the event.
         emit Stake(vaultId, user, amount, wstETHAmount);
     }
 
     /// @inheritdoc ISablierBobAdapter
     function unstakeForUserWithinGracePeriod(uint256 vaultId, address user) external override onlySablierBob {
         // Get user's wstETH balance.
-        uint256 userWstETH = _userWstETH[vaultId][user];
+        uint128 userWstETH = _userWstETH[vaultId][user];
 
         // Effect: set user's wstETH balance to 0.
         _userWstETH[vaultId][user] = 0;
         _vaultTotalWstETH[vaultId] -= userWstETH;
 
         // Swap wstETH for WETH.
-        uint256 wethReceived = _wstETHToWeth(userWstETH);
+        uint128 wethReceived = _wstETHToWeth(userWstETH);
 
-        // Transfer WETH to the user.
+        // Interaction: Transfer WETH to the user.
         IWETH9(WETH).safeTransfer(user, wethReceived);
 
-        // Log the unstake.
+        // Log the event.
         emit UnstakeForUserWithinGracePeriod(vaultId, user, userWstETH, wethReceived);
     }
 
@@ -306,21 +304,18 @@ contract SablierLidoAdapter is
         returns (uint128 amountReceivedFromUnstaking)
     {
         // Get total amount of wstETH in the vault.
-        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
+        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
 
-        // Swap all wstETH for WETH.
-        uint256 wethReceived = _wstETHToWeth(totalWstETH);
+        // Interaction: Swap all wstETH for WETH.
+        amountReceivedFromUnstaking = _wstETHToWeth(totalWstETH);
 
-        // Store the total WETH received for redemption calculations.
-        _wethReceivedAfterUnstaking[vaultId] = wethReceived;
+        // Effect: store the total WETH received for redemption calculations.
+        _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
 
-        // Transfer WETH to SablierBob for distribution.
-        IWETH9(WETH).safeTransfer(SABLIER_BOB, wethReceived);
+        // Interaction: Transfer WETH to SablierBob for distribution.
+        IWETH9(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
-        // Safe cast to uint128.
-        amountReceivedFromUnstaking = wethReceived.toUint128();
-
-        // Log the unstake.
+        // Log the event.
         emit UnstakeFullAmount(vaultId, totalWstETH, amountReceivedFromUnstaking);
     }
 
@@ -340,13 +335,13 @@ contract SablierLidoAdapter is
         uint256 fromWstETH = _userWstETH[vaultId][from];
 
         // Calculate the portion of wstETH to transfer.
-        uint256 wstETHToTransfer = (fromWstETH * shareAmountTransferred) / userShareBalanceBeforeTransfer;
+        uint128 wstETHToTransfer = (fromWstETH * shareAmountTransferred / userShareBalanceBeforeTransfer).toUint128();
 
         // Effect: move wstETH from sender to recipient.
         _userWstETH[vaultId][from] -= wstETHToTransfer;
         _userWstETH[vaultId][to] += wstETHToTransfer;
 
-        // Log the transfer.
+        // Log the event.
         emit TransferStakedTokens(vaultId, from, to, wstETHToTransfer);
     }
 
@@ -355,7 +350,7 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Converts wstETH to WETH using Curve exchange.
-    function _wstETHToWeth(uint256 wstETHAmount) private returns (uint256 wethAmount) {
+    function _wstETHToWeth(uint128 wstETHAmount) private returns (uint128 wethReceived) {
         // Interaction: Unwrap wstETH to get stETH.
         uint256 stETHAmount = IWstETH(WSTETH).unwrap(wstETHAmount);
 
@@ -376,13 +371,12 @@ contract SablierLidoAdapter is
         // Interaction: Wrap ETH to get WETH.
         IWETH9(WETH).deposit{ value: ethReceived }();
 
-        return ethReceived;
+        return ethReceived.toUint128();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       RECEIVE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Required to receive ETH from WETH.withdraw() and Curve.exchange().
     receive() external payable { }
 }

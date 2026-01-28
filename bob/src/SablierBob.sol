@@ -45,6 +45,13 @@ contract SablierBob is
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                      CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierBob
+    uint40 public constant override GRACE_PERIOD = 4 hours;
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -136,7 +143,7 @@ contract SablierBob is
             adapter.registerVault(vaultId);
         }
 
-        // Log the vault creation.
+        // Log the event.
         emit CreateVault(vaultId, token, oracle, adapter, shareToken, targetPrice, expiry);
     }
 
@@ -163,12 +170,6 @@ contract SablierBob is
             _depositedAt[vaultId][msg.sender] = uint40(block.timestamp);
         }
 
-        // Effect: mint share tokens to the caller.
-        vault.shareToken.mint(msg.sender, amount);
-
-        // Log the deposit.
-        emit Enter(vaultId, msg.sender, amount, amount);
-
         // Interaction: transfer tokens from caller to this contract or the adapter.
         if (address(vault.adapter) != address(0)) {
             // Interaction: Transfer token from caller to the adapter.
@@ -180,6 +181,12 @@ contract SablierBob is
             // Interaction: Transfer tokens from caller to this contract.
             vault.token.safeTransferFrom(msg.sender, address(this), amount);
         }
+
+        // Interaction: mint share tokens to the caller.
+        vault.shareToken.mint(msg.sender, amount);
+
+        // Log the deposit.
+        emit Enter(vaultId, msg.sender, amount, amount);
     }
 
     /// @inheritdoc ISablierBob
@@ -209,7 +216,7 @@ contract SablierBob is
         }
 
         // Calculate the grace period end time.
-        uint40 gracePeriodEndsAt = depositedAt + 4 hours;
+        uint40 gracePeriodEndsAt = depositedAt + GRACE_PERIOD;
 
         // Check: the current timestamp is within the grace period.
         if (block.timestamp >= gracePeriodEndsAt) {
@@ -230,7 +237,7 @@ contract SablierBob is
             vault.token.safeTransfer(msg.sender, amount);
         }
 
-        // Log the exit.
+        // Log the event.
         emit ExitWithinGracePeriod(vaultId, msg.sender, SafeCast.toUint128(amount), SafeCast.toUint128(amount));
     }
 
@@ -265,7 +272,7 @@ contract SablierBob is
         // Check if the vault has an adapter.
         if (address(vault.adapter) != address(0)) {
             // Check: the deposit token is staked with the adapter.
-            if (vault.isStakedWithAdapter == true) {
+            if (vault.isStakedWithAdapter) {
                 // Interaction: unstake all tokens via the adapter.
                 // TODO: transfer entire fee to comptroller admin instead of transferring when user redeems.
                 _unstakeFullAmountViaAdapter(vaultId);
@@ -277,9 +284,6 @@ contract SablierBob is
             // Calculate the amount to transfer and the fee.
             (amountToTransfer, feeAmount) =
                 vault.adapter.calculateAmountToTransferWithYield(vaultId, msg.sender, shareBalance);
-
-            // Interaction: transfer the amount to the caller.
-            vault.token.safeTransfer(msg.sender, amountToTransfer);
 
             // Interaction: transfer the fee to the comptroller address.
             if (feeAmount > 0) {
@@ -304,12 +308,12 @@ contract SablierBob is
                 }
             }
 
-            // Interaction: transfer tokens to the user.
-            vault.token.safeTransfer(msg.sender, shareBalance);
-
             // Return the transferred amount.
             amountToTransfer = shareBalance;
         }
+
+        // Interaction: transfer tokens to the caller.
+        vault.token.safeTransfer(msg.sender, amountToTransfer);
 
         // Log the event.
         emit Redeem(vaultId, msg.sender, amountToTransfer, shareBalance, feeAmount);
@@ -375,11 +379,11 @@ contract SablierBob is
             revert Errors.SablierBob_UnstakeAmountZero(vaultId);
         }
 
-        // Interaction: unstake all tokens via the adapter.
-        amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId);
-
         // Effect: mark the vault as not staked with the adapter.
         _vaults[vaultId].isStakedWithAdapter = false;
+
+        // Interaction: unstake all tokens via the adapter.
+        amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId);
     }
 
     /// @inheritdoc ISablierBob
@@ -400,8 +404,8 @@ contract SablierBob is
             revert Errors.SablierBob_CallerNotShareToken(vaultId, msg.sender);
         }
 
-        // Interaction: update staked token holding of the user in the adapter.
         if (address(vault.adapter) != address(0)) {
+            // Interaction: update staked token holding of the user in the adapter.
             vault.adapter.updateStakedTokenBalance(vaultId, from, to, amount, fromBalanceBefore);
         }
     }
@@ -430,7 +434,7 @@ contract SablierBob is
         vault.lastSyncedPrice = latestPrice;
         vault.lastSyncedAt = uint40(updatedAt);
 
-        // Log the sync.
+        // Log the event.
         emit SyncPriceFromOracle(vaultId, vault.oracle, latestPrice, uint40(updatedAt));
     }
 
@@ -446,7 +450,7 @@ contract SablierBob is
         // Interaction: unstake all tokens via the adapter.
         amountReceivedFromAdapter = vault.adapter.unstakeFullAmount(vaultId);
 
-        // Log the unstake.
+        // Log the event.
         emit UnstakeFromAdapter(vaultId, vault.adapter, amountStakedViaAdapter, amountReceivedFromAdapter);
     }
 

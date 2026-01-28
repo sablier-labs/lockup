@@ -14,8 +14,6 @@ interface ISablierLidoAdapter is ISablierBobAdapter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the comptroller sets a new slippage tolerance.
-    /// @param oldSlippageTolerance The previous slippage tolerance as UD60x18.
-    /// @param newSlippageTolerance The new slippage tolerance as UD60x18.
     event SetSlippageTolerance(UD60x18 oldSlippageTolerance, UD60x18 newSlippageTolerance);
 
     /*//////////////////////////////////////////////////////////////////////////

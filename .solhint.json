@@ -16,6 +16,7 @@
     "max-line-length": ["error", 128],
     "max-states-count": ["warn", 20],
     "no-empty-blocks": "off",
+    "no-unused-import": "error",
     "not-rely-on-time": "off",
     "use-natspec": "off",
     "var-name-mixedcase": "warn"

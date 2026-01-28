@@ -41,11 +41,28 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         );
     }
 
+    function test_RevertWhen_OracleRevertsOnDecimals()
+        external
+        whenTokenAddressNotZero
+        whenExpiryInFuture
+        whenOracleNotZeroAddress
+    {
+        // It should revert when oracle reverts on decimals() call.
+        expectRevert_InvalidOracle(
+            abi.encodeCall(
+                bob.createVault,
+                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracleReverting)), EXPIRY, TARGET_PRICE)
+            ),
+            address(mockOracleReverting)
+        );
+    }
+
     function test_RevertWhen_OracleReturnsInvalidDecimals()
         external
         whenTokenAddressNotZero
         whenExpiryInFuture
         whenOracleNotZeroAddress
+        whenOracleDoesNotRevertOnDecimals
     {
         // It should revert when oracle returns non-8 decimals (e.g., 18).
         expectRevert_InvalidOracleDecimals(
@@ -69,9 +86,14 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         expectRevert_InvalidOracle(
             abi.encodeCall(
                 bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracleReverting)), EXPIRY, TARGET_PRICE)
+                (
+                    IERC20(address(dai)),
+                    AggregatorV3Interface(address(mockOracleRevertingOnLatestRoundData)),
+                    EXPIRY,
+                    TARGET_PRICE
+                )
             ),
-            address(mockOracleReverting)
+            address(mockOracleRevertingOnLatestRoundData)
         );
     }
 

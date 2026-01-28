@@ -144,6 +144,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenOracleDoesNotRevertOnDecimals() {
+        _;
+    }
+
     modifier whenTargetPriceNotZero() {
         _;
     }

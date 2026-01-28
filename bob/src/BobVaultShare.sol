@@ -6,12 +6,13 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 
 import { IBobVaultShare } from "./interfaces/IBobVaultShare.sol";
 import { ISablierBob } from "./interfaces/ISablierBob.sol";
+import { Errors } from "./libraries/Errors.sol";
 
 /// @title BobVaultShare
 /// @notice ERC-20 token representing shares in a Bob vault.
 /// @dev Each vault has its own BobVaultShare deployed. Only the SablierBob contract can mint and burn tokens.
 /// When shares are transferred, wstETH attribution is updated proportionally via the adapter.
-contract BobVaultShare is IBobVaultShare, ERC20 {
+contract BobVaultShare is ERC20, IBobVaultShare {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -30,20 +31,13 @@ contract BobVaultShare is IBobVaultShare, ERC20 {
     uint8 internal immutable _DECIMALS;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       ERRORS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when a function is called by an address other than SablierBob.
-    error BobVaultShare_OnlySablierBob(address caller, address expectedCaller);
-
-    /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Reverts if caller is not the Bob contract.
     modifier onlySablierBob() {
         if (msg.sender != SABLIER_BOB) {
-            revert BobVaultShare_OnlySablierBob(msg.sender, SABLIER_BOB);
+            revert Errors.BobVaultShare_OnlySablierBob(msg.sender, SABLIER_BOB);
         }
         _;
     }
