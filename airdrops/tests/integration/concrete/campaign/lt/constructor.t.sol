@@ -14,7 +14,8 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         // Deploy the SablierMerkleLT contract.
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
 
-        SablierMerkleLT constructedLT = new SablierMerkleLT(params, users.campaignCreator, address(comptroller));
+        SablierMerkleLT constructedLT =
+            new SablierMerkleLT(params, attestor, users.campaignCreator, address(comptroller));
 
         // Token allowance
         uint256 actualAllowance = dai.allowance(address(constructedLT), address(lockup));

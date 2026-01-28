@@ -73,6 +73,7 @@ abstract contract MerkleLT_Fork_Test is MerkleBase_Fork_Test {
             aggregateAmount: vars.aggregateAmount,
             totalDuration: VESTING_TOTAL_DURATION,
             recipientCount: vars.leavesData.length,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: vars.minFeeUSD
         });

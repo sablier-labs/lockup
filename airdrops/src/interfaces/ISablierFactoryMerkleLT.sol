@@ -20,6 +20,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
         uint256 aggregateAmount,
         uint256 totalDuration,
         uint256 recipientCount,
+        address attestor,
         address comptroller,
         uint256 minFeeUSD
     );

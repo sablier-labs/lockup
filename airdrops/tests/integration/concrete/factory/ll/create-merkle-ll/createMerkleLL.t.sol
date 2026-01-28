@@ -52,6 +52,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
             campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: customFeeUSD
         });
@@ -77,6 +78,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
             campaignParams: params,
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: AIRDROP_MIN_FEE_USD
         });

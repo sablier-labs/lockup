@@ -33,8 +33,14 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param initialAttestor The address of the initial attestor.
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
+    constructor(
+        address initialAttestor,
+        address initialComptroller
+    )
+        SablierFactoryMerkleBase(initialAttestor, initialComptroller)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -54,13 +60,13 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
         _forbidNativeToken(address(campaignParams.token));
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(campaignParams)));
 
         // Get the bytecode hash for the {SablierMerkleInstant} contract.
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
                 type(SablierMerkleInstant).creationCode,
-                abi.encode(campaignParams, campaignCreator, address(comptroller))
+                abi.encode(campaignParams, attestor, campaignCreator, address(comptroller))
             )
         );
 
@@ -87,11 +93,12 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
         _forbidNativeToken(address(campaignParams.token));
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, attestor, comptroller, abi.encode(campaignParams)));
 
         // Deploy the MerkleInstant contract with CREATE2.
         merkleInstant = new SablierMerkleInstant{ salt: salt }({
             campaignParams: campaignParams,
+            attestor_: attestor,
             campaignCreator: msg.sender,
             comptroller: address(comptroller)
         });
@@ -102,6 +109,7 @@ contract SablierFactoryMerkleInstant is ISablierFactoryMerkleInstant, SablierFac
             campaignParams: campaignParams,
             aggregateAmount: aggregateAmount,
             recipientCount: recipientCount,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: comptroller.getMinFeeUSDFor({
                 protocol: ISablierComptroller.Protocol.Airdrops,

@@ -36,8 +36,14 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param initialAttestor The address of the initial attestor.
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
+    constructor(
+        address initialAttestor,
+        address initialComptroller
+    )
+        SablierFactoryMerkleBase(initialAttestor, initialComptroller)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -64,12 +70,13 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         );
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(campaignParams)));
 
         // Get the bytecode hash for the {SablierMerkleVCA} contract.
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
-                type(SablierMerkleVCA).creationCode, abi.encode(campaignParams, campaignCreator, address(comptroller))
+                type(SablierMerkleVCA).creationCode,
+                abi.encode(campaignParams, attestor, campaignCreator, address(comptroller))
             )
         );
 
@@ -101,11 +108,12 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
         );
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, attestor, comptroller, abi.encode(campaignParams)));
 
         // Deploy the MerkleVCA contract with CREATE2.
         merkleVCA = new SablierMerkleVCA{ salt: salt }({
             campaignParams: campaignParams,
+            attestor_: attestor,
             campaignCreator: msg.sender,
             comptroller: address(comptroller)
         });
@@ -115,6 +123,7 @@ contract SablierFactoryMerkleVCA is ISablierFactoryMerkleVCA, SablierFactoryMerk
             merkleVCA: merkleVCA,
             campaignParams: campaignParams,
             recipientCount: recipientCount,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: comptroller.getMinFeeUSDFor({
                 protocol: ISablierComptroller.Protocol.Airdrops,

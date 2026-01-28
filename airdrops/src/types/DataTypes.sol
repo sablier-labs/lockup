@@ -7,6 +7,29 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
+library MerkleBase {
+    /// @notice Struct encapsulating the common constructor parameters shared by all Merkle campaigns.
+    /// @dev The fields are arranged alphabetically.
+    /// @param campaignName The name of the campaign.
+    /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
+    /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
+    /// not expire.
+    /// @param initialAdmin The initial admin of the campaign.
+    /// @param ipfsCID The content identifier for indexing the contract on IPFS. An empty value may break certain UI
+    /// features that depend upon the IPFS CID.
+    /// @param merkleRoot The Merkle root of the claim data.
+    /// @param token The contract address of the ERC-20 token to be distributed.
+    struct BaseParams {
+        string campaignName;
+        uint40 campaignStartTime;
+        uint40 expiration;
+        address initialAdmin;
+        string ipfsCID;
+        bytes32 merkleRoot;
+        IERC20 token;
+    }
+}
+
 library MerkleExecute {
     /// @notice Struct encapsulating the constructor parameters of Merkle Execute campaigns.
     /// @dev The fields are arranged alphabetically.
@@ -103,6 +126,21 @@ library MerkleLL {
         uint40 totalDuration;
         bool transferable;
         uint40 vestingStartTime;
+    }
+}
+
+library MerkleLockup {
+    /// @notice Struct encapsulating the common constructor parameters shared by all Merkle Lockup campaigns.
+    /// @dev The fields are arranged alphabetically.
+    /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
+    /// @param lockup The address of the {SablierLockup} contract.
+    /// @param shape The shape of the vesting stream, used for differentiating between streams in the UI.
+    /// @param transferable Indicates if the Lockup stream will be transferable after claiming.
+    struct LockupParams {
+        bool cancelable;
+        ISablierLockup lockup;
+        string shape;
+        bool transferable;
     }
 }
 

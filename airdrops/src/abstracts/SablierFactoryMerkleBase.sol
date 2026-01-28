@@ -17,18 +17,35 @@ abstract contract SablierFactoryMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierFactoryMerkleBase
+    address public override attestor;
+
+    /// @inheritdoc ISablierFactoryMerkleBase
     address public override nativeToken;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param initialAttestor The address of the initial attestor.
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) Comptrollerable(initialComptroller) { }
+    constructor(address initialAttestor, address initialComptroller) Comptrollerable(initialComptroller) {
+        attestor = initialAttestor;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierFactoryMerkleBase
+    function setAttestor(address newAttestor) external override onlyComptroller {
+        address previousAttestor = attestor;
+
+        // Effect: set the new attestor.
+        attestor = newAttestor;
+
+        // Log the update.
+        emit SetAttestor({ comptroller: msg.sender, previousAttestor: previousAttestor, newAttestor: newAttestor });
+    }
 
     /// @inheritdoc ISablierFactoryMerkleBase
     function setNativeToken(address newNativeToken) external override onlyComptroller {

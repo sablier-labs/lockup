@@ -23,8 +23,9 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         // Deploy the SablierMerkleVCA contract.
         MerkleVCA.ConstructorParams memory constructorParams = merkleVCAConstructorParams();
         constructorParams.enableRedistribution = enableRedistribution;
-        SablierMerkleVCA constructedVCA =
-            new SablierMerkleVCA(constructorParams, users.campaignCreator, address(comptroller));
+        SablierMerkleVCA constructedVCA = new SablierMerkleVCA(
+            constructorParams, attestor, users.campaignCreator, address(comptroller)
+        );
 
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
