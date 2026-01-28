@@ -6,10 +6,10 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
+import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { MerkleVCA } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
 
 /*
 
@@ -32,8 +32,8 @@ import { MerkleVCA } from "./types/DataTypes.sol";
 /// @title SablierMerkleVCA
 /// @notice See the documentation in {ISablierMerkleVCA}.
 contract SablierMerkleVCA is
-    ISablierMerkleVCA, // 2 inherited components
-    SablierMerkleBase // 3 inherited components
+    ISablierMerkleVCA, // 3 inherited components
+    SablierMerkleSignature // 3 inherited components
 {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
@@ -70,19 +70,23 @@ contract SablierMerkleVCA is
     /// @dev Constructs the contract by initializing the immutable state variables.
     constructor(
         MerkleVCA.ConstructorParams memory campaignParams,
+        address attestor_,
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleBase(
+        SablierMerkleSignature(
+            MerkleBase.BaseParams({
+                campaignName: campaignParams.campaignName,
+                campaignStartTime: campaignParams.campaignStartTime,
+                expiration: campaignParams.expiration,
+                initialAdmin: campaignParams.initialAdmin,
+                ipfsCID: campaignParams.ipfsCID,
+                merkleRoot: campaignParams.merkleRoot,
+                token: campaignParams.token
+            }),
+            attestor_,
             campaignCreator,
-            campaignParams.campaignName,
-            campaignParams.campaignStartTime,
-            comptroller,
-            campaignParams.expiration,
-            campaignParams.initialAdmin,
-            campaignParams.ipfsCID,
-            campaignParams.merkleRoot,
-            campaignParams.token
+            comptroller
         )
     {
         // Effect: set the immutable variables.
@@ -160,6 +164,29 @@ contract SablierMerkleVCA is
 
         // Check, Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
         _postProcessClaim({ index: index, recipient: msg.sender, to: to, fullAmount: fullAmount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleVCA
+    function claimViaAttestation(
+        uint256 index,
+        address recipient,
+        uint128 fullAmount,
+        bytes32[] calldata merkleProof,
+        bytes calldata attestation
+    )
+        external
+        payable
+        override
+        notZeroAddress(recipient)
+    {
+        // Check: verify attestation signature matches attestor from storage.
+        _checkAttestation(recipient, attestation);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, fullAmount, merkleProof);
+
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleVCA

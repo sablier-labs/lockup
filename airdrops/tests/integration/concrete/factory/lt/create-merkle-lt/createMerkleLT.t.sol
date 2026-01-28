@@ -89,6 +89,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: VESTING_TOTAL_DURATION,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: customFeeUSD
         });
@@ -119,6 +120,7 @@ contract CreateMerkleLT_Integration_Test is Integration_Test {
             aggregateAmount: AGGREGATE_AMOUNT,
             recipientCount: RECIPIENT_COUNT,
             totalDuration: VESTING_TOTAL_DURATION,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: AIRDROP_MIN_FEE_USD
         });

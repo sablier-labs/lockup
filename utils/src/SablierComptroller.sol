@@ -256,6 +256,24 @@ contract SablierComptroller is
     }
 
     /// @inheritdoc ISablierComptroller
+    function setAttestorForTarget(address target, address newAttestor) external override onlyRole(FEE_MANAGEMENT_ROLE) {
+        // Interaction: call the `setAttestor` function on the target.
+        (bool success, bytes memory returnData) =
+            target.call(abi.encodeWithSignature("setAttestor(address)", newAttestor));
+
+        // If the call fails, bubble up the revert reason.
+        if (!success) {
+            assembly {
+                // Get the length of the result stored in the first 32 bytes.
+                let returnDataSize := mload(returnData)
+
+                // Forward the pointer by 32 bytes to skip the length argument, and revert with the result.
+                revert(add(32, returnData), returnDataSize)
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierComptroller
     function setCustomFeeUSDFor(
         Protocol protocol,
         address user,
