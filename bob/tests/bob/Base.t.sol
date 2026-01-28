@@ -14,7 +14,8 @@ import {
     MockOracle,
     MockOracleInvalidDecimals,
     MockOracleInvalidPrice,
-    MockOracleReverting
+    MockOracleReverting,
+    MockOracleRevertingOnLatestRoundData
 } from "./mocks/MockOracle.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Defaults } from "./utils/Defaults.sol";
@@ -40,6 +41,7 @@ abstract contract Base_Test is Assertions, Modifiers {
     MockOracleInvalidDecimals internal mockOracleInvalidDecimals;
     MockOracleInvalidPrice internal mockOracleInvalidPrice;
     MockOracleReverting internal mockOracleReverting;
+    MockOracleRevertingOnLatestRoundData internal mockOracleRevertingOnLatestRoundData;
 
     // External protocol mocks (Lido ecosystem).
     MockWETH9 internal weth;
@@ -59,12 +61,17 @@ abstract contract Base_Test is Assertions, Modifiers {
         mockOracleInvalidDecimals = new MockOracleInvalidDecimals(18); // 18 decimals instead of 8
         mockOracleInvalidPrice = new MockOracleInvalidPrice(0);
         mockOracleReverting = new MockOracleReverting();
+        mockOracleRevertingOnLatestRoundData = new MockOracleRevertingOnLatestRoundData();
 
         // Label the mock oracles.
         vm.label({ account: address(mockOracle), newLabel: "MockOracle" });
         vm.label({ account: address(mockOracleInvalidDecimals), newLabel: "MockOracleInvalidDecimals" });
         vm.label({ account: address(mockOracleInvalidPrice), newLabel: "MockOracleInvalidPrice" });
         vm.label({ account: address(mockOracleReverting), newLabel: "MockOracleReverting" });
+        vm.label({
+            account: address(mockOracleRevertingOnLatestRoundData),
+            newLabel: "MockOracleRevertingOnLatestRoundData"
+        });
 
         // Deploy the defaults contract.
         defaults = new Defaults();

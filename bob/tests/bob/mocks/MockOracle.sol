@@ -173,7 +173,7 @@ contract MockOracleInvalidDecimals is AggregatorV3Interface {
 }
 
 /// @title MockOracleReverting
-/// @notice Mock oracle that always reverts.
+/// @notice Mock oracle that always reverts on decimals().
 contract MockOracleReverting is AggregatorV3Interface {
     function decimals() external pure override returns (uint8) {
         revert("MockOracle: decimals");
@@ -193,5 +193,13 @@ contract MockOracleReverting is AggregatorV3Interface {
 
     function latestRoundData() external pure override returns (uint80, int256, uint256, uint256, uint80) {
         revert("MockOracle: latestRoundData");
+    }
+}
+
+/// @title MockOracleRevertingOnLatestRoundData
+/// @notice Mock oracle that only implements decimals(). Calls to latestRoundData() will revert.
+contract MockOracleRevertingOnLatestRoundData {
+    function decimals() external pure returns (uint8) {
+        return 8;
     }
 }

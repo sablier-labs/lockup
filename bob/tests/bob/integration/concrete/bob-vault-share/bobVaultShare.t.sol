@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { BobVaultShare as BobVaultShareContract } from "src/BobVaultShare.sol";
 import { IBobVaultShare } from "src/interfaces/IBobVaultShare.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
@@ -40,9 +41,7 @@ contract BobVaultShare is Integration_Test {
     function test_Mint_RevertWhen_CallerIsNotSablierBob() external {
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                BobVaultShareContract.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob)
-            )
+            abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob))
         );
         shareToken.mint(users.depositor, 100e18);
     }
@@ -74,9 +73,7 @@ contract BobVaultShare is Integration_Test {
         // It should revert.
         vm.prank(users.depositor);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                BobVaultShareContract.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob)
-            )
+            abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob))
         );
         shareToken.burn(users.depositor, 100e18);
     }

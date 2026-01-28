@@ -8,6 +8,13 @@ import { Escrow } from "../types/Escrow.sol";
 /// @notice Library containing all custom errors emitted by the Sablier Bob protocol.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
+                                  BOB VAULT SHARE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when a function is called by an address other than SablierBob.
+    error BobVaultShare_OnlySablierBob(address caller, address expectedCaller);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                      SABLIER BOB
     //////////////////////////////////////////////////////////////////////////*/
 

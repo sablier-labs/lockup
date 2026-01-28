@@ -13,35 +13,18 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the comptroller sets a new yield fee.
-    /// @param oldFee The previous yield fee as UD60x18.
-    /// @param newFee The new yield fee as UD60x18.
     event SetYieldFee(UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are staked for a user in a vault.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @param depositAmount The amount of deposit tokens staked.
-    /// @param stakedAmount The amount of yield-bearing tokens received.
     event Stake(uint256 indexed vaultId, address indexed user, uint256 depositAmount, uint256 stakedAmount);
 
     /// @notice Emitted when staked token attribution is transferred between users.
-    /// @param vaultId The ID of the vault.
-    /// @param from The address transferring the staked tokens.
-    /// @param to The address receiving the staked tokens.
-    /// @param amount The amount of staked tokens transferred.
     event TransferStakedTokens(uint256 indexed vaultId, address indexed from, address indexed to, uint256 amount);
 
     /// @notice Emitted when all staked tokens in a vault are converted back to the deposit token.
-    /// @param vaultId The ID of the vault.
-    /// @param stakedAmount The total amount of yield-bearing tokens unstaked.
-    /// @param depositAmount The total amount of deposit tokens received.
-    event UnstakeFullAmount(uint256 indexed vaultId, uint256 stakedAmount, uint256 depositAmount);
+    event UnstakeFullAmount(uint256 indexed vaultId, uint128 stakedAmount, uint128 depositAmount);
 
     /// @notice Emitted when tokens are unstaked for a user exiting within the grace period.
-    /// @param vaultId The ID of the vault.
-    /// @param user The address of the user.
-    /// @param stakedAmount The amount of yield-bearing tokens unstaked.
-    /// @param depositAmount The amount of deposit tokens returned.
     event UnstakeForUserWithinGracePeriod(
         uint256 indexed vaultId,
         address indexed user,
@@ -95,7 +78,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// @param vaultId The ID of the vault.
     /// @param user The address of the user.
     /// @return The amount of yield-bearing tokens the user has claim to.
-    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view returns (uint256);
+    function getYieldBearingTokenBalanceFor(uint256 vaultId, address user) external view returns (uint128);
 
     /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS

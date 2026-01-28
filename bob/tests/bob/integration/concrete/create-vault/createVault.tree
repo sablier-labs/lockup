@@ -8,6 +8,8 @@ CreateVault_Integration_Concrete_Test
       ├── when oracle zero address
       │  └── it should revert
       └── when oracle not zero address
+         ├── when oracle reverts on decimals
+         │  └── it should revert
          ├── when oracle returns invalid decimals
          │  └── it should revert
          └── when oracle returns eight decimals

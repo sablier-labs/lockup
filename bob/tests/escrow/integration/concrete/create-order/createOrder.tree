@@ -1,0 +1,25 @@
+CreateOrder_Integration_Concrete_Test
+├── when sell token zero
+│  └── it should revert
+└── when sell token not zero
+   ├── when buy token zero
+   │  └── it should revert
+   └── when buy token not zero
+      ├── when tokens same
+      │  └── it should revert
+      └── when tokens not same
+         ├── when sell amount zero
+         │  └── it should revert
+         └── when sell amount not zero
+            ├── when min buy amount zero
+            │  └── it should revert
+            └── when min buy amount not zero
+               ├── when expire at in past
+               │  └── it should revert
+               └── when expire at valid or zero
+                  ├── given no designated buyer
+                  │  └── it should create the order open to anyone
+                  ├── given designated buyer specified
+                  │  └── it should create the order with buyer restriction
+                  └── given expire at is zero
+                     └── it should create the order that never expires
