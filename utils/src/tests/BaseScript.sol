@@ -94,7 +94,7 @@ abstract contract BaseScript is Script {
     }
 
     /// @dev Returns true if the chain uses the default multisig admin.
-    function isDefaultMultisigChain(uint256 id) private pure returns (bool) {
+    function isDefaultMultisigChain(uint256 id) public pure returns (bool) {
         return id == ChainId.ARBITRUM || id == ChainId.AVALANCHE || id == ChainId.BASE || id == ChainId.BERACHAIN
             || id == ChainId.BSC || id == ChainId.ETHEREUM || id == ChainId.GNOSIS || id == ChainId.HYPEREVM
             || id == ChainId.LINEA || id == ChainId.MONAD || id == ChainId.OPTIMISM || id == ChainId.POLYGON
