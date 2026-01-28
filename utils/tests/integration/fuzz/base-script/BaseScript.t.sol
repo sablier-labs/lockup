@@ -49,11 +49,19 @@ contract BaseScript_Fuzz_Test is StdAssertions {
             assertEq(baseScript.getAdmin(), 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935, "chiliz admin");
         } else if (chainId == ChainId.ZKSYNC) {
             assertEq(baseScript.getAdmin(), 0xaFeA787Ef04E280ad5Bb907363f214E4BAB9e288, "zksync admin");
-        } else if (ChainId.isMainnet(chainId)) {
-            assertEq(baseScript.getAdmin(), 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd, "mainnets admin");
+        } else if (_isCommonSafeChain(chainId)) {
+            assertEq(baseScript.getAdmin(), baseScript.COMMON_SAFE_MULTISIG(), "common safe admin");
         } else {
             assertEq(baseScript.getAdmin(), baseScript.DEFAULT_SABLIER_ADMIN(), "default admin");
         }
+    }
+
+    /// @dev Returns true if the chain uses the common safe multisig.
+    function _isCommonSafeChain(uint256 id) private pure returns (bool) {
+        return id == ChainId.ARBITRUM || id == ChainId.AVALANCHE || id == ChainId.BASE || id == ChainId.BERACHAIN
+            || id == ChainId.BSC || id == ChainId.ETHEREUM || id == ChainId.GNOSIS || id == ChainId.HYPEREVM
+            || id == ChainId.LINEA || id == ChainId.MONAD || id == ChainId.OPTIMISM || id == ChainId.POLYGON
+            || id == ChainId.SCROLL || id == ChainId.SONIC;
     }
 
     function testFuzz_GetChainlinkOracle(uint64 chainId) external setChainId(chainId) {
