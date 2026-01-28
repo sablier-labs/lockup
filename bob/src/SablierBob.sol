@@ -41,6 +41,7 @@ contract SablierBob is
     ReentrancyGuard, // 1 inherited component
     SablierBobState // 1 inherited component
 {
+    using SafeCast for uint256;
     using SafeERC20 for IERC20;
     using Strings for uint256;
 
@@ -200,7 +201,7 @@ contract SablierBob is
         Bob.Vault storage vault = _vaults[vaultId];
 
         // Get the caller's share balance.
-        uint256 amount = vault.shareToken.balanceOf(msg.sender);
+        uint128 amount = vault.shareToken.balanceOf(msg.sender).toUint128();
 
         // Check: the share balance is not zero.
         if (amount == 0) {
@@ -238,7 +239,7 @@ contract SablierBob is
         }
 
         // Log the event.
-        emit ExitWithinGracePeriod(vaultId, msg.sender, SafeCast.toUint128(amount), SafeCast.toUint128(amount));
+        emit ExitWithinGracePeriod(vaultId, msg.sender, amount, amount);
     }
 
     /// @inheritdoc ISablierBob
@@ -259,7 +260,7 @@ contract SablierBob is
         Bob.Vault storage vault = _vaults[vaultId];
 
         // Get the caller's share balance.
-        uint128 shareBalance = SafeCast.toUint128(vault.shareToken.balanceOf(msg.sender));
+        uint128 shareBalance = vault.shareToken.balanceOf(msg.sender).toUint128();
 
         // Check: the share balance is not zero.
         if (shareBalance == 0) {
@@ -428,7 +429,7 @@ contract SablierBob is
         }
 
         // Cast the oracle price to `uint128`.
-        latestPrice = SafeCast.toUint128(uint256(oraclePrice));
+        latestPrice = uint256(oraclePrice).toUint128();
 
         // Effect: update the last synced price and timestamp.
         vault.lastSyncedPrice = latestPrice;
@@ -481,7 +482,7 @@ contract SablierBob is
             if (price <= 0) {
                 revert Errors.SablierBob_InvalidOracle(address(oracle));
             }
-            latestPrice = SafeCast.toUint128(uint256(price));
+            latestPrice = uint256(price).toUint128();
         } catch {
             revert Errors.SablierBob_InvalidOracle(address(oracle));
         }
