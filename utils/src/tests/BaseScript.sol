@@ -18,7 +18,7 @@ abstract contract BaseScript is Script {
     address public constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
 
     /// @dev The address of the common safe multisig.
-    address public constant COMMON_SAFE_MULTISIG = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
+    address public constant DEFAULT_SABLIER_MULTISIG_ADMIN = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
 
     /// @dev The salt used for deterministic deployments.
     bytes32 public immutable SALT;
@@ -86,16 +86,15 @@ abstract contract BaseScript is Script {
     }
 
     /// @notice Returns the admin address for the comptroller.
-    /// @dev Chiliz and zkSync have unique multisig addresses. Other supported mainnets use the common safe.
     function getAdmin() public view returns (address) {
         if (chainId == ChainId.CHILIZ) return 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935;
         if (chainId == ChainId.ZKSYNC) return 0xaFeA787Ef04E280ad5Bb907363f214E4BAB9e288;
-        if (_isCommonSafeChain(chainId)) return COMMON_SAFE_MULTISIG;
+        if (isDefaultMultisigChain(chainId)) return DEFAULT_SABLIER_MULTISIG_ADMIN;
         return DEFAULT_SABLIER_ADMIN;
     }
 
-    /// @dev Returns true if the chain uses the common safe multisig.
-    function _isCommonSafeChain(uint256 id) private pure returns (bool) {
+    /// @dev Returns true if the chain uses the default multisig admin.
+    function isDefaultMultisigChain(uint256 id) private pure returns (bool) {
         return id == ChainId.ARBITRUM || id == ChainId.AVALANCHE || id == ChainId.BASE || id == ChainId.BERACHAIN
             || id == ChainId.BSC || id == ChainId.ETHEREUM || id == ChainId.GNOSIS || id == ChainId.HYPEREVM
             || id == ChainId.LINEA || id == ChainId.MONAD || id == ChainId.OPTIMISM || id == ChainId.POLYGON
