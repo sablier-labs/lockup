@@ -79,6 +79,10 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// 4. {getMinFeeUSDFor}       - used by protocols inherited from {IComptrollerable}.
     function MINIMAL_INTERFACE_ID() external view returns (bytes4);
 
+    /// @notice The version of the comptroller contract.
+    /// @dev This follows the format "v{Major}.{Minor}" (e.g., "v1.1").
+    function VERSION() external view returns (string memory);
+
     /// @notice Calculates the minimum fee in wei for the given protocol.
     /// @dev See the documentation for {convertUSDFeeToWei} for more details.
     /// @param protocol The protocol as defined in {Protocol} enum.

@@ -14,5 +14,6 @@ contract Constructor_Comptroller_Concrete_Test is Base_Test {
             ^ ISablierComptroller.getMinFeeUSDFor.selector;
         assertEq(comptroller.MINIMAL_INTERFACE_ID(), expectedMinimalInterfaceId, "minimal interface ID");
         assertEq(comptroller.oracle(), address(oracle), "oracle");
+        assertEq(comptroller.VERSION(), "v1.1", "version");
     }
 }

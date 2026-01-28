@@ -52,6 +52,9 @@ contract SablierComptroller is
         ^ this.execute.selector ^ this.getMinFeeUSDFor.selector;
 
     /// @inheritdoc ISablierComptroller
+    string public constant VERSION = "v1.1";
+
+    /// @inheritdoc ISablierComptroller
     address public override oracle;
 
     /// @dev A mapping of protocol fees.
