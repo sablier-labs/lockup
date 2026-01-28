@@ -17,6 +17,9 @@ abstract contract BaseScript is Script {
     /// @dev The address of the default Sablier admin.
     address public constant DEFAULT_SABLIER_ADMIN = 0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F;
 
+    /// @dev The address of the common safe multisig.
+    address public constant DEFAULT_SABLIER_MULTISIG_ADMIN = 0x58290bbdb51A4c6B022A81e9cDeD24BE19Ca57fd;
+
     /// @dev The salt used for deterministic deployments.
     bytes32 public immutable SALT;
 
@@ -82,23 +85,20 @@ abstract contract BaseScript is Script {
         return bytes32(abi.encodePacked(create2Salt));
     }
 
-    /// @notice Returns the admin address to be used for the comptroller.
-    /// @dev The chains listed below use multisig. In all other cases, the default admin is used.
+    /// @notice Returns the admin address for the comptroller.
     function getAdmin() public view returns (address) {
-        if (chainId == ChainId.ARBITRUM) return 0xF34E41a6f6Ce5A45559B1D3Ee92E141a3De96376;
-        if (chainId == ChainId.AVALANCHE) return 0x4735517616373c5137dE8bcCDc887637B8ac85Ce;
-        if (chainId == ChainId.BASE) return 0x83A6fA8c04420B3F9C7A4CF1c040b63Fbbc89B66;
-        if (chainId == ChainId.BSC) return 0x6666cA940D2f4B65883b454b7Bc7EEB039f64fa3;
         if (chainId == ChainId.CHILIZ) return 0x74A234DcAdFCB395b37C8c2B3Edf7A13Be78c935;
-        if (chainId == ChainId.ETHEREUM) return 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        if (chainId == ChainId.GNOSIS) return 0x72ACB57fa6a8fa768bE44Db453B1CDBa8B12A399;
-        if (chainId == ChainId.LINEA) return 0x72dCfa0483d5Ef91562817C6f20E8Ce07A81319D;
-        if (chainId == ChainId.OPTIMISM) return 0x43c76FE8Aec91F63EbEfb4f5d2a4ba88ef880350;
-        if (chainId == ChainId.POLYGON) return 0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6;
-        if (chainId == ChainId.SCROLL) return 0x0F7Ad835235Ede685180A5c611111610813457a9;
         if (chainId == ChainId.ZKSYNC) return 0xaFeA787Ef04E280ad5Bb907363f214E4BAB9e288;
-
+        if (isDefaultMultisigChain(chainId)) return DEFAULT_SABLIER_MULTISIG_ADMIN;
         return DEFAULT_SABLIER_ADMIN;
+    }
+
+    /// @dev Returns true if the chain uses the default multisig admin.
+    function isDefaultMultisigChain(uint256 id) public pure returns (bool) {
+        return id == ChainId.ARBITRUM || id == ChainId.AVALANCHE || id == ChainId.BASE || id == ChainId.BERACHAIN
+            || id == ChainId.BSC || id == ChainId.ETHEREUM || id == ChainId.GNOSIS || id == ChainId.HYPEREVM
+            || id == ChainId.LINEA || id == ChainId.MONAD || id == ChainId.OPTIMISM || id == ChainId.POLYGON
+            || id == ChainId.SCROLL || id == ChainId.SONIC;
     }
 
     /// @notice Returns the Chainlink oracle on each chain. Refer to
