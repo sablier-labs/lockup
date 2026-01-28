@@ -12,6 +12,7 @@ import { NoDelegateCallMock } from "src/mocks/NoDelegateCallMock.sol";
 import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
 import { BaseTest } from "src/tests/BaseTest.sol";
 
+import { MerkleMock } from "./mocks/MerkleMock.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
 import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
@@ -37,6 +38,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
     AdminableMock internal adminableMock;
     BatchMock internal batchMock;
     ComptrollerableMock internal comptrollerableMock;
+    MerkleMock internal merkleMock;
     NoDelegateCallMock internal noDelegateCallMock;
     RoleAdminableMock internal roleAdminableMock;
 
@@ -59,6 +61,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
         adminableMock = new AdminableMock(admin);
         batchMock = new BatchMock();
         comptrollerableMock = new ComptrollerableMock(address(comptroller));
+        merkleMock = new MerkleMock();
         noDelegateCallMock = new NoDelegateCallMock();
         roleAdminableMock = new RoleAdminableMock(admin);
 

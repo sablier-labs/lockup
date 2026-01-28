@@ -7,7 +7,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
-import { MerkleExecute } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleExecute } from "./types/DataTypes.sol";
 
 /*
 
@@ -56,17 +56,17 @@ contract SablierMerkleExecute is
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleBase(
-            campaignCreator,
-            campaignParams.campaignName,
-            campaignParams.campaignStartTime,
-            comptroller,
-            campaignParams.expiration,
-            campaignParams.initialAdmin,
-            campaignParams.ipfsCID,
-            campaignParams.merkleRoot,
-            campaignParams.token
-        )
+        SablierMerkleBase(MerkleBase.ConstructorParams({
+                campaignCreator: campaignCreator,
+                campaignName: campaignParams.campaignName,
+                campaignStartTime: campaignParams.campaignStartTime,
+                comptroller: comptroller,
+                expiration: campaignParams.expiration,
+                initialAdmin: campaignParams.initialAdmin,
+                ipfsCID: campaignParams.ipfsCID,
+                merkleRoot: campaignParams.merkleRoot,
+                token: campaignParams.token
+            }))
     {
         // Effect: set the immutable state variables.
         SELECTOR = campaignParams.selector;

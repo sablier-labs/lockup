@@ -5,8 +5,9 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
+import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
-import { MerkleInstant } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleInstant } from "./types/DataTypes.sol";
 
 /*
 
@@ -29,8 +30,8 @@ import { MerkleInstant } from "./types/DataTypes.sol";
 /// @title SablierMerkleInstant
 /// @notice See the documentation in {ISablierMerkleInstant}.
 contract SablierMerkleInstant is
-    ISablierMerkleInstant, // 2 inherited components
-    SablierMerkleBase // 3 inherited components
+    ISablierMerkleInstant, // 3 inherited components
+    SablierMerkleSignature // 5 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -44,17 +45,18 @@ contract SablierMerkleInstant is
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleBase(
-            campaignCreator,
-            campaignParams.campaignName,
-            campaignParams.campaignStartTime,
-            comptroller,
-            campaignParams.expiration,
-            campaignParams.initialAdmin,
-            campaignParams.ipfsCID,
-            campaignParams.merkleRoot,
-            campaignParams.token
-        )
+        SablierMerkleBase(MerkleBase.ConstructorParams({
+                campaignCreator: campaignCreator,
+                campaignName: campaignParams.campaignName,
+                campaignStartTime: campaignParams.campaignStartTime,
+                comptroller: comptroller,
+                expiration: campaignParams.expiration,
+                initialAdmin: campaignParams.initialAdmin,
+                ipfsCID: campaignParams.ipfsCID,
+                merkleRoot: campaignParams.merkleRoot,
+                token: campaignParams.token
+            }))
+        SablierMerkleSignature()
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -99,6 +101,29 @@ contract SablierMerkleInstant is
     }
 
     /// @inheritdoc ISablierMerkleInstant
+    function claimViaAttestation(
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata attestation
+    )
+        external
+        payable
+        override
+        notZeroAddress(to)
+    {
+        // Check: the attestation signature is valid and the recovered signer matches the attestor.
+        _verifyAttestationSignature(msg.sender, attestation);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
+
+        // Interaction: Post-process the claim parameters on behalf of `msg.sender`.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleInstant
     function claimViaSig(
         uint256 index,
         address recipient,
@@ -114,7 +139,7 @@ contract SablierMerkleInstant is
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.
-        _checkSignature(index, recipient, to, amount, validFrom, signature);
+        _verifyClaimSignature(index, recipient, to, amount, validFrom, signature);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);

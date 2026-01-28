@@ -40,23 +40,23 @@ library Errors {
     /// @notice Thrown when trying to create a Merkle VCA campaign with zero aggregate amount.
     error SablierFactoryMerkleVCA_AggregateAmountZero();
 
-    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
-    error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
-
     /// @notice Thrown if expiration time is zero.
     error SablierFactoryMerkleVCA_ExpirationTimeZero();
 
-    /// @notice Thrown if vesting end time is not greater than the vesting start time.
-    error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
-        uint40 vestingStartTime,
-        uint40 vestingEndTime
-    );
+    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
+    error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
 
     /// @notice Thrown if the start time is zero.
     error SablierFactoryMerkleVCA_StartTimeZero();
 
     /// @notice Thrown if the unlock percentage is greater than 100%.
     error SablierFactoryMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);
+
+    /// @notice Thrown if vesting end time is not greater than the vesting start time.
+    error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
+        uint40 vestingStartTime,
+        uint40 vestingEndTime
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
@@ -87,17 +87,27 @@ library Errors {
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();
 
-    /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
-    error SablierMerkleBase_InvalidSignature();
-
     /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
-    /// @notice Thrown when trying to claim with a signature that is not yet valid.
-    error SablierMerkleBase_SignatureNotYetValid(uint40 validFrom, uint40 blockTimestamp);
-
     /// @notice Thrown when trying to claim to the zero address.
     error SablierMerkleBase_ToZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              SABLIER-MERKLE-SIGNATURE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when the attestor returns the zero address.
+    error SablierMerkleSignature_AttestorNotSet();
+
+    /// @notice Thrown when caller is not the comptroller or campaign admin.
+    error SablierMerkleSignature_CallerNotAuthorized(address caller, address campaignAdmin, address comptroller);
+
+    /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
+    error SablierMerkleSignature_InvalidSignature();
+
+    /// @notice Thrown when trying to claim with a signature that is not yet valid.
+    error SablierMerkleSignature_SignatureNotYetValid(uint40 validFrom, uint40 blockTimestamp);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-VCA

@@ -4,15 +4,13 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import { BitMaps } from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import { Adminable } from "@sablier/evm-utils/src/Adminable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
-import { SignatureHash } from "./../libraries/SignatureHash.sol";
+import { MerkleBase } from "./../types/DataTypes.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.
@@ -26,14 +24,6 @@ abstract contract SablierMerkleBase is
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Cache the chain ID in order to invalidate the cached domain separator if the chain ID changes in case of a
-    /// chain split.
-    uint256 private immutable _CACHED_CHAIN_ID;
-
-    /// @dev The domain separator, as required by EIP-712 and EIP-1271, used for signing claim to prevent replay attacks
-    /// across different campaigns.
-    bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override CAMPAIGN_START_TIME;
@@ -84,37 +74,17 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor(
-        address campaignCreator,
-        string memory campaignName_,
-        uint40 campaignStartTime,
-        address comptroller,
-        uint40 expiration,
-        address initialAdmin,
-        string memory ipfsCID_,
-        bytes32 merkleRoot,
-        IERC20 token
-    )
-        Adminable(initialAdmin)
-    {
-        // Cache the chain ID.
-        _CACHED_CHAIN_ID = block.chainid;
+    constructor(MerkleBase.ConstructorParams memory baseParams) Adminable(baseParams.initialAdmin) {
+        CAMPAIGN_START_TIME = baseParams.campaignStartTime;
+        COMPTROLLER = baseParams.comptroller;
+        EXPIRATION = baseParams.expiration;
+        MERKLE_ROOT = baseParams.merkleRoot;
+        TOKEN = baseParams.token;
 
-        // Compute and store the domain separator to be used for claiming using an EIP-712 or EIP-1271 signature.
-        _CACHED_DOMAIN_SEPARATOR = keccak256(
-            abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
-        );
-
-        CAMPAIGN_START_TIME = campaignStartTime;
-        COMPTROLLER = comptroller;
-        EXPIRATION = expiration;
-        MERKLE_ROOT = merkleRoot;
-        TOKEN = token;
-
-        campaignName = campaignName_;
-        ipfsCID = ipfsCID_;
+        campaignName = baseParams.campaignName;
+        ipfsCID = baseParams.ipfsCID;
         minFeeUSD = ISablierComptroller(COMPTROLLER)
-            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: campaignCreator });
+            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: baseParams.campaignCreator });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -124,11 +94,6 @@ abstract contract SablierMerkleBase is
     /// @inheritdoc ISablierMerkleBase
     function calculateMinFeeWei() external view override returns (uint256) {
         return ISablierComptroller(COMPTROLLER).convertUSDFeeToWei(minFeeUSD);
-    }
-
-    /// @inheritdoc ISablierMerkleBase
-    function domainSeparator() external view override returns (bytes32) {
-        return _domainSeparator();
     }
 
     /// @inheritdoc ISablierMerkleBase
@@ -189,63 +154,8 @@ abstract contract SablierMerkleBase is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL READ-ONLY FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Verifies the signature against the provided parameters. It supports both EIP-712 and EIP-1271 signatures.
-    function _checkSignature(
-        uint256 index,
-        address recipient,
-        address to,
-        uint128 amount,
-        uint40 validFrom,
-        bytes calldata signature
-    )
-        internal
-        view
-    {
-        // Encode the parameters using claim type hash and hash it.
-        bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount, validFrom));
-
-        // Returns the keccak256 digest of the claim parameters using claim hash and the domain separator.
-        bytes32 digest =
-            MessageHashUtils.toTypedDataHash({ domainSeparator: _domainSeparator(), structHash: claimHash });
-
-        // If recipient is an EOA, `isValidSignatureNow` recovers the signer using ECDSA from the signature and the
-        // digest. It returns true if the recovered signer matches the recipient. If the recipient is a contract,
-        // `isValidSignatureNow` checks if the recipient implements the `IERC1271` interface and returns the magic value
-        // as per EIP-1271 for the given digest and signature.
-        bool isSignatureValid =
-            SignatureChecker.isValidSignatureNow({ signer: recipient, hash: digest, signature: signature });
-
-        // Check: `isSignatureValid` is true.
-        if (!isSignatureValid) {
-            revert Errors.SablierMerkleBase_InvalidSignature();
-        }
-
-        // Check: the `validFrom` is less than or equal to the current block timestamp.
-        if (validFrom > uint40(block.timestamp)) {
-            revert Errors.SablierMerkleBase_SignatureNotYetValid(validFrom, uint40(block.timestamp));
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Returns the domain separator for the current chain.
-    function _domainSeparator() private view returns (bytes32) {
-        // If the current chain ID is the same as the cached chain ID, return the cached domain separator.
-        if (block.chainid == _CACHED_CHAIN_ID) {
-            return _CACHED_DOMAIN_SEPARATOR;
-        }
-        // Otherwise, compute the domain separator for the current chain ID.
-        else {
-            return keccak256(
-                abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
-            );
-        }
-    }
 
     /// @notice Returns a flag indicating whether the grace period has passed.
     /// @dev The grace period is 7 days after the first claim.
