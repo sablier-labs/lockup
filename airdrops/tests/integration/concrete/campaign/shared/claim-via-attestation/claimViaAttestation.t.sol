@@ -61,12 +61,4 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         // It should mark the index as claimed.
         // It should transfer the fee from the caller address to the comptroller.
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenRecipientAddressNotZero() {
-        _;
-    }
 }
