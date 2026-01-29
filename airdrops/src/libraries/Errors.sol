@@ -87,17 +87,30 @@ library Errors {
     /// @notice Thrown when trying to claim with an invalid Merkle proof.
     error SablierMerkleBase_InvalidProof();
 
-    /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
-    error SablierMerkleBase_InvalidSignature();
-
     /// @notice Thrown when trying to set a new min USD fee that is higher than the current fee.
     error SablierMerkleBase_NewMinFeeUSDNotLower(uint256 currentMinFeeUSD, uint256 newMinFeeUSD);
 
-    /// @notice Thrown when trying to claim with a signature that is not yet valid.
-    error SablierMerkleBase_SignatureNotYetValid(uint40 validFrom, uint40 blockTimestamp);
-
     /// @notice Thrown when trying to claim to the zero address.
     error SablierMerkleBase_ToZeroAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              SABLIER-MERKLE-SIGNATURE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when the comptroller tries to set attestor but admin has already set it.
+    error SablierMerkleSignature_AttestorAlreadySetByAdmin();
+
+    /// @notice Thrown when the attestor is not set.
+    error SablierMerkleSignature_AttestorNotSet();
+
+    /// @notice Thrown when caller is not the comptroller or admin.
+    error SablierMerkleSignature_CallerNotComptrollerOrAdmin(address comptroller, address admin, address caller);
+
+    /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
+    error SablierMerkleSignature_InvalidSignature();
+
+    /// @notice Thrown when trying to claim with a signature that is not yet valid.
+    error SablierMerkleSignature_SignatureNotYetValid(uint40 validFrom, uint40 blockTimestamp);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-MERKLE-VCA

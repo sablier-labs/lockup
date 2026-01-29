@@ -73,6 +73,7 @@ abstract contract MerkleLL_Fork_Test is MerkleBase_Fork_Test {
             campaignParams: constructorParams,
             aggregateAmount: vars.aggregateAmount,
             recipientCount: vars.leavesData.length,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: vars.minFeeUSD
         });

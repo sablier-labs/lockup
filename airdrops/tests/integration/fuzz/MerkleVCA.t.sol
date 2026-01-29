@@ -204,6 +204,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
             merkleVCA: ISablierMerkleVCA(expectedMerkleVCA),
             campaignParams: params,
             recipientCount: leavesData.length,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: feeForUser
         });

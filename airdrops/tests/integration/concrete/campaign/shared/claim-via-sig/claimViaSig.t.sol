@@ -32,7 +32,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         bytes memory incompatibleSignature = vm.randomBytes(65);
 
         // Expect revert.
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
+        vm.expectRevert(Errors.SablierMerkleSignature_InvalidSignature.selector);
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
@@ -70,7 +70,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         });
 
         // Expect revert.
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
+        vm.expectRevert(Errors.SablierMerkleSignature_InvalidSignature.selector);
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: index,
@@ -108,7 +108,9 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
         // Expect revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleBase_SignatureNotYetValid.selector, VALID_FROM, VALID_FROM - 1)
+            abi.encodeWithSelector(
+                Errors.SablierMerkleSignature_SignatureNotYetValid.selector, VALID_FROM, VALID_FROM - 1
+            )
         );
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
@@ -142,7 +144,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         whenToAddressNotZero
         givenRecipientIsContract
     {
-        vm.expectRevert(Errors.SablierMerkleBase_InvalidSignature.selector);
+        vm.expectRevert(Errors.SablierMerkleSignature_InvalidSignature.selector);
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(users.smartWalletWithoutIERC1271),

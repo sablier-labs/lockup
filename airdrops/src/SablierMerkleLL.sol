@@ -8,7 +8,7 @@ import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
-import { MerkleLL } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleLL, MerkleLockup } from "./types/DataTypes.sol";
 
 /*
 
@@ -66,23 +66,29 @@ contract SablierMerkleLL is
     /// contract.
     constructor(
         MerkleLL.ConstructorParams memory campaignParams,
+        address attestor_,
         address campaignCreator,
         address comptroller
     )
         SablierMerkleLockup(
+            MerkleBase.BaseParams({
+                campaignName: campaignParams.campaignName,
+                campaignStartTime: campaignParams.campaignStartTime,
+                expiration: campaignParams.expiration,
+                initialAdmin: campaignParams.initialAdmin,
+                ipfsCID: campaignParams.ipfsCID,
+                merkleRoot: campaignParams.merkleRoot,
+                token: campaignParams.token
+            }),
+            MerkleLockup.LockupParams({
+                cancelable: campaignParams.cancelable,
+                lockup: campaignParams.lockup,
+                shape: campaignParams.shape,
+                transferable: campaignParams.transferable
+            }),
+            attestor_,
             campaignCreator,
-            campaignParams.campaignName,
-            campaignParams.campaignStartTime,
-            campaignParams.cancelable,
-            comptroller,
-            campaignParams.lockup,
-            campaignParams.expiration,
-            campaignParams.initialAdmin,
-            campaignParams.ipfsCID,
-            campaignParams.merkleRoot,
-            campaignParams.shape,
-            campaignParams.token,
-            campaignParams.transferable
+            comptroller
         )
     {
         // Effect: set the immutable variables.
@@ -133,6 +139,29 @@ contract SablierMerkleLL is
 
         // Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
         _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleLL
+    function claimViaAttestation(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata attestation
+    )
+        external
+        payable
+        override
+        notZeroAddress(recipient)
+    {
+        // Check: verify attestation signature matches attestor from storage.
+        _checkAttestation(recipient, attestation);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
+        // Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLL

@@ -12,11 +12,15 @@ contract Constructor_MerkleLL_Integration_Test is Integration_Test {
 
         // Deploy the SablierMerkleLL contract.
         SablierMerkleLL constructedLL =
-            new SablierMerkleLL(merkleLLConstructorParams(), users.campaignCreator, address(comptroller));
+            new SablierMerkleLL(merkleLLConstructorParams(), attestor, users.campaignCreator, address(comptroller));
 
         // Token allowance
         uint256 actualAllowance = dai.allowance(address(constructedLL), address(lockup));
         assertEq(actualAllowance, MAX_UINT256, "allowance");
+
+        // SablierMerkleSignature
+        assertEq(constructedLL.attestor(), attestor, "attestor");
+        assertEq(constructedLL.attestorSetByAdmin(), false, "attestor set by admin");
 
         // SablierMerkleBase
         assertEq(constructedLL.admin(), users.campaignCreator, "admin");

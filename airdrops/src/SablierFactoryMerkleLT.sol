@@ -36,8 +36,14 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param initialAttestor The address of the initial attestor.
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
+    constructor(
+        address initialAttestor,
+        address initialComptroller
+    )
+        SablierFactoryMerkleBase(initialAttestor, initialComptroller)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -60,12 +66,13 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         _checkDeploymentParams(address(campaignParams.token), totalPercentage);
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, attestor, comptroller, abi.encode(campaignParams)));
 
         // Get the bytecode hash for the {SablierMerkleLT} contract.
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
-                type(SablierMerkleLT).creationCode, abi.encode(campaignParams, campaignCreator, address(comptroller))
+                type(SablierMerkleLT).creationCode,
+                abi.encode(campaignParams, attestor, campaignCreator, address(comptroller))
             )
         );
 
@@ -110,11 +117,12 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
         _checkDeploymentParams(address(campaignParams.token), totalPercentage);
 
         // Hash the parameters to generate a salt.
-        bytes32 salt = keccak256(abi.encodePacked(msg.sender, comptroller, abi.encode(campaignParams)));
+        bytes32 salt = keccak256(abi.encodePacked(msg.sender, attestor, comptroller, abi.encode(campaignParams)));
 
         // Deploy the MerkleLT contract with CREATE2.
         merkleLT = new SablierMerkleLT{ salt: salt }({
             campaignParams: campaignParams,
+            attestor_: attestor,
             campaignCreator: msg.sender,
             comptroller: address(comptroller)
         });
@@ -126,6 +134,7 @@ contract SablierFactoryMerkleLT is ISablierFactoryMerkleLT, SablierFactoryMerkle
             aggregateAmount: aggregateAmount,
             totalDuration: totalDuration,
             recipientCount: recipientCount,
+            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: comptroller.getMinFeeUSDFor({
                 protocol: ISablierComptroller.Protocol.Airdrops,
