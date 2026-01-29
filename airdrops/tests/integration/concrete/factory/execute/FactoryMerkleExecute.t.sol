@@ -27,7 +27,7 @@ abstract contract FactoryMerkleExecute_Integration_Shared_Test is Integration_Te
 
         // Set the campaign type.
         campaignType = "execute";
-        
+
         // Claim to collect some fees.
         setMsgSender(users.recipient);
         claim();
