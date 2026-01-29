@@ -5,6 +5,7 @@ import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleB
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
 
+import { SetAttestor_Integration_Test } from "../shared/set-attestor/setAttestor.t.sol";
 import { SetNativeToken_Integration_Test } from "../shared/set-native-token/setNativeToken.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -36,6 +37,15 @@ abstract contract FactoryMerkleLT_Integration_Shared_Test is Integration_Test {
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS
 //////////////////////////////////////////////////////////////////////////*/
+
+contract SetAttestor_FactoryMerkleLT_Integration_Test is
+    FactoryMerkleLT_Integration_Shared_Test,
+    SetAttestor_Integration_Test
+{
+    function setUp() public override(FactoryMerkleLT_Integration_Shared_Test, Integration_Test) {
+        FactoryMerkleLT_Integration_Shared_Test.setUp();
+    }
+}
 
 contract SetNativeToken_FactoryMerkleLT_Integration_Test is
     FactoryMerkleLT_Integration_Shared_Test,

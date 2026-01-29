@@ -175,6 +175,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenRecipientAddressNotZero() {
+        _;
+    }
+    
     modifier whenRecipientEligible() {
         _;
     }
