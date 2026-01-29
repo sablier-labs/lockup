@@ -3,29 +3,19 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 
-import { ClaimViaAttestation_Integration_Test } from
-    "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
+import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleVCA_Integration_Shared_Test } from "./../MerkleVCA.t.sol";
 
 contract ClaimViaAttestation_MerkleVCA_Integration_Test is
     ClaimViaAttestation_Integration_Test,
     MerkleVCA_Integration_Shared_Test
 {
-    function setUp()
-        public
-        virtual
-        override(MerkleVCA_Integration_Shared_Test, ClaimViaAttestation_Integration_Test)
-    {
+    function setUp() public virtual override(MerkleVCA_Integration_Shared_Test, ClaimViaAttestation_Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid()
-        external
-        override
-        whenRecipientAddressNotZero
-        givenAttestorSet
-    {
+    function test_WhenAttestationValid() external override whenRecipientAddressNotZero givenAttestorSet {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();

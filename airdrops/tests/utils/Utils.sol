@@ -101,8 +101,7 @@ abstract contract Utils is BaseUtils, Constants {
         );
 
         // Serialize Identity message parameters.
-        string memory identityMessageJson =
-            vm.serializeJsonType(SCHEMA_IDENTITY, abi.encode(Identity(recipient)));
+        string memory identityMessageJson = vm.serializeJsonType(SCHEMA_IDENTITY, abi.encode(Identity(recipient)));
 
         // Construct the typed data JSON.
         string memory typedDataJson = string.concat(
