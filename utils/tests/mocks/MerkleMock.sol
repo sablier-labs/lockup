@@ -7,6 +7,8 @@ contract MerkleMock {
     }
 
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
+
+    function setAttestor(address newAttestor) external { }
 }
 
 contract MerkleMockReverting {
@@ -15,6 +17,10 @@ contract MerkleMockReverting {
     }
 
     function lowerMinFeeUSD(uint256) external pure {
+        revert("Not gonna happen");
+    }
+
+    function setAttestor(address) external pure {
         revert("Not gonna happen");
     }
 }

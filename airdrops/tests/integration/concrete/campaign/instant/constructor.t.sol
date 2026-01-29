@@ -15,6 +15,10 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
             merkleInstantConstructorParams(), attestor, users.campaignCreator, address(comptroller)
         );
 
+        // SablierMerkleSignature
+        assertEq(constructedInstant.attestor(), attestor, "attestor");
+        assertEq(constructedInstant.attestorSetByAdmin(), false, "attestor set by admin");
+
         // SablierMerkleBase
         assertEq(constructedInstant.admin(), users.campaignCreator, "admin");
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");

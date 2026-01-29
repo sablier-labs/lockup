@@ -27,6 +27,10 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
             constructorParams, attestor, users.campaignCreator, address(comptroller)
         );
 
+        // SablierMerkleSignature
+        assertEq(constructedVCA.attestor(), attestor, "attestor");
+        assertEq(constructedVCA.attestorSetByAdmin(), false, "attestor set by admin");
+
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");

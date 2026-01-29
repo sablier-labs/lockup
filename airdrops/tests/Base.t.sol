@@ -51,6 +51,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     //////////////////////////////////////////////////////////////////////////*/
 
     address internal attestor;
+    uint256 internal attestorPrivateKey;
     bytes internal eip712Signature;
     uint256 internal recipientPrivateKey;
     Users internal users;
@@ -91,8 +92,8 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         mockStaking = new MockStaking(dai);
         vm.label({ account: address(mockStaking), newLabel: "MockStaking" });
 
-        // Create the attestor address.
-        attestor = makeAddr("Attestor");
+        // Create the attestor address and store private key since it is used to claim using attestation.
+        (attestor, attestorPrivateKey) = makeAddrAndKey("Attestor");
 
         // Deploy the factories.
         deployFactoriesConditionally();
