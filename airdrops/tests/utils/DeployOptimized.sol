@@ -10,7 +10,10 @@ import { ISablierFactoryMerkleLT } from "../../src/interfaces/ISablierFactoryMer
 import { ISablierFactoryMerkleVCA } from "../../src/interfaces/ISablierFactoryMerkleVCA.sol";
 
 abstract contract DeployOptimized is StdCheats {
-    function deployOptimizedFactories(address initialAttestor, address initialComptroller)
+    function deployOptimizedFactories(
+        address initialAttestor,
+        address initialComptroller
+    )
         internal
         returns (
             ISablierFactoryMerkleExecute factoryMerkleExecute,

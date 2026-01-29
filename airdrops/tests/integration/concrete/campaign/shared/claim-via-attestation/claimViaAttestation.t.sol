@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
@@ -55,14 +54,9 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         });
     }
 
-    /// @dev Since the implementation of `claimViaAttestation()` differs in each Merkle campaign, we declare this virtual
-    /// dummy test. The child contracts implement it.
-    function test_WhenAttestationValid()
-        external
-        virtual
-        whenRecipientAddressNotZero
-        givenAttestorSet
-    {
+    /// @dev Since the implementation of `claimViaAttestation()` differs in each Merkle campaign, we declare this
+    /// virtual dummy test. The child contracts implement it.
+    function test_WhenAttestationValid() external virtual whenRecipientAddressNotZero givenAttestorSet {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
         // It should transfer the fee from the caller address to the comptroller.

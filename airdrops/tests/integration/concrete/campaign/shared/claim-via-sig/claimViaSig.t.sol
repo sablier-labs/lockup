@@ -108,7 +108,9 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
         // Expect revert.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierMerkleSignature_SignatureNotYetValid.selector, VALID_FROM, VALID_FROM - 1)
+            abi.encodeWithSelector(
+                Errors.SablierMerkleSignature_SignatureNotYetValid.selector, VALID_FROM, VALID_FROM - 1
+            )
         );
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,

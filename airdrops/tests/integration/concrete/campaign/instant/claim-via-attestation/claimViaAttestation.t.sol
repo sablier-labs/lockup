@@ -3,8 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
-import { ClaimViaAttestation_Integration_Test } from
-    "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
+import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleInstant_Integration_Shared_Test } from "./../MerkleInstant.t.sol";
 
 contract ClaimViaAttestation_MerkleInstant_Integration_Test is
@@ -20,12 +19,7 @@ contract ClaimViaAttestation_MerkleInstant_Integration_Test is
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid()
-        external
-        override
-        whenRecipientAddressNotZero
-        givenAttestorSet
-    {
+    function test_WhenAttestationValid() external override whenRecipientAddressNotZero givenAttestorSet {
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
