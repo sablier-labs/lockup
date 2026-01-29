@@ -21,6 +21,10 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         uint256 actualAllowance = dai.allowance(address(constructedLT), address(lockup));
         assertEq(actualAllowance, MAX_UINT256, "allowance");
 
+        // SablierMerkleSignature
+        assertEq(constructedLT.attestor(), attestor, "attestor");
+        assertEq(constructedLT.attestorSetByAdmin(), false, "attestor set by admin");
+
         // SablierMerkleBase
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
