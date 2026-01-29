@@ -1,0 +1,14 @@
+Getters_Integration_Concrete_Test
+├── given null order
+│  └── it should revert for all getters
+└── given not null order
+   ├── it should return correct buyer
+   ├── it should return correct buy token
+   ├── it should return correct expire at
+   ├── it should return correct min buy amount
+   ├── it should return correct sell amount
+   ├── it should return correct seller
+   ├── it should return correct sell token
+   ├── it should return correct status
+   ├── it should return correct was canceled flag
+   └── it should return correct was filled flag
