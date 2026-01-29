@@ -42,8 +42,8 @@ abstract contract SablierMerkleLockup is
 
     /// @dev Constructs the contract by initializing the immutable state vars, and max approving the Lockup contract.
     constructor(
-        MerkleBase.BaseParams memory baseParams,
-        MerkleLockup.LockupParams memory lockupParams,
+        MerkleBase.ConstructorParams memory baseParams,
+        MerkleLockup.ConstructorParams memory lockupParams,
         address attestor_,
         address campaignCreator,
         address comptroller

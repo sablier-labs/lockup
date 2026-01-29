@@ -75,7 +75,7 @@ contract SablierMerkleVCA is
         address comptroller
     )
         SablierMerkleSignature(
-            MerkleBase.BaseParams({
+            MerkleBase.ConstructorParams({
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
                 expiration: campaignParams.expiration,
