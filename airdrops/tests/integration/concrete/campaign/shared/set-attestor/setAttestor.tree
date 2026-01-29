@@ -1,0 +1,11 @@
+SetAttestor_Integration_Test
+├── when caller not comptroller or admin
+│  └── it should revert
+├── when caller comptroller
+│  ├── given attestor already set by admin
+│  │  └── it should revert
+│  └── given attestor not set by admin
+│     └── it should set the attestor
+└── when caller campaign creator
+   ├── it should set the attestor
+   └── it should mark attestorSetByAdmin as true

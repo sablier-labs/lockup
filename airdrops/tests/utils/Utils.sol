@@ -5,7 +5,7 @@ pragma solidity >=0.8.22;
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
 import { Constants } from "./Constants.sol";
-import { Claim, EIP712Domain } from "./Types.sol";
+import { Claim, EIP712Domain, Identity } from "./Types.sol";
 
 abstract contract Utils is BaseUtils, Constants {
     /// @notice Computes the EIP-712 domain separator for the provided Merkle contract.
@@ -63,6 +63,57 @@ abstract contract Utils is BaseUtils, Constants {
             domainJson,
             ',"message":',
             claimMessageJson,
+            "}"
+        );
+
+        // Compute the digest.
+        bytes32 digest = vm.eip712HashTypedData(typedDataJson);
+
+        // Sign the digest.
+        signature = sign(signerPrivateKey, digest);
+    }
+
+    /// @notice Generates the EIP-712 attestation signature for the given recipient and returns it.
+    function generateAttestationSignature(
+        uint256 signerPrivateKey,
+        address merkleContract,
+        address recipient
+    )
+        internal
+        view
+        returns (bytes memory signature)
+    {
+        // Concatenate EIP-712 Domain and Identity message types.
+        string memory typesJson = string.concat(
+            "{",
+            '"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],',
+            '"Identity":[{"name":"recipient","type":"address"}]',
+            "}"
+        );
+
+        // Define the primary type.
+        string memory primaryType = '"Identity"';
+
+        // Serialize EIP-712 domain parameters.
+        string memory domainJson = vm.serializeJsonType(
+            SCHEMA_EIP712_DOMAIN,
+            abi.encode(EIP712Domain({ name: PROTOCOL_NAME, chainId: block.chainid, verifyingContract: merkleContract }))
+        );
+
+        // Serialize Identity message parameters.
+        string memory identityMessageJson =
+            vm.serializeJsonType(SCHEMA_IDENTITY, abi.encode(Identity(recipient)));
+
+        // Construct the typed data JSON.
+        string memory typedDataJson = string.concat(
+            '{"types":',
+            typesJson,
+            ',"primaryType":',
+            primaryType,
+            ',"domain":',
+            domainJson,
+            ',"message":',
+            identityMessageJson,
             "}"
         );
 
