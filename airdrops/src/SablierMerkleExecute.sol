@@ -60,7 +60,7 @@ contract SablierMerkleExecute is
         address comptroller
     )
         SablierMerkleBase(
-            MerkleBase.BaseParams({
+            MerkleBase.ConstructorParams({
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
                 expiration: campaignParams.expiration,

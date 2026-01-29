@@ -59,7 +59,7 @@ contract SablierMerkleLT is
         address comptroller
     )
         SablierMerkleLockup(
-            MerkleBase.BaseParams({
+            MerkleBase.ConstructorParams({
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
                 expiration: campaignParams.expiration,
@@ -68,7 +68,7 @@ contract SablierMerkleLT is
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
             }),
-            MerkleLockup.LockupParams({
+            MerkleLockup.ConstructorParams({
                 cancelable: campaignParams.cancelable,
                 lockup: campaignParams.lockup,
                 shape: campaignParams.shape,

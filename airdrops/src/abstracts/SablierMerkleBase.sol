@@ -75,7 +75,7 @@ abstract contract SablierMerkleBase is
 
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(
-        MerkleBase.BaseParams memory baseParams,
+        MerkleBase.ConstructorParams memory baseParams,
         address campaignCreator,
         address comptroller
     )

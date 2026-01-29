@@ -41,7 +41,7 @@ abstract contract SablierMerkleSignature is
 
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(
-        MerkleBase.BaseParams memory baseParams,
+        MerkleBase.ConstructorParams memory baseParams,
         address attestor_,
         address campaignCreator,
         address comptroller
@@ -75,11 +75,11 @@ abstract contract SablierMerkleSignature is
 
     /// @inheritdoc ISablierMerkleSignature
     function setAttestor(address newAttestor) external override {
-        bool isAdmin = msg.sender == admin;
-        bool isComptroller = msg.sender == COMPTROLLER;
+        bool isCallerAdmin = msg.sender == admin;
+        bool isCallerComptroller = msg.sender == COMPTROLLER;
 
         // Check: the caller is the comptroller or the admin.
-        if (!isAdmin && !isComptroller) {
+        if (!isCallerAdmin && !isCallerComptroller) {
             revert Errors.SablierMerkleSignature_CallerNotComptrollerOrAdmin({
                 comptroller: COMPTROLLER,
                 admin: admin,
@@ -88,7 +88,7 @@ abstract contract SablierMerkleSignature is
         }
 
         // Check: if the caller is the comptroller, the admin must not have already set the attestor.
-        if (isComptroller && attestorSetByAdmin) {
+        if (isCallerComptroller && attestorSetByAdmin) {
             revert Errors.SablierMerkleSignature_AttestorAlreadySetByAdmin();
         }
 
@@ -98,7 +98,7 @@ abstract contract SablierMerkleSignature is
         attestor = newAttestor;
 
         // Effect: if the caller is the admin, mark that the admin has set the attestor.
-        if (isAdmin) {
+        if (isCallerAdmin && !attestorSetByAdmin) {
             attestorSetByAdmin = true;
         }
 
@@ -124,7 +124,7 @@ abstract contract SablierMerkleSignature is
         bytes32 identityHash = keccak256(abi.encode(SignatureHash.IDENTITY_TYPEHASH, recipient));
 
         // Verify signature matches attestor.
-        _verifySignature(attestor_, identityHash, attestation);
+        _verifySignature({ signer: attestor_, structHash: identityHash, signature: attestation });
     }
 
     /// @dev Verifies the signature against the provided parameters. It supports both EIP-712 and EIP-1271 signatures.
@@ -143,7 +143,7 @@ abstract contract SablierMerkleSignature is
         bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount, validFrom));
 
         // Verify signature matches recipient.
-        _verifySignature(recipient, claimHash, signature);
+        _verifySignature({ signer: recipient, structHash: claimHash, signature: signature });
 
         // Check: the `validFrom` is less than or equal to the current block timestamp.
         if (validFrom > uint40(block.timestamp)) {
@@ -164,10 +164,7 @@ abstract contract SablierMerkleSignature is
         bytes32 digest =
             MessageHashUtils.toTypedDataHash({ domainSeparator: _domainSeparator(), structHash: structHash });
 
-        // If recipient is an EOA, `isValidSignatureNow` recovers the signer using ECDSA from the signature and the
-        // digest. It returns true if the recovered signer matches the recipient. If the recipient is a contract,
-        // `isValidSignatureNow` checks if the recipient implements the `IERC1271` interface and returns the magic value
-        // as per EIP-1271 for the given digest and signature.
+        // Supports both EOA signatures (ECDSA recovery) and smart contract signatures (EIP-1271).
         bool isSignatureValid =
             SignatureChecker.isValidSignatureNow({ signer: signer, hash: digest, signature: signature });
 

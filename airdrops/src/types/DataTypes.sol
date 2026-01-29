@@ -19,7 +19,7 @@ library MerkleBase {
     /// features that depend upon the IPFS CID.
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param token The contract address of the ERC-20 token to be distributed.
-    struct BaseParams {
+    struct ConstructorParams {
         string campaignName;
         uint40 campaignStartTime;
         uint40 expiration;
@@ -136,7 +136,7 @@ library MerkleLockup {
     /// @param lockup The address of the {SablierLockup} contract.
     /// @param shape The shape of the vesting stream, used for differentiating between streams in the UI.
     /// @param transferable Indicates if the Lockup stream will be transferable after claiming.
-    struct LockupParams {
+    struct ConstructorParams {
         bool cancelable;
         ISablierLockup lockup;
         string shape;
