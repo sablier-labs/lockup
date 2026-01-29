@@ -20,6 +20,14 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenAttestorIsContract() {
+        _;
+    }
+
+    modifier givenAttestorIsEOA() {
+        _;
+    }
+
     modifier givenAttestorNotSet() {
         _;
     }

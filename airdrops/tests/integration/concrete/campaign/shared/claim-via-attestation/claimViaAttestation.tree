@@ -5,9 +5,17 @@ ClaimViaAttestation_Integration_Test
    ├── given attestor not set
    │  └── it should revert
    └── given attestor set
-      ├── when attestation invalid
-      │  └── it should revert
-      └── when attestation valid
-         ├── it should mark the index as Claimed
-         ├── it should transfer the ETH to the comptroller
-         └── it should emit claim event
+      ├── given attestor is EOA
+      │  ├── when attestation invalid
+      │  │  └── it should revert
+      │  └── when attestation valid
+      │     ├── it should mark the index as Claimed
+      │     ├── it should transfer the ETH to the comptroller
+      │     └── it should emit claim event
+      └── given attestor is contract
+         ├── when attestor not implement IERC1271 interface
+         │  └── it should revert
+         └── when attestor implements IERC1271 interface
+            ├── it should mark the index as Claimed
+            ├── it should transfer the ETH to the comptroller
+            └── it should emit claim event
