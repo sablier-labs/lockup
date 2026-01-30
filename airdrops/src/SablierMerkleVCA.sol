@@ -167,29 +167,6 @@ contract SablierMerkleVCA is
     }
 
     /// @inheritdoc ISablierMerkleVCA
-    function claimViaAttestation(
-        uint256 index,
-        address recipient,
-        uint128 fullAmount,
-        bytes32[] calldata merkleProof,
-        bytes calldata attestation
-    )
-        external
-        payable
-        override
-        notZeroAddress(recipient)
-    {
-        // Check: verify attestation signature matches attestor from storage.
-        _checkAttestation(recipient, attestation);
-
-        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
-        _preProcessClaim(index, recipient, fullAmount, merkleProof);
-
-        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, fullAmount: fullAmount, viaSig: false });
-    }
-
-    /// @inheritdoc ISablierMerkleVCA
     function claimViaSig(
         uint256 index,
         address recipient,
