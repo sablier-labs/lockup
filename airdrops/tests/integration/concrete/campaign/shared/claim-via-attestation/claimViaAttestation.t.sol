@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMock.sol";
 import { Noop } from "@sablier/evm-utils/src/mocks/Noop.sol";
 
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
