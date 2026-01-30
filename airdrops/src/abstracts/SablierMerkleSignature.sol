@@ -8,7 +8,7 @@ import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/Sig
 import { ISablierMerkleSignature } from "./../interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { SignatureHash } from "./../libraries/SignatureHash.sol";
-import { MerkleBase } from "./../types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./../types/DataTypes.sol";
 import { SablierMerkleBase } from "./SablierMerkleBase.sol";
 
 /// @title SablierMerkleSignature
@@ -35,6 +35,19 @@ abstract contract SablierMerkleSignature is
     /// @inheritdoc ISablierMerkleSignature
     bool public override attestorSetByAdmin;
 
+    /// @inheritdoc ISablierMerkleSignature
+    ClaimType public override claimType;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Modifier to check that the provided claim type matches the campaign's claim type.
+    modifier checkClaimType(ClaimType claimType_) {
+        _checkClaimType(claimType_);
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -44,6 +57,7 @@ abstract contract SablierMerkleSignature is
         MerkleBase.ConstructorParams memory baseParams,
         address attestor_,
         address campaignCreator,
+        ClaimType claimType_,
         address comptroller
     )
         SablierMerkleBase(baseParams, campaignCreator, comptroller)
@@ -58,6 +72,9 @@ abstract contract SablierMerkleSignature is
 
         // Effect: set the initial attestor.
         attestor = attestor_;
+
+        // Effect: set the claim type.
+        claimType = claimType_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -154,6 +171,16 @@ abstract contract SablierMerkleSignature is
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks that the provided claim type matches the campaign's claim type.
+    function _checkClaimType(ClaimType claimType_) private view {
+        if (claimType != claimType_) {
+            revert Errors.SablierMerkleSignature_InvalidClaimType({
+                claimTypeCalled: claimType_,
+                claimTypeSupported: claimType
+            });
+        }
+    }
 
     /// @dev Verifies an EIP-712 or EIP-1271 signature against a signer and struct hash.
     /// @param signer The expected signer address.

@@ -6,7 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleLockup } from "../interfaces/ISablierMerkleLockup.sol";
-import { MerkleBase, MerkleLockup } from "../types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleLockup } from "../types/DataTypes.sol";
 import { SablierMerkleSignature } from "./SablierMerkleSignature.sol";
 
 /// @title SablierMerkleLockup
@@ -46,9 +46,10 @@ abstract contract SablierMerkleLockup is
         MerkleLockup.ConstructorParams memory lockupParams,
         address attestor_,
         address campaignCreator,
+        ClaimType claimType_,
         address comptroller
     )
-        SablierMerkleSignature(baseParams, attestor_, campaignCreator, comptroller)
+        SablierMerkleSignature(baseParams, attestor_, campaignCreator, claimType_, comptroller)
     {
         SABLIER_LOCKUP = lockupParams.lockup;
         STREAM_CANCELABLE = lockupParams.cancelable;

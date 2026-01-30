@@ -6,7 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
-import { MerkleBase, MerkleInstant } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleInstant } from "./types/DataTypes.sol";
 
 /*
 
@@ -57,6 +57,7 @@ contract SablierMerkleInstant is
             }),
             attestor_,
             campaignCreator,
+            campaignParams.claimType,
             comptroller
         )
     { }
@@ -75,6 +76,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);
@@ -93,6 +95,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -113,6 +116,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
+        checkClaimType(ClaimType.ATTEST)
         notZeroAddress(recipient)
     {
         // Check: verify attestation signature matches attestor from storage.
@@ -138,6 +142,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.
