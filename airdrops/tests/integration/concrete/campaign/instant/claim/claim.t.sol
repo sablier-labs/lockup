@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleInstant_Integration_Shared_Test, Integration_Test } from "./../MerkleInstant.t.sol";
@@ -11,9 +13,20 @@ contract Claim_MerkleInstant_Integration_Test is Claim_Integration_Test, MerkleI
         MerkleInstant_Integration_Shared_Test.setUp();
     }
 
+    function test_RevertGiven_ClaimTypeATTEST() external {
+        merkleBase = merkleInstantAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleSignature_InvalidClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claim();
+    }
+
     function test_WhenMerkleProofValid()
         external
         override
+        givenClaimTypeNotAttest
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee

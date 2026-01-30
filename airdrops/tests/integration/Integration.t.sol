@@ -8,7 +8,7 @@ import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol"
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType, MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -19,6 +19,12 @@ abstract contract Integration_Test is Base_Test {
 
     /// @dev Type of the campaign, e.g., "execute", "instant", "ll", "lt", or "vca".
     string internal campaignType;
+
+    /// @dev Campaigns with ClaimType.ATTEST for testing claim type restrictions.
+    ISablierMerkleInstant internal merkleInstantAttest;
+    ISablierMerkleLL internal merkleLLAttest;
+    ISablierMerkleLT internal merkleLTAttest;
+    ISablierMerkleVCA internal merkleVCAAttest;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -36,6 +42,12 @@ abstract contract Integration_Test is Base_Test {
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
         merkleVCA = createMerkleVCA();
+
+        // Create campaigns with ClaimType.ATTEST.
+        merkleInstantAttest = createMerkleInstantAttest();
+        merkleLLAttest = createMerkleLLAttest();
+        merkleLTAttest = createMerkleLTAttest();
+        merkleVCAAttest = createMerkleVCAAttest();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -235,6 +247,13 @@ abstract contract Integration_Test is Base_Test {
         fundCampaignWithDai(address(campaignAddress));
     }
 
+    function createMerkleInstantAttest() internal returns (ISablierMerkleInstant) {
+        MerkleInstant.ConstructorParams memory params = merkleInstantConstructorParams();
+        params.campaignName = "attest instant";
+        params.claimType = ClaimType.ATTEST;
+        return createMerkleInstant(params);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-LL
     //////////////////////////////////////////////////////////////////////////*/
@@ -251,6 +270,13 @@ abstract contract Integration_Test is Base_Test {
 
         // Fund the campaign.
         fundCampaignWithDai(address(campaignAddress));
+    }
+
+    function createMerkleLLAttest() internal returns (ISablierMerkleLL) {
+        MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
+        params.campaignName = "attest ll";
+        params.claimType = ClaimType.ATTEST;
+        return createMerkleLL(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -271,6 +297,13 @@ abstract contract Integration_Test is Base_Test {
         fundCampaignWithDai(address(campaignAddress));
     }
 
+    function createMerkleLTAttest() internal returns (ISablierMerkleLT) {
+        MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
+        params.campaignName = "attest lt";
+        params.claimType = ClaimType.ATTEST;
+        return createMerkleLT(params);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-VCA
     //////////////////////////////////////////////////////////////////////////*/
@@ -287,5 +320,12 @@ abstract contract Integration_Test is Base_Test {
 
         // Fund the campaign.
         fundCampaignWithDai(address(campaignAddress));
+    }
+
+    function createMerkleVCAAttest() internal returns (ISablierMerkleVCA) {
+        MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
+        params.campaignName = "attest vca";
+        params.claimType = ClaimType.ATTEST;
+        return createMerkleVCA(params);
     }
 }

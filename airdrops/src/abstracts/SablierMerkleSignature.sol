@@ -8,6 +8,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierMerkleSignature } from "./../interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { SignatureHash } from "./../libraries/SignatureHash.sol";
+import { ClaimType } from "./../types/DataTypes.sol";
 import { SablierMerkleBase } from "./SablierMerkleBase.sol";
 
 /// @title SablierMerkleSignature
@@ -32,12 +33,25 @@ abstract contract SablierMerkleSignature is
     /// attestor is queried from the comptroller.
     address private _attestor;
 
+    /// @inheritdoc ISablierMerkleSignature
+    ClaimType public override claimType;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Modifier to check that the provided claim type matches the campaign's claim type.
+    modifier checkClaimType(ClaimType claimType_) {
+        _checkClaimType(claimType_);
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor() {
+    constructor(ClaimType claimType_) {
         // Cache the chain ID.
         _CACHED_CHAIN_ID = block.chainid;
 
@@ -45,6 +59,9 @@ abstract contract SablierMerkleSignature is
         _CACHED_DOMAIN_SEPARATOR = keccak256(
             abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
         );
+
+        // Effect: set the claim type.
+        claimType = claimType_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -136,6 +153,16 @@ abstract contract SablierMerkleSignature is
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks that the provided claim type matches the campaign's claim type.
+    function _checkClaimType(ClaimType claimType_) private view {
+        if (claimType != claimType_) {
+            revert Errors.SablierMerkleSignature_InvalidClaimType({
+                claimTypeCalled: claimType_,
+                claimTypeSupported: claimType
+            });
+        }
+    }
 
     /// @dev Returns the domain separator for the current chain.
     function _domainSeparator() private view returns (bytes32) {

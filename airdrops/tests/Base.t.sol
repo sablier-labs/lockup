@@ -34,7 +34,7 @@ import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
-import { MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType, MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 import { MockStaking } from "./mocks/MockStaking.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
@@ -489,6 +489,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         return MerkleInstant.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
+            claimType: ClaimType.DEFAULT,
             expiration: expiration,
             initialAdmin: campaignCreator,
             ipfsCID: IPFS_CID,
@@ -581,6 +582,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
             cancelable: STREAM_CANCELABLE,
+            claimType: ClaimType.DEFAULT,
             cliffDuration: VESTING_CLIFF_DURATION,
             cliffUnlockPercentage: VESTING_CLIFF_UNLOCK_PERCENTAGE,
             expiration: expiration,
@@ -698,6 +700,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         return MerkleLT.ConstructorParams({
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
+            claimType: ClaimType.DEFAULT,
             cancelable: STREAM_CANCELABLE,
             expiration: expiration,
             initialAdmin: campaignCreator,
@@ -836,6 +839,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             aggregateAmount: aggregateAmount,
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
+            claimType: ClaimType.DEFAULT,
             enableRedistribution: enableRedistribution,
             expiration: expiration,
             initialAdmin: campaignCreator,

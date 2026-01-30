@@ -65,7 +65,6 @@ abstract contract SablierMerkleBase is
     /// @dev Modifier to check that `to` is not zero address.
     modifier notZeroAddress(address to) {
         _revertIfToZeroAddress(to);
-
         _;
     }
 
