@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 
+import { SablierFactoryMerkleExecute } from "../../src/SablierFactoryMerkleExecute.sol";
 import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
 import { SablierFactoryMerkleLL } from "../../src/SablierFactoryMerkleLL.sol";
 import { SablierFactoryMerkleLT } from "../../src/SablierFactoryMerkleLT.sol";
@@ -14,12 +15,14 @@ contract DeployFactories is EvmUtilsBaseScript {
         public
         broadcast
         returns (
+            SablierFactoryMerkleExecute factoryMerkleExecute,
             SablierFactoryMerkleInstant factoryMerkleInstant,
             SablierFactoryMerkleLL factoryMerkleLL,
             SablierFactoryMerkleLT factoryMerkleLT,
             SablierFactoryMerkleVCA factoryMerkleVCA
         )
     {
+        factoryMerkleExecute = new SablierFactoryMerkleExecute(getComptroller());
         factoryMerkleInstant = new SablierFactoryMerkleInstant(getComptroller());
         factoryMerkleLL = new SablierFactoryMerkleLL(getComptroller());
         factoryMerkleLT = new SablierFactoryMerkleLT(getComptroller());
