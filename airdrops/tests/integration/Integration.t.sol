@@ -91,6 +91,39 @@ abstract contract Integration_Test is Base_Test {
         ISablierMerkleInstant(address(merkleBase)).claimTo{ value: msgValue }(index, to, amount, merkleProof);
     }
 
+    /// @dev Claim using default values for {claimViaAttestation} function.
+    function claimViaAttestation() internal {
+        claimViaAttestation(users.recipient, CLAIM_AMOUNT);
+    }
+
+    /// @dev Claim using recipient and amount parameters for {claimViaAttestation} function.
+    function claimViaAttestation(address recipient, uint128 amount) internal {
+        claimViaAttestation({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(recipient),
+            recipient: recipient,
+            amount: amount,
+            merkleProof: getMerkleProof(recipient),
+            attestation: generateAttestation(recipient, address(merkleBase))
+        });
+    }
+
+    function claimViaAttestation(
+        uint256 msgValue,
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] memory merkleProof,
+        bytes memory attestation
+    )
+        internal
+    {
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
+            index, recipient, amount, merkleProof, attestation
+        );
+    }
+
     /// @dev Claim using default values for {claimViaSig} function.
     function claimViaSig() internal {
         claimViaSig(users.recipient, CLAIM_AMOUNT);
@@ -122,12 +155,19 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
-        // claimViaSig function signature.
         address campaignAddr = address(merkleBase);
         ISablierMerkleInstant(campaignAddr).claimViaSig{ value: msgValue }(
             index, recipient, to, amount, validFrom, merkleProof, signature
         );
+    }
+
+    /// @dev Generate the EIP-712 attestation signature with default parameters.
+    function generateAttestation(address recipient, address merkleContract) internal view returns (bytes memory) {
+        return generateAttestationSignature({
+            signerPrivateKey: attestorPrivateKey,
+            merkleContract: merkleContract,
+            recipient: recipient
+        });
     }
 
     /// @dev Generate the EIP-712 signature to claim with default parameters.

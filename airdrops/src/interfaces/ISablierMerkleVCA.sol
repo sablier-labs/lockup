@@ -2,13 +2,14 @@
 pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
+
+import { ISablierMerkleSignature } from "./ISablierMerkleSignature.sol";
 
 /// @title ISablierMerkleVCA
 /// @notice VCA stands for Variable Claim Amount, and is an airdrop model where the claim amount increases linearly
 /// until the airdrop period ends. Claiming early results in forgoing the remaining amount, whereas claiming after the
-/// period grants the full amount that was allocated, plus redistribution rewards if enabled.
-interface ISablierMerkleVCA is ISablierMerkleBase {
+/// period grants the full amount that was allocated.
+interface ISablierMerkleVCA is ISablierMerkleSignature {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

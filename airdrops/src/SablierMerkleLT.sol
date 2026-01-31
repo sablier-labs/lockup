@@ -8,7 +8,7 @@ import { Lockup, LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol"
 
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
-import { MerkleLT } from "./types/DataTypes.sol";
+import { MerkleBase, MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
 
 /*
 
@@ -54,23 +54,29 @@ contract SablierMerkleLT is
     /// contract.
     constructor(
         MerkleLT.ConstructorParams memory campaignParams,
+        address attestor_,
         address campaignCreator,
         address comptroller
     )
         SablierMerkleLockup(
+            MerkleBase.ConstructorParams({
+                campaignName: campaignParams.campaignName,
+                campaignStartTime: campaignParams.campaignStartTime,
+                expiration: campaignParams.expiration,
+                initialAdmin: campaignParams.initialAdmin,
+                ipfsCID: campaignParams.ipfsCID,
+                merkleRoot: campaignParams.merkleRoot,
+                token: campaignParams.token
+            }),
+            MerkleLockup.ConstructorParams({
+                cancelable: campaignParams.cancelable,
+                lockup: campaignParams.lockup,
+                shape: campaignParams.shape,
+                transferable: campaignParams.transferable
+            }),
+            attestor_,
             campaignCreator,
-            campaignParams.campaignName,
-            campaignParams.campaignStartTime,
-            campaignParams.cancelable,
-            comptroller,
-            campaignParams.lockup,
-            campaignParams.expiration,
-            campaignParams.initialAdmin,
-            campaignParams.ipfsCID,
-            campaignParams.merkleRoot,
-            campaignParams.shape,
-            campaignParams.token,
-            campaignParams.transferable
+            comptroller
         )
     {
         VESTING_START_TIME = campaignParams.vestingStartTime;
@@ -130,6 +136,29 @@ contract SablierMerkleLT is
 
         // Check, Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
         _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
+    }
+
+    /// @inheritdoc ISablierMerkleLT
+    function claimViaAttestation(
+        uint256 index,
+        address recipient,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata attestation
+    )
+        external
+        payable
+        override
+        notZeroAddress(recipient)
+    {
+        // Check: verify attestation signature matches attestor from storage.
+        _checkAttestation(recipient, attestation);
+
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
+        _preProcessClaim(index, recipient, amount, merkleProof);
+
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
+        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLT

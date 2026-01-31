@@ -44,6 +44,6 @@ contract MerkleInstantHandler is BaseHandler {
         params.token = campaignToken;
 
         // Deploy and return the campaign address.
-        return address(new SablierMerkleInstant(params, campaignCreator, comptroller));
+        return address(new SablierMerkleInstant(params, address(0), campaignCreator, comptroller));
     }
 }

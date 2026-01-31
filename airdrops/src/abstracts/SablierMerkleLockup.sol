@@ -5,14 +5,15 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
-import { ISablierMerkleLockup } from "../interfaces/ISablierMerkleLL.sol";
-import { SablierMerkleBase } from "./SablierMerkleBase.sol";
+import { ISablierMerkleLockup } from "../interfaces/ISablierMerkleLockup.sol";
+import { MerkleBase, MerkleLockup } from "../types/DataTypes.sol";
+import { SablierMerkleSignature } from "./SablierMerkleSignature.sol";
 
 /// @title SablierMerkleLockup
 /// @notice See the documentation in {ISablierMerkleLockup}.
 abstract contract SablierMerkleLockup is
-    ISablierMerkleLockup, // 2 inherited components,
-    SablierMerkleBase // 3 inherited components
+    ISablierMerkleLockup, // 3 inherited components
+    SablierMerkleSignature // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -41,36 +42,18 @@ abstract contract SablierMerkleLockup is
 
     /// @dev Constructs the contract by initializing the immutable state vars, and max approving the Lockup contract.
     constructor(
+        MerkleBase.ConstructorParams memory baseParams,
+        MerkleLockup.ConstructorParams memory lockupParams,
+        address attestor_,
         address campaignCreator,
-        string memory campaignName,
-        uint40 campaignStartTime,
-        bool cancelable,
-        address comptroller,
-        ISablierLockup sablierLockup,
-        uint40 expiration,
-        address initialAdmin,
-        string memory ipfsCID,
-        bytes32 merkleRoot,
-        string memory shape_,
-        IERC20 token,
-        bool transferable
+        address comptroller
     )
-        SablierMerkleBase(
-            campaignCreator,
-            campaignName,
-            campaignStartTime,
-            comptroller,
-            expiration,
-            initialAdmin,
-            ipfsCID,
-            merkleRoot,
-            token
-        )
+        SablierMerkleSignature(baseParams, attestor_, campaignCreator, comptroller)
     {
-        SABLIER_LOCKUP = sablierLockup;
-        streamShape = shape_;
-        STREAM_CANCELABLE = cancelable;
-        STREAM_TRANSFERABLE = transferable;
+        SABLIER_LOCKUP = lockupParams.lockup;
+        STREAM_CANCELABLE = lockupParams.cancelable;
+        STREAM_TRANSFERABLE = lockupParams.transferable;
+        streamShape = lockupParams.shape;
 
         // Max approve the Lockup contract to spend funds from the Merkle Lockup campaigns.
         TOKEN.forceApprove({ spender: address(SABLIER_LOCKUP), value: type(uint256).max });

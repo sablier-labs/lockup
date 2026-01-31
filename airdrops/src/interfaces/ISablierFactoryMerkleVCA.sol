@@ -18,6 +18,7 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
         ISablierMerkleVCA indexed merkleVCA,
         MerkleVCA.ConstructorParams campaignParams,
         uint256 recipientCount,
+        address attestor,
         address comptroller,
         uint256 minFeeUSD
     );
