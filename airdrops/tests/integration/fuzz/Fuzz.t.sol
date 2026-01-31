@@ -66,8 +66,9 @@ abstract contract Shared_Fuzz_Test is Integration_Test {
 
             bytes32[] memory merkleProof = computeMerkleProof(leafData, leaves);
 
-            // If `leafIndex` is even and the campaign type is not "vca", use {claim} function.
-            if (leafIndex % 2 == 0 && !Strings.equal(campaignType, "vca")) {
+            // If `leafIndex` is even and the campaign type is not "execute" or  "vca", use {claim} function.
+            // We need the "recipient == msg.sender" condition.
+            if (leafIndex % 2 == 0 && !Strings.equal(campaignType, "execute") && !Strings.equal(campaignType, "vca")) {
                 // Use a random address as the caller.
                 address caller = vm.randomAddress();
 
