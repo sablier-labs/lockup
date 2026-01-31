@@ -8,7 +8,7 @@ import { Lockup, LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol"
 
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
-import { MerkleBase, MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleLockup, MerkleLT } from "./types/DataTypes.sol";
 
 /*
 
@@ -76,6 +76,7 @@ contract SablierMerkleLT is
             }),
             attestor_,
             campaignCreator,
+            campaignParams.claimType,
             comptroller
         )
     {
@@ -111,6 +112,7 @@ contract SablierMerkleLT is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);
@@ -129,6 +131,7 @@ contract SablierMerkleLT is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -149,6 +152,7 @@ contract SablierMerkleLT is
         external
         payable
         override
+        checkClaimType(ClaimType.ATTEST)
         notZeroAddress(recipient)
     {
         // Check: verify attestation signature matches attestor from storage.
@@ -174,6 +178,7 @@ contract SablierMerkleLT is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

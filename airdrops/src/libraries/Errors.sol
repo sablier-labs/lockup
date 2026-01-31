@@ -3,6 +3,8 @@ pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { ClaimType } from "../types/DataTypes.sol";
+
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
@@ -105,6 +107,9 @@ library Errors {
 
     /// @notice Thrown when caller is not the comptroller or admin.
     error SablierMerkleSignature_CallerNotComptrollerOrAdmin(address comptroller, address admin, address caller);
+
+    /// @notice Thrown when trying to call a claim function not supported in the campaign.
+    error SablierMerkleSignature_InvalidClaimType(ClaimType claimTypeCalled, ClaimType claimTypeSupported);
 
     /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
     error SablierMerkleSignature_InvalidSignature();

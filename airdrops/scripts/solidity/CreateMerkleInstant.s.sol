@@ -6,21 +6,23 @@ import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/B
 
 import { ISablierMerkleInstant } from "../../src/interfaces/ISablierMerkleInstant.sol";
 import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
-import { MerkleInstant } from "../../src/types/DataTypes.sol";
+import { ClaimType, MerkleInstant } from "../../src/types/DataTypes.sol";
 
 /// @dev Creates a dummy MerkleInstant campaign.
 contract CreateMerkleInstant is EvmUtilsBaseScript {
     /// @dev Deploy via Forge.
     function run(SablierFactoryMerkleInstant factory) public broadcast returns (ISablierMerkleInstant merkleInstant) {
         // Prepare the constructor parameters.
-        MerkleInstant.ConstructorParams memory campaignParams;
-        campaignParams.campaignName = "The Boys Instant";
-        campaignParams.campaignStartTime = uint40(block.timestamp);
-        campaignParams.expiration = uint40(block.timestamp + 30 days);
-        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        campaignParams.token = IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF);
+        MerkleInstant.ConstructorParams memory campaignParams = MerkleInstant.ConstructorParams({
+            campaignName: "The Boys Instant",
+            campaignStartTime: uint40(block.timestamp),
+            claimType: ClaimType.DEFAULT,
+            expiration: uint40(block.timestamp + 30 days),
+            initialAdmin: 0x79Fb3e81aAc012c08501f41296CCC145a1E15844,
+            ipfsCID: "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
+            merkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
+            token: IERC20(0xf983A617DA60e88c112D52F00f9Fab17851D2feF)
+        });
 
         // The total amount to airdrop through the campaign.
         uint256 aggregateAmount = 10_000e18;

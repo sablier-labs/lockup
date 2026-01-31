@@ -27,6 +27,7 @@ interface ISablierMerkleInstant is ISablierMerkleSignature {
     /// @dev It emits a {ClaimInstant} event.
     ///
     /// Requirements:
+    /// - `claimType` must be `DEFAULT`.
     /// - The current time must be greater than or equal to the campaign start time.
     /// - The campaign must not have expired.
     /// - `msg.value` must not be less than the value returned by {COMPTROLLER.calculateMinFeeWei}.
@@ -44,6 +45,7 @@ interface ISablierMerkleInstant is ISablierMerkleSignature {
     /// @dev It emits a {ClaimInstant} event.
     ///
     /// Requirements:
+    /// - `claimType` must be `DEFAULT`.
     /// - `msg.sender` must be the airdrop recipient.
     /// - The `to` must not be the zero address.
     /// - Refer to the requirements in {claim}.
@@ -63,6 +65,7 @@ interface ISablierMerkleInstant is ISablierMerkleSignature {
     /// - See the example in the {claimViaSig} function.
     ///
     /// Requirements:
+    /// - `claimType` must be `ATTEST`.
     /// - The attestor must be set in the campaign.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claim}.
@@ -88,6 +91,7 @@ interface ISablierMerkleInstant is ISablierMerkleSignature {
     /// @dev It emits a {ClaimInstant} event.
     ///
     /// Requirements:
+    /// - `claimType` must be `DEFAULT`.
     /// - If `recipient` is an EOA, it must match the recovered signer.
     /// - If `recipient` is a contract, it must implement the IERC-1271 interface.
     /// - The `to` must not be the zero address.
