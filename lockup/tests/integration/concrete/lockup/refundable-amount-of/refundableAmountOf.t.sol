@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Lockup } from "src/types/Lockup.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Test {
@@ -26,7 +27,12 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     function test_GivenCanceledStreamAndDEPLETEDStatus() external givenNotNull givenCancelableStream {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(ids.defaultStream);
-        lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
+
+        // Withdraw max from the stream to deplete it, except for price-gated streams in which cancelling a stream
+        // depletes it.
+        if (lockupModel != Lockup.Model.LOCKUP_PRICE_GATED) {
+            lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: ids.defaultStream, to: users.recipient });
+        }
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() + 10 seconds });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(ids.defaultStream);
         uint128 expectedRefundableAmount = 0;
@@ -43,7 +49,8 @@ abstract contract RefundableAmountOf_Integration_Concrete_Test is Integration_Te
     function test_GivenSTREAMINGStatus() external givenNotNull givenCancelableStream givenNotCanceledStream {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(ids.defaultStream);
-        uint128 expectedReturnableAmount = defaults.REFUND_AMOUNT();
+        uint128 expectedReturnableAmount =
+            lockupModel == Lockup.Model.LOCKUP_PRICE_GATED ? defaults.DEPOSIT_AMOUNT() : defaults.REFUND_AMOUNT();
         assertEq(actualRefundableAmount, expectedReturnableAmount, "refundableAmount");
     }
 

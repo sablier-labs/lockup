@@ -122,9 +122,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         // It should return the correct refunded amount.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
-        // It should mark the stream as canceled.
+        // It should mark the stream as canceled if the recipient has tokens to withdraw, otherwise it should mark the
+        // stream as depleted.
         Lockup.Status actualStatus = lockup.statusOf(ids.notAllowedToHookStream);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
+        Lockup.Status expectedStatus = recipientAmount == 0 ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -180,6 +181,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         // It should make Sablier run the recipient hook.
         uint128 senderAmount = lockup.refundableAmountOf(ids.recipientReentrantStream);
         uint128 recipientAmount = lockup.withdrawableAmountOf(ids.recipientReentrantStream);
+
+        // Return if the recipient amount is 0, because otherwise withdraw would revert.
+        if (recipientAmount == 0) return;
+
         vm.expectCall(
             address(recipientReentrant),
             abi.encodeCall(
@@ -259,9 +264,10 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         // It should return the correct refunded amount.
         assertEq(refundedAmount, senderAmount, "refundedAmount");
 
-        // It should mark the stream as canceled.
+        // It should mark the stream as canceled if the recipient has tokens to withdraw, otherwise it should mark the
+        // stream as depleted.
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
+        Lockup.Status expectedStatus = recipientAmount == 0 ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // It should make the stream as non cancelable.

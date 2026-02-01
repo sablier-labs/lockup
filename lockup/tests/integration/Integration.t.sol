@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -97,15 +98,44 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function initializeDefaultStreams() internal {
-        ids.defaultStream = createDefaultStream();
-        ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
-        ids.notCancelableStream = createDefaultStreamNonCancelable();
-        ids.notTransferableStream = createDefaultStreamNonTransferable();
+        if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            // Price-gated streams only support `createWithDurations` function, so streams are created using that
+            // function.
+            ids.defaultStream = createDefaultStreamWithDurations();
+
+            Lockup.CreateWithDurations memory params = _defaultParams.createWithDurations;
+            params.cancelable = false;
+            ids.notCancelableStream = createDefaultStreamWithDurations(params);
+
+            params = _defaultParams.createWithDurations;
+            params.recipient = address(recipientInterfaceIDIncorrect);
+            ids.notAllowedToHookStream = createDefaultStreamWithDurations(params);
+
+            params = _defaultParams.createWithDurations;
+            params.recipient = address(recipientGood);
+            ids.recipientGoodStream = createDefaultStreamWithDurations(params);
+
+            params = _defaultParams.createWithDurations;
+            params.recipient = address(recipientReentrant);
+            ids.recipientReentrantStream = createDefaultStreamWithDurations(params);
+
+            params = _defaultParams.createWithDurations;
+            params.recipient = address(recipientReverting);
+            ids.recipientRevertStream = createDefaultStreamWithDurations(params);
+        } else {
+            // Other streams support `createWithTimestamps` function and therefore are creating using the default
+            // function.
+            ids.defaultStream = createDefaultStream();
+            ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
+            ids.notCancelableStream = createDefaultStreamNonCancelable();
+            ids.notTransferableStream = createDefaultStreamNonTransferable();
+            ids.nullStream = 1729;
+            ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
+            ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
+            ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
+            ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
+        }
         ids.nullStream = 1729;
-        ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
-        ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
-        ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
-        ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
     }
 
     function initializeRecipientsWithHooks() internal {
@@ -165,19 +195,28 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
+        streamId = createDefaultStreamWithDurations(_defaultParams.createWithDurations);
+    }
+
+    function createDefaultStreamWithDurations(Lockup.CreateWithDurations memory params)
+        internal
+        returns (uint256 streamId)
+    {
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
-            streamId =
-                lockup.createWithDurationsLD(_defaultParams.createWithDurations, _defaultParams.segmentsWithDurations);
+            streamId = lockup.createWithDurationsLD(params, _defaultParams.segmentsWithDurations);
         } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamId = lockup.createWithDurationsLL(
-                _defaultParams.createWithDurations,
-                _defaultParams.unlockAmounts,
-                _defaultParams.granularity,
-                _defaultParams.durations
+                params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.durations
+            );
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamId = lockup.createWithDurationsLPG(
+                params,
+                AggregatorV3Interface(address(oracleMock)),
+                defaults.LPG_TARGET_PRICE(),
+                defaults.TOTAL_DURATION()
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
-            streamId =
-                lockup.createWithDurationsLT(_defaultParams.createWithDurations, _defaultParams.tranchesWithDurations);
+            streamId = lockup.createWithDurationsLT(params, _defaultParams.tranchesWithDurations);
         }
     }
 
@@ -228,6 +267,10 @@ abstract contract Integration_Test is Base_Test {
     function expectRevert_CANCELEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(ids.defaultStream);
+
+        // Return if the recipient amount is 0, because in that case the stream is depleted and it will revert with a
+        // different error.
+        if (lockup.withdrawableAmountOf(ids.defaultStream) == 0) return;
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "canceled status call success");

@@ -119,11 +119,11 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockup_AllowToHookZeroCodeSize(address recipient);
 
-    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
-    error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
-
     /// @notice Thrown when the fee transfer fails.
     error SablierLockup_FeeTransferFailed(address comptroller, uint256 feeAmount);
+
+    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
+    error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockup_InvalidHookSelector(address recipient);
@@ -133,6 +133,16 @@ library Errors {
 
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierLockup_NotTransferable(uint256 tokenId);
+
+    /// @notice Thrown when trying to create a price-gated stream with an oracle that does not return 8 decimals.
+    error SablierLockup_OracleDecimalsNotEight(address oracle, uint8 decimals);
+
+    /// @notice Thrown when trying to create a price-gated stream with an oracle that does not implement the expected
+    /// interface.
+    error SablierLockup_OracleMissesInterface(address oracle);
+
+    /// @notice Thrown when trying to create a price-gated stream with an oracle that returns a negative price.
+    error SablierLockup_OracleReturnsNegativePrice(address oracle);
 
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierLockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
@@ -151,6 +161,10 @@ library Errors {
 
     /// @notice Thrown when trying to cancel or renounce a settled stream.
     error SablierLockup_StreamSettled(uint256 streamId);
+
+    /// @notice Thrown when trying to create a price-gated stream with a target price not greater than the current
+    /// oracle price.
+    error SablierLockup_TargetPriceTooLow();
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierLockup_Unauthorized(uint256 streamId, address caller);
