@@ -80,6 +80,14 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenArgumentsNotValid() {
+        _;
+    }
+
+    modifier whenArgumentsValid() {
+        _;
+    }
+
     modifier whenCallerComptroller() {
         setMsgSender(address(comptroller));
         _;
@@ -135,6 +143,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenNotReentrancy() {
+        _;
+    }
+
     modifier whenNotZeroExpiration() {
         _;
     }
@@ -156,6 +168,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenSignerSameAsRecipient() {
+        _;
+    }
+
+    modifier whenTargetIsContract() {
         _;
     }
 

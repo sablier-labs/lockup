@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
+import { ISablierFactoryMerkleExecute } from "../../src/interfaces/ISablierFactoryMerkleExecute.sol";
 import { ISablierFactoryMerkleInstant } from "../../src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierFactoryMerkleLL } from "../../src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierFactoryMerkleLT } from "../../src/interfaces/ISablierFactoryMerkleLT.sol";
@@ -12,12 +13,19 @@ abstract contract DeployOptimized is StdCheats {
     function deployOptimizedFactories(address initialComptroller)
         internal
         returns (
+            ISablierFactoryMerkleExecute factoryMerkleExecute,
             ISablierFactoryMerkleInstant factoryMerkleInstant,
             ISablierFactoryMerkleLL factoryMerkleLL,
             ISablierFactoryMerkleLT factoryMerkleLT,
             ISablierFactoryMerkleVCA factoryMerkleVCA
         )
     {
+        factoryMerkleExecute = ISablierFactoryMerkleExecute(
+            deployCode(
+                "out-optimized/SablierFactoryMerkleExecute.sol/SablierFactoryMerkleExecute.json",
+                abi.encode(initialComptroller)
+            )
+        );
         factoryMerkleInstant = ISablierFactoryMerkleInstant(
             deployCode(
                 "out-optimized/SablierFactoryMerkleInstant.sol/SablierFactoryMerkleInstant.json",

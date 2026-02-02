@@ -13,6 +13,7 @@
     "gas-small-strings": "off",
     "gas-strict-inequalities": "off",
     "imports-order": "warn",
+    "max-states-count": "off",
     "no-empty-blocks": "off",
     "one-contract-per-file": "off",
     "use-natspec": "off",
