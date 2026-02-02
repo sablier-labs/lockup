@@ -10,7 +10,6 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 library MerkleExecute {
     /// @notice Struct encapsulating the constructor parameters of Merkle Execute campaigns.
     /// @dev The fields are arranged alphabetically.
-    /// @param approveTarget Whether to approve the claimed amount to the target contract before calling it.
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
@@ -23,7 +22,6 @@ library MerkleExecute {
     /// @param target The address of the target contract to call after claiming (e.g., staking contract, lending pool).
     /// @param token The contract address of the ERC-20 token to be distributed.
     struct ConstructorParams {
-        bool approveTarget;
         string campaignName;
         uint40 campaignStartTime;
         uint40 expiration;

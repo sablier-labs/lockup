@@ -49,7 +49,6 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
         preCreateCampaign(params);
 
         MerkleExecute.ConstructorParams memory constructorParams = MerkleExecute.ConstructorParams({
-            approveTarget: true,
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: CAMPAIGN_START_TIME,
             expiration: params.expiration,

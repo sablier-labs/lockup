@@ -14,7 +14,6 @@ contract CreateMerkleExecute is EvmUtilsBaseScript {
     function run(SablierFactoryMerkleExecute factory) public broadcast returns (ISablierMerkleExecute merkleExecute) {
         // Prepare the constructor parameters.
         MerkleExecute.ConstructorParams memory campaignParams = MerkleExecute.ConstructorParams({
-            approveTarget: true,
             campaignName: "The Boys Execute",
             campaignStartTime: uint40(block.timestamp),
             expiration: uint40(block.timestamp + 30 days),

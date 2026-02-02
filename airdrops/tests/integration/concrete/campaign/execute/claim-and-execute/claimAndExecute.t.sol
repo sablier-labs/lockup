@@ -5,7 +5,6 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { MerkleExecute } from "src/types/DataTypes.sol";
 
-import { MockStakingNoTransfer } from "./../../../../../mocks/MockStakingNoTransfer.sol";
 import { MockStakingReentrant } from "./../../../../../mocks/MockStakingReentrant.sol";
 import { MockStakingRevert } from "./../../../../../mocks/MockStakingRevert.sol";
 import { Integration_Test } from "./../../../../Integration.t.sol";
@@ -116,7 +115,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         );
     }
 
-    function test_GivenApproveTarget()
+    function test_WhenTargetCallSucceeds()
         external
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
@@ -149,58 +148,5 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         // Assert the tokens were transferred to the target.
         assertEq(dai.balanceOf(address(merkleExecute)), initialCampaignBalance - CLAIM_AMOUNT, "tokens not transferred");
         assertEq(dai.balanceOf(address(mockStaking)), CLAIM_AMOUNT, "tokens not received by target");
-    }
-
-    function test_GivenNotApproveTarget()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenRecipientEligible
-        whenAmountValid
-        whenMerkleProofValid
-        whenArgumentsValid
-        whenNotReentrancy
-    {
-        // Deploy the mock staking contract that doesn't require token transfers.
-        MockStakingNoTransfer mockStakingNoTransfer = new MockStakingNoTransfer();
-
-        // Create a campaign without approve target.
-        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
-        params.approveTarget = false;
-        params.target = address(mockStakingNoTransfer);
-        params.selector = mockStakingNoTransfer.stake.selector;
-
-        setMsgSender(users.campaignCreator);
-        ISablierMerkleExecute noApproveCampaign = createMerkleExecute(params);
-
-        setMsgSender(users.recipient);
-
-        uint256 previousFeeAccrued = address(comptroller).balance;
-        uint256 index = getIndexInMerkleTree();
-        uint256 initialCampaignBalance = dai.balanceOf(address(noApproveCampaign));
-
-        // Expect the {ClaimExecute} event to be emitted.
-        vm.expectEmit({ emitter: address(noApproveCampaign) });
-        emit ISablierMerkleExecute.ClaimExecute(index, users.recipient, CLAIM_AMOUNT, address(mockStakingNoTransfer));
-
-        // Claim and execute.
-        noApproveCampaign.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }(
-            index, CLAIM_AMOUNT, getMerkleProof(), abi.encode(CLAIM_AMOUNT)
-        );
-
-        // Assert the index is marked as claimed.
-        assertTrue(noApproveCampaign.hasClaimed(index), "not claimed");
-
-        // Assert the fee was collected.
-        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee not collected");
-
-        // Assert the tokens were NOT transferred (still in campaign).
-        assertEq(dai.balanceOf(address(noApproveCampaign)), initialCampaignBalance, "tokens should not be transferred");
-
-        // Assert the target call was executed (stake recorded).
-        assertEq(mockStakingNoTransfer.stakedBalance(address(noApproveCampaign)), CLAIM_AMOUNT, "stake not recorded");
     }
 }

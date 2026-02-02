@@ -117,8 +117,5 @@ contract CreateMerkleExecute_Integration_Test is Integration_Test {
 
         // It should set the selector.
         assertEq(actualExecute.SELECTOR(), mockStaking.stake.selector, "selector");
-
-        // It should set the approve target flag.
-        assertTrue(actualExecute.APPROVE_TARGET(), "approve target");
     }
 }

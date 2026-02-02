@@ -41,9 +41,6 @@ contract SablierMerkleExecute is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierMerkleExecute
-    bool public immutable override APPROVE_TARGET;
-
-    /// @inheritdoc ISablierMerkleExecute
     bytes4 public immutable override SELECTOR;
 
     /// @inheritdoc ISablierMerkleExecute
@@ -72,7 +69,6 @@ contract SablierMerkleExecute is
         )
     {
         // Effect: set the immutable state variables.
-        APPROVE_TARGET = campaignParams.approveTarget;
         SELECTOR = campaignParams.selector;
         TARGET = campaignParams.target;
     }
@@ -96,12 +92,10 @@ contract SablierMerkleExecute is
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
-        // Interaction: Give allowance to the target contract if required.
+        // Interaction: Give allowance to the target contract.
         // The {SafeERC20.forceApprove} function is used to handle special ERC-20 tokens (e.g. USDT) that require the
         // current allowance to be zero before setting it to a non-zero value.
-        if (APPROVE_TARGET) {
-            TOKEN.forceApprove({ spender: TARGET, value: amount });
-        }
+        TOKEN.forceApprove({ spender: TARGET, value: amount });
 
         // Prepare the call data by concatenating the selector and the arguments.
         bytes memory callData = abi.encodePacked(SELECTOR, arguments);
@@ -118,10 +112,8 @@ contract SablierMerkleExecute is
             }
         }
 
-        // Interaction: Revoke the allowance if it was granted.
-        if (APPROVE_TARGET) {
-            TOKEN.forceApprove({ spender: TARGET, value: 0 });
-        }
+        // Interaction: Revoke the allowance.
+        TOKEN.forceApprove({ spender: TARGET, value: 0 });
 
         // Emit claim event.
         emit ClaimExecute(index, msg.sender, amount, TARGET);

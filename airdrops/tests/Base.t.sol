@@ -314,8 +314,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
                 merkleRoot: MERKLE_ROOT,
                 tokenAddress: dai,
                 targetAddress: address(mockStaking),
-                selector: MockStaking.stake.selector,
-                approveTarget: true
+                selector: MockStaking.stake.selector
             }),
             users.campaignCreator
         );
@@ -362,8 +361,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             merkleRoot: MERKLE_ROOT,
             tokenAddress: dai,
             targetAddress: address(mockStaking),
-            selector: MockStaking.stake.selector,
-            approveTarget: true
+            selector: MockStaking.stake.selector
         });
     }
 
@@ -379,8 +377,7 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
             merkleRoot: MERKLE_ROOT,
             tokenAddress: dai,
             targetAddress: address(mockStaking),
-            selector: MockStaking.stake.selector,
-            approveTarget: true
+            selector: MockStaking.stake.selector
         });
     }
 
@@ -391,15 +388,13 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         bytes32 merkleRoot,
         IERC20 tokenAddress,
         address targetAddress,
-        bytes4 selector,
-        bool approveTarget
+        bytes4 selector
     )
         public
         view
         returns (MerkleExecute.ConstructorParams memory)
     {
         return MerkleExecute.ConstructorParams({
-            approveTarget: approveTarget,
             campaignName: CAMPAIGN_NAME,
             campaignStartTime: campaignStartTime,
             expiration: expiration,

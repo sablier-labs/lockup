@@ -28,7 +28,6 @@ contract Constructor_MerkleExecute_Integration_Test is Integration_Test {
         assertEq(address(constructedExecute.TOKEN()), address(dai), "token");
 
         // SablierMerkleExecute
-        assertEq(constructedExecute.APPROVE_TARGET(), true, "approve target");
         assertEq(constructedExecute.SELECTOR(), MockStaking.stake.selector, "selector");
         assertEq(constructedExecute.TARGET(), address(mockStaking), "target");
     }
