@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
@@ -229,6 +230,46 @@ library LockupMath {
 
             return streamedAmount;
         }
+    }
+
+    /// @notice Calculates the streamed amount of LPG streams.
+    /// @dev The LPG streaming model uses all-or-nothing unlock based on price threshold:
+    ///
+    /// $$
+    ///        ⎧ deposited - refunded, block timestamp >= end time OR latest price >= target price
+    /// f(x) = ⎨
+    ///        ⎩ 0,                    otherwise
+    ///
+    /// $$
+    ///
+    /// Assumptions:
+    /// 1. The oracle is assumed to be returning the correct price.
+    function calculateStreamedAmountLPG(
+        uint128 deposited,
+        uint128 refunded,
+        uint40 endTime,
+        AggregatorV3Interface oracle,
+        uint128 targetPrice
+    )
+        external
+        view
+        returns (uint128)
+    {
+        // If the stream has expired, return the full amount.
+        if (block.timestamp >= endTime) {
+            return deposited - refunded;
+        }
+
+        // Get the current oracle price.
+        (, int256 price,,,) = oracle.latestRoundData();
+
+        // If the oracle price is at or above the target price, return the full amount.
+        if (price > 0 && uint128(uint256(price)) >= targetPrice) {
+            return deposited - refunded;
+        }
+
+        // Otherwise, return 0.
+        return 0;
     }
 
     /// @notice Calculates the streamed amount of LT streams.

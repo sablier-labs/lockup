@@ -15,6 +15,8 @@ abstract contract Constants {
     uint128 public constant DEPOSIT_AMOUNT_6D = 10_000e6;
     uint40 public constant END_TIME = START_TIME + TOTAL_DURATION;
     uint40 public constant FEB_1_2025 = 1_738_368_000;
+    uint40 public constant GRANULARITY = 1 seconds;
+    uint128 public constant LPG_TARGET_PRICE = 5000e8;
     uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
     uint256 public constant SEGMENT_COUNT = 2;
     string public constant SHAPE = "emits in the event";
@@ -24,7 +26,6 @@ abstract contract Constants {
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
     uint128 public constant TOTAL_TRANSFER_AMOUNT = DEPOSIT_AMOUNT * uint128(BATCH_SIZE);
     uint256 public constant TRANCHE_COUNT = 2;
-    uint40 public constant GRANULARITY = 1 seconds;
     uint40 public constant WARP_26_PERCENT = START_TIME + WARP_26_PERCENT_DURATION;
     uint40 public constant WARP_26_PERCENT_DURATION = 2600 seconds; // 26% of the way through the stream
     uint128 public constant WITHDRAW_AMOUNT = STREAMED_AMOUNT_26_PERCENT;

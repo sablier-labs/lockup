@@ -9,6 +9,7 @@ import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/Lockup.sol";
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 
 /// @title SablierLockupState
@@ -38,6 +39,9 @@ abstract contract SablierLockupState is ISablierLockupState {
 
     /// @dev Granularity mapped by stream IDs, used in LL streams.
     mapping(uint256 streamId => uint40 granularity) internal _granularities;
+
+    /// @dev Unlock parameters mapped by stream IDs, used in LPG streams.
+    mapping(uint256 streamId => LockupPriceGated.UnlockParams unlockParams) internal _priceGatedUnlockParams;
 
     /// @dev Stream segments mapped by stream IDs, used in LD streams.
     mapping(uint256 streamId => LockupDynamic.Segment[] segments) internal _segments;
@@ -133,6 +137,18 @@ abstract contract SablierLockupState is ISablierLockupState {
         returns (Lockup.Model lockupModel)
     {
         lockupModel = _streams[streamId].lockupModel;
+    }
+
+    /// @inheritdoc ISablierLockupState
+    function getPriceGatedUnlockParams(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        modelCheck(_streams[streamId].lockupModel, Lockup.Model.LOCKUP_PRICE_GATED)
+        returns (LockupPriceGated.UnlockParams memory unlockParams)
+    {
+        unlockParams = _priceGatedUnlockParams[streamId];
     }
 
     /// @inheritdoc ISablierLockupState

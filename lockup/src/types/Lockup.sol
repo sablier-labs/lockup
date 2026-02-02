@@ -89,7 +89,8 @@ library Lockup {
     enum Model {
         LOCKUP_LINEAR,
         LOCKUP_DYNAMIC,
-        LOCKUP_TRANCHED
+        LOCKUP_TRANCHED,
+        LOCKUP_PRICE_GATED
     }
 
     /// @notice Enum representing the different statuses of a stream.
