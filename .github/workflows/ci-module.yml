@@ -133,5 +133,5 @@ jobs:
       foundry-version: "v1.5.0"
       match-path: "tests/{integration,unit}/**/*.sol"
       name: "Coverage"
-      via-ir-minimum: true
+      via-ir-minimum: false
       working-directory: ${{ inputs.module }}
