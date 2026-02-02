@@ -39,7 +39,7 @@ abstract contract SablierLockupPriceGated is
         uint128 latestPrice = LockupHelpers.validateOracle(oracle);
 
         // Check: the target price is greater than the latest price.
-        if (targetPrice <= latestPrice) revert Errors.SablierLockup_TargetPriceTooLow();
+        if (targetPrice <= latestPrice) revert Errors.SablierLockup_TargetPriceTooLow(targetPrice, latestPrice);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createLPG(params, oracle, targetPrice, duration);

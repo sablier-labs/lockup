@@ -164,7 +164,7 @@ library Errors {
 
     /// @notice Thrown when trying to create a price-gated stream with a target price not greater than the current
     /// oracle price.
-    error SablierLockup_TargetPriceTooLow();
+    error SablierLockup_TargetPriceTooLow(uint128 targetPrice, uint128 latestPrice);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierLockup_Unauthorized(uint256 streamId, address caller);

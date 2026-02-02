@@ -148,7 +148,11 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         uint128 currentOraclePrice = uint128(uint256(oracleMock.price()));
 
         // It should revert.
-        vm.expectRevert(Errors.SablierLockup_TargetPriceTooLow.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierLockup_TargetPriceTooLow.selector, currentOraclePrice, currentOraclePrice
+            )
+        );
         lockup.createWithDurationsLPG(
             _defaultParams.createWithDurations,
             AggregatorV3Interface(address(oracleMock)),
