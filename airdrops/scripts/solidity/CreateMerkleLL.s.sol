@@ -8,7 +8,7 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 
 import { ISablierMerkleLL } from "../../src/interfaces/ISablierMerkleLL.sol";
 import { SablierFactoryMerkleLL } from "../../src/SablierFactoryMerkleLL.sol";
-import { MerkleLL } from "../../src/types/DataTypes.sol";
+import { ClaimType, MerkleLL } from "../../src/types/DataTypes.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Linear.
 contract CreateMerkleLL is EvmUtilsBaseScript {
@@ -23,23 +23,26 @@ contract CreateMerkleLL is EvmUtilsBaseScript {
         returns (ISablierMerkleLL merkleLL)
     {
         // Prepare the constructor parameters.
-        MerkleLL.ConstructorParams memory campaignParams;
-        campaignParams.campaignName = "The Boys LL";
-        campaignParams.campaignStartTime = uint40(block.timestamp);
-        campaignParams.cancelable = true;
-        campaignParams.cliffDuration = 30 days;
-        campaignParams.cliffUnlockPercentage = ud60x18(0.01e18);
-        campaignParams.expiration = uint40(block.timestamp + 30 days);
-        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        campaignParams.lockup = lockup;
-        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        campaignParams.shape = "LL";
-        campaignParams.startUnlockPercentage = ud60x18(0.01e18);
-        campaignParams.vestingStartTime = 0; // i.e. block.timestamp
-        campaignParams.token = token;
-        campaignParams.totalDuration = 90 days;
-        campaignParams.transferable = true;
+        MerkleLL.ConstructorParams memory campaignParams = MerkleLL.ConstructorParams({
+            campaignName: "The Boys LL",
+            campaignStartTime: uint40(block.timestamp),
+            cancelable: true,
+            claimType: ClaimType.DEFAULT,
+            cliffDuration: 30 days,
+            cliffUnlockPercentage: ud60x18(0.01e18),
+            expiration: uint40(block.timestamp + 30 days),
+            granularity: 0, // i.e. 1 second
+            initialAdmin: 0x79Fb3e81aAc012c08501f41296CCC145a1E15844,
+            ipfsCID: "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
+            lockup: lockup,
+            merkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
+            shape: "LL",
+            startUnlockPercentage: ud60x18(0.01e18),
+            token: token,
+            totalDuration: 90 days,
+            transferable: true,
+            vestingStartTime: 0 // i.e. block.timestamp
+        });
 
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;

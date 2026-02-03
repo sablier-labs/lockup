@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { ClaimType } from "../types/DataTypes.sol";
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleSignature
@@ -24,6 +25,9 @@ interface ISablierMerkleSignature is ISablierMerkleBase {
     /// @notice A flag indicating whether the attestor has been set by the campaign admin. Once set by admin, the
     /// comptroller can no longer change it.
     function attestorSetByAdmin() external view returns (bool);
+
+    /// @notice Retrieves the claim type available in the campaign.
+    function claimType() external view returns (ClaimType);
 
     /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claims to prevent replay
     /// attacks across different campaigns.

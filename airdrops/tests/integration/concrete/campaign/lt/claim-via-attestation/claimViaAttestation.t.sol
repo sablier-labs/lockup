@@ -5,6 +5,8 @@ import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMoc
 
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 
 import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleLT_Integration_Shared_Test } from "./../MerkleLT.t.sol";
@@ -16,11 +18,25 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
     function setUp() public virtual override(MerkleLT_Integration_Shared_Test, ClaimViaAttestation_Integration_Test) {
         MerkleLT_Integration_Shared_Test.setUp();
         ClaimViaAttestation_Integration_Test.setUp();
+
+        // Use the pre-created MerkleLT campaign with ClaimType.ATTEST.
+        merkleBase = merkleLTAttest;
+    }
+
+    function test_RevertGiven_ClaimTypeDEFAULT() external {
+        merkleBase = merkleLT;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleSignature_InvalidClaimType.selector, ClaimType.ATTEST, ClaimType.DEFAULT
+            )
+        );
+        claimViaAttestation();
     }
 
     function test_WhenAttestationValid()
         external
         override
+        givenClaimTypeNotDefault
         whenRecipientAddressNotZero
         givenAttestorSet
         givenAttestorIsEOA
@@ -31,6 +47,7 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
     function test_WhenAttestorImplementsIERC1271Interface()
         external
         override
+        givenClaimTypeNotDefault
         whenRecipientAddressNotZero
         givenAttestorSet
         givenAttestorIsContract
@@ -39,7 +56,7 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
         address smartAttestor = address(new ERC1271WalletMock(attestor));
 
         // Set the attestor to the smart contract.
-        ISablierMerkleSignature(address(merkleLT)).setAttestor(smartAttestor);
+        ISablierMerkleSignature(address(merkleBase)).setAttestor(smartAttestor);
 
         _test_ClaimViaAttestation();
     }
@@ -49,7 +66,7 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
 
-        vm.expectEmit({ emitter: address(merkleLT) });
+        vm.expectEmit({ emitter: address(merkleBase) });
         emit ISablierMerkleLT.ClaimLTWithVesting(
             index,
             users.recipient,
@@ -59,10 +76,10 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
             false
         );
 
-        expectCallToTransferFrom({ from: address(merkleLT), to: address(lockup), value: CLAIM_AMOUNT });
+        expectCallToTransferFrom({ from: address(merkleBase), to: address(lockup), value: CLAIM_AMOUNT });
         claimViaAttestation();
 
-        assertTrue(merkleLT.hasClaimed(index), "not claimed");
+        assertTrue(ISablierMerkleLT(address(merkleBase)).hasClaimed(index), "not claimed");
         assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 }
