@@ -14,9 +14,10 @@ Smart contracts for Sablier token streaming protocols.
 ## Monorepo Structure
 
 ```
-├── lockup/     # Fixed-term vesting and airdrops
-├── flow/       # Open-ended token streaming
 ├── airdrops/   # Merkle-based token distribution
+├── bob/        # Price-target vaults with yield adapters
+├── flow/       # Open-ended token streaming
+├── lockup/     # Fixed-term vesting and airdrops
 └── utils/      # Shared utilities and comptroller
 ```
 
