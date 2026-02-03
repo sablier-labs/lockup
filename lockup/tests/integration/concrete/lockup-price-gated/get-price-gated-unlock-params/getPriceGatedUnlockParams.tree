@@ -1,0 +1,8 @@
+GetPriceGatedUnlockParams_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given not price gated model
+   │  └── it should revert
+   └── given price gated model
+      └── it should return the correct unlock params

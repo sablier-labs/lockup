@@ -68,7 +68,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(ids.recipientGoodStream);
-        withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
+        withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount);
 
         // Make the withdrawal only if the amount is greater than zero.
         if (withdrawAmount > 0) {
@@ -116,7 +116,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test {
 
         // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(ids.recipientGoodStream);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
+        Lockup.Status expectedStatus = recipientAmount == 0 ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the stream is not cancelable anymore.
