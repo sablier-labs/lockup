@@ -23,7 +23,7 @@ library Errors {
                           SABLIER-FACTORY-MERKLE-EXECUTE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to create a campaign with a target that is not a deployed contract.
+    /// @notice Thrown when trying to create a merkle execute campaign with a target that is not a contract.
     error SablierFactoryMerkleExecute_TargetNotContract(address target);
 
     /*//////////////////////////////////////////////////////////////////////////

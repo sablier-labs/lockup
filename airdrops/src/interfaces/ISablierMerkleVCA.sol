@@ -14,12 +14,6 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when an airdrop is claimed on behalf of an eligible recipient.
-    /// @param index The index of the airdrop recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param claimAmount The amount of ERC-20 tokens claimed.
-    /// @param forgoneAmount The amount of ERC-20 tokens forgone.
-    /// @param to The address receiving the claim amount on behalf of the airdrop recipient.
-    /// @param viaSig Bool indicating whether the claim is made via a signature.
     event ClaimVCA(
         uint256 index,
         address indexed recipient,
@@ -33,11 +27,6 @@ interface ISablierMerkleVCA is ISablierMerkleBase {
     event RedistributionEnabled();
 
     /// @notice Emitted when a recipient receives rewards from the forgone tokens pool.
-    /// @dev Only emitted when redistribution is enabled.
-    /// @param index The index of the airdrop recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens distributed as a reward.
-    /// @param to The address receiving the reward tokens.
     event RedistributionReward(uint256 index, address indexed recipient, uint128 amount, address to);
 
     /*//////////////////////////////////////////////////////////////////////////

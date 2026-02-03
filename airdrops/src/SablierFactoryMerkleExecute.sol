@@ -121,7 +121,7 @@ contract SablierFactoryMerkleExecute is ISablierFactoryMerkleExecute, SablierFac
         // Check: user-provided token is not the native token.
         _forbidNativeToken(token);
 
-        // Check: target is a deployed contract.
+        // Check: target is a contract.
         if (target.code.length == 0) {
             revert Errors.SablierFactoryMerkleExecute_TargetNotContract(target);
         }

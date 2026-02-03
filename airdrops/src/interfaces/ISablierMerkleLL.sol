@@ -13,20 +13,9 @@ interface ISablierMerkleLL is ISablierMerkleLockup {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when an airdrop is claimed using direct transfer on behalf of an eligible recipient.
-    /// @param index The index of the airdrop recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens claimed using direct transfer.
-    /// @param to The address receiving the claim amount on behalf of the airdrop recipient.
-    /// @param viaSig Bool indicating whether the claim is made via a signature.
     event ClaimLLWithTransfer(uint256 index, address indexed recipient, uint128 amount, address to, bool viaSig);
 
     /// @notice Emitted when an airdrop is claimed using Lockup Linear stream on behalf of an eligible recipient.
-    /// @param index The index of the airdrop recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens claimed using Lockup Linear stream.
-    /// @param streamId The ID of the Lockup stream.
-    /// @param to The address receiving the Lockup stream on behalf of the airdrop recipient.
-    /// @param viaSig Bool indicating whether the claim is made via a signature.
     event ClaimLLWithVesting(
         uint256 index,
         address indexed recipient,

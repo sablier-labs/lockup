@@ -48,10 +48,11 @@ interface ISablierFactoryMerkleExecute is ISablierFactoryMerkleBase {
     /// Notes:
     /// - The contract is created with CREATE2.
     /// - The campaign's fee will be set to the min USD fee unless a custom fee is set for `msg.sender`.
+    /// - A value of zero for `campaignParams.expiration` means the campaign does not expire.
     ///
     /// Requirements:
     /// - `campaignParams.token` must not be the forbidden native token.
-    /// - `campaignParams.target` must be a deployed contract.
+    /// - `campaignParams.target` must be a contract.
     ///
     /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters, which are documented in
     /// {DataTypes}.

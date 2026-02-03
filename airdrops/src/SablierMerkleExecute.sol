@@ -102,6 +102,8 @@ contract SablierMerkleExecute is
 
         // Interaction: Execute the call on the target contract.
         (bool success, bytes memory returnData) = TARGET.call(callData);
+
+        // Check: the call to the target contract succeeded. Otherwise, revert.
         if (!success) {
             assembly {
                 // Get the length of the result stored in the first 32 bytes.
