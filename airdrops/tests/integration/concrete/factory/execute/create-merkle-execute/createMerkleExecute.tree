@@ -4,7 +4,7 @@ CreateMerkleExecute_Integration_Test
 └── when native token not found
    ├── when target not contract
    │  └── it should revert
-   └── when target is contract
+   └── when target contract
       ├── given campaign already exists
       │  └── it should revert
       └── given campaign not exists

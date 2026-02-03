@@ -36,7 +36,7 @@ contract CreateMerkleExecute_Integration_Test is Integration_Test {
     }
 
     /// @dev This test reverts because a default MerkleExecute contract is deployed in {Integration_Test.setUp}
-    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound whenTargetIsContract {
+    function test_RevertGiven_CampaignAlreadyExists() external whenNativeTokenNotFound whenTargetContract {
         MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
 
         // Expect a revert due to CREATE2.
@@ -44,7 +44,7 @@ contract CreateMerkleExecute_Integration_Test is Integration_Test {
         createMerkleExecute(params);
     }
 
-    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound whenTargetIsContract givenCampaignNotExists {
+    function test_GivenCustomFeeUSDSet() external whenNativeTokenNotFound whenTargetContract givenCampaignNotExists {
         // Set a custom fee.
         setMsgSender(admin);
         uint256 customFeeUSD = 0;
@@ -78,12 +78,7 @@ contract CreateMerkleExecute_Integration_Test is Integration_Test {
         assertEq(actualExecute.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 
-    function test_GivenCustomFeeUSDNotSet()
-        external
-        whenNativeTokenNotFound
-        whenTargetIsContract
-        givenCampaignNotExists
-    {
+    function test_GivenCustomFeeUSDNotSet() external whenNativeTokenNotFound whenTargetContract givenCampaignNotExists {
         MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
         params.campaignName = "Merkle Execute campaign with no custom fee USD";
 

@@ -80,11 +80,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenArgumentsNotValid() {
-        _;
-    }
-
-    modifier whenArgumentsValid() {
+    modifier whenTargetTransferAmountNotOverdraw() {
         _;
     }
 
@@ -143,10 +139,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenNotReentrancy() {
-        _;
-    }
-
     modifier whenNotZeroExpiration() {
         _;
     }
@@ -171,7 +163,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenTargetIsContract() {
+    modifier whenTargetContract() {
         _;
     }
 
