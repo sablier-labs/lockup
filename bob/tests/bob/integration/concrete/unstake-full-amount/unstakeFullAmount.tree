@@ -1,0 +1,20 @@
+UnstakeFullAmount_Integration_Concrete_Test
+├── given null vault
+│  └── it should revert
+└── given not null vault
+   ├── given vault not settled
+   │  └── it should revert
+   └── given vault settled
+      ├── given vault has no adapter
+      │  └── it should revert
+      └── given vault has adapter
+         ├── given vault already unstaked
+         │  └── it should revert
+         └── given vault not unstaked
+            ├── given nothing to unstake
+            │  └── it should revert
+            └── given something to unstake
+               ├── when slippage exceeded
+               │  └── it should revert
+               └── when slippage within tolerance
+                  └── it should unstake full amount

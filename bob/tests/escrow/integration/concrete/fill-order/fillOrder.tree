@@ -1,0 +1,24 @@
+FillOrder_Integration_Concrete_Test
+├── given null order
+│  └── it should revert
+└── given not null order
+   ├── given order canceled
+   │  └── it should revert
+   ├── given order filled
+   │  └── it should revert
+   ├── given order expired
+   │  └── it should revert
+   └── given order open
+      ├── given order has designated buyer
+      │  ├── when caller not designated buyer
+      │  │  └── it should revert
+      │  └── when caller designated buyer
+      │     └── it should fill the order
+      └── given order has no buyer
+         ├── when buy amount insufficient
+         │  └── it should revert
+         └── when buy amount sufficient
+            ├── given trade fee zero
+            │  └── it should fill the order without fees
+            └── given trade fee nonzero
+               └── it should fill the order and deduct fees

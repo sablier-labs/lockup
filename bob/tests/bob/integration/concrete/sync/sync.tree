@@ -1,0 +1,15 @@
+Sync_Integration_Concrete_Test
+├── given null vault
+│  └── it should revert
+└── given not null vault
+   ├── given vault already settled
+   │  └── it should revert
+   └── given vault not settled
+      ├── when oracle returns negative price
+      │  └── it should revert
+      ├── when oracle returns zero price
+      │  └── it should revert
+      ├── when synced price below target
+      │  └── it should sync without settling
+      └── when synced price at or above target
+         └── it should sync and settle vault

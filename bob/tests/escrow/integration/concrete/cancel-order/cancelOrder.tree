@@ -1,0 +1,13 @@
+CancelOrder_Integration_Concrete_Test
+├── given null order
+│  └── it should revert
+└── given not null order
+   ├── when caller not seller
+   │  └── it should revert
+   └── when caller seller
+      ├── given order filled
+      │  └── it should revert
+      ├── given order already canceled
+      │  └── it should revert
+      └── given order open or expired
+         └── it should cancel the order and emit {CancelOrder} event
