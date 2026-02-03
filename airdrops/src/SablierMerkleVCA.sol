@@ -9,7 +9,7 @@ import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
 
 /*
 
@@ -86,6 +86,7 @@ contract SablierMerkleVCA is
             }),
             attestor_,
             campaignCreator,
+            campaignParams.claimType,
             comptroller
         )
     {
@@ -157,6 +158,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -179,6 +181,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        checkClaimType(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

@@ -36,6 +36,14 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier givenClaimTypeNotAttest() {
+        _;
+    }
+
+    modifier givenClaimTypeNotDefault() {
+        _;
+    }
+
     modifier givenCallerNotClaimed() {
         _;
     }
