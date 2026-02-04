@@ -92,11 +92,12 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// @dev It emits either {ClaimLTWithTransfer} or {ClaimLTWithVesting} event.
     ///
     /// Notes:
-    /// - The attestation must be an EIP-712 signature from the attestor address stored in the campaign.
+    /// - The attestation must be an EIP-712 signature from the attestor.
     /// - See the example in the {claimViaSig} function.
+    /// - If the attestor is not set in the campaign, the attestor from the comptroller is used.
     ///
     /// Requirements:
-    /// - The attestor must be set in the campaign.
+    /// - The attestor must not be the zero address.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claim}.
     ///

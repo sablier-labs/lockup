@@ -44,11 +44,10 @@ abstract contract SablierMerkleLockup is
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
         MerkleLockup.ConstructorParams memory lockupParams,
-        address attestor_,
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleSignature(baseParams, attestor_, campaignCreator, comptroller)
+        SablierMerkleSignature(baseParams, campaignCreator, comptroller)
     {
         SABLIER_LOCKUP = lockupParams.lockup;
         STREAM_CANCELABLE = lockupParams.cancelable;

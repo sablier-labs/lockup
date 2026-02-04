@@ -70,7 +70,6 @@ contract SablierMerkleVCA is
     /// @dev Constructs the contract by initializing the immutable state variables.
     constructor(
         MerkleVCA.ConstructorParams memory campaignParams,
-        address attestor_,
         address campaignCreator,
         address comptroller
     )
@@ -84,7 +83,6 @@ contract SablierMerkleVCA is
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
             }),
-            attestor_,
             campaignCreator,
             comptroller
         )

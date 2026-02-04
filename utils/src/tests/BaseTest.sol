@@ -22,6 +22,8 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     address internal admin;
+    address internal attestor;
+    uint256 internal attestorPrivateKey;
     ISablierComptroller internal comptroller;
     ContractWithoutReceive internal contractWithoutReceive;
     ContractWithReceive internal contractWithReceive;
@@ -51,9 +53,17 @@ abstract contract BaseTest is BaseConstants, BaseUtils, StdCheats {
             )
         );
 
+        // Create the attestor address and store the private key for signing purposes.
+        (attestor, attestorPrivateKey) = makeAddrAndKey({ name: "Attestor" });
+
+        // Set the default attestor in the comptroller.
+        vm.prank(admin);
+        comptroller.setAttestor(attestor);
+
         // Label the contracts.
-        vm.label(address(oracle), "Oracle");
+        vm.label(attestor, "Attestor");
         vm.label(address(comptroller), "Comptroller");
+        vm.label(address(oracle), "Oracle");
 
         // Deploy the tokens.
         dai = new ERC20Mock("Dai stablecoin", "DAI", 18);

@@ -10,10 +10,7 @@ import { ISablierFactoryMerkleLT } from "../../src/interfaces/ISablierFactoryMer
 import { ISablierFactoryMerkleVCA } from "../../src/interfaces/ISablierFactoryMerkleVCA.sol";
 
 abstract contract DeployOptimized is StdCheats {
-    function deployOptimizedFactories(
-        address initialAttestor,
-        address initialComptroller
-    )
+    function deployOptimizedFactories(address initialComptroller)
         internal
         returns (
             ISablierFactoryMerkleExecute factoryMerkleExecute,
@@ -26,31 +23,28 @@ abstract contract DeployOptimized is StdCheats {
         factoryMerkleExecute = ISablierFactoryMerkleExecute(
             deployCode(
                 "out-optimized/SablierFactoryMerkleExecute.sol/SablierFactoryMerkleExecute.json",
-                abi.encode(initialAttestor, initialComptroller)
+                abi.encode(initialComptroller)
             )
         );
         factoryMerkleInstant = ISablierFactoryMerkleInstant(
             deployCode(
                 "out-optimized/SablierFactoryMerkleInstant.sol/SablierFactoryMerkleInstant.json",
-                abi.encode(initialAttestor, initialComptroller)
+                abi.encode(initialComptroller)
             )
         );
         factoryMerkleLL = ISablierFactoryMerkleLL(
             deployCode(
-                "out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json",
-                abi.encode(initialAttestor, initialComptroller)
+                "out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json", abi.encode(initialComptroller)
             )
         );
         factoryMerkleLT = ISablierFactoryMerkleLT(
             deployCode(
-                "out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json",
-                abi.encode(initialAttestor, initialComptroller)
+                "out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json", abi.encode(initialComptroller)
             )
         );
         factoryMerkleVCA = ISablierFactoryMerkleVCA(
             deployCode(
-                "out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json",
-                abi.encode(initialAttestor, initialComptroller)
+                "out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json", abi.encode(initialComptroller)
             )
         );
     }

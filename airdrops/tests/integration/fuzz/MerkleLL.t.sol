@@ -156,7 +156,6 @@ contract MerkleLL_Fuzz_Test is Shared_Fuzz_Test {
             campaignParams: params,
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
-            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: feeForUser
         });

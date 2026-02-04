@@ -10,19 +10,12 @@ interface ISablierFactoryMerkleBase is IComptrollerable {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the attestor address is set by the comptroller.
-    event SetAttestor(address indexed comptroller, address previousAttestor, address newAttestor);
-
     /// @notice Emitted when the native token address is set by the comptroller.
     event SetNativeToken(address indexed comptroller, address nativeToken);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Retrieves the attestor address used for verifying attestation signatures in campaigns.
-    /// @dev A zero address indicates that the attestor is not set.
-    function attestor() external view returns (address);
 
     /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
     /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token
@@ -35,20 +28,6 @@ interface ISablierFactoryMerkleBase is IComptrollerable {
     /*//////////////////////////////////////////////////////////////////////////
                               STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Sets the attestor address used for verifying attestation signatures in campaigns.
-    ///
-    /// @dev Emits a {SetAttestor} event.
-    ///
-    /// Notes:
-    /// - The attestor is passed to newly created campaigns.
-    /// - The zero address can be used to disable attestation-based claims.
-    ///
-    /// Requirements:
-    /// - `msg.sender` must be the comptroller.
-    ///
-    /// @param newAttestor The new attestor address. It can be the zero address.
-    function setAttestor(address newAttestor) external;
 
     /// @notice Sets the native token address. Once set, it cannot be changed.
     /// @dev For more information, see the documentation for {nativeToken}.

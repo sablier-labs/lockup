@@ -61,6 +61,6 @@ contract MerkleLTHandler is BaseHandler {
         params.vestingStartTime = 0; // Use block.timestamp as sentinel value
 
         // Deploy and return the campaign address.
-        return address(new SablierMerkleLT(params, address(0), campaignCreator, comptroller));
+        return address(new SablierMerkleLT(params, campaignCreator, comptroller));
     }
 }

@@ -11,19 +11,14 @@ interface ISablierMerkleSignature is ISablierMerkleBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the attestor address is set.
-    event SetAttestor(address indexed caller, address previousAttestor, address newAttestor);
+    event SetAttestor(address indexed caller, address indexed previousAttestor, address indexed newAttestor);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Retrieves the attestor address used for verifying attestation signatures.
-    /// @dev A zero address indicates that the attestor is not set.
     function attestor() external view returns (address);
-
-    /// @notice A flag indicating whether the attestor has been set by the campaign admin. Once set by admin, the
-    /// comptroller can no longer change it.
-    function attestorSetByAdmin() external view returns (bool);
 
     /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claims to prevent replay
     /// attacks across different campaigns.
@@ -37,14 +32,9 @@ interface ISablierMerkleSignature is ISablierMerkleBase {
     ///
     /// @dev Emits a {SetAttestor} event.
     ///
-    /// Notes:
-    /// - The zero address can be used to disable attestation-based claims.
-    /// - If the campaign admin sets the attestor, the comptroller can no longer change it.
-    ///
     /// Requirements:
-    /// - `msg.sender` must be the comptroller or the campaign admin.
-    /// - If `msg.sender` is the comptroller, the admin must not have already set the attestor.
+    /// - `msg.sender` must either be the comptroller or the campaign admin.
     ///
-    /// @param newAttestor The new attestor address. It can be the zero address.
+    /// @param newAttestor The new attestor address. If zero, the attestor from the comptroller will be used.
     function setAttestor(address newAttestor) external;
 }

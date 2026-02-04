@@ -24,13 +24,3 @@ contract MerkleMockReverting {
         revert("Not gonna happen");
     }
 }
-
-contract MerkleMockWithFalseIsSablierMerkle {
-    function IS_SABLIER_MERKLE() external pure returns (bool) { }
-
-    function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
-}
-
-contract MerkleMockWithMissingIsSablierMerkle {
-    function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
-}

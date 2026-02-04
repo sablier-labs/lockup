@@ -127,6 +127,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenCallerNotCampaignCreator() {
+        _;
+    }
+
     modifier whenClaimTimeGreaterThanVestingStartTime() {
         _;
     }

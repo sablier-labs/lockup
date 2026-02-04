@@ -27,8 +27,13 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_AttestorNotSet() external whenRecipientAddressNotZero {
-        // Remove the attestor from the campaign.
+        // Remove the attestor from the campaign as well as the comptroller.
         ISablierMerkleSignature(address(merkleBase)).setAttestor(address(0));
+        setMsgSender(admin);
+        comptroller.setAttestor(address(0));
+
+        // Change caller back to the campaign creator.
+        setMsgSender(users.campaignCreator);
 
         vm.expectRevert(Errors.SablierMerkleSignature_AttestorNotSet.selector);
         claimViaAttestation({

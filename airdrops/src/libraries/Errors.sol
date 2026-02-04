@@ -40,23 +40,23 @@ library Errors {
     /// @notice Thrown when trying to create a Merkle VCA campaign with zero aggregate amount.
     error SablierFactoryMerkleVCA_AggregateAmountZero();
 
-    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
-    error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
-
     /// @notice Thrown if expiration time is zero.
     error SablierFactoryMerkleVCA_ExpirationTimeZero();
 
-    /// @notice Thrown if vesting end time is not greater than the vesting start time.
-    error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
-        uint40 vestingStartTime,
-        uint40 vestingEndTime
-    );
+    /// @notice Thrown if expiration time is within 1 week from the vesting end time.
+    error SablierFactoryMerkleVCA_ExpirationTooEarly(uint40 vestingEndTime, uint40 expiration);
 
     /// @notice Thrown if the start time is zero.
     error SablierFactoryMerkleVCA_StartTimeZero();
 
     /// @notice Thrown if the unlock percentage is greater than 100%.
     error SablierFactoryMerkleVCA_UnlockPercentageTooHigh(UD60x18 unlockPercentage);
+
+    /// @notice Thrown if vesting end time is not greater than the vesting start time.
+    error SablierFactoryMerkleVCA_VestingEndTimeNotGreaterThanVestingStartTime(
+        uint40 vestingStartTime,
+        uint40 vestingEndTime
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-MERKLE-BASE
@@ -97,14 +97,11 @@ library Errors {
                               SABLIER-MERKLE-SIGNATURE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when the comptroller tries to set attestor but admin has already set it.
-    error SablierMerkleSignature_AttestorAlreadySetByAdmin();
-
-    /// @notice Thrown when the attestor is not set.
+    /// @notice Thrown when the attestor returns the zero address.
     error SablierMerkleSignature_AttestorNotSet();
 
     /// @notice Thrown when caller is not the comptroller or admin.
-    error SablierMerkleSignature_CallerNotComptrollerOrAdmin(address comptroller, address admin, address caller);
+    error SablierMerkleSignature_CallerNotAuthorized(address comptroller, address admin, address caller);
 
     /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
     error SablierMerkleSignature_InvalidSignature();

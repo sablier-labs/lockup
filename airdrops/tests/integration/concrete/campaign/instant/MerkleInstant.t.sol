@@ -95,8 +95,7 @@ contract SetAttestor_MerkleInstant_Integration_Test is
     MerkleInstant_Integration_Shared_Test,
     SetAttestor_Integration_Test
 {
-    function setUp() public override(MerkleInstant_Integration_Shared_Test, SetAttestor_Integration_Test) {
+    function setUp() public override(MerkleInstant_Integration_Shared_Test, Integration_Test) {
         MerkleInstant_Integration_Shared_Test.setUp();
-        SetAttestor_Integration_Test.setUp();
     }
 }

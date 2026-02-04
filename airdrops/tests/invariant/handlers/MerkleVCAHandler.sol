@@ -83,7 +83,7 @@ contract MerkleVCAHandler is BaseHandler {
         params.vestingStartTime = getBlockTimestamp();
 
         // Deploy and return the campaign address.
-        campaign = address(new SablierMerkleVCA(params, address(0), campaignCreator, comptroller));
+        campaign = address(new SablierMerkleVCA(params, campaignCreator, comptroller));
 
         // Mark as VCA campaign in store.
         store.setVcaCampaign(campaign);

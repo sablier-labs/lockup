@@ -80,8 +80,7 @@ contract LowerMinFeeUSD_MerkleLL_Integration_Test is MerkleLL_Integration_Shared
 }
 
 contract SetAttestor_MerkleLL_Integration_Test is MerkleLL_Integration_Shared_Test, SetAttestor_Integration_Test {
-    function setUp() public override(MerkleLL_Integration_Shared_Test, SetAttestor_Integration_Test) {
+    function setUp() public override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
-        SetAttestor_Integration_Test.setUp();
     }
 }

@@ -192,7 +192,6 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             campaignParams: params,
             recipientCount: RECIPIENT_COUNT,
-            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: customFeeUSD
         });
@@ -236,7 +235,6 @@ contract CreateMerkleVCA_Integration_Test is Integration_Test {
             merkleVCA: ISablierMerkleVCA(address(expectedMerkleVCA)),
             campaignParams: params,
             recipientCount: RECIPIENT_COUNT,
-            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: AIRDROP_MIN_FEE_USD
         });

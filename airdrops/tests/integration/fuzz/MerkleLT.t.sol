@@ -115,7 +115,6 @@ contract MerkleLT_Fuzz_Test is Shared_Fuzz_Test {
             aggregateAmount: aggregateAmount,
             recipientCount: leavesData.length,
             totalDuration: streamDuration,
-            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: feeForUser
         });

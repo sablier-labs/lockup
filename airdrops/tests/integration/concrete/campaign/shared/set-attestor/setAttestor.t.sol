@@ -7,21 +7,15 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract SetAttestor_Integration_Test is Integration_Test {
-    address internal newAttestor;
+    address internal newAttestor = makeAddr("newAttestor");
 
-    function setUp() public virtual override {
-        // Make `users.campaignCreator` the caller for this test.
-        setMsgSender(users.campaignCreator);
-
-        newAttestor = makeAddr("newAttestor");
-    }
-
-    function test_RevertWhen_CallerNotComptrollerOrAdmin() external {
+    function test_RevertWhen_CallerNotComptroller() external whenCallerNotCampaignCreator {
         setMsgSender(users.eve);
 
+        // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleSignature_CallerNotComptrollerOrAdmin.selector,
+                Errors.SablierMerkleSignature_CallerNotAuthorized.selector,
                 address(comptroller),
                 users.campaignCreator,
                 users.eve
@@ -30,47 +24,35 @@ abstract contract SetAttestor_Integration_Test is Integration_Test {
         ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);
     }
 
-    function test_RevertGiven_AttestorAlreadySetByAdmin() external whenCallerComptroller {
-        // First, have admin set the attestor to mark `attestorSetByAdmin` as true.
-        setMsgSender(users.campaignCreator);
-        ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);
-
-        // Now switch to comptroller caller.
+    function test_WhenCallerComptroller() external whenCallerNotCampaignCreator {
         setMsgSender(address(comptroller));
 
-        vm.expectRevert(Errors.SablierMerkleSignature_AttestorAlreadySetByAdmin.selector);
-        ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);
-    }
-
-    function test_GivenAttestorNotSetByAdmin() external whenCallerComptroller {
-        address previousAttestor = ISablierMerkleSignature(address(merkleBase)).attestor();
-
+        // It should emit a {SetAttestor} event.
         vm.expectEmit({ emitter: address(merkleBase) });
         emit ISablierMerkleSignature.SetAttestor({
             caller: address(comptroller),
-            previousAttestor: previousAttestor,
+            previousAttestor: attestor,
             newAttestor: newAttestor
         });
 
         ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);
 
+        // It should set the attestor.
         assertEq(ISablierMerkleSignature(address(merkleBase)).attestor(), newAttestor, "attestor");
-        assertFalse(ISablierMerkleSignature(address(merkleBase)).attestorSetByAdmin(), "attestor set by admin");
     }
 
-    function test_WhenCallerCampaignCreator() external whenCallerCampaignCreator {
-        address previousAttestor = ISablierMerkleSignature(address(merkleBase)).attestor();
-
+    function test_WhenCallerCampaignCreator() external {
+        // It should emit a {SetAttestor} event.
         vm.expectEmit({ emitter: address(merkleBase) });
         emit ISablierMerkleSignature.SetAttestor({
             caller: users.campaignCreator,
-            previousAttestor: previousAttestor,
+            previousAttestor: attestor,
             newAttestor: newAttestor
         });
 
         ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);
 
+        // It should set the attestor.
         assertEq(ISablierMerkleSignature(address(merkleBase)).attestor(), newAttestor, "attestor");
-        assertTrue(ISablierMerkleSignature(address(merkleBase)).attestorSetByAdmin(), "attestor set by admin");
     }
 }

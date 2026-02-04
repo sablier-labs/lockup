@@ -66,7 +66,6 @@ contract SablierMerkleLL is
     /// contract.
     constructor(
         MerkleLL.ConstructorParams memory campaignParams,
-        address attestor_,
         address campaignCreator,
         address comptroller
     )
@@ -86,7 +85,6 @@ contract SablierMerkleLL is
                 shape: campaignParams.shape,
                 transferable: campaignParams.transferable
             }),
-            attestor_,
             campaignCreator,
             comptroller
         )

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
 import { ISablierMerkleSignature } from "./../interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "./../libraries/Errors.sol";
@@ -29,11 +29,9 @@ abstract contract SablierMerkleSignature is
     /// across different campaigns.
     bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
 
-    /// @inheritdoc ISablierMerkleSignature
-    address public override attestor;
-
-    /// @inheritdoc ISablierMerkleSignature
-    bool public override attestorSetByAdmin;
+    /// @dev A private variable to store the attestor address if set after the contract is deployed. If zero, the
+    /// attestor is queried from the comptroller.
+    address private _attestor;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -42,7 +40,6 @@ abstract contract SablierMerkleSignature is
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(
         MerkleBase.ConstructorParams memory baseParams,
-        address attestor_,
         address campaignCreator,
         address comptroller
     )
@@ -55,14 +52,16 @@ abstract contract SablierMerkleSignature is
         _CACHED_DOMAIN_SEPARATOR = keccak256(
             abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
         );
-
-        // Effect: set the initial attestor.
-        attestor = attestor_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierMerkleSignature
+    function attestor() external view override returns (address) {
+        return _getAttestor();
+    }
 
     /// @inheritdoc ISablierMerkleSignature
     function domainSeparator() external view override returns (bytes32) {
@@ -75,35 +74,23 @@ abstract contract SablierMerkleSignature is
 
     /// @inheritdoc ISablierMerkleSignature
     function setAttestor(address newAttestor) external override {
-        bool isCallerAdmin = msg.sender == admin;
-        bool isCallerComptroller = msg.sender == COMPTROLLER;
-
         // Check: the caller is the comptroller or the admin.
-        if (!isCallerAdmin && !isCallerComptroller) {
-            revert Errors.SablierMerkleSignature_CallerNotComptrollerOrAdmin({
+        if (msg.sender != admin && msg.sender != COMPTROLLER) {
+            revert Errors.SablierMerkleSignature_CallerNotAuthorized({
                 comptroller: COMPTROLLER,
                 admin: admin,
                 caller: msg.sender
             });
         }
 
-        // Check: if the caller is the comptroller, the admin must not have already set the attestor.
-        if (isCallerComptroller && attestorSetByAdmin) {
-            revert Errors.SablierMerkleSignature_AttestorAlreadySetByAdmin();
-        }
-
-        address previousAttestor = attestor;
+        //  Get the current attestor.
+        address currentAttestor = _getAttestor();
 
         // Effect: set the new attestor.
-        attestor = newAttestor;
-
-        // Effect: if the caller is the admin, mark that the admin has set the attestor.
-        if (isCallerAdmin && !attestorSetByAdmin) {
-            attestorSetByAdmin = true;
-        }
+        _attestor = newAttestor;
 
         // Log the event.
-        emit SetAttestor({ caller: msg.sender, previousAttestor: previousAttestor, newAttestor: newAttestor });
+        emit SetAttestor({ caller: msg.sender, previousAttestor: currentAttestor, newAttestor: newAttestor });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -112,10 +99,10 @@ abstract contract SablierMerkleSignature is
 
     /// @dev Verifies the attestation signature against the recipient. It supports both EIP-712 and EIP-1271 signatures.
     function _checkAttestation(address recipient, bytes calldata attestation) internal view {
-        // Get the attestor from storage.
-        address attestor_ = attestor;
+        // Get the attestor address.
+        address attestor_ = _getAttestor();
 
-        // Check: attestor is set.
+        // Check: the attestor is set.
         if (attestor_ == address(0)) {
             revert Errors.SablierMerkleSignature_AttestorNotSet();
         }
@@ -154,6 +141,17 @@ abstract contract SablierMerkleSignature is
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Returns the attestor address.
+    function _getAttestor() private view returns (address) {
+        // If the attestor is stored in the contract, return it.
+        if (_attestor != address(0)) {
+            return _attestor;
+        }
+
+        // Otherwise, return it from the comptroller.
+        return ISablierComptroller(COMPTROLLER).attestor();
+    }
 
     /// @dev Verifies an EIP-712 or EIP-1271 signature against a signer and struct hash.
     /// @param signer The expected signer address.

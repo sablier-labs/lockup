@@ -82,7 +82,6 @@ abstract contract MerkleVCA_Fork_Test is MerkleBase_Fork_Test {
             merkleVCA: ISablierMerkleVCA(vars.expectedMerkleCampaign),
             campaignParams: constructorParams,
             recipientCount: vars.leavesData.length,
-            attestor: attestor,
             comptroller: address(comptroller),
             minFeeUSD: vars.minFeeUSD
         });

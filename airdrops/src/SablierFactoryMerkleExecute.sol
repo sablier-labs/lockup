@@ -35,14 +35,8 @@ contract SablierFactoryMerkleExecute is ISablierFactoryMerkleExecute, SablierFac
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAttestor The address of the initial attestor.
     /// @param initialComptroller The address of the initial comptroller contract.
-    constructor(
-        address initialAttestor,
-        address initialComptroller
-    )
-        SablierFactoryMerkleBase(initialAttestor, initialComptroller)
-    { }
+    constructor(address initialComptroller) SablierFactoryMerkleBase(initialComptroller) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
