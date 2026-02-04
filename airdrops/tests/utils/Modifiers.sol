@@ -28,10 +28,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenAttestorNotSet() {
-        _;
-    }
-
     modifier givenAttestorSet() {
         _;
     }
@@ -93,14 +89,6 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenAmountValid() {
-        _;
-    }
-
-    modifier whenAttestationInvalid() {
-        _;
-    }
-
-    modifier whenAttestationValid() {
         _;
     }
 
