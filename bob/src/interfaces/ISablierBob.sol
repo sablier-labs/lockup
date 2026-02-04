@@ -149,7 +149,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// @param vaultId The ID of the vault to exit from.
     function exitWithinGracePeriod(uint256 vaultId) external;
 
-    /// @notice Redeem deposited tokens  from a settled vault by burning shares.
+    /// @notice Redeem deposited tokens from a settled vault by burning shares.
     ///
     /// @dev Emits a {Redeem} event.
     ///
