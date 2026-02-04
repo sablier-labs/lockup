@@ -87,7 +87,7 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
 
     /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC provider). If the vesting
     /// end time is in the future, it creates a Lockup Tranched stream, otherwise it transfers the tokens directly to
-    /// the recipient address.
+    /// the `msg.sender` address.
     ///
     /// @dev It emits either {ClaimLTWithTransfer} or {ClaimLTWithVesting} event.
     ///
@@ -97,18 +97,17 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// - If the attestor is not set in the campaign, the attestor from the comptroller is used.
     ///
     /// Requirements:
+    /// - `msg.sender` must be the airdrop recipient.
     /// - The attestor must not be the zero address.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claim}.
     ///
-    /// @param index The index of the recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens allocated to the recipient.
+    /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param attestation The EIP-712 signature from the attestor.
     function claimViaAttestation(
         uint256 index,
-        address recipient,
         uint128 amount,
         bytes32[] calldata merkleProof,
         bytes calldata attestation

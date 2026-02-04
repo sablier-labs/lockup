@@ -139,7 +139,6 @@ contract SablierMerkleLT is
     /// @inheritdoc ISablierMerkleLT
     function claimViaAttestation(
         uint256 index,
-        address recipient,
         uint128 amount,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
@@ -147,16 +146,15 @@ contract SablierMerkleLT is
         external
         payable
         override
-        notZeroAddress(recipient)
     {
         // Check: verify attestation signature matches attestor from storage.
-        _checkAttestation(recipient, attestation);
+        _checkAttestation(msg.sender, attestation);
 
-        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
-        _preProcessClaim(index, recipient, amount, merkleProof);
+        // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
+        _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
-        // Check, Effect and Interaction: Post-process the claim parameters on behalf of the recipient.
-        _postProcessClaim({ index: index, recipient: recipient, to: recipient, amount: amount, viaSig: false });
+        // Check, Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
+        _postProcessClaim({ index: index, recipient: msg.sender, to: msg.sender, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLT

@@ -10,48 +10,32 @@ import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
     function setUp() public virtual override {
-        // Make `users.campaignCreator` the caller for this test.
-        setMsgSender(users.campaignCreator);
+        // Make `users.recipient` the caller for this test since `claimViaAttestation` uses `msg.sender` as the
+        // recipient.
+        setMsgSender(users.recipient);
     }
 
-    function test_RevertWhen_RecipientAddressZero() external {
-        vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
-        claimViaAttestation({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            recipient: address(0),
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof(),
-            attestation: abi.encode(0)
-        });
-    }
-
-    function test_RevertGiven_AttestorNotSet() external whenRecipientAddressNotZero {
+    function test_RevertGiven_AttestorNotSet() external {
         // Remove the attestor from the campaign as well as the comptroller.
+        setMsgSender(users.campaignCreator);
         ISablierMerkleSignature(address(merkleBase)).setAttestor(address(0));
         setMsgSender(admin);
         comptroller.setAttestor(address(0));
 
-        // Change caller back to the campaign creator.
-        setMsgSender(users.campaignCreator);
+        // Change caller back to the recipient.
+        setMsgSender(users.recipient);
 
         vm.expectRevert(Errors.SablierMerkleSignature_AttestorNotSet.selector);
         claimViaAttestation({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
-            recipient: users.recipient,
             amount: CLAIM_AMOUNT,
             merkleProof: getMerkleProof(),
             attestation: abi.encode(0)
         });
     }
 
-    function test_RevertWhen_AttestationInvalid()
-        external
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsEOA
-    {
+    function test_RevertWhen_AttestationInvalid() external givenAttestorSet givenAttestorIsEOA {
         // Generate an invalid attestation.
         bytes memory invalidAttestation = vm.randomBytes(65);
 
@@ -59,7 +43,6 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         claimViaAttestation({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
-            recipient: users.recipient,
             amount: CLAIM_AMOUNT,
             merkleProof: getMerkleProof(),
             attestation: invalidAttestation
@@ -68,35 +51,25 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
     /// @dev Since the implementation of `claimViaAttestation()` differs in each Merkle campaign, we declare this
     /// virtual dummy test. The child contracts implement it.
-    function test_WhenAttestationValid()
-        external
-        virtual
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsEOA
-    {
+    function test_WhenAttestationValid() external virtual givenAttestorSet givenAttestorIsEOA {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
         // It should transfer the fee from the caller address to the comptroller.
     }
 
-    function test_RevertWhen_AttestorNotImplementIERC1271Interface()
-        external
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsContract
-    {
+    function test_RevertWhen_AttestorNotImplementIERC1271Interface() external givenAttestorSet givenAttestorIsContract {
         // Deploy a contract that does not implement IERC1271.
         address smartAttestorWithoutIERC1271 = address(new Noop());
 
         // Set the attestor to the contract without IERC1271.
+        setMsgSender(users.campaignCreator);
         ISablierMerkleSignature(address(merkleBase)).setAttestor(smartAttestorWithoutIERC1271);
+        setMsgSender(users.recipient);
 
         vm.expectRevert(Errors.SablierMerkleSignature_InvalidSignature.selector);
         claimViaAttestation({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(),
-            recipient: users.recipient,
             amount: CLAIM_AMOUNT,
             merkleProof: getMerkleProof(),
             attestation: abi.encode(0)
@@ -105,13 +78,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
     /// @dev Since the implementation of `claimViaAttestation()` differs in each Merkle campaign, we declare this
     /// virtual dummy test. The child contracts implement it.
-    function test_WhenAttestorImplementsIERC1271Interface()
-        external
-        virtual
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsContract
-    {
+    function test_WhenAttestorImplementsIERC1271Interface() external virtual givenAttestorSet givenAttestorIsContract {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
         // It should transfer the fee from the caller address to the comptroller.

@@ -101,7 +101,6 @@ abstract contract Integration_Test is Base_Test {
         claimViaAttestation({
             msgValue: AIRDROP_MIN_FEE_WEI,
             index: getIndexInMerkleTree(recipient),
-            recipient: recipient,
             amount: amount,
             merkleProof: getMerkleProof(recipient),
             attestation: generateAttestation(recipient, address(merkleBase))
@@ -111,16 +110,16 @@ abstract contract Integration_Test is Base_Test {
     function claimViaAttestation(
         uint256 msgValue,
         uint256 index,
-        address recipient,
         uint128 amount,
         bytes32[] memory merkleProof,
         bytes memory attestation
     )
         internal
+        virtual
     {
         address campaignAddr = address(merkleBase);
         ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
-            index, recipient, amount, merkleProof, attestation
+            index, amount, merkleProof, attestation
         );
     }
 

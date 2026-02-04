@@ -18,28 +18,18 @@ contract ClaimViaAttestation_MerkleLL_Integration_Test is
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid()
-        external
-        override
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsEOA
-    {
+    function test_WhenAttestationValid() external override givenAttestorSet givenAttestorIsEOA {
         _test_ClaimViaAttestation();
     }
 
-    function test_WhenAttestorImplementsIERC1271Interface()
-        external
-        override
-        whenRecipientAddressNotZero
-        givenAttestorSet
-        givenAttestorIsContract
-    {
+    function test_WhenAttestorImplementsIERC1271Interface() external override givenAttestorSet givenAttestorIsContract {
         // Deploy an ERC1271 wallet with the EOA attestor as the admin.
         address smartAttestor = address(new ERC1271WalletMock(attestor));
 
         // Set the attestor to the smart contract.
+        setMsgSender(users.campaignCreator);
         ISablierMerkleSignature(address(merkleLL)).setAttestor(smartAttestor);
+        setMsgSender(users.recipient);
 
         _test_ClaimViaAttestation();
     }
