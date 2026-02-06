@@ -74,7 +74,7 @@ contract CreateMerkleExecute_Integration_Test is Integration_Test {
             address(actualExecute), expectedMerkleExecute, "MerkleExecute contract does not match computed address"
         );
 
-        // It should set the current factory address.
+        // It should set the min fee.
         assertEq(actualExecute.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 

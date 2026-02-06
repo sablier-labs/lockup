@@ -10,9 +10,11 @@ CreateMerkleExecute_Integration_Test
       └── given campaign not exists
          ├── given custom fee USD set
          │  ├── it should create the campaign with custom fee USD
-         │  ├── it should set the current factory address
+         │  ├── it should set the target address
+         │  ├── it should set the selector
          │  └── it should emit a {CreateMerkleExecute} event
          └── given custom fee USD not set
             ├── it should create the campaign with min fee USD
-            ├── it should set the current factory address
+            ├── it should set the target address
+            ├── it should set the selector
             └── it should emit a {CreateMerkleExecute} event
