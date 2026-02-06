@@ -114,7 +114,7 @@ abstract contract MerkleExecute_Fork_Test is MerkleBase_Fork_Test {
             index: vars.leafToClaim.index,
             amount: vars.leafToClaim.amount,
             merkleProof: vars.merkleProof,
-            arguments: abi.encode(vars.leafToClaim.amount)
+            selectorArguments: abi.encode(vars.leafToClaim.amount)
         });
 
         assertTrue(merkleExecute.hasClaimed(vars.leafToClaim.index));

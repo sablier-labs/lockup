@@ -37,9 +37,6 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     /// @dev It emits a {ClaimExecute} event.
     ///
     /// Notes:
-    /// - Unlike other Merkle campaigns, this function does not have a `recipient` parameter. The recipient is always
-    /// `msg.sender` to prevent security risks where someone could claim on behalf of another user and execute
-    /// arbitrary calls.
     /// - The function approves the exact claim amount to the {TARGET}, executes the call, then revokes the approval.
     /// - It is expected that the target contract would transfer the entire user allocation. If it transfers less, the
     /// remaining tokens will be left in the campaign contract which can be claimed later by the campaign creator.
@@ -56,12 +53,12 @@ interface ISablierMerkleExecute is ISablierMerkleBase {
     /// @param index The index of `msg.sender` in the Merkle tree.
     /// @param amount The amount of ERC-20 tokens allocated to `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
-    /// @param arguments The function ABI-encoded arguments for {SELECTOR}.
+    /// @param selectorArguments The function ABI-encoded arguments for {SELECTOR}.
     function claimAndExecute(
         uint256 index,
         uint128 amount,
         bytes32[] calldata merkleProof,
-        bytes calldata arguments
+        bytes calldata selectorArguments
     )
         external
         payable;

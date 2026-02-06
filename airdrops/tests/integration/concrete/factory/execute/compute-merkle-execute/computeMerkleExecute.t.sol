@@ -32,7 +32,7 @@ contract ComputeMerkleExecute_Integration_Test is Integration_Test {
         factoryMerkleExecute.computeMerkleExecute(users.campaignCreator, params);
     }
 
-    function test_WhenTargetIsContract() external view whenNativeTokenNotFound {
+    function test_WhenTargetContract() external view whenNativeTokenNotFound {
         MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
 
         address actualAddress = factoryMerkleExecute.computeMerkleExecute(users.campaignCreator, params);

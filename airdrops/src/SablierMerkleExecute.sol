@@ -82,7 +82,7 @@ contract SablierMerkleExecute is
         uint256 index,
         uint128 amount,
         bytes32[] calldata merkleProof,
-        bytes calldata arguments
+        bytes calldata selectorArguments
     )
         external
         payable
@@ -98,7 +98,7 @@ contract SablierMerkleExecute is
         TOKEN.forceApprove({ spender: TARGET, value: amount });
 
         // Prepare the call data by concatenating the selector and the arguments.
-        bytes memory callData = abi.encodePacked(SELECTOR, arguments);
+        bytes memory callData = abi.encodePacked(SELECTOR, selectorArguments);
 
         // Interaction: Execute the call on the target contract.
         (bool success, bytes memory returnData) = TARGET.call(callData);

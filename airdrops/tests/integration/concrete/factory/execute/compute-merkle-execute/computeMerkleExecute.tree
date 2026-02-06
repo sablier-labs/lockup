@@ -4,5 +4,5 @@ ComputeMerkleExecute_Integration_Test
 └── when native token not found
    ├── when target not contract
    │  └── it should revert
-   └── when target is contract
+   └── when target contract
       └── it should return the computed address

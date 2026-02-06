@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { MerkleExecute } from "src/types/DataTypes.sol";
 
-import { MockStakingRevert } from "./../../../../../mocks/MockStakingRevert.sol";
+import { MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
 import { Integration_Test } from "./../../../../Integration.t.sol";
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
@@ -39,7 +39,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
             index: getIndexInMerkleTree(),
             amount: CLAIM_AMOUNT,
             merkleProof: getMerkleProof(),
-            arguments: abi.encode(overdrawAmount)
+            selectorArguments: abi.encode(overdrawAmount)
         });
     }
 
