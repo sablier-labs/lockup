@@ -45,6 +45,9 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @notice Emitted when a target contract is called.
     event Execute(address indexed target, bytes targetCallData, bytes result);
 
+    /// @notice Emitted when the attestor is set.
+    event SetAttestor(address indexed caller, address indexed previousAttestor, address indexed newAttestor);
+
     /// @notice Emitted when the admin or the fee manager sets a new minimum USD fee.
     event SetMinFeeUSD(Protocol indexed protocol, address caller, uint256 previousMinFeeUSD, uint256 newMinFeeUSD);
 
@@ -82,6 +85,10 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @notice The version of the comptroller contract.
     /// @dev This follows the format "v{Major}.{Minor}" (e.g., "v1.1").
     function VERSION() external view returns (string memory);
+
+    /// @notice Retrieves the attestor address used for verifying attestation signatures in merkle campaigns.
+    /// @dev A zero address indicates that the attestor is not set.
+    function attestor() external view returns (address);
 
     /// @notice Calculates the minimum fee in wei for the given protocol.
     /// @dev See the documentation for {convertUSDFeeToWei} for more details.
@@ -165,6 +172,35 @@ interface ISablierComptroller is IERC165, IERC1822Proxiable, IRoleAdminable {
     /// @param campaign The address of an existing campaign.
     /// @param newMinFeeUSD The new min USD fee to set, denominated in 8 decimals.
     function lowerMinFeeUSDForCampaign(address campaign, uint256 newMinFeeUSD) external;
+
+    /// @notice Sets the attestor address used for verifying attestation signatures in airdrop campaigns.
+    ///
+    /// @dev Emits a {SetAttestor} event.
+    ///
+    /// Notes:
+    /// - The default attestor to be used in merkle campaigns. It can be overridden by setting a different attestor in
+    /// the campaign contract.
+    /// - Setting it to zero address would disable attestation-based claims globally.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    ///
+    /// @param newAttestor The new attestor address. It can be the zero address.
+    function setAttestor(address newAttestor) external;
+
+    /// @notice Calls `setAttestor` function on an existing campaign contract.
+    ///
+    /// @dev Notes:
+    /// - This function is a pass-through to the campaign's `setAttestor` function.
+    /// - All validations are expected to be performed in the campaign's `setAttestor` function.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be either the admin or have the {IRoleAdminable.FEE_MANAGEMENT_ROLE} role.
+    /// - Setting it to zero address would allow merkle campaigns to use the default attestor.
+    ///
+    /// @param campaign The address of an existing campaign contract.
+    /// @param newAttestor The new attestor address.
+    function setAttestorForCampaign(address campaign, address newAttestor) external;
 
     /// @notice Sets the custom USD fee for the provided user for the given protocol.
     /// @dev Emits an {UpdateCustomFeeUSD} event.

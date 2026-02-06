@@ -7,6 +7,8 @@ contract MerkleMock {
     }
 
     function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
+
+    function setAttestor(address newAttestor) external { }
 }
 
 contract MerkleMockReverting {
@@ -17,14 +19,8 @@ contract MerkleMockReverting {
     function lowerMinFeeUSD(uint256) external pure {
         revert("Not gonna happen");
     }
-}
 
-contract MerkleMockWithFalseIsSablierMerkle {
-    function IS_SABLIER_MERKLE() external pure returns (bool) { }
-
-    function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
-}
-
-contract MerkleMockWithMissingIsSablierMerkle {
-    function lowerMinFeeUSD(uint256 newMinFeeUSD) external { }
+    function setAttestor(address) external pure {
+        revert("Not gonna happen");
+    }
 }

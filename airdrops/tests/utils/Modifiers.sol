@@ -20,6 +20,18 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenAttestorIsContract() {
+        _;
+    }
+
+    modifier givenAttestorIsEOA() {
+        _;
+    }
+
+    modifier givenAttestorNotZero() {
+        _;
+    }
+
     modifier givenCallerNotClaimed() {
         _;
     }
@@ -103,6 +115,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenCallerNotCampaignCreator() {
+        _;
+    }
+
     modifier whenClaimTimeGreaterThanVestingStartTime() {
         _;
     }
@@ -156,6 +172,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenProvidedAddressNotZero() {
+        _;
+    }
+
+    modifier whenRecipientAddressNotZero() {
         _;
     }
 

@@ -4,8 +4,9 @@ pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
+
 import { Constants } from "./Constants.sol";
-import { Claim, EIP712Domain } from "./Types.sol";
+import { Claim, EIP712Domain, Identity } from "./Types.sol";
 
 abstract contract Utils is BaseUtils, Constants {
     /// @notice Computes the EIP-712 domain separator for the provided Merkle contract.
@@ -32,16 +33,60 @@ abstract contract Utils is BaseUtils, Constants {
         view
         returns (bytes memory signature)
     {
-        // Concatenate EIP-712 Domain and Claim message types.
+        return _generateEIP712Signature({
+            signerPrivateKey: signerPrivateKey,
+            merkleContract: merkleContract,
+            messageTypeJson: '"Claim":[{"name":"index","type":"uint256"},{"name":"recipient","type":"address"},{"name":"to","type":"address"},{"name":"amount","type":"uint128"},{"name":"validFrom","type":"uint40"}]',
+            primaryType: '"Claim"',
+            messageSchema: SCHEMA_CLAIM,
+            messageData: abi.encode(Claim(index, recipient, to, amount, validFrom))
+        });
+    }
+
+    /// @notice Generates the EIP-712 attestation signature for the given recipient and returns it.
+    function generateAttestationSignature(
+        uint256 signerPrivateKey,
+        address merkleContract,
+        address recipient
+    )
+        internal
+        view
+        returns (bytes memory signature)
+    {
+        return _generateEIP712Signature({
+            signerPrivateKey: signerPrivateKey,
+            merkleContract: merkleContract,
+            messageTypeJson: '"Identity":[{"name":"recipient","type":"address"}]',
+            primaryType: '"Identity"',
+            messageSchema: SCHEMA_IDENTITY,
+            messageData: abi.encode(Identity(recipient))
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PRIVATE HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Generates an EIP-712 signature for the given message parameters.
+    function _generateEIP712Signature(
+        uint256 signerPrivateKey,
+        address merkleContract,
+        string memory messageTypeJson,
+        string memory primaryType,
+        string memory messageSchema,
+        bytes memory messageData
+    )
+        private
+        view
+        returns (bytes memory signature)
+    {
+        // Concatenate EIP-712 Domain and message types.
         string memory typesJson = string.concat(
             "{",
             '"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],',
-            '"Claim":[{"name":"index","type":"uint256"},{"name":"recipient","type":"address"},{"name":"to","type":"address"},{"name":"amount","type":"uint128"},{"name":"validFrom","type":"uint40"}]',
+            messageTypeJson,
             "}"
         );
-
-        // Define the primary type.
-        string memory primaryType = '"Claim"';
 
         // Serialize EIP-712 domain parameters.
         string memory domainJson = vm.serializeJsonType(
@@ -49,9 +94,8 @@ abstract contract Utils is BaseUtils, Constants {
             abi.encode(EIP712Domain({ name: PROTOCOL_NAME, chainId: block.chainid, verifyingContract: merkleContract }))
         );
 
-        // Serialize Claim message parameters.
-        string memory claimMessageJson =
-            vm.serializeJsonType(SCHEMA_CLAIM, abi.encode(Claim(index, recipient, to, amount, validFrom)));
+        // Serialize message parameters.
+        string memory messageJson = vm.serializeJsonType(messageSchema, messageData);
 
         // Construct the typed data JSON.
         string memory typedDataJson = string.concat(
@@ -62,15 +106,12 @@ abstract contract Utils is BaseUtils, Constants {
             ',"domain":',
             domainJson,
             ',"message":',
-            claimMessageJson,
+            messageJson,
             "}"
         );
 
-        // Compute the digest.
-        bytes32 digest = vm.eip712HashTypedData(typedDataJson);
-
-        // Sign the digest.
-        signature = sign(signerPrivateKey, digest);
+        // Compute the digest and sign.
+        signature = sign(signerPrivateKey, vm.eip712HashTypedData(typedDataJson));
     }
 
     /// @notice Signs the provided digest using private key and returns the signature.

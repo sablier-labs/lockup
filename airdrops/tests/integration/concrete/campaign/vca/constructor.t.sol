@@ -26,6 +26,9 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         SablierMerkleVCA constructedVCA =
             new SablierMerkleVCA(constructorParams, users.campaignCreator, address(comptroller));
 
+        // SablierMerkleSignature
+        assertEq(constructedVCA.attestor(), attestor, "attestor");
+
         // SablierMerkleBase
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");

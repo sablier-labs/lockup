@@ -60,10 +60,14 @@ contract SablierComptroller is
     /// @dev A mapping of protocol fees.
     mapping(Protocol protocol => ProtocolFees fees) private _protocolFees;
 
+    /// @inheritdoc ISablierComptroller
+    address public override attestor;
+
     /// @dev We reserve 50 storage slots to allow for adding new state variables in this and its parent contracts in the
-    /// future. A gap of 46 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
-    /// roles mapping, 1 slot used by the oracle and 1 empty slot used by protocol fees mapping.
-    uint256[46] private __gap;
+    /// future. A gap of 45 slots is added in addition to 1 slot used by admin in {Adminable}, 1 empty slot used by the
+    /// roles mapping, 1 slot used by the oracle, 1 empty slot used by protocol fees mapping and 1 slot used by the
+    /// attestor.
+    uint256[45] private __gap;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -245,6 +249,46 @@ contract SablierComptroller is
         // Interaction: call the `lowerMinFeeUSD` function on the campaign.
         (bool success, bytes memory returnData) =
             campaign.call(abi.encodeWithSignature("lowerMinFeeUSD(uint256)", newMinFeeUSD));
+
+        // If the call fails, bubble up the revert reason.
+        if (!success) {
+            assembly {
+                // Get the length of the result stored in the first 32 bytes.
+                let returnDataSize := mload(returnData)
+
+                // Forward the pointer by 32 bytes to skip the length argument, and revert with the result.
+                revert(add(32, returnData), returnDataSize)
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierComptroller
+    function setAttestor(address newAttestor) external override onlyRole(FEE_MANAGEMENT_ROLE) {
+        address previousAttestor = attestor;
+
+        // Effect: set the new attestor.
+        attestor = newAttestor;
+
+        // Log the update.
+        emit ISablierComptroller.SetAttestor({
+            caller: msg.sender,
+            previousAttestor: previousAttestor,
+            newAttestor: newAttestor
+        });
+    }
+
+    /// @inheritdoc ISablierComptroller
+    function setAttestorForCampaign(
+        address campaign,
+        address newAttestor
+    )
+        external
+        override
+        onlyRole(FEE_MANAGEMENT_ROLE)
+    {
+        // Interaction: call the `setAttestor` function on the campaign.
+        (bool success, bytes memory returnData) =
+            campaign.call(abi.encodeWithSignature("setAttestor(address)", newAttestor));
 
         // If the call fails, bubble up the revert reason.
         if (!success) {
