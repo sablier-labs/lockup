@@ -122,8 +122,8 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claimTo(uint256 index, address to, uint128 fullAmount, bytes32[] calldata merkleProof) external payable;
 
-    /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC provider). If the vesting
-    /// end time is in the future, it calculates the claim amount to transfer to the `msg.sender` address, otherwise it
+    /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC verifier). If the vesting
+    /// end time is in the future, it calculates the claim amount to transfer to the `to` address, otherwise it
     /// transfers the full amount.
     ///
     /// @dev It emits a {ClaimVCA} event.
@@ -135,16 +135,19 @@ interface ISablierMerkleVCA is ISablierMerkleSignature {
     ///
     /// Requirements:
     /// - `msg.sender` must be the airdrop recipient.
+    /// - The `to` must not be the zero address.
     /// - The attestor must not be the zero address.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claimTo}.
     ///
     /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
     /// @param fullAmount The total amount of ERC-20 tokens allocated to the `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param attestation The EIP-712 signature from the attestor.
     function claimViaAttestation(
         uint256 index,
+        address to,
         uint128 fullAmount,
         bytes32[] calldata merkleProof,
         bytes calldata attestation

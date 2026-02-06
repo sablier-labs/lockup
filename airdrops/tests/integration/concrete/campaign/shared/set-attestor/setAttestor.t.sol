@@ -16,9 +16,9 @@ abstract contract SetAttestor_Integration_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierMerkleSignature_CallerNotAuthorized.selector,
-                address(comptroller),
+                users.eve,
                 users.campaignCreator,
-                users.eve
+                address(comptroller)
             )
         );
         ISablierMerkleSignature(address(merkleBase)).setAttestor(newAttestor);

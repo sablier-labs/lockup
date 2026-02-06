@@ -100,8 +100,8 @@ library Errors {
     /// @notice Thrown when the attestor returns the zero address.
     error SablierMerkleSignature_AttestorNotSet();
 
-    /// @notice Thrown when caller is not the comptroller or admin.
-    error SablierMerkleSignature_CallerNotAuthorized(address comptroller, address admin, address caller);
+    /// @notice Thrown when caller is not the comptroller or campaign admin.
+    error SablierMerkleSignature_CallerNotAuthorized(address caller, address campaignAdmin, address comptroller);
 
     /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
     error SablierMerkleSignature_InvalidSignature();

@@ -3,10 +3,11 @@ pragma solidity >=0.8.22;
 
 import { MerkleLT } from "./../types/DataTypes.sol";
 import { ISablierMerkleLockup } from "./ISablierMerkleLockup.sol";
+import { ISablierMerkleSignature } from "./ISablierMerkleSignature.sol";
 
 /// @title ISablierMerkleLT
 /// @notice MerkleLT enables an airdrop model with a vesting period powered by the Lockup Tranched model.
-interface ISablierMerkleLT is ISablierMerkleLockup {
+interface ISablierMerkleLT is ISablierMerkleLockup, ISablierMerkleSignature {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -85,9 +86,9 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claimTo(uint256 index, address to, uint128 amount, bytes32[] calldata merkleProof) external payable;
 
-    /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC provider). If the vesting
-    /// end time is in the future, it creates a Lockup Tranched stream, otherwise it transfers the tokens directly to
-    /// the `msg.sender` address.
+    /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC verifier). If the vesting
+    /// end time is in the future, it creates a Lockup Tranched stream with `to` address as the stream recipient,
+    /// otherwise it transfers the tokens directly to the `to` address.
     ///
     /// @dev It emits either {ClaimLTWithTransfer} or {ClaimLTWithVesting} event.
     ///
@@ -98,16 +99,19 @@ interface ISablierMerkleLT is ISablierMerkleLockup {
     ///
     /// Requirements:
     /// - `msg.sender` must be the airdrop recipient.
+    /// - The `to` must not be the zero address.
     /// - The attestor must not be the zero address.
     /// - The attestation signature must be valid.
     /// - Refer to the requirements in {claim}.
     ///
     /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param to The address to which Lockup stream or ERC-20 tokens will be sent on behalf of `msg.sender`.
     /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     /// @param attestation The EIP-712 signature from the attestor.
     function claimViaAttestation(
         uint256 index,
+        address to,
         uint128 amount,
         bytes32[] calldata merkleProof,
         bytes calldata attestation

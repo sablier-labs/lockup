@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
+
 import { Constants } from "./Constants.sol";
 import { Claim, EIP712Domain, Identity } from "./Types.sol";
 

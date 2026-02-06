@@ -18,11 +18,23 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid() external override givenAttestorSet givenAttestorIsEOA {
+    function test_WhenAttestationValid()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsEOA
+    {
         _test_ClaimViaAttestation();
     }
 
-    function test_WhenAttestorImplementsIERC1271Interface() external override givenAttestorSet givenAttestorIsContract {
+    function test_WhenAttestorImplementsIERC1271Interface()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsContract
+    {
         // Deploy an ERC1271 wallet with the EOA attestor as the admin.
         address smartAttestor = address(new ERC1271WalletMock(attestor));
 
@@ -45,7 +57,7 @@ contract ClaimViaAttestation_MerkleLT_Integration_Test is
             users.recipient,
             CLAIM_AMOUNT,
             expectedStreamId,
-            users.recipient,
+            users.eve,
             false
         );
 

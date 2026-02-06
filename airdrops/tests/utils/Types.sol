@@ -12,16 +12,16 @@ struct Claim {
     uint40 validFrom;
 }
 
-/// @dev Struct to hold the Identity message parameters during ERC-712 attestation tests.
-struct Identity {
-    address recipient;
-}
-
 /// @dev Struct to hold the EIP-712 domain parameters during ERC-712 signature tests.
 struct EIP712Domain {
     string name;
     uint256 chainId;
     address verifyingContract;
+}
+
+/// @dev Struct to hold the Identity message parameters during ERC-712 attestation tests.
+struct Identity {
+    address recipient;
 }
 
 /// @dev Struct to hold the common parameters needed for fuzz tests.

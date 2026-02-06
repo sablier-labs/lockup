@@ -18,7 +18,13 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid() external override givenAttestorSet givenAttestorIsEOA {
+    function test_WhenAttestationValid()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsEOA
+    {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();
@@ -29,11 +35,11 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
             recipient: users.recipient,
             claimAmount: VCA_CLAIM_AMOUNT,
             forgoneAmount: forgoneAmount,
-            to: users.recipient,
+            to: users.eve,
             viaSig: false
         });
 
-        expectCallToTransfer({ to: users.recipient, value: VCA_CLAIM_AMOUNT });
+        expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
         claimViaAttestation();
 
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
@@ -41,7 +47,13 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
         assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
     }
 
-    function test_WhenAttestorImplementsIERC1271Interface() external override givenAttestorSet givenAttestorIsContract {
+    function test_WhenAttestorImplementsIERC1271Interface()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsContract
+    {
         // Deploy an ERC1271 wallet with the EOA attestor as the admin.
         address smartAttestor = address(new ERC1271WalletMock(attestor));
 
@@ -60,11 +72,11 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
             recipient: users.recipient,
             claimAmount: VCA_CLAIM_AMOUNT,
             forgoneAmount: forgoneAmount,
-            to: users.recipient,
+            to: users.eve,
             viaSig: false
         });
 
-        expectCallToTransfer({ to: users.recipient, value: VCA_CLAIM_AMOUNT });
+        expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
         claimViaAttestation();
 
         assertTrue(merkleVCA.hasClaimed(index), "not claimed");
@@ -80,6 +92,7 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
     function claimViaAttestation(
         uint256 msgValue,
         uint256 index,
+        address to,
         uint128 amount,
         bytes32[] memory merkleProof,
         bytes memory attestation
@@ -88,7 +101,7 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
         override
     {
         ISablierMerkleVCA(address(merkleVCA)).claimViaAttestation{ value: msgValue }(
-            index, amount, merkleProof, attestation
+            index, to, amount, merkleProof, attestation
         );
     }
 }

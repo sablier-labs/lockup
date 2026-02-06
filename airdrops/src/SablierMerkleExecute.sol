@@ -56,19 +56,17 @@ contract SablierMerkleExecute is
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleBase(
-            MerkleBase.ConstructorParams({
+        SablierMerkleBase(MerkleBase.ConstructorParams({
+                campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,
                 ipfsCID: campaignParams.ipfsCID,
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
-            }),
-            campaignCreator,
-            comptroller
-        )
+            }))
     {
         // Effect: set the immutable state variables.
         SELECTOR = campaignParams.selector;

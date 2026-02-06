@@ -4,20 +4,21 @@ pragma solidity >=0.8.22;
 import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
 
 /// @title ISablierMerkleSignature
-/// @notice Interface for Merkle campaigns that support EIP-712 signature-based claims.
+/// @notice Abstract contract providing helper functions for verifying EIP-712 and EIP-1271 signatures for Merkle
+/// campaigns.
 interface ISablierMerkleSignature is ISablierMerkleBase {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the attestor address is set.
+    /// @notice Emitted when the address of the attestor is set in this contract.
     event SetAttestor(address indexed caller, address indexed previousAttestor, address indexed newAttestor);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the attestor address used for verifying attestation signatures.
+    /// @notice Retrieves the attestor address used for creating attestation signatures.
     function attestor() external view returns (address);
 
     /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claims to prevent replay

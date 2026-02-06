@@ -22,11 +22,23 @@ contract ClaimViaAttestation_MerkleInstant_Integration_Test is
         ClaimViaAttestation_Integration_Test.setUp();
     }
 
-    function test_WhenAttestationValid() external override givenAttestorSet givenAttestorIsEOA {
+    function test_WhenAttestationValid()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsEOA
+    {
         _test_ClaimViaAttestation();
     }
 
-    function test_WhenAttestorImplementsIERC1271Interface() external override givenAttestorSet givenAttestorIsContract {
+    function test_WhenAttestorImplementsIERC1271Interface()
+        external
+        override
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsContract
+    {
         // Deploy an ERC1271 wallet with the EOA attestor as the admin.
         address smartAttestor = address(new ERC1271WalletMock(attestor));
 
@@ -43,9 +55,9 @@ contract ClaimViaAttestation_MerkleInstant_Integration_Test is
         uint256 index = getIndexInMerkleTree();
 
         vm.expectEmit({ emitter: address(merkleInstant) });
-        emit ISablierMerkleInstant.ClaimInstant(index, users.recipient, CLAIM_AMOUNT, users.recipient, false);
+        emit ISablierMerkleInstant.ClaimInstant(index, users.recipient, CLAIM_AMOUNT, users.eve, false);
 
-        expectCallToTransfer({ to: users.recipient, value: CLAIM_AMOUNT });
+        expectCallToTransfer({ to: users.eve, value: CLAIM_AMOUNT });
         claimViaAttestation();
 
         assertTrue(merkleInstant.hasClaimed(index), "not claimed");

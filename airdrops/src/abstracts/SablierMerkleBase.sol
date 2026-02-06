@@ -74,15 +74,9 @@ abstract contract SablierMerkleBase is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor(
-        MerkleBase.ConstructorParams memory baseParams,
-        address campaignCreator,
-        address comptroller
-    )
-        Adminable(baseParams.initialAdmin)
-    {
+    constructor(MerkleBase.ConstructorParams memory baseParams) Adminable(baseParams.initialAdmin) {
         CAMPAIGN_START_TIME = baseParams.campaignStartTime;
-        COMPTROLLER = comptroller;
+        COMPTROLLER = baseParams.comptroller;
         EXPIRATION = baseParams.expiration;
         MERKLE_ROOT = baseParams.merkleRoot;
         TOKEN = baseParams.token;
@@ -90,7 +84,7 @@ abstract contract SablierMerkleBase is
         campaignName = baseParams.campaignName;
         ipfsCID = baseParams.ipfsCID;
         minFeeUSD = ISablierComptroller(COMPTROLLER)
-            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: campaignCreator });
+            .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: baseParams.campaignCreator });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

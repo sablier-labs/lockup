@@ -8,14 +8,13 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierMerkleSignature } from "./../interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "./../libraries/Errors.sol";
 import { SignatureHash } from "./../libraries/SignatureHash.sol";
-import { MerkleBase } from "./../types/DataTypes.sol";
 import { SablierMerkleBase } from "./SablierMerkleBase.sol";
 
 /// @title SablierMerkleSignature
-/// @notice Abstract contract providing EIP-712 signature verification for Merkle campaigns.
+/// @notice See the documentation in {ISablierMerkleSignature}.
 abstract contract SablierMerkleSignature is
-    ISablierMerkleSignature, // 1 inherited component
-    SablierMerkleBase // 2 inherited components
+    ISablierMerkleSignature, // 2 inherited components
+    SablierMerkleBase // 3 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
                                   STATE VARIABLES
@@ -38,13 +37,7 @@ abstract contract SablierMerkleSignature is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Constructs the contract by initializing the immutable state variables.
-    constructor(
-        MerkleBase.ConstructorParams memory baseParams,
-        address campaignCreator,
-        address comptroller
-    )
-        SablierMerkleBase(baseParams, campaignCreator, comptroller)
-    {
+    constructor() {
         // Cache the chain ID.
         _CACHED_CHAIN_ID = block.chainid;
 
@@ -74,12 +67,12 @@ abstract contract SablierMerkleSignature is
 
     /// @inheritdoc ISablierMerkleSignature
     function setAttestor(address newAttestor) external override {
-        // Check: the caller is the comptroller or the admin.
+        // Check: the caller is the comptroller or the campaign admin.
         if (msg.sender != admin && msg.sender != COMPTROLLER) {
             revert Errors.SablierMerkleSignature_CallerNotAuthorized({
-                comptroller: COMPTROLLER,
-                admin: admin,
-                caller: msg.sender
+                caller: msg.sender,
+                campaignAdmin: admin,
+                comptroller: COMPTROLLER
             });
         }
 
@@ -97,8 +90,9 @@ abstract contract SablierMerkleSignature is
                             INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Verifies the attestation signature against the recipient. It supports both EIP-712 and EIP-1271 signatures.
-    function _checkAttestation(address recipient, bytes calldata attestation) internal view {
+    /// @dev Verifies that the attestation signature created for the recipient is signed by the attestor. It supports
+    /// both EIP-712 and EIP-1271 signatures.
+    function _verifyAttestationSignature(address recipient, bytes calldata signature) internal view {
         // Get the attestor address.
         address attestor_ = _getAttestor();
 
@@ -107,15 +101,16 @@ abstract contract SablierMerkleSignature is
             revert Errors.SablierMerkleSignature_AttestorNotSet();
         }
 
-        // Create Identity struct hash.
+        // Create the struct hash for the identity.
         bytes32 identityHash = keccak256(abi.encode(SignatureHash.IDENTITY_TYPEHASH, recipient));
 
-        // Verify signature matches attestor.
-        _verifySignature({ signer: attestor_, structHash: identityHash, signature: attestation });
+        // Verify that the signature is signed by the attestor.
+        _verifySignature({ signer: attestor_, structHash: identityHash, signature: signature });
     }
 
-    /// @dev Verifies the signature against the provided parameters. It supports both EIP-712 and EIP-1271 signatures.
-    function _checkSignature(
+    /// @dev Verifies that the claim signature is signed by the recipient. It supports both EIP-712 and EIP-1271
+    /// signatures.
+    function _verifyClaimSignature(
         uint256 index,
         address recipient,
         address to,
@@ -129,7 +124,7 @@ abstract contract SablierMerkleSignature is
         // Encode the parameters using claim type hash and hash it.
         bytes32 claimHash = keccak256(abi.encode(SignatureHash.CLAIM_TYPEHASH, index, recipient, to, amount, validFrom));
 
-        // Verify signature matches recipient.
+        // Verify that the signature is signed by the recipient.
         _verifySignature({ signer: recipient, structHash: claimHash, signature: signature });
 
         // Check: the `validFrom` is less than or equal to the current block timestamp.
@@ -142,36 +137,6 @@ abstract contract SablierMerkleSignature is
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Returns the attestor address.
-    function _getAttestor() private view returns (address) {
-        // If the attestor is stored in the contract, return it.
-        if (_attestor != address(0)) {
-            return _attestor;
-        }
-
-        // Otherwise, return it from the comptroller.
-        return ISablierComptroller(COMPTROLLER).attestor();
-    }
-
-    /// @dev Verifies an EIP-712 or EIP-1271 signature against a signer and struct hash.
-    /// @param signer The expected signer address.
-    /// @param structHash The hash of the typed data struct.
-    /// @param signature The signature to verify.
-    function _verifySignature(address signer, bytes32 structHash, bytes calldata signature) private view {
-        // Create EIP-712 digest.
-        bytes32 digest =
-            MessageHashUtils.toTypedDataHash({ domainSeparator: _domainSeparator(), structHash: structHash });
-
-        // Supports both EOA signatures (ECDSA recovery) and smart contract signatures (EIP-1271).
-        bool isSignatureValid =
-            SignatureChecker.isValidSignatureNow({ signer: signer, hash: digest, signature: signature });
-
-        // Check: `isSignatureValid` is true.
-        if (!isSignatureValid) {
-            revert Errors.SablierMerkleSignature_InvalidSignature();
-        }
-    }
-
     /// @dev Returns the domain separator for the current chain.
     function _domainSeparator() private view returns (bytes32) {
         // If the current chain ID is the same as the cached chain ID, return the cached domain separator.
@@ -183,6 +148,36 @@ abstract contract SablierMerkleSignature is
             return keccak256(
                 abi.encode(SignatureHash.DOMAIN_TYPEHASH, SignatureHash.PROTOCOL_NAME, block.chainid, address(this))
             );
+        }
+    }
+
+    /// @dev Returns the attestor address.
+    function _getAttestor() private view returns (address) {
+        // If the attestor is stored in the contract, return it.
+        if (_attestor != address(0)) {
+            return _attestor;
+        }
+
+        // Otherwise, return it from the comptroller.
+        return ISablierComptroller(COMPTROLLER).attestor();
+    }
+
+    /// @dev Verifies that the EIP-712 or EIP-1271 signature is signed by the expected signer.
+    function _verifySignature(address signer, bytes32 structHash, bytes calldata signature) private view {
+        // Create keccak256 digest of the claim parameters using claim hash and the domain separator.
+        bytes32 digest =
+            MessageHashUtils.toTypedDataHash({ domainSeparator: _domainSeparator(), structHash: structHash });
+
+        // If recipient is an EOA, `isValidSignatureNow` recovers the signer using ECDSA from the signature and the
+        // digest. It returns true if the recovered signer matches the recipient. If the recipient is a contract,
+        // `isValidSignatureNow` checks if the recipient implements the `IERC1271` interface and returns the magic value
+        // as per EIP-1271 for the given digest and signature.
+        bool isSignatureValid =
+            SignatureChecker.isValidSignatureNow({ signer: signer, hash: digest, signature: signature });
+
+        // Check: `isSignatureValid` is true.
+        if (!isSignatureValid) {
+            revert Errors.SablierMerkleSignature_InvalidSignature();
         }
     }
 }

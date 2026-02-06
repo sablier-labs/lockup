@@ -6,7 +6,9 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ud60x18, UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Lockup, LockupLinear } from "@sablier/lockup/src/types/DataTypes.sol";
 
+import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
+import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
 import { MerkleBase, MerkleLL, MerkleLockup } from "./types/DataTypes.sol";
 
@@ -31,7 +33,8 @@ import { MerkleBase, MerkleLL, MerkleLockup } from "./types/DataTypes.sol";
 /// @title SablierMerkleLL
 /// @notice See the documentation in {ISablierMerkleLL}.
 contract SablierMerkleLL is
-    ISablierMerkleLL, // 3 inherited components
+    ISablierMerkleLL, // 4 inherited components
+    SablierMerkleSignature, // 5 inherited components
     SablierMerkleLockup // 5 inherited components
 {
     using SafeERC20 for IERC20;
@@ -69,25 +72,24 @@ contract SablierMerkleLL is
         address campaignCreator,
         address comptroller
     )
-        SablierMerkleLockup(
-            MerkleBase.ConstructorParams({
+        SablierMerkleBase(MerkleBase.ConstructorParams({
+                campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,
                 ipfsCID: campaignParams.ipfsCID,
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
-            }),
-            MerkleLockup.ConstructorParams({
+            }))
+        SablierMerkleLockup(MerkleLockup.ConstructorParams({
                 cancelable: campaignParams.cancelable,
                 lockup: campaignParams.lockup,
                 shape: campaignParams.shape,
                 transferable: campaignParams.transferable
-            }),
-            campaignCreator,
-            comptroller
-        )
+            }))
+        SablierMerkleSignature()
     {
         // Effect: set the immutable variables.
         VESTING_CLIFF_DURATION = campaignParams.cliffDuration;
@@ -142,6 +144,7 @@ contract SablierMerkleLL is
     /// @inheritdoc ISablierMerkleLL
     function claimViaAttestation(
         uint256 index,
+        address to,
         uint128 amount,
         bytes32[] calldata merkleProof,
         bytes calldata attestation
@@ -149,15 +152,16 @@ contract SablierMerkleLL is
         external
         payable
         override
+        notZeroAddress(to)
     {
-        // Check: verify attestation signature matches attestor from storage.
-        _checkAttestation(msg.sender, attestation);
+        // Check: the attestation signature is valid and the recovered signer matches the attestor.
+        _verifyAttestationSignature(msg.sender, attestation);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
         _preProcessClaim({ index: index, recipient: msg.sender, amount: amount, merkleProof: merkleProof });
 
         // Effect and Interaction: Post-process the claim parameters on behalf of `msg.sender`.
-        _postProcessClaim({ index: index, recipient: msg.sender, to: msg.sender, amount: amount, viaSig: false });
+        _postProcessClaim({ index: index, recipient: msg.sender, to: to, amount: amount, viaSig: false });
     }
 
     /// @inheritdoc ISablierMerkleLL
@@ -176,7 +180,7 @@ contract SablierMerkleLL is
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.
-        _checkSignature(index, recipient, to, amount, validFrom, signature);
+        _verifyClaimSignature(index, recipient, to, amount, validFrom, signature);
 
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);

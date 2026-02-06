@@ -28,7 +28,7 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier givenAttestorSet() {
+    modifier givenAttestorNotZero() {
         _;
     }
 

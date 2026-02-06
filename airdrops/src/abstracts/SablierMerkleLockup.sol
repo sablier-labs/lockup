@@ -6,14 +6,14 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleLockup } from "../interfaces/ISablierMerkleLockup.sol";
-import { MerkleBase, MerkleLockup } from "../types/DataTypes.sol";
-import { SablierMerkleSignature } from "./SablierMerkleSignature.sol";
+import { MerkleLockup } from "../types/DataTypes.sol";
+import { SablierMerkleBase } from "./SablierMerkleBase.sol";
 
 /// @title SablierMerkleLockup
 /// @notice See the documentation in {ISablierMerkleLockup}.
 abstract contract SablierMerkleLockup is
-    ISablierMerkleLockup, // 3 inherited components
-    SablierMerkleSignature // 3 inherited components
+    ISablierMerkleLockup, // 2 inherited components
+    SablierMerkleBase // 3 inherited components
 {
     using SafeERC20 for IERC20;
 
@@ -41,14 +41,7 @@ abstract contract SablierMerkleLockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Constructs the contract by initializing the immutable state vars, and max approving the Lockup contract.
-    constructor(
-        MerkleBase.ConstructorParams memory baseParams,
-        MerkleLockup.ConstructorParams memory lockupParams,
-        address campaignCreator,
-        address comptroller
-    )
-        SablierMerkleSignature(baseParams, campaignCreator, comptroller)
-    {
+    constructor(MerkleLockup.ConstructorParams memory lockupParams) {
         SABLIER_LOCKUP = lockupParams.lockup;
         STREAM_CANCELABLE = lockupParams.cancelable;
         STREAM_TRANSFERABLE = lockupParams.transferable;
