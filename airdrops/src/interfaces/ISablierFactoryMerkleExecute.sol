@@ -59,8 +59,7 @@ interface ISablierFactoryMerkleExecute is ISablierFactoryMerkleBase {
     /// - `campaignParams.token` must not be the forbidden native token.
     /// - `campaignParams.target` must be a contract.
     ///
-    /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters, which are documented in
-    /// {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleExecute The address of the newly created MerkleExecute campaign.

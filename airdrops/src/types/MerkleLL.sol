@@ -16,7 +16,7 @@ library MerkleLL {
     /// @param claimType The type of claim functions supported by the campaign.
     /// @param cliffDuration The cliff duration of the vesting stream, in seconds.
     /// @param cliffUnlockPercentage The percentage of the claim amount due to be unlocked at the vesting cliff time, as
-    /// a fixed-point number where 1e18 is 100%
+    /// a fixed-point number where 1e18 is 100%.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param granularity The smallest step in time between two consecutive token unlocks. Zero is a sentinel

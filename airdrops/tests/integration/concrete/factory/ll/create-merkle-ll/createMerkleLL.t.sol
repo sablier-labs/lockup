@@ -70,7 +70,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
 
         address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
-        // It should emit a {CreateMerkleInstant} event.
+        // It should emit a {CreateMerkleLL} event.
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),

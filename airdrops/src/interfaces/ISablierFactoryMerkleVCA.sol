@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleVCA } from "./../types/MerkleVCA.sol";
+import { MerkleVCA } from "../types/MerkleVCA.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleVCA } from "./ISablierMerkleVCA.sol";
 
@@ -60,8 +60,8 @@ interface ISablierFactoryMerkleVCA is ISablierFactoryMerkleBase {
     /// time to claim.
     /// - `campaignParams.unlockPercentage` must not be greater than 1e18, equivalent to 100%.
     ///
-    /// @param campaignParams Struct encapsulating the {SablierMerkleVCA} parameters, which are documented in
-    /// {DataTypes}. @param recipientCount The total number of recipient addresses eligible for the airdrop.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleVCA} parameters.
+    /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleVCA The address of the newly created MerkleVCA campaign.
     function createMerkleVCA(
         MerkleVCA.ConstructorParams memory campaignParams,
