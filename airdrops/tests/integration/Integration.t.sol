@@ -8,7 +8,12 @@ import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol"
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { ClaimType, MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleExecute } from "src/types/MerkleExecute.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
+import { MerkleLL } from "src/types/MerkleLL.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Base_Test } from "../Base.t.sol";
 

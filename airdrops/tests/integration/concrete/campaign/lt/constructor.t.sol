@@ -2,7 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
-import { ClaimType, MerkleLT } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 

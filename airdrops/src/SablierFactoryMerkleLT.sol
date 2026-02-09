@@ -9,7 +9,7 @@ import { ISablierFactoryMerkleLT } from "./interfaces/ISablierFactoryMerkleLT.so
 import { ISablierMerkleLT } from "./interfaces/ISablierMerkleLT.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { SablierMerkleLT } from "./SablierMerkleLT.sol";
-import { MerkleLT } from "./types/DataTypes.sol";
+import { MerkleLT } from "./types/MerkleLT.sol";
 
 /*
 

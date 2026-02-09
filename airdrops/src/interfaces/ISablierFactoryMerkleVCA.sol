@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleVCA } from "./../types/DataTypes.sol";
+import { MerkleVCA } from "./../types/MerkleVCA.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleVCA } from "./ISablierMerkleVCA.sol";
 

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
-import { MerkleExecute } from "src/types/DataTypes.sol";
+import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
 import { MockStakingReentrant, MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
 import { Integration_Test } from "./../../../../Integration.t.sol";

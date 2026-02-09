@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Fork_Test } from "./../Fork.t.sol";
 import { MerkleBase_Fork_Test } from "./MerkleBase.t.sol";

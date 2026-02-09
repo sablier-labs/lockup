@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";

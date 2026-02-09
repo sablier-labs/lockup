@@ -10,7 +10,8 @@ import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { ClaimType, MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./types/MerkleBase.sol";
+import { MerkleVCA } from "./types/MerkleVCA.sol";
 
 /*
 

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";

@@ -7,7 +7,8 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
-import { ClaimType, MerkleBase, MerkleInstant } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./types/MerkleBase.sol";
+import { MerkleInstant } from "./types/MerkleInstant.sol";
 
 /*
 

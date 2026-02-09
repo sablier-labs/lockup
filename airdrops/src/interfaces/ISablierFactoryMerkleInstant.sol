@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleInstant } from "./../types/DataTypes.sol";
+import { MerkleInstant } from "./../types/MerkleInstant.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleInstant } from "./ISablierMerkleInstant.sol";
 

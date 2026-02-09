@@ -2,7 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
-import { ClaimType, MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 

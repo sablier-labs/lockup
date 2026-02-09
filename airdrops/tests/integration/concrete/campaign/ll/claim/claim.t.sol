@@ -3,12 +3,15 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ud, ZERO } from "@prb/math/src/UD60x18.sol";
 import { Errors as LockupErrors } from "@sablier/lockup/src/libraries/Errors.sol";
-import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
+import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
+
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType, MerkleLL } from "src/types/DataTypes.sol";
-import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
-import { MerkleLL_Integration_Shared_Test, Integration_Test } from "./../MerkleLL.t.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleLL } from "src/types/MerkleLL.sol";
+
+import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { MerkleLL_Integration_Shared_Test, Integration_Test } from "../MerkleLL.t.sol";
 
 contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
     function setUp() public virtual override(MerkleLL_Integration_Shared_Test, Integration_Test) {

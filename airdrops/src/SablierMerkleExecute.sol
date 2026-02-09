@@ -7,7 +7,8 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
-import { ClaimType, MerkleBase, MerkleExecute } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./types/MerkleBase.sol";
+import { MerkleExecute } from "./types/MerkleExecute.sol";
 
 /*
 

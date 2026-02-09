@@ -3,7 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType, MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";

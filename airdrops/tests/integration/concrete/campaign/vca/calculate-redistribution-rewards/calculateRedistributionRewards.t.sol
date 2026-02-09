@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { MerkleVCA_Integration_Shared_Test } from "../MerkleVCA.t.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleLL } from "./../types/DataTypes.sol";
+import { MerkleLL } from "./../types/MerkleLL.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleLL } from "./ISablierMerkleLL.sol";
 

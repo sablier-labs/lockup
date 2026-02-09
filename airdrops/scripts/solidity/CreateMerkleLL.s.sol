@@ -8,7 +8,8 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 
 import { ISablierMerkleLL } from "../../src/interfaces/ISablierMerkleLL.sol";
 import { SablierFactoryMerkleLL } from "../../src/SablierFactoryMerkleLL.sol";
-import { ClaimType, MerkleLL } from "../../src/types/DataTypes.sol";
+import { ClaimType } from "../../src/types/MerkleBase.sol";
+import { MerkleLL } from "../../src/types/MerkleLL.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Linear.
 contract CreateMerkleLL is EvmUtilsBaseScript {

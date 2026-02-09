@@ -5,7 +5,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Params } from "../../utils/Types.sol";

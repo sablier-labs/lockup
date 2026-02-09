@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
+import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
+
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType, MerkleLT } from "src/types/DataTypes.sol";
-import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
-import { MerkleLT_Integration_Shared_Test, Integration_Test } from "./../MerkleLT.t.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
+
+import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
+import { MerkleLT_Integration_Shared_Test, Integration_Test } from "../MerkleLT.t.sol";
 
 contract Claim_MerkleLT_Integration_Test is Claim_Integration_Test, MerkleLT_Integration_Shared_Test {
     function setUp() public virtual override(MerkleLT_Integration_Shared_Test, Integration_Test) {
