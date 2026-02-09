@@ -3,8 +3,8 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
