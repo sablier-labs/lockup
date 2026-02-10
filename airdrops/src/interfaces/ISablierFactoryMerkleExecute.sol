@@ -58,7 +58,6 @@ interface ISablierFactoryMerkleExecute is ISablierFactoryMerkleBase {
     /// Requirements:
     /// - `campaignParams.token` must not be the forbidden native token.
     /// - `campaignParams.target` must be a contract.
-    /// - `campaignParams.selector` must be a function implemented by the target contract.
     ///
     /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters, which are documented in
     /// {DataTypes}.
