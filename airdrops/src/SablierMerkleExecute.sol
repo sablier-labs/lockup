@@ -88,7 +88,6 @@ contract SablierMerkleExecute is
         external
         payable
         override
-        revertIfNot(ClaimType.EXECUTE)
         nonReentrant
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
