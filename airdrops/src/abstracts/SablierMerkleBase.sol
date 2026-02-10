@@ -67,7 +67,9 @@ abstract contract SablierMerkleBase is
 
     /// @dev Modifier to check that `to` is not zero address.
     modifier notZeroAddress(address to) {
-        _revertIfToZeroAddress(to);
+        if (to == address(0)) {
+            revert Errors.SablierMerkleBase_ToZeroAddress();
+        }
         _;
     }
 
@@ -175,13 +177,6 @@ abstract contract SablierMerkleBase is
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() private view returns (bool) {
         return firstClaimTime > 0 && block.timestamp > firstClaimTime + 7 days;
-    }
-
-    /// @dev This function checks if `to` is zero address.
-    function _revertIfToZeroAddress(address to) private pure {
-        if (to == address(0)) {
-            revert Errors.SablierMerkleBase_ToZeroAddress();
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
