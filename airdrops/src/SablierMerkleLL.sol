@@ -76,6 +76,7 @@ contract SablierMerkleLL is
                 campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                claimType: campaignParams.claimType,
                 comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,

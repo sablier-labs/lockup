@@ -83,6 +83,9 @@ library Errors {
     /// @notice Thrown when trying to claim the same index more than once.
     error SablierMerkleBase_IndexClaimed(uint256 index);
 
+    /// @notice Thrown when trying to call a claim function not supported in the campaign.
+    error SablierMerkleBase_InvalidClaimType(ClaimType claimTypeCalled, ClaimType claimTypeSupported);
+
     /// @notice Thrown when trying to claim without paying the min fee.
     error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
@@ -104,9 +107,6 @@ library Errors {
 
     /// @notice Thrown when caller is not the comptroller or campaign admin.
     error SablierMerkleSignature_CallerNotAuthorized(address caller, address campaignAdmin, address comptroller);
-
-    /// @notice Thrown when trying to call a claim function not supported in the campaign.
-    error SablierMerkleSignature_InvalidClaimType(ClaimType claimTypeCalled, ClaimType claimTypeSupported);
 
     /// @notice Thrown when claiming with an invalid EIP-712 or EIP-1271 signature.
     error SablierMerkleSignature_InvalidSignature();

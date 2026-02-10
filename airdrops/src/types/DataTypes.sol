@@ -8,11 +8,13 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 /// @notice Enum representing the type of claim functions available for a Merkle campaign.
-/// @custom:value DEFAULT Activates `claim`, `claimTo`, and `claimViaSig` functions.
-/// @custom:value ATTEST Activates only the `claimViaAttestation` function.
+/// @custom:value0 DEFAULT Activates `claim`, `claimTo`, and `claimViaSig` functions.
+/// @custom:value1 ATTEST Activates only the `claimViaAttestation` function.
+/// @custom:value2 EXECUTE Activates only the `claimAndExecute` function.
 enum ClaimType {
     DEFAULT,
-    ATTEST
+    ATTEST,
+    EXECUTE
 }
 
 library MerkleBase {
@@ -21,6 +23,7 @@ library MerkleBase {
     /// @param campaignCreator The address of campaign creator which should be the same as the `msg.sender`.
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
+    /// @param claimType The type of claim functions to be enabled in the campaign.
     /// @param comptroller The address of the comptroller contract.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
@@ -33,6 +36,7 @@ library MerkleBase {
         address campaignCreator;
         string campaignName;
         uint40 campaignStartTime;
+        ClaimType claimType;
         address comptroller;
         uint40 expiration;
         address initialAdmin;

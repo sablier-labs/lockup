@@ -6,7 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
 import { ISablierMerkleLockup } from "../interfaces/ISablierMerkleLockup.sol";
-import { ClaimType, MerkleLockup } from "../types/DataTypes.sol";
+import { MerkleLockup } from "../types/DataTypes.sol";
 import { SablierMerkleBase } from "./SablierMerkleBase.sol";
 
 /// @title SablierMerkleLockup

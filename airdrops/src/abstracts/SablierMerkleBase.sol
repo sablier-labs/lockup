@@ -10,7 +10,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
-import { MerkleBase } from "./../types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./../types/DataTypes.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.
@@ -47,6 +47,9 @@ abstract contract SablierMerkleBase is
     string public override campaignName;
 
     /// @inheritdoc ISablierMerkleBase
+    ClaimType public override claimType;
+
+    /// @inheritdoc ISablierMerkleBase
     uint40 public override firstClaimTime;
 
     /// @inheritdoc ISablierMerkleBase
@@ -68,6 +71,17 @@ abstract contract SablierMerkleBase is
         _;
     }
 
+    /// @dev Modifier to revert if `claimType_` value does not match the campaign's claim type.
+    modifier revertIfNot(ClaimType claimType_) {
+        if (claimType != claimType_) {
+            revert Errors.SablierMerkleBase_InvalidClaimType({
+                claimTypeCalled: claimType_,
+                claimTypeSupported: claimType
+            });
+        }
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -81,6 +95,7 @@ abstract contract SablierMerkleBase is
         TOKEN = baseParams.token;
 
         campaignName = baseParams.campaignName;
+        claimType = baseParams.claimType;
         ipfsCID = baseParams.ipfsCID;
         minFeeUSD = ISablierComptroller(baseParams.comptroller)
             .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: baseParams.campaignCreator });
