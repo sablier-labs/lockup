@@ -77,7 +77,6 @@ contract SablierMerkleLT is
                 shape: campaignParams.shape,
                 transferable: campaignParams.transferable
             }))
-        SablierMerkleSignature()
     {
         VESTING_START_TIME = campaignParams.vestingStartTime;
 

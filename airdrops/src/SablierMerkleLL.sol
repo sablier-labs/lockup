@@ -89,7 +89,6 @@ contract SablierMerkleLL is
                 shape: campaignParams.shape,
                 transferable: campaignParams.transferable
             }))
-        SablierMerkleSignature()
     {
         // Effect: set the immutable variables.
         VESTING_CLIFF_DURATION = campaignParams.cliffDuration;

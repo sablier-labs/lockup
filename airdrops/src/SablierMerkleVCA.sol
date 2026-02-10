@@ -85,7 +85,6 @@ contract SablierMerkleVCA is
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
             }))
-        SablierMerkleSignature()
     {
         // Effect: set the immutable variables.
         AGGREGATE_AMOUNT = campaignParams.aggregateAmount;

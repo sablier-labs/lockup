@@ -56,7 +56,6 @@ contract SablierMerkleInstant is
                 merkleRoot: campaignParams.merkleRoot,
                 token: campaignParams.token
             }))
-        SablierMerkleSignature()
     { }
 
     /*//////////////////////////////////////////////////////////////////////////
