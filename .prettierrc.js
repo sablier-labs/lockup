@@ -6,7 +6,7 @@ function resolveDevkit() {
   try {
     return require("@sablier/devkit/.prettierrc.json");
   } catch {
-    for (const pkg of ["airdrops", "flow", "lockup", "utils"]) {
+    for (const pkg of ["airdrops", "bob", "flow", "lockup", "utils"]) {
       try {
         return require(`./${pkg}/node_modules/@sablier/devkit/.prettierrc.json`);
       } catch {}
