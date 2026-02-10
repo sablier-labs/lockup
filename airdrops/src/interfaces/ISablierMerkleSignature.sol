@@ -34,7 +34,7 @@ interface ISablierMerkleSignature is ISablierMerkleBase {
     /// @dev Emits a {SetAttestor} event.
     ///
     /// Requirements:
-    /// - `msg.sender` must either be the comptroller or the campaign admin.
+    /// - `msg.sender` must be either the comptroller or the campaign admin.
     ///
     /// @param newAttestor The new attestor address. If zero, the attestor from the comptroller will be used.
     function setAttestor(address newAttestor) external;
