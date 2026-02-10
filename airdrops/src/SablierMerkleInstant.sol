@@ -72,7 +72,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
-        checkClaimType(ClaimType.DEFAULT)
+        revertIfNot(ClaimType.DEFAULT)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);
@@ -91,7 +91,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
-        checkClaimType(ClaimType.DEFAULT)
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -112,7 +112,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
-        checkClaimType(ClaimType.ATTEST)
+        revertIfNot(ClaimType.ATTEST)
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.
@@ -138,7 +138,7 @@ contract SablierMerkleInstant is
         external
         payable
         override
-        checkClaimType(ClaimType.DEFAULT)
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

@@ -154,7 +154,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
-        checkClaimType(ClaimType.DEFAULT)
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -200,7 +200,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
-        checkClaimType(ClaimType.DEFAULT)
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

@@ -40,9 +40,14 @@ abstract contract SablierMerkleSignature is
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Modifier to check that the provided claim type matches the campaign's claim type.
-    modifier checkClaimType(ClaimType claimType_) {
-        _checkClaimType(claimType_);
+    /// @dev Modifier to revert if `claimType_` value does not match the campaign's claim type.
+    modifier revertIfNot(ClaimType claimType_) {
+        if (claimType != claimType_) {
+            revert Errors.SablierMerkleSignature_InvalidClaimType({
+                claimTypeCalled: claimType_,
+                claimTypeSupported: claimType
+            });
+        }
         _;
     }
 
@@ -153,16 +158,6 @@ abstract contract SablierMerkleSignature is
     /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks that the provided claim type matches the campaign's claim type.
-    function _checkClaimType(ClaimType claimType_) private view {
-        if (claimType != claimType_) {
-            revert Errors.SablierMerkleSignature_InvalidClaimType({
-                claimTypeCalled: claimType_,
-                claimTypeSupported: claimType
-            });
-        }
-    }
 
     /// @dev Returns the domain separator for the current chain.
     function _domainSeparator() private view returns (bytes32) {
