@@ -19,6 +19,11 @@ struct EIP712Domain {
     address verifyingContract;
 }
 
+/// @dev Struct to hold the Identity message parameters during ERC-712 attestation tests.
+struct Identity {
+    address recipient;
+}
+
 /// @dev Struct to hold the common parameters needed for fuzz tests.
 struct Params {
     uint128 clawbackAmount;

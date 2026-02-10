@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { ISablierMerkleBase } from "./ISablierMerkleBase.sol";
+import { ISablierMerkleSignature } from "./ISablierMerkleSignature.sol";
 
 /// @title ISablierMerkleInstant
 /// @notice MerkleInstant enables an airdrop model where eligible users receive the tokens as soon as they claim.
-interface ISablierMerkleInstant is ISablierMerkleBase {
+interface ISablierMerkleInstant is ISablierMerkleSignature {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -48,6 +48,37 @@ interface ISablierMerkleInstant is ISablierMerkleBase {
     /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
     /// @param merkleProof The proof of inclusion in the Merkle tree.
     function claimTo(uint256 index, address to, uint128 amount, bytes32[] calldata merkleProof) external payable;
+
+    /// @notice Claim airdrop using an external attestation from a trusted attestor (e.g., KYC verifier).
+    ///
+    /// @dev It emits a {ClaimInstant} event.
+    ///
+    /// Notes:
+    /// - The attestation must be an EIP-712 signature from the attestor.
+    /// - See the example in the {claimViaSig} function.
+    /// - If the attestor is not set in the campaign, the attestor from the comptroller is used.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the airdrop recipient.
+    /// - The `to` must not be the zero address.
+    /// - The attestor must not be the zero address.
+    /// - The attestation signature must be valid.
+    /// - Refer to the requirements in {claim}.
+    ///
+    /// @param index The index of the `msg.sender` in the Merkle tree.
+    /// @param to The address receiving the ERC-20 tokens on behalf of `msg.sender`.
+    /// @param amount The amount of ERC-20 tokens allocated to the `msg.sender`.
+    /// @param merkleProof The proof of inclusion in the Merkle tree.
+    /// @param attestation The EIP-712 signature from the attestor.
+    function claimViaAttestation(
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] calldata merkleProof,
+        bytes calldata attestation
+    )
+        external
+        payable;
 
     /// @notice Claim airdrop on behalf of eligible recipient using an EIP-712 or EIP-1271 signature, and transfer the
     /// tokens to the `to` address.

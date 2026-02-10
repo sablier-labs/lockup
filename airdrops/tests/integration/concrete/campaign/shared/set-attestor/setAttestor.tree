@@ -1,0 +1,10 @@
+SetAttestor_Integration_Test
+├── when caller not campaign creator
+│  ├── when caller not comptroller
+│  │  └── it should revert
+│  └── when caller comptroller
+│     ├── it should set the attestor
+│     └── it should emit a {SetAttestor} event
+└── when caller campaign creator
+   ├── it should set the attestor
+   └── it should emit a {SetAttestor} event

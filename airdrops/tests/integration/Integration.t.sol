@@ -109,6 +109,35 @@ abstract contract Integration_Test is Base_Test {
         }
     }
 
+    /// @dev Claim using default values for {claimViaAttestation} function.
+    function claimViaAttestation() internal {
+        claimViaAttestation({
+            msgValue: AIRDROP_MIN_FEE_WEI,
+            index: getIndexInMerkleTree(),
+            to: users.eve,
+            amount: CLAIM_AMOUNT,
+            merkleProof: getMerkleProof(),
+            attestation: generateAttestation()
+        });
+    }
+
+    function claimViaAttestation(
+        uint256 msgValue,
+        uint256 index,
+        address to,
+        uint128 amount,
+        bytes32[] memory merkleProof,
+        bytes memory attestation
+    )
+        internal
+        virtual
+    {
+        address campaignAddr = address(merkleBase);
+        ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
+            index, to, amount, merkleProof, attestation
+        );
+    }
+
     /// @dev Claim using default values for {claimViaSig} function.
     function claimViaSig() internal {
         claimViaSig(users.recipient, CLAIM_AMOUNT);
@@ -146,6 +175,15 @@ abstract contract Integration_Test is Base_Test {
         ISablierMerkleInstant(campaignAddr).claimViaSig{ value: msgValue }(
             index, recipient, to, amount, validFrom, merkleProof, signature
         );
+    }
+
+    /// @dev Generate the EIP-712 attestation signature with default parameters.
+    function generateAttestation() internal view returns (bytes memory) {
+        return generateAttestationSignature({
+            signerPrivateKey: attestorPrivateKey,
+            merkleContract: address(merkleBase),
+            recipient: users.recipient
+        });
     }
 
     /// @dev Generate the EIP-712 signature to claim with default parameters.

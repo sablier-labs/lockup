@@ -50,10 +50,6 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice Retrieves the name of the campaign.
     function campaignName() external view returns (string memory);
 
-    /// @notice The domain separator, as required by EIP-712 and EIP-1271, used for signing claim to prevent replay
-    /// attacks across different campaigns.
-    function domainSeparator() external view returns (bytes32);
-
     /// @notice Retrieves the timestamp when the first claim is made, and zero if no claim was made yet.
     function firstClaimTime() external view returns (uint40);
 
