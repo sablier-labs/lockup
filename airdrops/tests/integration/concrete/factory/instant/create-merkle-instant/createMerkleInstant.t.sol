@@ -63,7 +63,7 @@ contract CreateMerkleInstant_Integration_Test is Integration_Test {
             address(actualInstant), expectedMerkleInstant, "MerkleInstant contract does not match computed address"
         );
 
-        // It should set the current factory address.
+        // It should set the min fee.
         assertEq(actualInstant.minFeeUSD(), customFeeUSD, "min fee USD");
     }
 

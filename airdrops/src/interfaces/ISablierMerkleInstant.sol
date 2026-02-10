@@ -11,11 +11,6 @@ interface ISablierMerkleInstant is ISablierMerkleBase {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when an airdrop is claimed on behalf of an eligible recipient.
-    /// @param index The index of the airdrop recipient in the Merkle tree.
-    /// @param recipient The address of the airdrop recipient.
-    /// @param amount The amount of ERC-20 tokens claimed.
-    /// @param to The address receiving the claim amount on behalf of the airdrop recipient.
-    /// @param viaSig Bool indicating whether the claim is made via a signature.
     event ClaimInstant(uint256 index, address indexed recipient, uint128 amount, address to, bool viaSig);
 
     /*//////////////////////////////////////////////////////////////////////////

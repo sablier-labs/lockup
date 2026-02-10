@@ -13,24 +13,29 @@ import { LockupNFTDescriptor } from "@sablier/lockup/src/LockupNFTDescriptor.sol
 import { SablierLockup } from "@sablier/lockup/src/SablierLockup.sol";
 import { LockupTranched } from "@sablier/lockup/src/types/DataTypes.sol";
 import { ISablierFactoryMerkleBase } from "src/interfaces/ISablierFactoryMerkleBase.sol";
+import { ISablierFactoryMerkleExecute } from "src/interfaces/ISablierFactoryMerkleExecute.sol";
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
+import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { SablierFactoryMerkleExecute } from "src/SablierFactoryMerkleExecute.sol";
 import { SablierFactoryMerkleInstant } from "src/SablierFactoryMerkleInstant.sol";
 import { SablierFactoryMerkleLL } from "src/SablierFactoryMerkleLL.sol";
 import { SablierFactoryMerkleLT } from "src/SablierFactoryMerkleLT.sol";
 import { SablierFactoryMerkleVCA } from "src/SablierFactoryMerkleVCA.sol";
+import { SablierMerkleExecute } from "src/SablierMerkleExecute.sol";
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
 import { SablierMerkleLL } from "src/SablierMerkleLL.sol";
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
-import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { MockStaking } from "./mocks/MockStaking.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
@@ -54,14 +59,17 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierLockup internal lockup;
+    MockStaking internal mockStaking;
     /// @dev A test contract meant to be overridden by the implementing Merkle contracts.
     ISablierMerkleBase internal merkleBase;
     /// @dev A test contract meant to be overridden by the implementing FactoryMerkle contracts.
     ISablierFactoryMerkleBase internal factoryMerkleBase;
+    ISablierFactoryMerkleExecute internal factoryMerkleExecute;
     ISablierFactoryMerkleInstant internal factoryMerkleInstant;
     ISablierFactoryMerkleLL internal factoryMerkleLL;
     ISablierFactoryMerkleLT internal factoryMerkleLT;
     ISablierFactoryMerkleVCA internal factoryMerkleVCA;
+    ISablierMerkleExecute internal merkleExecute;
     ISablierMerkleInstant internal merkleInstant;
     ISablierMerkleLL internal merkleLL;
     ISablierMerkleLT internal merkleLT;
@@ -77,6 +85,10 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
         // Deploy the Lockup contract.
         address nftDescriptor = address(new LockupNFTDescriptor());
         lockup = new SablierLockup(address(comptroller), nftDescriptor);
+
+        // Deploy the mock staking contract.
+        mockStaking = new MockStaking(dai);
+        vm.label({ account: address(mockStaking), newLabel: "MockStaking" });
 
         // Deploy the factories.
         deployFactoriesConditionally();
@@ -103,11 +115,12 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
 
     /// @dev Create users for testing and assign roles if applicable.
     function createTestUsers() internal {
-        address[] memory spenders = new address[](4);
-        spenders[0] = address(factoryMerkleInstant);
-        spenders[1] = address(factoryMerkleLL);
-        spenders[2] = address(factoryMerkleLT);
-        spenders[3] = address(factoryMerkleVCA);
+        address[] memory spenders = new address[](5);
+        spenders[0] = address(factoryMerkleExecute);
+        spenders[1] = address(factoryMerkleInstant);
+        spenders[2] = address(factoryMerkleLL);
+        spenders[3] = address(factoryMerkleLT);
+        spenders[4] = address(factoryMerkleVCA);
 
         // Create recipient and store private key since it is used to claim using signature.
         (users.recipient, recipientPrivateKey) = createUserAndKey("Recipient", spenders);
@@ -132,15 +145,16 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
     /// @dev Deploys the factories conditionally based on the test profile.
     function deployFactoriesConditionally() internal {
         if (!isTestOptimizedProfile()) {
+            factoryMerkleExecute = new SablierFactoryMerkleExecute(address(comptroller));
             factoryMerkleInstant = new SablierFactoryMerkleInstant(address(comptroller));
-            factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
             factoryMerkleLL = new SablierFactoryMerkleLL(address(comptroller));
             factoryMerkleLT = new SablierFactoryMerkleLT(address(comptroller));
             factoryMerkleVCA = new SablierFactoryMerkleVCA(address(comptroller));
         } else {
-            (factoryMerkleInstant, factoryMerkleLL, factoryMerkleLT, factoryMerkleVCA) =
+            (factoryMerkleExecute, factoryMerkleInstant, factoryMerkleLL, factoryMerkleLT, factoryMerkleVCA) =
                 deployOptimizedFactories(address(comptroller));
         }
+        vm.label({ account: address(factoryMerkleExecute), newLabel: "FactoryMerkleExecute" });
         vm.label({ account: address(factoryMerkleInstant), newLabel: "FactoryMerkleInstant" });
         vm.label({ account: address(factoryMerkleLL), newLabel: "FactoryMerkleLL" });
         vm.label({ account: address(factoryMerkleLT), newLabel: "FactoryMerkleLT" });
@@ -285,6 +299,112 @@ abstract contract Base_Test is Assertions, Modifiers, DeployOptimized, Fuzzers, 
                 ISablierMerkleInstant.claim, (getIndexInMerkleTree(), users.recipient, CLAIM_AMOUNT, getMerkleProof())
             )
         );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  MERKLE-EXECUTE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function computeMerkleExecuteAddress() internal view returns (address) {
+        return computeMerkleExecuteAddress(
+            merkleExecuteConstructorParams({
+                campaignCreator: users.campaignCreator,
+                campaignStartTime: CAMPAIGN_START_TIME,
+                expiration: EXPIRATION,
+                merkleRoot: MERKLE_ROOT,
+                tokenAddress: dai,
+                targetAddress: address(mockStaking),
+                selector: MockStaking.stake.selector
+            }),
+            users.campaignCreator
+        );
+    }
+
+    function computeMerkleExecuteAddress(
+        MerkleExecute.ConstructorParams memory params,
+        address campaignCreator
+    )
+        internal
+        view
+        returns (address)
+    {
+        bytes32 salt = keccak256(abi.encodePacked(campaignCreator, comptroller, abi.encode(params)));
+        bytes32 creationBytecodeHash;
+
+        if (!isTestOptimizedProfile()) {
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    type(SablierMerkleExecute).creationCode, abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
+        } else {
+            creationBytecodeHash = keccak256(
+                bytes.concat(
+                    vm.getCode("out-optimized/SablierMerkleExecute.sol/SablierMerkleExecute.json"),
+                    abi.encode(params, campaignCreator, address(comptroller))
+                )
+            );
+        }
+
+        return vm.computeCreate2Address({
+            salt: salt,
+            initCodeHash: creationBytecodeHash,
+            deployer: address(factoryMerkleExecute)
+        });
+    }
+
+    function merkleExecuteConstructorParams() public view returns (MerkleExecute.ConstructorParams memory) {
+        return merkleExecuteConstructorParams({
+            campaignCreator: users.campaignCreator,
+            campaignStartTime: CAMPAIGN_START_TIME,
+            expiration: EXPIRATION,
+            merkleRoot: MERKLE_ROOT,
+            tokenAddress: dai,
+            targetAddress: address(mockStaking),
+            selector: MockStaking.stake.selector
+        });
+    }
+
+    function merkleExecuteConstructorParams(uint40 expiration)
+        public
+        view
+        returns (MerkleExecute.ConstructorParams memory)
+    {
+        return merkleExecuteConstructorParams({
+            campaignCreator: users.campaignCreator,
+            campaignStartTime: CAMPAIGN_START_TIME,
+            expiration: expiration,
+            merkleRoot: MERKLE_ROOT,
+            tokenAddress: dai,
+            targetAddress: address(mockStaking),
+            selector: MockStaking.stake.selector
+        });
+    }
+
+    function merkleExecuteConstructorParams(
+        address campaignCreator,
+        uint40 campaignStartTime,
+        uint40 expiration,
+        bytes32 merkleRoot,
+        IERC20 tokenAddress,
+        address targetAddress,
+        bytes4 selector
+    )
+        public
+        view
+        returns (MerkleExecute.ConstructorParams memory)
+    {
+        return MerkleExecute.ConstructorParams({
+            campaignName: CAMPAIGN_NAME,
+            campaignStartTime: campaignStartTime,
+            expiration: expiration,
+            initialAdmin: campaignCreator,
+            ipfsCID: IPFS_CID,
+            merkleRoot: merkleRoot,
+            selector: selector,
+            target: targetAddress,
+            token: tokenAddress
+        });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

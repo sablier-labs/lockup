@@ -80,6 +80,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenTargetTransferAmountNotOverdraw() {
+        _;
+    }
+
     modifier whenCallerComptroller() {
         setMsgSender(address(comptroller));
         _;
@@ -156,6 +160,14 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenSignerSameAsRecipient() {
+        _;
+    }
+
+    modifier whenTargetCallSucceeds() {
+        _;
+    }
+
+    modifier whenTargetContract() {
         _;
     }
 

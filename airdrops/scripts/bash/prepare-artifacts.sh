@@ -20,10 +20,12 @@ mkdir $artifacts \
   "$artifacts/interfaces" \
   "$artifacts/libraries"
 
+cp out-optimized/SablierFactoryMerkleExecute.sol/SablierFactoryMerkleExecute.json $artifacts
 cp out-optimized/SablierFactoryMerkleInstant.sol/SablierFactoryMerkleInstant.json $artifacts
 cp out-optimized/SablierFactoryMerkleLL.sol/SablierFactoryMerkleLL.json $artifacts
 cp out-optimized/SablierFactoryMerkleLT.sol/SablierFactoryMerkleLT.json $artifacts
 cp out-optimized/SablierFactoryMerkleVCA.sol/SablierFactoryMerkleVCA.json $artifacts
+cp out-optimized/SablierMerkleExecute.sol/SablierMerkleExecute.json $artifacts
 cp out-optimized/SablierMerkleInstant.sol/SablierMerkleInstant.json $artifacts
 cp out-optimized/SablierMerkleLL.sol/SablierMerkleLL.json $artifacts
 cp out-optimized/SablierMerkleLT.sol/SablierMerkleLT.json $artifacts
@@ -31,10 +33,12 @@ cp out-optimized/SablierMerkleVCA.sol/SablierMerkleVCA.json $artifacts
 cp out-optimized/SignatureHash.sol/SignatureHash.json $artifacts
 
 interfaces=./artifacts/interfaces
+cp out-optimized/ISablierFactoryMerkleExecute.sol/ISablierFactoryMerkleExecute.json $interfaces
 cp out-optimized/ISablierFactoryMerkleInstant.sol/ISablierFactoryMerkleInstant.json $interfaces
 cp out-optimized/ISablierFactoryMerkleLL.sol/ISablierFactoryMerkleLL.json $interfaces
 cp out-optimized/ISablierFactoryMerkleLT.sol/ISablierFactoryMerkleLT.json $interfaces
 cp out-optimized/ISablierFactoryMerkleVCA.sol/ISablierFactoryMerkleVCA.json $interfaces
+cp out-optimized/ISablierMerkleExecute.sol/ISablierMerkleExecute.json $interfaces
 cp out-optimized/ISablierMerkleInstant.sol/ISablierMerkleInstant.json $interfaces
 cp out-optimized/ISablierMerkleLL.sol/ISablierMerkleLL.json $interfaces
 cp out-optimized/ISablierMerkleLT.sol/ISablierMerkleLT.json $interfaces

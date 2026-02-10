@@ -1,0 +1,20 @@
+CreateMerkleExecute_Integration_Test
+├── when native token found
+│  └── it should revert
+└── when native token not found
+   ├── when target not contract
+   │  └── it should revert
+   └── when target contract
+      ├── given campaign already exists
+      │  └── it should revert
+      └── given campaign not exists
+         ├── given custom fee USD set
+         │  ├── it should create the campaign with custom fee USD
+         │  ├── it should set the target address
+         │  ├── it should set the selector
+         │  └── it should emit a {CreateMerkleExecute} event
+         └── given custom fee USD not set
+            ├── it should create the campaign with min fee USD
+            ├── it should set the target address
+            ├── it should set the selector
+            └── it should emit a {CreateMerkleExecute} event

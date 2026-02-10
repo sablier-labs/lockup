@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+
+import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
-import { MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleExecute, MerkleInstant, MerkleLL, MerkleLT, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
@@ -14,7 +17,7 @@ abstract contract Integration_Test is Base_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Type of the campaign, e.g., "instant", "ll", "lt", or "vca".
+    /// @dev Type of the campaign, e.g., "execute", "instant", "ll", "lt", or "vca".
     string internal campaignType;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -28,6 +31,7 @@ abstract contract Integration_Test is Base_Test {
         setMsgSender(users.campaignCreator);
 
         // Create the default Merkle contracts and fund them.
+        merkleExecute = createMerkleExecute();
         merkleInstant = createMerkleInstant();
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
@@ -59,10 +63,17 @@ abstract contract Integration_Test is Base_Test {
         internal
         virtual
     {
-        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
-        // claim function signature.
-        address campaignAddr = address(merkleBase);
-        ISablierMerkleInstant(campaignAddr).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+        // If the campaign type is "execute", call {claimAndExecute} function.
+        if (Strings.equal(campaignType, "execute")) {
+            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
+                index, amount, merkleProof, abi.encode(amount)
+            );
+        }
+        // Otherwise, call the `claim` function using the `ISablierMerkleInstant` interface which is compatible with all
+        // other Merkle contracts.
+        else {
+            ISablierMerkleInstant(address(merkleBase)).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+        }
     }
 
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
@@ -85,10 +96,17 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        // Using `ISablierMerkleInstant` interface over `merkleBase` works for all Merkle contracts due to similarity in
-        // claimTo function signature.
-        address campaignAddr = address(merkleBase);
-        ISablierMerkleInstant(campaignAddr).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+        // If the campaign type is "execute", call {claimAndExecute} function.
+        if (Strings.equal(campaignType, "execute")) {
+            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
+                index, amount, merkleProof, abi.encode(amount)
+            );
+        }
+        // Otherwise, call the `claimTo` function using the `ISablierMerkleInstant` interface which is compatible with
+        // all other Merkle contracts.
+        else {
+            ISablierMerkleInstant(address(merkleBase)).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+        }
     }
 
     /// @dev Claim using default values for {claimViaSig} function.
@@ -141,6 +159,24 @@ abstract contract Integration_Test is Base_Test {
             amount: CLAIM_AMOUNT,
             validFrom: VALID_FROM
         });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MERKLE-EXECUTE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function createMerkleExecute() internal returns (ISablierMerkleExecute) {
+        return createMerkleExecute(merkleExecuteConstructorParams());
+    }
+
+    function createMerkleExecute(MerkleExecute.ConstructorParams memory params)
+        internal
+        returns (ISablierMerkleExecute campaignAddress)
+    {
+        campaignAddress = factoryMerkleExecute.createMerkleExecute(params, AGGREGATE_AMOUNT, RECIPIENT_COUNT);
+
+        // Fund the campaign.
+        fundCampaignWithDai(address(campaignAddress));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
