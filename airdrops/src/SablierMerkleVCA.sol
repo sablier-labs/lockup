@@ -176,6 +176,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        revertIfNot(ClaimType.ATTEST)
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.

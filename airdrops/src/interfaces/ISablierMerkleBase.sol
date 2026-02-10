@@ -28,7 +28,8 @@ interface ISablierMerkleBase is IAdminable {
     function CAMPAIGN_START_TIME() external view returns (uint40);
 
     /// @notice Retrieves the claim type available in the campaign.
-    function claimType() external view returns (ClaimType);
+    /// @dev This is an immutable state variable.
+    function CLAIM_TYPE() external view returns (ClaimType);
 
     /// @notice Retrieves the address of the comptroller contract.
     function COMPTROLLER() external view returns (address);

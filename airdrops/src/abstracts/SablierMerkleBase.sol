@@ -29,6 +29,9 @@ abstract contract SablierMerkleBase is
     uint40 public immutable override CAMPAIGN_START_TIME;
 
     /// @inheritdoc ISablierMerkleBase
+    ClaimType public immutable override CLAIM_TYPE;
+
+    /// @inheritdoc ISablierMerkleBase
     address public immutable override COMPTROLLER;
 
     /// @inheritdoc ISablierMerkleBase
@@ -45,9 +48,6 @@ abstract contract SablierMerkleBase is
 
     /// @inheritdoc ISablierMerkleBase
     string public override campaignName;
-
-    /// @inheritdoc ISablierMerkleBase
-    ClaimType public override claimType;
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public override firstClaimTime;
@@ -75,10 +75,10 @@ abstract contract SablierMerkleBase is
 
     /// @dev Modifier to revert if `claimType_` value does not match the campaign's claim type.
     modifier revertIfNot(ClaimType claimType_) {
-        if (claimType != claimType_) {
+        if (CLAIM_TYPE != claimType_) {
             revert Errors.SablierMerkleBase_InvalidClaimType({
                 claimTypeCalled: claimType_,
-                claimTypeSupported: claimType
+                claimTypeSupported: CLAIM_TYPE
             });
         }
         _;
@@ -91,13 +91,13 @@ abstract contract SablierMerkleBase is
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(MerkleBase.ConstructorParams memory baseParams) Adminable(baseParams.initialAdmin) {
         CAMPAIGN_START_TIME = baseParams.campaignStartTime;
+        CLAIM_TYPE = baseParams.claimType;
         COMPTROLLER = baseParams.comptroller;
         EXPIRATION = baseParams.expiration;
         MERKLE_ROOT = baseParams.merkleRoot;
         TOKEN = baseParams.token;
 
         campaignName = baseParams.campaignName;
-        claimType = baseParams.claimType;
         ipfsCID = baseParams.ipfsCID;
         minFeeUSD = ISablierComptroller(baseParams.comptroller)
             .getMinFeeUSDFor({ protocol: ISablierComptroller.Protocol.Airdrops, user: baseParams.campaignCreator });

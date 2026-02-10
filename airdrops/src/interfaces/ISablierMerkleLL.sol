@@ -62,7 +62,7 @@ interface ISablierMerkleLL is ISablierMerkleSignature, ISablierMerkleLockup {
     /// @dev It emits either {ClaimLLWithTransfer} or {ClaimLLWithVesting} event.
     ///
     /// Requirements:
-    /// - `claimType` must be `DEFAULT`.
+    /// - `CLAIM_TYPE` must be `DEFAULT`.
     /// - The current time must be greater than or equal to the campaign start time.
     /// - The campaign must not have expired.
     /// - `msg.value` must not be less than the value returned by {COMPTROLLER.calculateMinFeeWei}.
@@ -82,7 +82,7 @@ interface ISablierMerkleLL is ISablierMerkleSignature, ISablierMerkleLockup {
     /// @dev It emits either {ClaimLLWithTransfer} or {ClaimLLWithVesting} event.
     ///
     /// Requirements:
-    /// - `claimType` must be `DEFAULT`.
+    /// - `CLAIM_TYPE` must be `DEFAULT`.
     /// - `msg.sender` must be the airdrop recipient.
     /// - The `to` must not be the zero address.
     /// - Refer to the requirements in {claim}.
@@ -106,7 +106,7 @@ interface ISablierMerkleLL is ISablierMerkleSignature, ISablierMerkleLockup {
     ///
     /// Requirements:
     /// - `msg.sender` must be the airdrop recipient.
-    /// - `claimType` must be `ATTEST`.
+    /// - `CLAIM_TYPE` must be `ATTEST`.
     /// - The `to` must not be the zero address.
     /// - The attestor must not be the zero address.
     /// - The attestation signature must be valid.
@@ -134,7 +134,7 @@ interface ISablierMerkleLL is ISablierMerkleSignature, ISablierMerkleLockup {
     /// @dev It emits either {ClaimLLWithTransfer} or {ClaimLLWithVesting} event.
     ///
     /// Requirements:
-    /// - `claimType` must be `DEFAULT`.
+    /// - `CLAIM_TYPE` must be `DEFAULT`.
     /// - If `recipient` is an EOA, it must match the recovered signer.
     /// - If `recipient` is a contract, it must implement the IERC-1271 interface.
     /// - The `to` must not be the zero address.
