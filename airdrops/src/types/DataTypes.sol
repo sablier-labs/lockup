@@ -20,7 +20,7 @@ library MerkleExecute {
     /// @param merkleRoot The Merkle root of the claim data.
     /// @param selector The function selector to call on the target contract users claim tokens.
     /// @param target The address of the target contract (staking contract, lending pool) to which the function
-    /// selector will be called when users claim tokens..
+    /// selector will be called when users claim tokens.
     /// @param token The contract address of the ERC-20 token to be distributed.
     struct ConstructorParams {
         string campaignName;
