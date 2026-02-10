@@ -163,6 +163,10 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenTargetCallSucceeds() {
+        _;
+    }
+
     modifier whenTargetContract() {
         _;
     }

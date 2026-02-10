@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { MerkleExecute } from "src/types/DataTypes.sol";
 
-import { MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
+import { MockStakingReentrant, MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
 import { Integration_Test } from "./../../../../Integration.t.sol";
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
@@ -74,7 +75,45 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         );
     }
 
-    function test_WhenTargetCallSucceeds()
+    function test_RevertWhen_Reentrancy()
+        external
+        givenCampaignStartTimeNotInFuture
+        givenCampaignNotExpired
+        givenMsgValueNotLessThanFee
+        givenRecipientNotClaimed
+        whenIndexValid
+        whenAmountValid
+        whenMerkleProofValid
+        whenTargetTransferAmountNotOverdraw
+        whenTargetCallSucceeds
+    {
+        MockStakingReentrant mockStakingReentrant = new MockStakingReentrant(dai);
+
+        // Create a campaign with the reentrant target.
+        MerkleExecute.ConstructorParams memory params = merkleExecuteConstructorParams();
+        params.target = address(mockStakingReentrant);
+        params.selector = MockStakingReentrant.stake.selector;
+        params.campaignName = "Reentrant campaign";
+
+        setMsgSender(users.campaignCreator);
+        ISablierMerkleExecute reentrantCampaign = createMerkleExecute(params);
+
+        setMsgSender(users.recipient);
+
+        uint256 index = getIndexInMerkleTree();
+        bytes32[] memory merkleProof = getMerkleProof();
+
+        // Encode the arguments that the reentrant mock will forward back to `claimAndExecute`.
+        bytes memory selectorArguments = abi.encode(index, CLAIM_AMOUNT, merkleProof, abi.encode(CLAIM_AMOUNT));
+
+        // It should revert due to reentrancy guard.
+        vm.expectRevert(ReentrancyGuard.ReentrancyGuardReentrantCall.selector);
+        reentrantCampaign.claimAndExecute{ value: AIRDROP_MIN_FEE_WEI }(
+            index, CLAIM_AMOUNT, merkleProof, selectorArguments
+        );
+    }
+
+    function test_WhenNoReentrancy()
         external
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
@@ -85,6 +124,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         whenAmountValid
         whenMerkleProofValid
         whenTargetTransferAmountNotOverdraw
+        whenTargetCallSucceeds
     {
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();

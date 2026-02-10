@@ -63,8 +63,17 @@ abstract contract Integration_Test is Base_Test {
         internal
         virtual
     {
-        if (claimIfMerkleExecute(msgValue, index, amount, merkleProof)) return;
-        ISablierMerkleInstant(address(merkleBase)).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+        // If the campaign type is "execute", call {claimAndExecute} function.
+        if (Strings.equal(campaignType, "execute")) {
+            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
+                index, amount, merkleProof, abi.encode(amount)
+            );
+        }
+        // Otherwise, call the `claim` function using the `ISablierMerkleInstant` interface which is compatible with all
+        // other Merkle contracts.
+        else {
+            ISablierMerkleInstant(address(merkleBase)).claim{ value: msgValue }(index, recipient, amount, merkleProof);
+        }
     }
 
     /// @dev Claim to Eve address on behalf of `users.recipient` using {claimTo} function.
@@ -87,8 +96,17 @@ abstract contract Integration_Test is Base_Test {
     )
         internal
     {
-        if (claimIfMerkleExecute(msgValue, index, amount, merkleProof)) return;
-        ISablierMerkleInstant(address(merkleBase)).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+        // If the campaign type is "execute", call {claimAndExecute} function.
+        if (Strings.equal(campaignType, "execute")) {
+            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
+                index, amount, merkleProof, abi.encode(amount)
+            );
+        }
+        // Otherwise, call the `claimTo` function using the `ISablierMerkleInstant` interface which is compatible with
+        // all other Merkle contracts.
+        else {
+            ISablierMerkleInstant(address(merkleBase)).claimTo{ value: msgValue }(index, to, amount, merkleProof);
+        }
     }
 
     /// @dev Claim using default values for {claimViaSig} function.
@@ -146,34 +164,6 @@ abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     MERKLE-EXECUTE
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper to call claimAndExecute for MerkleExecute campaigns.
-    function claimIfMerkleExecute() internal returns (bool) {
-        return claimIfMerkleExecute({
-            msgValue: AIRDROP_MIN_FEE_WEI,
-            index: getIndexInMerkleTree(),
-            amount: CLAIM_AMOUNT,
-            merkleProof: getMerkleProof()
-        });
-    }
-
-    function claimIfMerkleExecute(
-        uint256 msgValue,
-        uint256 index,
-        uint128 amount,
-        bytes32[] memory merkleProof
-    )
-        internal
-        returns (bool)
-    {
-        if (Strings.equal(campaignType, "execute")) {
-            ISablierMerkleExecute(address(merkleBase)).claimAndExecute{ value: msgValue }(
-                index, amount, merkleProof, abi.encode(amount)
-            );
-            return true;
-        }
-        return false;
-    }
 
     function createMerkleExecute() internal returns (ISablierMerkleExecute) {
         return createMerkleExecute(merkleExecuteConstructorParams());

@@ -6,8 +6,11 @@ ClaimAndExecute_MerkleExecute_Integration_Test
       ├── when target call not succeed
       │  └── it should revert
       └── when target call succeeds
-         ├── it should mark the index as claimed
-         ├── it should transfer the ETH to the comptroller
-         ├── it should transfer the tokens to the target
-         ├── it should execute the target call
-         └── it should emit a {ClaimExecute} event
+         ├── when reentrancy
+         │  └── it should revert
+         └── when no reentrancy
+            ├── it should mark the index as claimed
+            ├── it should transfer the ETH to the comptroller
+            ├── it should transfer the tokens to the target
+            ├── it should execute the target call
+            └── it should emit a {ClaimExecute} event
