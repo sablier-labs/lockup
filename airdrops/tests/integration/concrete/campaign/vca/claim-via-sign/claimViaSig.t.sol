@@ -17,7 +17,7 @@ contract ClaimViaSig_MerkleVCA_Integration_Test is ClaimViaSig_Integration_Test,
         merkleBase = merkleVCAAttest;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_InvalidClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
             )
         );
         claimViaSig();

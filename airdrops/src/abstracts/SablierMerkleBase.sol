@@ -73,11 +73,11 @@ abstract contract SablierMerkleBase is
         _;
     }
 
-    /// @dev Modifier to revert if `claimType_` value does not match the campaign's claim type.
-    modifier revertIfNot(ClaimType claimType_) {
-        if (CLAIM_TYPE != claimType_) {
-            revert Errors.SablierMerkleBase_InvalidClaimType({
-                claimTypeCalled: claimType_,
+    /// @dev Modifier to revert if `claimType` value does not match the campaign's claim type.
+    modifier revertIfNot(ClaimType claimType) {
+        if (CLAIM_TYPE != claimType) {
+            revert Errors.SablierMerkleBase_UnsupportedClaimType({
+                claimTypeRequired: claimType,
                 claimTypeSupported: CLAIM_TYPE
             });
         }

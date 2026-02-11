@@ -43,7 +43,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         merkleBase = merkleVCAAttest;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_InvalidClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
             )
         );
         claimTo();

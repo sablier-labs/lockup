@@ -83,9 +83,6 @@ library Errors {
     /// @notice Thrown when trying to claim the same index more than once.
     error SablierMerkleBase_IndexClaimed(uint256 index);
 
-    /// @notice Thrown when trying to call a claim function not supported in the campaign.
-    error SablierMerkleBase_InvalidClaimType(ClaimType claimTypeCalled, ClaimType claimTypeSupported);
-
     /// @notice Thrown when trying to claim without paying the min fee.
     error SablierMerkleBase_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
@@ -97,6 +94,9 @@ library Errors {
 
     /// @notice Thrown when trying to claim to the zero address.
     error SablierMerkleBase_ToZeroAddress();
+
+    /// @notice Thrown when trying to call a claim function not supported in the campaign.
+    error SablierMerkleBase_UnsupportedClaimType(ClaimType claimTypeRequired, ClaimType claimTypeSupported);
 
     /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-MERKLE-SIGNATURE

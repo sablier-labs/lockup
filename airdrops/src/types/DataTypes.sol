@@ -7,10 +7,10 @@ import { UD2x18 } from "@prb/math/src/UD2x18.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.sol";
 
-/// @notice Enum representing the type of claim functions available for a Merkle campaign.
+/// @notice Enum representing the type of claim functions supported by a Merkle campaign.
 /// @custom:value0 DEFAULT Activates `claim`, `claimTo`, and `claimViaSig` functions.
-/// @custom:value1 ATTEST Activates only the `claimViaAttestation` function.
-/// @custom:value2 EXECUTE Activates only the `claimAndExecute` function.
+/// @custom:value1 ATTEST Activates `claimViaAttestation` function only.
+/// @custom:value2 EXECUTE Activates `claimAndExecute` function only.
 enum ClaimType {
     DEFAULT,
     ATTEST,
@@ -79,7 +79,7 @@ library MerkleInstant {
     /// @dev The fields are arranged alphabetically.
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
-    /// @param claimType The type of claim functions to be enabled in the campaign.
+    /// @param claimType The type of claim functions supported by the campaign.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
@@ -105,7 +105,7 @@ library MerkleLL {
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
     /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
-    /// @param claimType The type of claim functions to be enabled in the campaign.
+    /// @param claimType The type of claim functions supported by the campaign.
     /// @param cliffDuration The cliff duration of the vesting stream, in seconds.
     /// @param cliffUnlockPercentage The percentage of the claim amount due to be unlocked at the vesting cliff time, as
     /// a fixed-point number where 1e18 is 100%
@@ -169,7 +169,7 @@ library MerkleLT {
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
     /// @param cancelable Indicates if the Lockup stream will be cancelable after claiming.
-    /// @param claimType The type of claim functions to be enabled in the campaign.
+    /// @param claimType The type of claim functions supported by the campaign.
     /// @param expiration The expiration of the campaign, as a Unix timestamp. A value of zero means the campaign does
     /// not expire.
     /// @param initialAdmin The initial admin of the campaign.
@@ -223,7 +223,7 @@ library MerkleVCA {
     /// the value to the actual total allocations.
     /// @param campaignName The name of the campaign.
     /// @param campaignStartTime The start time of the campaign, as a Unix timestamp.
-    /// @param claimType The type of claim functions to be enabled in the campaign.
+    /// @param claimType The type of claim functions supported by the campaign.
     /// @param enableRedistribution Enable redistribution of forgone tokens at deployment.
     /// @param expiration The expiration of the campaign, as a Unix timestamp.
     /// @param initialAdmin The initial admin of the campaign.

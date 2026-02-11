@@ -25,7 +25,7 @@ contract ClaimViaAttestation_MerkleLL_Integration_Test is
         merkleBase = merkleLL;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierMerkleBase_InvalidClaimType.selector, ClaimType.ATTEST, ClaimType.DEFAULT
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.ATTEST, ClaimType.DEFAULT
             )
         );
         claimViaAttestation();
