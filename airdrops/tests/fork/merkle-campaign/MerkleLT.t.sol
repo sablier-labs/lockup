@@ -2,11 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
+import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
 
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Fork_Test } from "./../Fork.t.sol";
 import { MerkleBase_Fork_Test } from "./MerkleBase.t.sol";

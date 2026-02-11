@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
-import { MerkleInstant } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Store } from "../stores/Store.sol";
 import { BaseHandler } from "./BaseHandler.sol";

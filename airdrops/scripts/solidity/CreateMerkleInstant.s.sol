@@ -6,7 +6,8 @@ import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/B
 
 import { ISablierMerkleInstant } from "../../src/interfaces/ISablierMerkleInstant.sol";
 import { SablierFactoryMerkleInstant } from "../../src/SablierFactoryMerkleInstant.sol";
-import { ClaimType, MerkleInstant } from "../../src/types/DataTypes.sol";
+import { ClaimType } from "../../src/types/MerkleBase.sol";
+import { MerkleInstant } from "../../src/types/MerkleInstant.sol";
 
 /// @dev Creates a dummy MerkleInstant campaign.
 contract CreateMerkleInstant is EvmUtilsBaseScript {

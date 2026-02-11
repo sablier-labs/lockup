@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 import { ISablierFactoryMerkleExecute } from "src/interfaces/ISablierFactoryMerkleExecute.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
-import { MerkleExecute } from "src/types/DataTypes.sol";
+import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Params } from "../../utils/Types.sol";

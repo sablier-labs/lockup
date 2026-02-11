@@ -6,7 +6,7 @@ import { BaseScript as EvmUtilsBaseScript } from "@sablier/evm-utils/src/tests/B
 
 import { ISablierMerkleExecute } from "../../src/interfaces/ISablierMerkleExecute.sol";
 import { SablierFactoryMerkleExecute } from "../../src/SablierFactoryMerkleExecute.sol";
-import { MerkleExecute } from "../../src/types/DataTypes.sol";
+import { MerkleExecute } from "../../src/types/MerkleExecute.sol";
 
 /// @dev Creates a dummy MerkleExecute campaign.
 contract CreateMerkleExecute is EvmUtilsBaseScript {

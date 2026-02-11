@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { ClaimType } from "../types/DataTypes.sol";
+import { ClaimType } from "../types/MerkleBase.sol";
 
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleExecute } from "src/SablierMerkleExecute.sol";
-import { ClaimType } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { MockStaking } from "../../../../mocks/MockStaking.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";

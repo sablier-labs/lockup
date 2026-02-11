@@ -8,7 +8,7 @@ import { ISablierFactoryMerkleExecute } from "./interfaces/ISablierFactoryMerkle
 import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { SablierMerkleExecute } from "./SablierMerkleExecute.sol";
-import { MerkleExecute } from "./types/DataTypes.sol";
+import { MerkleExecute } from "./types/MerkleExecute.sol";
 
 /*
 

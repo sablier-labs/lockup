@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

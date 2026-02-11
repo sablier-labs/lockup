@@ -8,7 +8,8 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 import { ISablierMerkleLT } from "../../src/interfaces/ISablierMerkleLT.sol";
 import { SablierFactoryMerkleLT } from "../../src/SablierFactoryMerkleLT.sol";
 
-import { ClaimType, MerkleLT } from "../../src/types/DataTypes.sol";
+import { ClaimType } from "../../src/types/MerkleBase.sol";
+import { MerkleLT } from "../../src/types/MerkleLT.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Tranched.
 contract CreateMerkleLT is EvmUtilsBaseScript {

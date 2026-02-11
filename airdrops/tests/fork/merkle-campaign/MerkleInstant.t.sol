@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
-import { MerkleInstant } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
 import { Fork_Test } from "./../Fork.t.sol";
 import { MerkleBase_Fork_Test } from "./MerkleBase.t.sol";
 

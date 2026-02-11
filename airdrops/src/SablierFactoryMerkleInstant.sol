@@ -6,7 +6,7 @@ import { SablierFactoryMerkleBase } from "./abstracts/SablierFactoryMerkleBase.s
 import { ISablierFactoryMerkleInstant } from "./interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "./interfaces/ISablierMerkleInstant.sol";
 import { SablierMerkleInstant } from "./SablierMerkleInstant.sol";
-import { MerkleInstant } from "./types/DataTypes.sol";
+import { MerkleInstant } from "./types/MerkleInstant.sol";
 
 /*
 

@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 
 import { Assertions as LockupAssertions } from "@sablier/lockup/tests/utils/Assertions.sol";
 
-import { MerkleLT } from "../../src/types/DataTypes.sol";
+import { MerkleLT } from "../../src/types/MerkleLT.sol";
 
 abstract contract Assertions is LockupAssertions {
     event log_named_array(string key, MerkleLT.TrancheWithPercentage[] tranchesWithPercentages);

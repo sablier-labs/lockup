@@ -7,7 +7,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleLT } from "src/interfaces/ISablierFactoryMerkleLT.sol";
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

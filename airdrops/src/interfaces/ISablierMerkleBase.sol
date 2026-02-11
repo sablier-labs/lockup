@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
-import { ClaimType } from "../types/DataTypes.sol";
+import { ClaimType } from "../types/MerkleBase.sol";
 
 /// @title ISablierMerkleBase
 /// @dev Common interface between campaign contracts.

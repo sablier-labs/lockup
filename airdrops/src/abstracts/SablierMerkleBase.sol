@@ -10,7 +10,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
-import { ClaimType, MerkleBase } from "./../types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "../types/MerkleBase.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.

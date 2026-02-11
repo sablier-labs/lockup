@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleInstant } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

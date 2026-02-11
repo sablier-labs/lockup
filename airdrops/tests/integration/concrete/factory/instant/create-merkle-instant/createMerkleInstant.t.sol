@@ -5,7 +5,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleInstant } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

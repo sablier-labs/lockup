@@ -5,7 +5,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleLL } from "src/interfaces/ISablierFactoryMerkleLL.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleLL } from "src/types/DataTypes.sol";
+import { MerkleLL } from "src/types/MerkleLL.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -70,7 +70,7 @@ contract CreateMerkleLL_Integration_Test is Integration_Test {
 
         address expectedLL = computeMerkleLLAddress(params, users.campaignCreator);
 
-        // It should emit a {CreateMerkleInstant} event.
+        // It should emit a {CreateMerkleLL} event.
         vm.expectEmit({ emitter: address(factoryMerkleLL) });
         emit ISablierFactoryMerkleLL.CreateMerkleLL({
             merkleLL: ISablierMerkleLL(expectedLL),

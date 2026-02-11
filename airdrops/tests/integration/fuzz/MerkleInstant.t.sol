@@ -5,7 +5,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleInstant } from "src/interfaces/ISablierFactoryMerkleInstant.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 
-import { MerkleInstant } from "src/types/DataTypes.sol";
+import { MerkleInstant } from "src/types/MerkleInstant.sol";
 
 import { LeafData } from "../../utils/MerkleBuilder.sol";
 import { Params } from "../../utils/Types.sol";

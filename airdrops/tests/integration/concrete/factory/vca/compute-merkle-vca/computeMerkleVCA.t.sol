@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { UNIT } from "@prb/math/src/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

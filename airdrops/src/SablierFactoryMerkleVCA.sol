@@ -9,7 +9,7 @@ import { ISablierFactoryMerkleVCA } from "./interfaces/ISablierFactoryMerkleVCA.
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { SablierMerkleVCA } from "./SablierMerkleVCA.sol";
-import { MerkleVCA } from "./types/DataTypes.sol";
+import { MerkleVCA } from "./types/MerkleVCA.sol";
 
 /*
 

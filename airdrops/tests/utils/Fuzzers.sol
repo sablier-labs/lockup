@@ -5,7 +5,7 @@ import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 import { BaseUtils } from "@sablier/evm-utils/src/tests/BaseUtils.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { MerkleLT } from "src/types/MerkleLT.sol";
 
 import { LeafData, MerkleBuilder } from "./MerkleBuilder.sol";
 

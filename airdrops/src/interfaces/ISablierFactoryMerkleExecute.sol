@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleExecute } from "./../types/DataTypes.sol";
+import { MerkleExecute } from "../types/MerkleExecute.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleExecute } from "./ISablierMerkleExecute.sol";
 
@@ -59,8 +59,7 @@ interface ISablierFactoryMerkleExecute is ISablierFactoryMerkleBase {
     /// - `campaignParams.token` must not be the forbidden native token.
     /// - `campaignParams.target` must be a contract.
     ///
-    /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters, which are documented in
-    /// {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleExecute} parameters.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleExecute The address of the newly created MerkleExecute campaign.

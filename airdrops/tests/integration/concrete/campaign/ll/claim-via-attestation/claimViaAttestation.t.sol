@@ -5,7 +5,7 @@ import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMoc
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleLL_Integration_Shared_Test } from "./../MerkleLL.t.sol";
 

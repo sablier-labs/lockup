@@ -6,7 +6,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 import { ISablierFactoryMerkleVCA } from "src/interfaces/ISablierFactoryMerkleVCA.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { MerkleVCA } from "src/types/MerkleVCA.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 

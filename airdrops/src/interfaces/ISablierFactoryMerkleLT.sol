@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { MerkleLT } from "./../types/DataTypes.sol";
+import { MerkleLT } from "../types/MerkleLT.sol";
 import { ISablierFactoryMerkleBase } from "./ISablierFactoryMerkleBase.sol";
 import { ISablierMerkleLT } from "./ISablierMerkleLT.sol";
 
@@ -61,8 +61,7 @@ interface ISablierFactoryMerkleLT is ISablierFactoryMerkleBase {
     /// - `campaignParams.token` must not be the forbidden native token.
     /// - The sum of percentages of the tranches must equal 100%.
     ///
-    /// @param campaignParams Struct encapsulating the {SablierMerkleLT} parameters, which are documented in
-    /// {DataTypes}.
+    /// @param campaignParams Struct encapsulating the {SablierMerkleLT} parameters.
     /// @param aggregateAmount The total amount of ERC-20 tokens to be distributed to all recipients.
     /// @param recipientCount The total number of recipient addresses eligible for the airdrop.
     /// @return merkleLT The address of the newly created Merkle Lockup contract.

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType } from "src/types/DataTypes.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
 import { MerkleInstant_Integration_Shared_Test, Integration_Test } from "./../MerkleInstant.t.sol";
