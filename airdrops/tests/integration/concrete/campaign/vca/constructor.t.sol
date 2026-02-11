@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleVCA } from "src/SablierMerkleVCA.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
@@ -33,6 +33,7 @@ contract Constructor_MerkleVCA_Integration_Test is Integration_Test {
         assertEq(constructedVCA.admin(), users.campaignCreator, "admin");
         assertEq(constructedVCA.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedVCA.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(uint8(constructedVCA.CLAIM_TYPE()), uint8(ClaimType.DEFAULT), "claim type");
         assertEq(constructedVCA.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(constructedVCA.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedVCA.ipfsCID(), IPFS_CID, "IPFS CID");

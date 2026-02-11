@@ -8,7 +8,7 @@ import { ISablierLockup } from "@sablier/lockup/src/interfaces/ISablierLockup.so
 import { ISablierMerkleLT } from "../../src/interfaces/ISablierMerkleLT.sol";
 import { SablierFactoryMerkleLT } from "../../src/SablierFactoryMerkleLT.sol";
 
-import { MerkleLT } from "../../src/types/DataTypes.sol";
+import { ClaimType, MerkleLT } from "../../src/types/DataTypes.sol";
 
 /// @dev Creates a dummy campaign to airdrop tokens through Lockup Tranched.
 contract CreateMerkleLT is EvmUtilsBaseScript {
@@ -22,27 +22,29 @@ contract CreateMerkleLT is EvmUtilsBaseScript {
         broadcast
         returns (ISablierMerkleLT merkleLT)
     {
-        // Prepare the constructor parameters.
-        MerkleLT.ConstructorParams memory campaignParams;
-        campaignParams.campaignName = "The Boys LT";
-        campaignParams.campaignStartTime = uint40(block.timestamp);
-        campaignParams.cancelable = true;
-        campaignParams.expiration = uint40(block.timestamp + 30 days);
-        campaignParams.lockup = lockup;
-        campaignParams.initialAdmin = 0x79Fb3e81aAc012c08501f41296CCC145a1E15844;
-        campaignParams.ipfsCID = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
-        campaignParams.merkleRoot = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        campaignParams.token = token;
-        campaignParams.transferable = true;
-
         // The tranches with their unlock percentages and durations.
-        campaignParams.tranchesWithPercentages = new MerkleLT.TrancheWithPercentage[](2);
-        campaignParams.tranchesWithPercentages[0] =
-            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 3600 });
-        campaignParams.tranchesWithPercentages[1] =
-            MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
+        MerkleLT.TrancheWithPercentage[] memory tranches = new MerkleLT.TrancheWithPercentage[](2);
+        tranches[0] = MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 3600 });
+        tranches[1] = MerkleLT.TrancheWithPercentage({ unlockPercentage: ud2x18(0.5e18), duration: 7200 });
 
-        campaignParams.vestingStartTime = 0; // i.e. block.timestamp
+        // Prepare the constructor parameters.
+        MerkleLT.ConstructorParams memory campaignParams = MerkleLT.ConstructorParams({
+            campaignName: "The Boys LT",
+            campaignStartTime: uint40(block.timestamp),
+            cancelable: true,
+            claimType: ClaimType.DEFAULT,
+            expiration: uint40(block.timestamp + 30 days),
+            initialAdmin: 0x79Fb3e81aAc012c08501f41296CCC145a1E15844,
+            ipfsCID: "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
+            lockup: lockup,
+            merkleRoot: 0x0000000000000000000000000000000000000000000000000000000000000000,
+            shape: "LT",
+            token: token,
+            tranchesWithPercentages: tranches,
+            transferable: true,
+            vestingStartTime: 0 // i.e. block.timestamp
+        });
+
         uint256 aggregateAmount = 10_000e18;
         uint256 recipientCount = 100;
 

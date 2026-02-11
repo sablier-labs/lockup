@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleLT } from "src/SablierMerkleLT.sol";
-import { MerkleLT } from "src/types/DataTypes.sol";
+import { ClaimType, MerkleLT } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
@@ -27,6 +27,7 @@ contract Constructor_MerkleLT_Integration_Test is Integration_Test {
         assertEq(constructedLT.admin(), users.campaignCreator, "admin");
         assertEq(constructedLT.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedLT.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(uint8(constructedLT.CLAIM_TYPE()), uint8(ClaimType.DEFAULT), "claim type");
         assertEq(constructedLT.COMPTROLLER(), address(comptroller), "comptroller");
 
         assertEq(constructedLT.EXPIRATION(), EXPIRATION, "expiration");

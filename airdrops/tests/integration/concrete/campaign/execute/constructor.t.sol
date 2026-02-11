@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleExecute } from "src/SablierMerkleExecute.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 
 import { MockStaking } from "../../../../mocks/MockStaking.sol";
 import { Integration_Test } from "./../../../Integration.t.sol";
@@ -19,6 +20,7 @@ contract Constructor_MerkleExecute_Integration_Test is Integration_Test {
         assertEq(constructedExecute.admin(), users.campaignCreator, "admin");
         assertEq(constructedExecute.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedExecute.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(uint8(constructedExecute.CLAIM_TYPE()), uint8(ClaimType.EXECUTE), "claim type");
         assertEq(constructedExecute.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(constructedExecute.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedExecute.ipfsCID(), IPFS_CID, "IPFS CID");

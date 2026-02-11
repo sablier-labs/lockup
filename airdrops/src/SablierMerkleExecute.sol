@@ -7,7 +7,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 
 import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { ISablierMerkleExecute } from "./interfaces/ISablierMerkleExecute.sol";
-import { MerkleBase, MerkleExecute } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleExecute } from "./types/DataTypes.sol";
 
 /*
 
@@ -60,6 +60,7 @@ contract SablierMerkleExecute is
                 campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                claimType: ClaimType.EXECUTE,
                 comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,

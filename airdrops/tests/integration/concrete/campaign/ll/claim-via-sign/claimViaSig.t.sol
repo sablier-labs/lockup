@@ -2,7 +2,8 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
-
+import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 import { ClaimViaSig_Integration_Test } from "./../../shared/claim-via-sig/claimViaSig.t.sol";
 import { MerkleLL_Integration_Shared_Test } from "./../MerkleLL.t.sol";
 
@@ -12,9 +13,20 @@ contract ClaimViaSig_MerkleLL_Integration_Test is ClaimViaSig_Integration_Test, 
         ClaimViaSig_Integration_Test.setUp();
     }
 
+    function test_RevertGiven_ClaimTypeATTEST() external {
+        merkleBase = merkleLLAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claimViaSig();
+    }
+
     function test_WhenSignatureValidityTimestampNotInFuture()
         external
         override
+        givenClaimTypeNotAttest
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
@@ -50,6 +62,7 @@ contract ClaimViaSig_MerkleLL_Integration_Test is ClaimViaSig_Integration_Test, 
     function test_WhenRecipientImplementsIERC1271Interface()
         external
         override
+        givenClaimTypeNotAttest
         whenToAddressNotZero
         givenRecipientIsContract
     {

@@ -10,7 +10,7 @@ import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleVCA } from "./interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleVCA } from "./types/DataTypes.sol";
 
 /*
 
@@ -78,6 +78,7 @@ contract SablierMerkleVCA is
                 campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                claimType: campaignParams.claimType,
                 comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,
@@ -154,6 +155,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -174,6 +176,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        revertIfNot(ClaimType.ATTEST)
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.
@@ -199,6 +202,7 @@ contract SablierMerkleVCA is
         external
         payable
         override
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

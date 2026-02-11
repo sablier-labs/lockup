@@ -10,7 +10,7 @@ import { SablierMerkleBase } from "./abstracts/SablierMerkleBase.sol";
 import { SablierMerkleLockup } from "./abstracts/SablierMerkleLockup.sol";
 import { SablierMerkleSignature } from "./abstracts/SablierMerkleSignature.sol";
 import { ISablierMerkleLL } from "./interfaces/ISablierMerkleLL.sol";
-import { MerkleBase, MerkleLL, MerkleLockup } from "./types/DataTypes.sol";
+import { ClaimType, MerkleBase, MerkleLL, MerkleLockup } from "./types/DataTypes.sol";
 
 /*
 
@@ -76,6 +76,7 @@ contract SablierMerkleLL is
                 campaignCreator: campaignCreator,
                 campaignName: campaignParams.campaignName,
                 campaignStartTime: campaignParams.campaignStartTime,
+                claimType: campaignParams.claimType,
                 comptroller: comptroller,
                 expiration: campaignParams.expiration,
                 initialAdmin: campaignParams.initialAdmin,
@@ -113,6 +114,7 @@ contract SablierMerkleLL is
         external
         payable
         override
+        revertIfNot(ClaimType.DEFAULT)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of the recipient.
         _preProcessClaim(index, recipient, amount, merkleProof);
@@ -131,6 +133,7 @@ contract SablierMerkleLL is
         external
         payable
         override
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check, Effect and Interaction: Pre-process the claim parameters on behalf of `msg.sender`.
@@ -151,6 +154,7 @@ contract SablierMerkleLL is
         external
         payable
         override
+        revertIfNot(ClaimType.ATTEST)
         notZeroAddress(to)
     {
         // Check: the attestation signature is valid and the recovered signer matches the attestor.
@@ -176,6 +180,7 @@ contract SablierMerkleLL is
         external
         payable
         override
+        revertIfNot(ClaimType.DEFAULT)
         notZeroAddress(to)
     {
         // Check: the signature is valid and the recovered signer matches the recipient.

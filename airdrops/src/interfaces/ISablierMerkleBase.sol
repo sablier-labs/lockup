@@ -4,6 +4,8 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAdminable } from "@sablier/evm-utils/src/interfaces/IAdminable.sol";
 
+import { ClaimType } from "../types/DataTypes.sol";
+
 /// @title ISablierMerkleBase
 /// @dev Common interface between campaign contracts.
 interface ISablierMerkleBase is IAdminable {
@@ -24,6 +26,10 @@ interface ISablierMerkleBase is IAdminable {
     /// @notice The timestamp at which campaign starts and claim begins.
     /// @dev This is an immutable state variable.
     function CAMPAIGN_START_TIME() external view returns (uint40);
+
+    /// @notice Retrieves the claim type supported by the campaign.
+    /// @dev This is an immutable state variable.
+    function CLAIM_TYPE() external view returns (ClaimType);
 
     /// @notice Retrieves the address of the comptroller contract.
     function COMPTROLLER() external view returns (address);

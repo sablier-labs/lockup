@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { MerkleVCA } from "src/types/DataTypes.sol";
+import { ClaimType, MerkleVCA } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
@@ -39,7 +39,17 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         setMsgSender(users.recipient);
     }
 
-    function test_RevertWhen_VestingStartTimeInFuture() external whenMerkleProofValid {
+    function test_RevertGiven_ClaimTypeATTEST() external {
+        merkleBase = merkleVCAAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claimTo();
+    }
+
+    function test_RevertWhen_VestingStartTimeInFuture() external whenMerkleProofValid givenClaimTypeNotAttest {
         // Create a new campaign with vesting start time in the future.
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp() + 1 seconds;
@@ -58,7 +68,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         });
     }
 
-    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid {
+    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid givenClaimTypeNotAttest {
         // Create a new campaign with vesting start time in the present.
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp();
@@ -72,7 +82,12 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         });
     }
 
-    function test_WhenVestingEndTimeInFuture() external whenMerkleProofValid whenVestingStartTimeInPast {
+    function test_WhenVestingEndTimeInFuture()
+        external
+        whenMerkleProofValid
+        givenClaimTypeNotAttest
+        whenVestingStartTimeInPast
+    {
         _test_ClaimTo({
             expectedTransferAmount: VCA_CLAIM_AMOUNT,
             forgoneAmount: VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT,
@@ -83,6 +98,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
     function test_GivenRedistributionNotEnabled()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingStartTimeInPast
         whenVestingEndTimeNotInFuture
     {
@@ -95,6 +111,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
     function test_GivenRedistributionEnabled()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingStartTimeInPast
         whenVestingEndTimeNotInFuture
     {

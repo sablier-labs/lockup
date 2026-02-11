@@ -10,7 +10,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 
 import { ISablierMerkleBase } from "./../interfaces/ISablierMerkleBase.sol";
 import { Errors } from "./../libraries/Errors.sol";
-import { MerkleBase } from "./../types/DataTypes.sol";
+import { ClaimType, MerkleBase } from "./../types/DataTypes.sol";
 
 /// @title SablierMerkleBase
 /// @notice See the documentation in {ISablierMerkleBase}.
@@ -27,6 +27,9 @@ abstract contract SablierMerkleBase is
 
     /// @inheritdoc ISablierMerkleBase
     uint40 public immutable override CAMPAIGN_START_TIME;
+
+    /// @inheritdoc ISablierMerkleBase
+    ClaimType public immutable override CLAIM_TYPE;
 
     /// @inheritdoc ISablierMerkleBase
     address public immutable override COMPTROLLER;
@@ -64,8 +67,20 @@ abstract contract SablierMerkleBase is
 
     /// @dev Modifier to check that `to` is not zero address.
     modifier notZeroAddress(address to) {
-        _revertIfToZeroAddress(to);
+        if (to == address(0)) {
+            revert Errors.SablierMerkleBase_ToZeroAddress();
+        }
+        _;
+    }
 
+    /// @dev Modifier to revert if `claimType` value does not match the campaign's claim type.
+    modifier revertIfNot(ClaimType claimType) {
+        if (CLAIM_TYPE != claimType) {
+            revert Errors.SablierMerkleBase_UnsupportedClaimType({
+                claimTypeRequired: claimType,
+                claimTypeSupported: CLAIM_TYPE
+            });
+        }
         _;
     }
 
@@ -76,6 +91,7 @@ abstract contract SablierMerkleBase is
     /// @notice Constructs the contract by initializing the immutable state variables.
     constructor(MerkleBase.ConstructorParams memory baseParams) Adminable(baseParams.initialAdmin) {
         CAMPAIGN_START_TIME = baseParams.campaignStartTime;
+        CLAIM_TYPE = baseParams.claimType;
         COMPTROLLER = baseParams.comptroller;
         EXPIRATION = baseParams.expiration;
         MERKLE_ROOT = baseParams.merkleRoot;
@@ -161,13 +177,6 @@ abstract contract SablierMerkleBase is
     /// @dev The grace period is 7 days after the first claim.
     function _hasGracePeriodPassed() private view returns (bool) {
         return firstClaimTime > 0 && block.timestamp > firstClaimTime + 7 days;
-    }
-
-    /// @dev This function checks if `to` is zero address.
-    function _revertIfToZeroAddress(address to) private pure {
-        if (to == address(0)) {
-            revert Errors.SablierMerkleBase_ToZeroAddress();
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,8 @@ import { ERC1271WalletMock } from "@sablier/evm-utils/src/mocks/ERC1271WalletMoc
 
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
 import { ISablierMerkleVCA } from "src/interfaces/ISablierMerkleVCA.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 
 import { ClaimViaAttestation_Integration_Test } from "./../../shared/claim-via-attestation/claimViaAttestation.t.sol";
 import { MerkleVCA_Integration_Shared_Test } from "./../MerkleVCA.t.sol";
@@ -16,11 +18,27 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
     function setUp() public virtual override(MerkleVCA_Integration_Shared_Test, ClaimViaAttestation_Integration_Test) {
         MerkleVCA_Integration_Shared_Test.setUp();
         ClaimViaAttestation_Integration_Test.setUp();
+
+        // Use the pre-created MerkleVCA campaign with ClaimType.ATTEST.
+        merkleVCA = merkleVCAAttest;
+        merkleBase = merkleVCAAttest;
+    }
+
+    function test_RevertGiven_ClaimTypeDEFAULT() external {
+        merkleVCA = ISablierMerkleVCA(address(createMerkleVCA()));
+        merkleBase = merkleVCA;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.ATTEST, ClaimType.DEFAULT
+            )
+        );
+        claimViaAttestation();
     }
 
     function test_WhenAttestationValid()
         external
         override
+        givenClaimTypeNotDefault
         whenToAddressNotZero
         givenAttestorNotZero
         givenAttestorIsEOA
@@ -50,6 +68,7 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
     function test_WhenAttestorImplementsIERC1271Interface()
         external
         override
+        givenClaimTypeNotDefault
         whenToAddressNotZero
         givenAttestorNotZero
         givenAttestorIsContract

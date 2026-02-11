@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { SablierMerkleInstant } from "src/SablierMerkleInstant.sol";
+import { ClaimType } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "./../../../Integration.t.sol";
 
@@ -21,6 +22,7 @@ contract Constructor_MerkleInstant_Integration_Test is Integration_Test {
         assertEq(constructedInstant.admin(), users.campaignCreator, "admin");
         assertEq(constructedInstant.campaignName(), CAMPAIGN_NAME, "campaign name");
         assertEq(constructedInstant.CAMPAIGN_START_TIME(), CAMPAIGN_START_TIME, "campaign start time");
+        assertEq(uint8(constructedInstant.CLAIM_TYPE()), uint8(ClaimType.DEFAULT), "claim type");
         assertEq(constructedInstant.COMPTROLLER(), address(comptroller), "comptroller");
         assertEq(constructedInstant.EXPIRATION(), EXPIRATION, "expiration");
         assertEq(constructedInstant.ipfsCID(), IPFS_CID, "IPFS CID");

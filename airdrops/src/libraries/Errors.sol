@@ -3,6 +3,8 @@ pragma solidity >=0.8.22;
 
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { ClaimType } from "../types/DataTypes.sol";
+
 /// @title Errors
 /// @notice Library containing all custom errors the protocol may revert with.
 library Errors {
@@ -92,6 +94,9 @@ library Errors {
 
     /// @notice Thrown when trying to claim to the zero address.
     error SablierMerkleBase_ToZeroAddress();
+
+    /// @notice Thrown when trying to call a claim function not supported in the campaign.
+    error SablierMerkleBase_UnsupportedClaimType(ClaimType claimTypeRequired, ClaimType claimTypeSupported);
 
     /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-MERKLE-SIGNATURE

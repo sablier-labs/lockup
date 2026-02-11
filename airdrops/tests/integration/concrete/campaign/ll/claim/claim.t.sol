@@ -4,19 +4,28 @@ pragma solidity >=0.8.22 <0.9.0;
 import { ud, ZERO } from "@prb/math/src/UD60x18.sol";
 import { Errors as LockupErrors } from "@sablier/lockup/src/libraries/Errors.sol";
 import { Lockup } from "@sablier/lockup/src/types/DataTypes.sol";
-
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
-import { MerkleLL } from "src/types/DataTypes.sol";
-
-import { Claim_Integration_Test } from "../../shared/claim/claim.t.sol";
-import { MerkleLL_Integration_Shared_Test, Integration_Test } from "../MerkleLL.t.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType, MerkleLL } from "src/types/DataTypes.sol";
+import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { MerkleLL_Integration_Shared_Test, Integration_Test } from "./../MerkleLL.t.sol";
 
 contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Integration_Shared_Test {
     function setUp() public virtual override(MerkleLL_Integration_Shared_Test, Integration_Test) {
         MerkleLL_Integration_Shared_Test.setUp();
     }
 
-    function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid {
+    function test_RevertGiven_ClaimTypeATTEST() external {
+        merkleBase = merkleLLAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claim();
+    }
+
+    function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid givenClaimTypeNotAttest {
         // Forward in time to the end of the vesting period.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
@@ -44,6 +53,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     function test_RevertWhen_TotalPercentageGreaterThan100()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
     {
         MerkleLL.ConstructorParams memory params = merkleLLConstructorParams();
@@ -76,6 +86,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     function test_WhenVestingStartTimeZero()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
     {
@@ -91,6 +102,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     function test_WhenCliffDurationZero()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
         whenVestingStartTimeNotZero
@@ -109,6 +121,7 @@ contract Claim_MerkleLL_Integration_Test is Claim_Integration_Test, MerkleLL_Int
     function test_WhenCliffDurationNotZero()
         external
         whenMerkleProofValid
+        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
         whenTotalPercentageNotGreaterThan100
         whenVestingStartTimeNotZero
