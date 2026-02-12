@@ -182,8 +182,8 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test {
         uint128 senderAmount = lockup.refundableAmountOf(ids.recipientReentrantStream);
         uint128 recipientAmount = lockup.withdrawableAmountOf(ids.recipientReentrantStream);
 
-        // Return if the recipient amount is 0, because otherwise withdraw would revert.
-        if (recipientAmount == 0) return;
+        // Return for price-gated streams because the recipient amount would be 0 and re-entrant call would revert.
+        if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) return;
 
         vm.expectCall(
             address(recipientReentrant),

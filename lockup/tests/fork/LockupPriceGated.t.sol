@@ -119,8 +119,50 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
             duration: params.duration
         });
 
-        // Run post-create assertions.
-        _assertPostCreate(params);
+        // Assert that the stream is created with the correct parameters.
+        assertEq(lockup.getDepositedAmount(varsLPG.streamId), params.create.depositAmount, "depositedAmount");
+        assertEq(lockup.getEndTime(varsLPG.streamId), varsLPG.timestamps.end, "endTime");
+        assertEq(lockup.getRecipient(varsLPG.streamId), params.create.recipient, "recipient");
+        assertEq(lockup.getSender(varsLPG.streamId), params.create.sender, "sender");
+        assertEq(lockup.getStartTime(varsLPG.streamId), varsLPG.timestamps.start, "startTime");
+        assertEq(lockup.getUnderlyingToken(varsLPG.streamId), params.create.token, "underlyingToken");
+        assertEq(lockup.getWithdrawnAmount(varsLPG.streamId), 0, "withdrawnAmount");
+        assertFalse(lockup.isDepleted(varsLPG.streamId), "isDepleted");
+        assertTrue(lockup.isStream(varsLPG.streamId), "isStream");
+        assertEq(lockup.isTransferable(varsLPG.streamId), params.create.transferable, "isTransferable");
+        assertEq(lockup.nextStreamId(), varsLPG.streamId + 1, "post-create nextStreamId");
+        assertFalse(lockup.wasCanceled(varsLPG.streamId), "wasCanceled");
+        assertEq(lockup.ownerOf(varsLPG.streamId), params.create.recipient, "post-create NFT owner");
+        assertEq(lockup.getLockupModel(varsLPG.streamId), Lockup.Model.LOCKUP_PRICE_GATED);
+
+        // It should store the unlock params.
+        LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(varsLPG.streamId);
+        assertEq(address(unlockParams.oracle), address(ORACLE), "oracle");
+        assertEq(unlockParams.targetPrice, params.targetPrice, "targetPrice");
+
+        // The stream should be in STREAMING status right after creation (since price < target).
+        assertEq(lockup.statusOf(varsLPG.streamId), Lockup.Status.STREAMING, "post-create stream status");
+
+        // The stream should be cancelable right after creation.
+        assertTrue(lockup.isCancelable(varsLPG.streamId), "post-create isCancelable");
+
+        // Assert that the aggregate amount has been updated.
+        varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount + params.create.depositAmount;
+        assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
+
+        // Store the post-create token balances of Lockup and Holder.
+        uint256[] memory balances =
+            getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder));
+        varsLPG.actualLockupBalance = balances[0];
+        varsLPG.actualHolderBalance = balances[1];
+
+        // Assert that the Lockup contract's balance has been updated.
+        uint256 expectedLockupBalance = varsLPG.initialLockupBalance + params.create.depositAmount;
+        assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-create Lockup balance");
+
+        // Assert that the holder's balance has been updated.
+        uint128 expectedHolderBalance = initialHolderBalance - params.create.depositAmount;
+        assertEq(varsLPG.actualHolderBalance, expectedHolderBalance, "post-create Holder balance");
 
         /*//////////////////////////////////////////////////////////////////////////
                                           WITHDRAW
@@ -188,13 +230,12 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 
         // Load the post-withdraw token balances.
-        uint256[] memory balances =
-            getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), params.create.recipient));
+        balances = getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), params.create.recipient));
         varsLPG.actualLockupBalance = balances[0];
         varsLPG.actualRecipientBalance = balances[1];
 
         // Assert that the contract's balance has been updated.
-        uint256 expectedLockupBalance = varsLPG.initialLockupBalance - params.withdrawAmount;
+        expectedLockupBalance = varsLPG.initialLockupBalance - params.withdrawAmount;
         assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-withdraw Lockup balance");
 
         // Assert that the contract's ETH balance has been updated.
@@ -214,12 +255,6 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
 
     /// @dev Checklist:
     ///
-    /// - It should perform all expected ERC-20 transfers
-    /// - It should create the stream
-    /// - It should bump the next stream ID
-    /// - It should mint the NFT
-    /// - It should emit a {MetadataUpdate} event
-    /// - It should emit a {CreateLockupPriceGatedStream} event
     /// - It should cancel the stream when time < end time and price < target price
     /// - It should refund the full deposit to the sender
     /// - It should emit a {CancelLockupStream} event
@@ -231,23 +266,9 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
     /// - Multiple values for the duration
     /// - Multiple values for the target price
     /// - Oracle mock price below target price
-    function testForkFuzz_CreateCancel(ParamsLPG memory params) external {
-        /*//////////////////////////////////////////////////////////////////////////
-                                            CREATE
-        //////////////////////////////////////////////////////////////////////////*/
-
+    function testForkFuzz_Cancel(ParamsLPG memory params) external {
         // Bound the fuzzed parameters and load values into `varsLPG`.
         _preCreateStream(params);
-
-        // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit IERC4906.MetadataUpdate({ _tokenId: varsLPG.streamId });
-        vm.expectEmit({ emitter: address(lockup) });
-        emit ISablierLockupPriceGated.CreateLockupPriceGatedStream({
-            streamId: varsLPG.streamId,
-            oracle: ORACLE,
-            targetPrice: params.targetPrice
-        });
 
         // Create the stream.
         lockup.createWithDurationsLPG({
@@ -255,9 +276,6 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
             unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice),
             duration: params.duration
         });
-
-        // Run post-create assertions.
-        _assertPostCreate(params);
 
         /*//////////////////////////////////////////////////////////////////////////
                                           CANCEL
@@ -317,8 +335,8 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.expectedStatus = varsLPG.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         assertEq(lockup.statusOf(varsLPG.streamId), varsLPG.expectedStatus, "post-cancel stream status");
 
-        // Assert that the aggregate amount has been updated.
-        varsLPG.expectedAggregateAmount -= refundedAmount;
+        // Assert that the aggregate amount does not change.
+        varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 
         // Load the post-cancel token balances.
@@ -388,53 +406,5 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
 
         // Make the stream cancelable so that the cancel tests can be run.
         params.create.cancelable = true;
-    }
-
-    /// @dev A post-create helper function to assert stream state and update token balances.
-    function _assertPostCreate(ParamsLPG memory params) internal {
-        // Assert that the stream is created with the correct parameters.
-        assertEq(lockup.getDepositedAmount(varsLPG.streamId), params.create.depositAmount, "depositedAmount");
-        assertEq(lockup.getEndTime(varsLPG.streamId), varsLPG.timestamps.end, "endTime");
-        assertEq(lockup.getRecipient(varsLPG.streamId), params.create.recipient, "recipient");
-        assertEq(lockup.getSender(varsLPG.streamId), params.create.sender, "sender");
-        assertEq(lockup.getStartTime(varsLPG.streamId), varsLPG.timestamps.start, "startTime");
-        assertEq(lockup.getUnderlyingToken(varsLPG.streamId), params.create.token, "underlyingToken");
-        assertEq(lockup.getWithdrawnAmount(varsLPG.streamId), 0, "withdrawnAmount");
-        assertFalse(lockup.isDepleted(varsLPG.streamId), "isDepleted");
-        assertTrue(lockup.isStream(varsLPG.streamId), "isStream");
-        assertEq(lockup.isTransferable(varsLPG.streamId), params.create.transferable, "isTransferable");
-        assertEq(lockup.nextStreamId(), varsLPG.streamId + 1, "post-create nextStreamId");
-        assertFalse(lockup.wasCanceled(varsLPG.streamId), "wasCanceled");
-        assertEq(lockup.ownerOf(varsLPG.streamId), params.create.recipient, "post-create NFT owner");
-        assertEq(lockup.getLockupModel(varsLPG.streamId), Lockup.Model.LOCKUP_PRICE_GATED);
-
-        // It should store the unlock params.
-        LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(varsLPG.streamId);
-        assertEq(address(unlockParams.oracle), address(ORACLE), "oracle");
-        assertEq(unlockParams.targetPrice, params.targetPrice, "targetPrice");
-
-        // The stream should be in STREAMING status right after creation (since price < target).
-        assertEq(lockup.statusOf(varsLPG.streamId), Lockup.Status.STREAMING, "post-create stream status");
-
-        // The stream should be cancelable right after creation.
-        assertTrue(lockup.isCancelable(varsLPG.streamId), "post-create isCancelable");
-
-        // Assert that the aggregate amount has been updated.
-        varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount + params.create.depositAmount;
-        assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
-
-        // Store the post-create token balances of Lockup and Holder.
-        uint256[] memory balances =
-            getTokenBalances(address(FORK_TOKEN), Solarray.addresses(address(lockup), forkTokenHolder));
-        varsLPG.actualLockupBalance = balances[0];
-        varsLPG.actualHolderBalance = balances[1];
-
-        // Assert that the Lockup contract's balance has been updated.
-        uint256 expectedLockupBalance = varsLPG.initialLockupBalance + params.create.depositAmount;
-        assertEq(varsLPG.actualLockupBalance, expectedLockupBalance, "post-create Lockup balance");
-
-        // Assert that the holder's balance has been updated.
-        uint128 expectedHolderBalance = initialHolderBalance - params.create.depositAmount;
-        assertEq(varsLPG.actualHolderBalance, expectedHolderBalance, "post-create Holder balance");
     }
 }
