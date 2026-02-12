@@ -10,17 +10,24 @@ import {
     ChainlinkOracleWith18Decimals,
     ChainlinkOracleWithRevertingDecimals,
     ChainlinkOracleWithRevertingPrice,
-    ChainlinkOracleZeroPrice
+    ChainlinkOracleZeroPrice,
+    SafeOracleMock
 } from "src/mocks/ChainlinkMocks.sol";
-import { SafeOracle } from "src/libraries/SafeOracle.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
 
 contract SafeOraclePrice_Concrete_Test is Base_Test {
+    SafeOracleMock internal safeOracleMock;
+
+    function setUp() public override {
+        Base_Test.setUp();
+        safeOracleMock = new SafeOracleMock();
+    }
+
     function test_RevertWhen_OracleAddressZero() external {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_MissesInterface.selector, address(0)));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(0)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(0)));
     }
 
     function test_RevertWhen_OracleMissesDecimals() external whenOracleAddressNotZero {
@@ -28,7 +35,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_MissesInterface.selector, address(oracle)));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
     }
 
     function test_RevertWhen_OracleDecimalsNot8() external whenOracleAddressNotZero whenOracleNotMissDecimals {
@@ -36,7 +43,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_DecimalsNotEight.selector, address(oracle), 18));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
     }
 
     function test_RevertWhen_OracleMissesLatestRoundData()
@@ -49,7 +56,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_MissesInterface.selector, address(oracle)));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
     }
 
     function test_RevertWhen_OraclePriceNegative()
@@ -63,7 +70,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NegativePrice.selector, address(oracle)));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
     }
 
     function test_RevertWhen_OraclePriceZero()
@@ -77,7 +84,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
 
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NegativePrice.selector, address(oracle)));
-        SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
     }
 
     function test_WhenOraclePricePositive()
@@ -90,7 +97,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
         ChainlinkOracleMock oracle = new ChainlinkOracleMock();
 
         // It should return the latest price.
-        uint128 latestPrice = SafeOracle.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        uint128 latestPrice = safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
         assertEq(latestPrice, 3000e8, "latestPrice");
     }
 }

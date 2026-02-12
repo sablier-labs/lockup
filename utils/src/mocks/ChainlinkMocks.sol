@@ -1,8 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+
+import { SafeOracle } from "../libraries/SafeOracle.sol";
+
 /// @dev By default, Chainlink uses 8 decimals for non-ETH pairs: https://ethereum.stackexchange.com/q/92508/24693
 uint8 constant DEFAULT_DECIMALS = 8;
+
+/// @notice Mock contract to expose the internal SafeOracle library function.
+contract SafeOracleMock {
+    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128) {
+        return SafeOracle.safeOraclePrice(oracle);
+    }
+}
 
 /*//////////////////////////////////////////////////////////////////////////
                            NON-REVERTING-ORACLES
