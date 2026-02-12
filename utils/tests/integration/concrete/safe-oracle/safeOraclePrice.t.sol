@@ -11,7 +11,7 @@ import {
     ChainlinkOracleWithRevertingDecimals,
     ChainlinkOracleWithRevertingPrice
 } from "src/mocks/ChainlinkMocks.sol";
-import { SafeOracle } from "src/SafeOracle.sol";
+import { SafeOracle } from "src/libraries/SafeOracle.sol";
 
 import { Base_Test } from "../../../Base.t.sol";
 

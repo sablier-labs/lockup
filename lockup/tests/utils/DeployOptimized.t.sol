@@ -17,11 +17,11 @@ abstract contract DeployOptimized is CommonBase {
         return ISablierBatchLockup(deployCode("out-optimized/SablierBatchLockup.sol/SablierBatchLockup.json"));
     }
 
-    /// @dev Deploys the optimized {LockupHelpers} and {LockupMath} libraries.
-    function deployOptimizedLibraries() internal returns (address helpers, address lockupMath) {
-        // Deploy public libraries.
+    /// @dev Deploys the optimized {LockupHelpers}, {LockupMath}, and {SafeOracle} libraries.
+    function deployOptimizedLibraries() internal returns (address helpers, address lockupMath, address safeOracle) {
         helpers = deployCode("out-optimized/LockupHelpers.sol/LockupHelpers.json");
         lockupMath = deployCode("out-optimized/LockupMath.sol/LockupMath.json");
+        safeOracle = deployCode("out-optimized/SafeOracle.sol/SafeOracle.json");
     }
 
     /// @dev Deploys {SablierLockup} from an optimized source compiled with `--via-ir`.
@@ -33,7 +33,7 @@ abstract contract DeployOptimized is CommonBase {
         returns (ISablierLockup lockup)
     {
         // Deploy the libraries.
-        (address helpers, address lockupMath) = deployOptimizedLibraries();
+        (address helpers, address lockupMath, address safeOracle) = deployOptimizedLibraries();
 
         // Get the bytecode from {SablierLockup} artifact.
         string memory artifactJson = vm.readFile("out-optimized/SablierLockup.sol/SablierLockup.json");
@@ -49,6 +49,11 @@ abstract contract DeployOptimized is CommonBase {
             input: rawBytecode,
             from: libraryPlaceholder("src/libraries/LockupMath.sol:LockupMath"),
             to: vm.replace(vm.toString(lockupMath), "0x", "")
+        });
+        rawBytecode = vm.replace({
+            input: rawBytecode,
+            from: libraryPlaceholder("node_modules/@sablier/evm-utils/src/libraries/SafeOracle.sol:SafeOracle"),
+            to: vm.replace(vm.toString(safeOracle), "0x", "")
         });
 
         // Generate the creation bytecode with the constructor arguments.

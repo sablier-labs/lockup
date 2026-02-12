@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { SafeOracle } from "@sablier/evm-utils/src/SafeOracle.sol";
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupPriceGated } from "../interfaces/ISablierLockupPriceGated.sol";

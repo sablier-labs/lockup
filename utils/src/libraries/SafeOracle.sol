@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
-import { Errors } from "./libraries/Errors.sol";
+import { Errors } from "./Errors.sol";
 
 /// @title SafeOracle
 /// @notice Library with helper functions for validating oracle addresses.
