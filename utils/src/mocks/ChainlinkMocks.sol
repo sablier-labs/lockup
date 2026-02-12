@@ -10,6 +10,8 @@ uint8 constant DEFAULT_DECIMALS = 8;
 
 /// @notice A mock Chainlink oracle that returns a $3000 price with 8 decimals.
 contract ChainlinkOracleMock {
+    int256 internal _price = 3000e8;
+
     function decimals() external pure returns (uint8) {
         return DEFAULT_DECIMALS;
     }
@@ -19,9 +21,16 @@ contract ChainlinkOracleMock {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        int256 answer_ = 3000e8;
         uint256 updatedAt_ = block.timestamp;
-        return (0, answer_, 0, updatedAt_, 0);
+        return (0, _price, 0, updatedAt_, 0);
+    }
+
+    function price() external view returns (int256) {
+        return _price;
+    }
+
+    function setPrice(uint256 newPrice) external {
+        _price = int256(newPrice);
     }
 }
 

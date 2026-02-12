@@ -60,7 +60,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Fuzz_Test is Lockup_Pric
         price = uint128(bound(price, defaults.LPG_TARGET_PRICE(), type(uint128).max));
 
         // Set oracle price.
-        oracleMock.setPrice(price);
+        oracle.setPrice(price);
 
         // Bound time jump (can be any time - before or after end).
         timeJump = boundUint40(timeJump, 0, defaults.TOTAL_DURATION() + 365 days);

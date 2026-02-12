@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-
 import { Lockup } from "../types/Lockup.sol";
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
@@ -13,8 +10,6 @@ import { Errors } from "./Errors.sol";
 /// @title LockupHelpers
 /// @notice Library with functions needed to validate input parameters across Lockup streams.
 library LockupHelpers {
-    using SafeCast for uint256;
-
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -164,34 +159,6 @@ library LockupHelpers {
 
         // Check: validate the user-provided tranches.
         _checkTranches(tranches, depositAmount, timestamps);
-    }
-
-    /// @dev Validates the oracle address used in the LPG stream.
-    function validateOracle(AggregatorV3Interface oracle) public view returns (uint128 latestPrice) {
-        // Check: oracle address is not zero. This is needed because calling a function on address(0) succeeds
-        // but returns empty data, which causes the ABI decoder to fail.
-        if (address(oracle) == address(0)) {
-            revert Errors.SablierLockup_OracleMissesInterface(address(oracle));
-        }
-
-        // Check: oracle implements the `decimals()` function and returns 8.
-        try oracle.decimals() returns (uint8 oracleDecimals) {
-            if (oracleDecimals != 8) {
-                revert Errors.SablierLockup_OracleDecimalsNotEight(address(oracle), oracleDecimals);
-            }
-        } catch {
-            revert Errors.SablierLockup_OracleMissesInterface(address(oracle));
-        }
-
-        // Check: oracle returns a positive price when `latestRoundData()` is called.
-        try oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
-            if (price <= 0) {
-                revert Errors.SablierLockup_OracleReturnsNegativePrice(address(oracle));
-            }
-            latestPrice = uint256(price).toUint128();
-        } catch {
-            revert Errors.SablierLockup_OracleMissesInterface(address(oracle));
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

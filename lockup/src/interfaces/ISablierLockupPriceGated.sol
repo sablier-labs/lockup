@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 import { Lockup } from "../types/Lockup.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { ISablierLockupState } from "./ISablierLockupState.sol";
 
 /// @title ISablierLockupPriceGated
@@ -16,7 +17,8 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     /// @notice Emitted when an LPG stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param oracle The price feed oracle used for retrieving the latest price.
-    /// @param targetPrice The price that must be reached to unlock the tokens, denoted in 8 decimals where 1e8 = $1.
+    /// @param targetPrice The price that must be reached to unlock the tokens, denominated in Chainlink's 8-decimal,
+    /// where 1e8 = $1.
     event CreateLockupPriceGatedStream(
         uint256 indexed streamId,
         AggregatorV3Interface indexed oracle,
@@ -37,7 +39,7 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     /// - The recipient can withdraw the full deposited amount when either:
     ///   1. The oracle price reaches or exceeds the target price, OR
     ///   2. Current time is greater than the stream's end time.
-    /// - The sender can cancel the stream when price < target AND end time is in the future.
+    /// - The sender can cancel the stream when price is less than target price AND end time is in the future.
     /// - The function does not check if the provided oracle reports the price for the deposited token.
     ///
     /// Requirements:
@@ -46,23 +48,21 @@ interface ISablierLockupPriceGated is ISablierLockupState {
     /// - `params.sender` must not be the zero address.
     /// - `params.recipient` must not be the zero address.
     /// - `duration` must be greater than zero.
-    /// - `oracle` must implement the {AggregatorV3Interface} interface.
-    /// - `oracle` must return 8 decimals when the `decimals()` function is called.
-    /// - `oracle` must return a positive price when the `latestRoundData()` function is called.
-    /// - `targetPrice` must be greater than the current oracle price.
+    /// - `unlockParams.oracle` must implement Chainlink's {AggregatorV3Interface} interface.
+    /// - `unlockParams.oracle` must return 8 decimals when the `decimals()` function is called.
+    /// - `unlockParams.oracle` must return a positive price when the `latestRoundData()` function is called.
+    /// - `unlockParams.targetPrice` must be greater than the current oracle price.
     /// - `msg.sender` must have allowed this contract to spend at least `params.depositAmount` tokens.
     /// - `params.token` must not be the native token.
     /// - `params.shape.length` must not be greater than 32 characters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {Lockup} type.
-    /// @param oracle The address of a price feed oracle used for retrieving the latest price.
-    /// @param targetPrice The price that must be reached to unlock the tokens, denoted in 8 decimals where 1e8 = $1.
+    /// @param unlockParams Struct encapsulating the unlock parameters, documented in {LockupPriceGated}.
     /// @param duration The total duration of the stream in seconds.
     /// @return streamId The ID of the newly created stream.
     function createWithDurationsLPG(
         Lockup.CreateWithDurations calldata params,
-        AggregatorV3Interface oracle,
-        uint128 targetPrice,
+        LockupPriceGated.UnlockParams calldata unlockParams,
         uint40 duration
     )
         external

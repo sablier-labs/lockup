@@ -115,8 +115,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // Create the stream.
         lockup.createWithDurationsLPG({
             params: params.create,
-            oracle: ORACLE,
-            targetPrice: params.targetPrice,
+            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice),
             duration: params.duration
         });
 
@@ -253,8 +252,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         // Create the stream.
         lockup.createWithDurationsLPG({
             params: params.create,
-            oracle: ORACLE,
-            targetPrice: params.targetPrice,
+            unlockParams: LockupPriceGated.UnlockParams(ORACLE, params.targetPrice),
             duration: params.duration
         });
 

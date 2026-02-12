@@ -130,6 +130,22 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenOracleAddressNotZero() {
+        _;
+    }
+
+    modifier whenOracleDecimals8() {
+        _;
+    }
+
+    modifier whenOracleNotMissDecimals() {
+        _;
+    }
+
+    modifier whenOracleNotMissLatestRoundData() {
+        _;
+    }
+
     modifier whenOraclePriceNotNegative() {
         _;
     }

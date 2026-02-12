@@ -3,68 +3,53 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
+import {
+    ChainlinkOracleNegativePrice,
+    ChainlinkOracleWith18Decimals,
+    ChainlinkOracleWithRevertingDecimals,
+    ChainlinkOracleWithRevertingPrice
+} from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 
 import { ISablierLockupPriceGated } from "src/interfaces/ISablierLockupPriceGated.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 
-import {
-    OracleMissingDecimalsMock,
-    OracleMissingLatestRoundDataMock,
-    OracleNegativePriceMock,
-    OracleWith18DecimalsMock
-} from "../../../../mocks/OracleMock.sol";
 import { Lockup_PriceGated_Integration_Concrete_Test } from "../LockupPriceGated.t.sol";
 
 contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_Integration_Concrete_Test {
-    uint128 internal targetPrice;
-    uint40 internal totalDuration;
+    uint40 internal duration;
 
     function setUp() public override {
         Lockup_PriceGated_Integration_Concrete_Test.setUp();
-
-        targetPrice = defaults.LPG_TARGET_PRICE();
-        totalDuration = defaults.TOTAL_DURATION();
+        duration = defaults.TOTAL_DURATION();
     }
 
     function test_RevertWhen_DelegateCall() external {
         expectRevert_DelegateCall({
             callData: abi.encodeCall(
                 lockup.createWithDurationsLPG,
-                (
-                    _defaultParams.createWithDurations,
-                    AggregatorV3Interface(address(oracleMock)),
-                    defaults.LPG_TARGET_PRICE(),
-                    defaults.TOTAL_DURATION()
-                )
+                (_defaultParams.createWithDurations, defaults.unlockParams(), defaults.TOTAL_DURATION())
             )
         });
     }
 
     function test_RevertWhen_OracleAddressZero() external whenNoDelegateCall {
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(0));
+
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierLockup_OracleMissesInterface.selector, address(0)));
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations, AggregatorV3Interface(address(0)), targetPrice, totalDuration
-        );
+        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(0)));
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_OracleMissesDecimals() external whenNoDelegateCall whenOracleAddressNotZero {
-        OracleMissingDecimalsMock oracleMissingDecimalsMock = new OracleMissingDecimalsMock();
+        ChainlinkOracleWithRevertingDecimals oracle = new ChainlinkOracleWithRevertingDecimals();
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracle));
 
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockup_OracleMissesInterface.selector, address(oracleMissingDecimalsMock)
-            )
-        );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleMissingDecimalsMock)),
-            targetPrice,
-            totalDuration
-        );
+        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(oracle)));
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_OracleDecimalsNot8()
@@ -73,20 +58,16 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenOracleAddressNotZero
         whenOracleNotMissDecimals
     {
-        OracleWith18DecimalsMock oracleWith18DecimalsMock = new OracleWith18DecimalsMock();
+        ChainlinkOracleWith18Decimals oracleWith18Decimals = new ChainlinkOracleWith18Decimals();
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleWith18Decimals));
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_OracleDecimalsNotEight.selector, address(oracleWith18DecimalsMock), 18
+                EvmUtilsErrors.SafeOracle_DecimalsNotEight.selector, address(oracleWith18Decimals), 18
             )
         );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleWith18DecimalsMock)),
-            targetPrice,
-            totalDuration
-        );
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_OracleMissesLatestRoundData()
@@ -96,20 +77,16 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenOracleNotMissDecimals
         whenOracleDecimals8
     {
-        OracleMissingLatestRoundDataMock oracleMissingLatestRoundDataMock = new OracleMissingLatestRoundDataMock();
+        ChainlinkOracleWithRevertingPrice oracleWithRevertingPrice = new ChainlinkOracleWithRevertingPrice();
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleWithRevertingPrice));
 
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierLockup_OracleMissesInterface.selector, address(oracleMissingLatestRoundDataMock)
+                EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(oracleWithRevertingPrice)
             )
         );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleMissingLatestRoundDataMock)),
-            targetPrice,
-            totalDuration
-        );
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_OraclePriceNotPositive()
@@ -120,20 +97,14 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenOracleDecimals8
         whenOracleNotMissLatestRoundData
     {
-        OracleNegativePriceMock oracleNegativePriceMock = new OracleNegativePriceMock();
+        ChainlinkOracleNegativePrice oracleNegativePrice = new ChainlinkOracleNegativePrice();
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleNegativePrice));
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockup_OracleReturnsNegativePrice.selector, address(oracleNegativePriceMock)
-            )
+            abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_NegativePrice.selector, address(oracleNegativePrice))
         );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleNegativePriceMock)),
-            targetPrice,
-            totalDuration
-        );
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_TargetPriceNotExceedCurrentPrice()
@@ -145,7 +116,8 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenOracleNotMissLatestRoundData
         whenOraclePricePositive
     {
-        uint128 currentOraclePrice = uint128(uint256(oracleMock.price()));
+        uint128 currentOraclePrice = uint128(uint256(oracle.price()));
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(currentOraclePrice);
 
         // It should revert.
         vm.expectRevert(
@@ -153,12 +125,7 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
                 Errors.SablierLockup_TargetPriceTooLow.selector, currentOraclePrice, currentOraclePrice
             )
         );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleMock)),
-            currentOraclePrice,
-            totalDuration
-        );
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_DurationZero()
@@ -171,6 +138,8 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenOraclePricePositive
         whenTargetPriceExceedsCurrentPrice
     {
+        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams();
+
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -179,9 +148,7 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
                 uint40(block.timestamp)
             )
         );
-        lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations, AggregatorV3Interface(address(oracleMock)), targetPrice, 0
-        );
+        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, 0);
     }
 
     function test_WhenDurationNotZero()
@@ -208,16 +175,13 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupPriceGated.CreateLockupPriceGatedStream({
             streamId: expectedStreamId,
-            oracle: AggregatorV3Interface(address(oracleMock)),
+            oracle: AggregatorV3Interface(address(oracle)),
             targetPrice: defaults.LPG_TARGET_PRICE()
         });
 
         // Create the stream.
         uint256 streamId = lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations,
-            AggregatorV3Interface(address(oracleMock)),
-            defaults.LPG_TARGET_PRICE(),
-            defaults.TOTAL_DURATION()
+            _defaultParams.createWithDurations, defaults.unlockParams(), defaults.TOTAL_DURATION()
         );
 
         // It should create the stream.
@@ -235,7 +199,7 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
 
         // It should store the unlock params.
         LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(streamId);
-        assertEq(address(unlockParams.oracle), address(oracleMock), "oracle");
+        assertEq(address(unlockParams.oracle), address(oracle), "oracle");
         assertEq(unlockParams.targetPrice, defaults.LPG_TARGET_PRICE(), "targetPrice");
 
         // Assert that the stream's status is "STREAMING".

@@ -27,7 +27,7 @@ contract Withdraw_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGat
 
     function test_WhenLatestPriceNotBelowTarget() external givenEndTimeInFuture {
         // Update oracle to return target price.
-        oracleMock.setPrice(defaults.LPG_TARGET_PRICE());
+        oracle.setPrice(defaults.LPG_TARGET_PRICE());
 
         uint128 withdrawAmount = defaults.DEPOSIT_AMOUNT();
 
@@ -84,7 +84,7 @@ contract Withdraw_Lockup_PriceGated_Integration_Concrete_Test is Lockup_PriceGat
 
     function test_WhenLatestPriceNotBelowTarget_GivenEndTimeNotInFuture() external givenEndTimeNotInFuture {
         // Update oracle to return target price.
-        oracleMock.setPrice(defaults.LPG_TARGET_PRICE());
+        oracle.setPrice(defaults.LPG_TARGET_PRICE());
 
         uint128 withdrawAmount = defaults.DEPOSIT_AMOUNT();
 

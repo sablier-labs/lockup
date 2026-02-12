@@ -134,16 +134,6 @@ library Errors {
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierLockup_NotTransferable(uint256 tokenId);
 
-    /// @notice Thrown when trying to create a price-gated stream with an oracle that does not return 8 decimals.
-    error SablierLockup_OracleDecimalsNotEight(address oracle, uint8 decimals);
-
-    /// @notice Thrown when trying to create a price-gated stream with an oracle that does not implement the expected
-    /// interface.
-    error SablierLockup_OracleMissesInterface(address oracle);
-
-    /// @notice Thrown when trying to create a price-gated stream with an oracle that returns a negative price.
-    error SablierLockup_OracleReturnsNegativePrice(address oracle);
-
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierLockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
 

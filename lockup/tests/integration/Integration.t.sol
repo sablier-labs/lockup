@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -209,12 +208,7 @@ abstract contract Integration_Test is Base_Test {
                 params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.durations
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            streamId = lockup.createWithDurationsLPG(
-                params,
-                AggregatorV3Interface(address(oracleMock)),
-                defaults.LPG_TARGET_PRICE(),
-                defaults.TOTAL_DURATION()
-            );
+            streamId = lockup.createWithDurationsLPG(params, defaults.unlockParams(), defaults.TOTAL_DURATION());
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithDurationsLT(params, _defaultParams.tranchesWithDurations);
         }

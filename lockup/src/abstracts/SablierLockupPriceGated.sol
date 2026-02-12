@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { SafeOracle } from "@sablier/evm-utils/src/SafeOracle.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupPriceGated } from "../interfaces/ISablierLockupPriceGated.sol";
@@ -25,8 +25,7 @@ abstract contract SablierLockupPriceGated is
     /// @inheritdoc ISablierLockupPriceGated
     function createWithDurationsLPG(
         Lockup.CreateWithDurations calldata params,
-        AggregatorV3Interface oracle,
-        uint128 targetPrice,
+        LockupPriceGated.UnlockParams calldata unlockParams,
         uint40 duration
     )
         external
@@ -35,14 +34,17 @@ abstract contract SablierLockupPriceGated is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Check: validate that the oracle implements the {AggregatorV3Interface} interface.
-        uint128 latestPrice = LockupHelpers.validateOracle(oracle);
+        // Check: validate that the oracle implements the {AggregatorV3Interface} interface and returns the latest
+        // price.
+        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
 
         // Check: the target price is greater than the latest price.
-        if (targetPrice <= latestPrice) revert Errors.SablierLockup_TargetPriceTooLow(targetPrice, latestPrice);
+        if (unlockParams.targetPrice <= latestPrice) {
+            revert Errors.SablierLockup_TargetPriceTooLow(unlockParams.targetPrice, latestPrice);
+        }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createLPG(params, oracle, targetPrice, duration);
+        streamId = _createLPG(params, unlockParams, duration);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -52,8 +54,7 @@ abstract contract SablierLockupPriceGated is
     /// @dev See the documentation for the user-facing functions that call this private function.
     function _createLPG(
         Lockup.CreateWithDurations calldata params,
-        AggregatorV3Interface oracle,
-        uint128 targetPrice,
+        LockupPriceGated.UnlockParams calldata unlockParams,
         uint40 duration
     )
         private
@@ -72,7 +73,7 @@ abstract contract SablierLockupPriceGated is
         streamId = nextStreamId;
 
         // Effect: store unlock params.
-        _priceGatedUnlockParams[streamId] = LockupPriceGated.UnlockParams(oracle, targetPrice);
+        _priceGatedUnlockParams[streamId] = unlockParams;
 
         // Effect: create the stream, mint the NFT and transfer the deposit amount.
         _create({
@@ -88,6 +89,6 @@ abstract contract SablierLockupPriceGated is
         });
 
         // Log the newly created stream.
-        emit CreateLockupPriceGatedStream(streamId, oracle, targetPrice);
+        emit CreateLockupPriceGatedStream(streamId, unlockParams.oracle, unlockParams.targetPrice);
     }
 }

@@ -37,7 +37,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
 
     function test_WhenLatestPriceNotBelowTarget() external givenNotDepletedStream {
         // Set price at target.
-        oracleMock.setPrice(defaults.LPG_TARGET_PRICE());
+        oracle.setPrice(defaults.LPG_TARGET_PRICE());
 
         // It should return the deposited amount.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);

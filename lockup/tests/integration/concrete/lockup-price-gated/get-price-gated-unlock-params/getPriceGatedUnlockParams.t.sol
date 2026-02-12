@@ -30,7 +30,7 @@ contract GetPriceGatedUnlockParams_Integration_Concrete_Test is Lockup_PriceGate
 
     function test_GivenPriceGatedModel() external view givenNotNull {
         LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(ids.defaultStream);
-        assertEq(address(unlockParams.oracle), address(oracleMock), "oracle");
+        assertEq(address(unlockParams.oracle), address(oracle), "oracle");
         assertEq(unlockParams.targetPrice, defaults.LPG_TARGET_PRICE(), "targetPrice");
     }
 }

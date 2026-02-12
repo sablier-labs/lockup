@@ -473,6 +473,12 @@ contract SablierLockup is
                 withdrawnAmount: stream.amounts.withdrawn
             });
         }
+        // Calculate the streamed amount for the LPG model.
+        else if (stream.lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamedAmount = LockupMath.calculateStreamedAmountLPG(
+                stream.amounts.deposited, stream.endTime, stream.wasCanceled, _priceGatedUnlockParams[streamId]
+            );
+        }
         // Calculate the streamed amount for the LT model.
         else if (stream.lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamedAmount = LockupMath.calculateStreamedAmountLT({
@@ -481,16 +487,6 @@ contract SablierLockup is
                 startTime: stream.startTime,
                 tranches: _tranches[streamId]
             });
-        }
-        // Calculate the streamed amount for the LPG model.
-        else if (stream.lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            streamedAmount = LockupMath.calculateStreamedAmountLPG(
-                stream.amounts.deposited,
-                stream.amounts.refunded,
-                stream.endTime,
-                _priceGatedUnlockParams[streamId].oracle,
-                _priceGatedUnlockParams[streamId].targetPrice
-            );
         }
     }
 

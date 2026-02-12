@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 
 /// @title LockupMath
@@ -16,6 +17,7 @@ import { LockupTranched } from "../types/LockupTranched.sol";
 library LockupMath {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
+    using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -246,30 +248,36 @@ library LockupMath {
     /// 1. The oracle is assumed to be returning the correct price.
     function calculateStreamedAmountLPG(
         uint128 deposited,
-        uint128 refunded,
         uint40 endTime,
-        AggregatorV3Interface oracle,
-        uint128 targetPrice
+        bool wasCanceled,
+        LockupPriceGated.UnlockParams memory unlockParams
     )
         external
         view
         returns (uint128)
     {
-        // If the stream has expired, return the full amount.
+        // If the stream was canceled, return 0.
+        if (wasCanceled) {
+            return 0;
+        }
+
+        // If the stream has expired, return the deposited amount..
         if (block.timestamp >= endTime) {
-            return deposited - refunded;
+            return deposited;
         }
 
-        // Get the current oracle price.
-        (, int256 price,,,) = oracle.latestRoundData();
-
-        // If the oracle price is at or above the target price, return the full amount.
-        if (price > 0 && uint128(uint256(price)) >= targetPrice) {
-            return deposited - refunded;
+        // Get the current oracle price using try-catch.
+        try unlockParams.oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
+            // If the oracle price is at or above the target price, return the deposited amount.
+            if (price > 0 && uint256(price).toUint128() >= unlockParams.targetPrice) {
+                return deposited;
+            }
+            // Otherwise, return 0.
+            return 0;
+        } catch {
+            // If the oracle call fails, return 0.
+            return 0;
         }
-
-        // Otherwise, return 0.
-        return 0;
     }
 
     /// @notice Calculates the streamed amount of LT streams.

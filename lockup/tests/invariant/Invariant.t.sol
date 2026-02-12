@@ -342,9 +342,13 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 );
             } else if (previousStatus == Lockup.Status.SETTLED) {
                 assertNotEq(currentStatus, Lockup.Status.PENDING, "Invariant violation: settled stream turned pending");
-                assertNotEq(
-                    currentStatus, Lockup.Status.STREAMING, "Invariant violation: settled stream turned streaming"
-                );
+                // Note: For a price gated stream, it is possible for a SETTLED stream to return to STREAMING if the
+                // price goes back below the target price when end time is not reached.
+                if (lockup.getLockupModel(streamId) != Lockup.Model.LOCKUP_PRICE_GATED) {
+                    assertNotEq(
+                        currentStatus, Lockup.Status.STREAMING, "Invariant violation: settled stream turned streaming"
+                    );
+                }
                 assertNotEq(
                     currentStatus, Lockup.Status.CANCELED, "Invariant violation: settled stream turned canceled"
                 );
@@ -492,6 +496,28 @@ contract Invariant_Test is Base_Test, StdInvariant {
                         tranches[j].timestamp, previousTimestamp, "Invariant violation: tranche timestamps not ordered"
                     );
                     previousTimestamp = tranches[j].timestamp;
+                }
+            }
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                LPG MODEL INVARIANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev For a canceled LPG stream, refunded amount must equal the deposited amount.
+    function invariant_CanceledLPGRefundedEqDeposited() external view {
+        uint256 lastStreamId = store.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = store.streamIds(i);
+            if (lockup.getLockupModel(streamId) == Lockup.Model.LOCKUP_PRICE_GATED) {
+                uint128 refunded = lockup.getRefundedAmount(streamId);
+                if (lockup.statusOf(streamId) == Lockup.Status.CANCELED) {
+                    assertEq(
+                        refunded,
+                        lockup.getDepositedAmount(streamId),
+                        "Invariant violation: canceled LPG stream refunded != deposited"
+                    );
                 }
             }
         }

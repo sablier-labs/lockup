@@ -20,7 +20,6 @@ import { LockupTranched } from "src/types/LockupTranched.sol";
 import { RecipientGood } from "./mocks/Hooks.sol";
 import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
 import { Noop } from "./mocks/Noop.sol";
-import { OracleMock } from "./mocks/OracleMock.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Defaults } from "./utils/Defaults.sol";
@@ -47,7 +46,6 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
     ILockupNFTDescriptor internal nftDescriptor;
     NFTDescriptorMock internal nftDescriptorMock;
     Noop internal noop;
-    OracleMock internal oracleMock;
     RecipientGood internal recipientGood;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -59,17 +57,16 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
 
         // Deploy the base test contracts.
         noop = new Noop();
-        oracleMock = new OracleMock();
         recipientGood = new RecipientGood();
 
         // Label the base test contracts.
-        vm.label({ account: address(oracleMock), newLabel: "Oracle Mock" });
         vm.label({ account: address(recipientGood), newLabel: "Good Recipient" });
         vm.label({ account: address(noop), newLabel: "Noop" });
 
         // Deploy the defaults contract.
         defaults = new Defaults();
         defaults.setToken(dai);
+        defaults.setOracle(oracle);
 
         // Deploy the protocol.
         deployProtocolConditionally();

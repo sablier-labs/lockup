@@ -15,7 +15,7 @@ contract CreateWithDurationsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integ
         duration = boundUint40(duration, 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Bound target price to be greater than latest oracle price.
-        uint128 latestPrice = uint128(uint256(oracleMock.price()));
+        uint128 latestPrice = uint128(uint256(oracle.price()));
         targetPrice = uint128(bound(targetPrice, latestPrice + 1, type(uint128).max));
 
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -31,13 +31,13 @@ contract CreateWithDurationsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integ
         vm.expectEmit({ emitter: address(lockup) });
         emit ISablierLockupPriceGated.CreateLockupPriceGatedStream({
             streamId: expectedStreamId,
-            oracle: AggregatorV3Interface(address(oracleMock)),
+            oracle: AggregatorV3Interface(address(oracle)),
             targetPrice: targetPrice
         });
 
         // Create the stream.
         uint256 streamId = lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations, AggregatorV3Interface(address(oracleMock)), targetPrice, duration
+            _defaultParams.createWithDurations, defaults.unlockParams(targetPrice), duration
         );
 
         // It should create the stream.
@@ -56,7 +56,7 @@ contract CreateWithDurationsLPG_Integration_Fuzz_Test is Lockup_PriceGated_Integ
 
         // It should store the unlock params.
         LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(streamId);
-        assertEq(address(unlockParams.oracle), address(oracleMock), "oracle");
+        assertEq(address(unlockParams.oracle), address(oracle), "oracle");
         assertEq(unlockParams.targetPrice, targetPrice, "targetPrice");
 
         // Assert that the next stream ID has been bumped.
