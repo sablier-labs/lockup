@@ -136,21 +136,20 @@ library LockupHelpers {
         public
         view
     {
-        // Check: validate that the oracle implements the {AggregatorV3Interface} interface and returns the latest
-        // price.
-        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
-
-        // Check: the target price is greater than the latest price.
-        if (unlockParams.targetPrice <= latestPrice) {
-            revert Errors.SablierLockup_TargetPriceTooLow(unlockParams.targetPrice, latestPrice);
-        }
-
         // Check: validate the user-provided common parameters.
         _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
 
         // Check: the start time is strictly less than the end time.
         if (timestamps.start >= timestamps.end) {
             revert Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
+        }
+
+        // Check: validate that the oracle implements {AggregatorV3Interface} interface and returns the latest price.
+        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
+
+        // Check: the target price is greater than the latest price.
+        if (unlockParams.targetPrice <= latestPrice) {
+            revert Errors.SablierLockup_TargetPriceTooLow(unlockParams.targetPrice, latestPrice);
         }
     }
 
