@@ -28,7 +28,12 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenExpiredStream() external givenNotDepletedStream givenNotCanceledStream whenLatestPriceBelowTarget {
+    function test_WhenExpiredStream()
+        external
+        givenNotDepletedStream
+        givenNotCanceledStream
+        whenLatestPriceBelowTarget
+    {
         // Forward time to the end time.
         vm.warp({ newTimestamp: getBlockTimestamp() + defaults.TOTAL_DURATION() + 1 });
 
