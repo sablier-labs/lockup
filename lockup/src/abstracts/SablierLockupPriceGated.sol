@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
-import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 import { NoDelegateCall } from "@sablier/evm-utils/src/NoDelegateCall.sol";
 
 import { ISablierLockupPriceGated } from "../interfaces/ISablierLockupPriceGated.sol";
@@ -34,15 +33,6 @@ abstract contract SablierLockupPriceGated is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Check: validate that the oracle implements the {AggregatorV3Interface} interface and returns the latest
-        // price.
-        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
-
-        // Check: the target price is greater than the latest price.
-        if (unlockParams.targetPrice <= latestPrice) {
-            revert Errors.SablierLockup_TargetPriceTooLow(unlockParams.targetPrice, latestPrice);
-        }
-
         // Checks, Effects and Interactions: create the stream.
         streamId = _createLPG(params, unlockParams, duration);
     }
@@ -66,7 +56,13 @@ abstract contract SablierLockupPriceGated is
 
         // Check: validate the user-provided parameters.
         LockupHelpers.checkCreateLPG(
-            params.sender, timestamps, params.depositAmount, address(params.token), nativeToken, params.shape
+            params.sender,
+            timestamps,
+            params.depositAmount,
+            address(params.token),
+            nativeToken,
+            params.shape,
+            unlockParams
         );
 
         // Load the stream ID in a variable.

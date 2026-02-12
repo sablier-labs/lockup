@@ -12,7 +12,7 @@ library SafeOracle {
     using SafeCast for uint256;
 
     /// @dev Validates the oracle address and returns the latest price.
-    function safeOraclePrice(AggregatorV3Interface oracle) public view returns (uint128 latestPrice) {
+    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 latestPrice) {
         // Check: oracle address is not zero. This is needed because calling a function on address(0) succeeds but
         // returns empty data, which causes the ABI decoder to fail.
         if (address(oracle) == address(0)) {
