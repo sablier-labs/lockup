@@ -97,44 +97,15 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function initializeDefaultStreams() internal {
-        if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            // Price-gated streams only support `createWithDurations` function, so streams are created using that
-            // function.
-            ids.defaultStream = createDefaultStreamWithDurations();
-
-            Lockup.CreateWithDurations memory params = _defaultParams.createWithDurations;
-            params.cancelable = false;
-            ids.notCancelableStream = createDefaultStreamWithDurations(params);
-
-            params = _defaultParams.createWithDurations;
-            params.recipient = address(recipientInterfaceIDIncorrect);
-            ids.notAllowedToHookStream = createDefaultStreamWithDurations(params);
-
-            params = _defaultParams.createWithDurations;
-            params.recipient = address(recipientGood);
-            ids.recipientGoodStream = createDefaultStreamWithDurations(params);
-
-            params = _defaultParams.createWithDurations;
-            params.recipient = address(recipientReentrant);
-            ids.recipientReentrantStream = createDefaultStreamWithDurations(params);
-
-            params = _defaultParams.createWithDurations;
-            params.recipient = address(recipientReverting);
-            ids.recipientRevertStream = createDefaultStreamWithDurations(params);
-        } else {
-            // Other streams support `createWithTimestamps` function and therefore are creating using the default
-            // function.
-            ids.defaultStream = createDefaultStream();
-            ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
-            ids.notCancelableStream = createDefaultStreamNonCancelable();
-            ids.notTransferableStream = createDefaultStreamNonTransferable();
-            ids.nullStream = 1729;
-            ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
-            ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
-            ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
-            ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
-        }
+        ids.defaultStream = createDefaultStream();
+        ids.notAllowedToHookStream = createDefaultStreamWithRecipient(address(recipientInterfaceIDIncorrect));
+        ids.notCancelableStream = createDefaultStreamNonCancelable();
+        ids.notTransferableStream = createDefaultStreamNonTransferable();
         ids.nullStream = 1729;
+        ids.recipientGoodStream = createDefaultStreamWithRecipient(address(recipientGood));
+        ids.recipientInvalidSelectorStream = createDefaultStreamWithRecipient(address(recipientInvalidSelector));
+        ids.recipientReentrantStream = createDefaultStreamWithRecipient(address(recipientReentrant));
+        ids.recipientRevertStream = createDefaultStreamWithRecipient(address(recipientReverting));
     }
 
     function initializeRecipientsWithHooks() internal {
@@ -174,6 +145,17 @@ abstract contract Integration_Test is Base_Test {
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            Lockup.CreateWithDurations memory params_ = Lockup.CreateWithDurations({
+                sender: params.sender,
+                recipient: params.recipient,
+                depositAmount: params.depositAmount,
+                token: params.token,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                shape: params.shape
+            });
+            streamId = lockup.createWithDurationsLPG(params_, defaults.unlockParams(), defaults.TOTAL_DURATION());
         }
     }
 
