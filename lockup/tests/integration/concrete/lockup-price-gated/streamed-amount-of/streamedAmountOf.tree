@@ -6,9 +6,9 @@ StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test
    │  └── it should return zero
    └── given not canceled stream
       ├── when latest price below target
-      │  ├── when expired stream
+      │  ├── when end time in past
       │  │  └── it should return the deposited amount
-      │  └── when not expired stream
+      │  └── when end time not in past
       │     └── it should return zero
       └── when latest price not below target
          └── it should return the deposited amount

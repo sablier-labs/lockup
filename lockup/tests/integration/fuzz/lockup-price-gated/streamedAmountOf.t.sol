@@ -39,7 +39,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Fuzz_Test is Lockup_Pric
         // Warp to the specified time.
         vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
-        // Price is below target but stream has expired, so full amount should be available.
+        // Price is below target but current time is at or after end time, so full amount should be available.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

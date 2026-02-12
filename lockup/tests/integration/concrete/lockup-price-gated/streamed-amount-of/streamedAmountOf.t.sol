@@ -28,7 +28,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenExpiredStream()
+    function test_WhenEndTimeInPast()
         external
         givenNotDepletedStream
         givenNotCanceledStream
@@ -43,7 +43,7 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenNotExpiredStream()
+    function test_WhenEndTimeNotInPast()
         external
         view
         givenNotDepletedStream

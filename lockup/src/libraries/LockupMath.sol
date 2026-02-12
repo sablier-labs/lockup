@@ -261,7 +261,7 @@ library LockupMath {
             return 0;
         }
 
-        // If the stream has expired, return the deposited amount.
+        // If the current time is greater than or equal to the end time, return the deposited amount.
         if (block.timestamp >= endTime) {
             return deposited;
         }
