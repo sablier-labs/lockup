@@ -36,6 +36,6 @@
     "url": "https://github.com/sablier-labs/evm-monorepo.git"
   },
   "scripts": {
-    "setup": "husky"
+    "prepare": "husky && for dir in airdrops flow lockup utils; do (cd \"$dir\" && ni); done && just setup"
   }
 }

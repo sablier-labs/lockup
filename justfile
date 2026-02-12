@@ -16,6 +16,9 @@ export FOUNDRY_DISABLE_NIGHTLY_WARNING := "true"
 # Generate fuzz seed that changes weekly to avoid burning through RPC allowance
 export FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
 
+# All monorepo packages
+PACKAGES := "airdrops flow lockup utils"
+
 # ---------------------------------------------------------------------------- #
 #                                    SCRIPTS                                   #
 # ---------------------------------------------------------------------------- #
@@ -73,6 +76,7 @@ full-write-all:
     just for-each full-write
 
 # Install dependencies in all packages
+[group("all")]
 install-all:
     just for-each install
 
@@ -105,7 +109,7 @@ test-optimized-all:
 for-each recipe *args:
     #!/usr/bin/env bash
     set -euo pipefail
-    for dir in airdrops flow lockup utils; do
+    for dir in {{ PACKAGES }}; do
         just "$dir::{{ recipe }}" {{ args }}
     done
 
@@ -116,7 +120,7 @@ setup-env:
     # Create root .env if it doesn't exist
     [ ! -f .env ] && touch .env
     # Create symlinks in each package
-    for dir in airdrops flow lockup utils; do
+    for dir in {{ PACKAGES }}; do
         [ ! -L "$dir/.env" ] && ln -sf ../.env "$dir/.env" || true
         [ ! -L "$dir/.prettierignore" ] && ln -sf ../.prettierignore "$dir/.prettierignore" || true
     done
