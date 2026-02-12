@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
@@ -36,7 +37,12 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
         // Deploy the Lockup handlers.
         comptrollerHandler = new LockupComptrollerHandler({ token_: dai, lockup_: lockup });
-        createHandler = new LockupCreateHandler({ token_: dai, store_: store, lockup_: lockup });
+        createHandler = new LockupCreateHandler({
+            token_: dai,
+            store_: store,
+            lockup_: lockup,
+            oracle_: AggregatorV3Interface(address(oracle))
+        });
         handler = new LockupHandler({ token_: dai, store_: store, lockup_: lockup });
 
         // Label the contracts.

@@ -335,7 +335,7 @@ abstract contract Lockup_PriceGated_Fork_Test is Lockup_Fork_Test {
         varsLPG.expectedStatus = varsLPG.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         assertEq(lockup.statusOf(varsLPG.streamId), varsLPG.expectedStatus, "post-cancel stream status");
 
-        // Assert that the aggregate amount does not change.
+        // Assert that the aggregate amount returns to its pre-create value.
         varsLPG.expectedAggregateAmount = varsLPG.initialAggregateAmount;
         assertEq(lockup.aggregateAmount(FORK_TOKEN), varsLPG.expectedAggregateAmount, "aggregateAmount");
 

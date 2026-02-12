@@ -11,7 +11,9 @@ SafeOraclePrice_Concrete_Test
          ├── when oracle misses latestRoundData
          │  └── it should revert
          └── when oracle not miss latestRoundData
-            ├── when oracle price not positive
+            ├── when oracle price negative
+            │  └── it should revert
+            ├── when oracle price zero
             │  └── it should revert
             └── when oracle price positive
                └── it should return the latest price
