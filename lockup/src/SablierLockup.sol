@@ -13,6 +13,7 @@ import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierC
 
 import { SablierLockupDynamic } from "./abstracts/SablierLockupDynamic.sol";
 import { SablierLockupLinear } from "./abstracts/SablierLockupLinear.sol";
+import { SablierLockupPriceGated } from "./abstracts/SablierLockupPriceGated.sol";
 import { SablierLockupState } from "./abstracts/SablierLockupState.sol";
 import { SablierLockupTranched } from "./abstracts/SablierLockupTranched.sol";
 import { ILockupNFTDescriptor } from "./interfaces/ILockupNFTDescriptor.sol";
@@ -39,9 +40,10 @@ contract SablierLockup is
     Batch, // 1 inherited component
     Comptrollerable, // 1 inherited component
     ERC721, // 6 inherited components
-    ISablierLockup, // 10 inherited components
+    ISablierLockup, // 11 inherited components
     SablierLockupDynamic, // 4 inherited components
     SablierLockupLinear, // 4 inherited components
+    SablierLockupPriceGated, // 4 inherited components
     SablierLockupTranched // 4 inherited components
 {
     using SafeERC20 for IERC20;
@@ -470,6 +472,12 @@ contract SablierLockup is
                 unlockAmounts: _unlockAmounts[streamId],
                 withdrawnAmount: stream.amounts.withdrawn
             });
+        }
+        // Calculate the streamed amount for the LPG model.
+        else if (stream.lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamedAmount = LockupMath.calculateStreamedAmountLPG(
+                stream.amounts.deposited, stream.endTime, _priceGatedUnlockParams[streamId]
+            );
         }
         // Calculate the streamed amount for the LT model.
         else if (stream.lockupModel == Lockup.Model.LOCKUP_TRANCHED) {

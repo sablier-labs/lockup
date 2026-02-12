@@ -145,6 +145,17 @@ abstract contract Integration_Test is Base_Test {
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            Lockup.CreateWithDurations memory params_ = Lockup.CreateWithDurations({
+                sender: params.sender,
+                recipient: params.recipient,
+                depositAmount: params.depositAmount,
+                token: params.token,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                shape: params.shape
+            });
+            streamId = lockup.createWithDurationsLPG(params_, defaults.unlockParams(), defaults.TOTAL_DURATION());
         }
     }
 
@@ -165,19 +176,23 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
+        streamId = createDefaultStreamWithDurations(_defaultParams.createWithDurations);
+    }
+
+    function createDefaultStreamWithDurations(Lockup.CreateWithDurations memory params)
+        internal
+        returns (uint256 streamId)
+    {
         if (lockupModel == Lockup.Model.LOCKUP_DYNAMIC) {
-            streamId =
-                lockup.createWithDurationsLD(_defaultParams.createWithDurations, _defaultParams.segmentsWithDurations);
+            streamId = lockup.createWithDurationsLD(params, _defaultParams.segmentsWithDurations);
         } else if (lockupModel == Lockup.Model.LOCKUP_LINEAR) {
             streamId = lockup.createWithDurationsLL(
-                _defaultParams.createWithDurations,
-                _defaultParams.unlockAmounts,
-                _defaultParams.granularity,
-                _defaultParams.durations
+                params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.durations
             );
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamId = lockup.createWithDurationsLPG(params, defaults.unlockParams(), defaults.TOTAL_DURATION());
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
-            streamId =
-                lockup.createWithDurationsLT(_defaultParams.createWithDurations, _defaultParams.tranchesWithDurations);
+            streamId = lockup.createWithDurationsLT(params, _defaultParams.tranchesWithDurations);
         }
     }
 
@@ -228,6 +243,10 @@ abstract contract Integration_Test is Base_Test {
     function expectRevert_CANCELEDStatus(bytes memory callData) internal {
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         lockup.cancel(ids.defaultStream);
+
+        // Return if the recipient amount is 0, because in that case the stream is depleted and it will revert with a
+        // different error.
+        if (lockup.withdrawableAmountOf(ids.defaultStream) == 0) return;
 
         (bool success, bytes memory returnData) = address(lockup).call(callData);
         assertFalse(success, "canceled status call success");

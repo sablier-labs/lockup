@@ -36,15 +36,16 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
+    modifier givenEndTimeNotInFuture() {
+        vm.warp({ newTimestamp: defaults.END_TIME() });
+        _;
+    }
+
     modifier givenLinearModel() {
         _;
     }
 
     modifier givenNFTExists() {
-        _;
-    }
-
-    modifier givenNoNullStreams() {
         _;
     }
 
@@ -126,14 +127,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       BATCH
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenCallFunctionExists() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                         BURN
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -148,10 +141,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     modifier givenDepletedStream(ISablierLockup lockup, uint256 streamId) {
         vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax{ value: LOCKUP_MIN_FEE_WEI }({ streamId: streamId, to: users.recipient });
-        _;
-    }
-
-    modifier givenTransferableNFT() {
         _;
     }
 
@@ -176,18 +165,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     }
 
     modifier whenCallerNotSender() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  CANCEL-MULTIPLE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenAllStreamsCancelable() {
-        _;
-    }
-
-    modifier givenNoColdStreams() {
         _;
     }
 
@@ -255,10 +232,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
         _;
     }
 
-    modifier whenStartTimeLessThanEndTime() {
-        _;
-    }
-
     modifier whenStartTimeLessThanFirstTimestamp() {
         _;
     }
@@ -316,10 +289,34 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     MAP-SYMBOL
+                                 LOCKUP-PRICE-GATED
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenKnownNFTContract() {
+    modifier whenLatestPriceBelowTarget() {
+        _;
+    }
+
+    modifier whenOracleAddressNotZero() {
+        _;
+    }
+
+    modifier whenOracleDecimals8() {
+        _;
+    }
+
+    modifier whenOracleNotMissDecimals() {
+        _;
+    }
+
+    modifier whenOracleNotMissLatestRoundData() {
+        _;
+    }
+
+    modifier whenOraclePricePositive() {
+        _;
+    }
+
+    modifier whenTargetPriceExceedsCurrentPrice() {
         _;
     }
 
@@ -368,10 +365,6 @@ abstract contract Modifiers is EvmUtilsBase, Fuzzers {
     }
 
     modifier givenCliffTimeNotZero() {
-        _;
-    }
-
-    modifier givenPENDINGStatus() {
         _;
     }
 

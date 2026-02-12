@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 
 /// @title LockupMath
@@ -15,6 +17,7 @@ import { LockupTranched } from "../types/LockupTranched.sol";
 library LockupMath {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
+    using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
                           USER-FACING READ-ONLY FUNCTIONS
@@ -228,6 +231,48 @@ library LockupMath {
             }
 
             return streamedAmount;
+        }
+    }
+
+    /// @notice Calculates the streamed amount of LPG streams.
+    /// @dev The LPG streaming model uses all-or-nothing unlock based on price threshold:
+    ///
+    /// $$
+    ///        ⎧ deposited, block timestamp >= end time OR latest price >= target price
+    /// f(x) = ⎨
+    ///        ⎩ 0,         otherwise
+    ///
+    /// $$
+    ///
+    /// Assumptions:
+    /// 1. The stream is not canceled.
+    /// 2. The oracle is assumed to be returning the correct price.
+    function calculateStreamedAmountLPG(
+        uint128 deposited,
+        uint40 endTime,
+        LockupPriceGated.UnlockParams memory unlockParams
+    )
+        external
+        view
+        returns (uint128)
+    {
+        // If the current time is greater than or equal to the end time, return the deposited amount.
+        if (block.timestamp >= endTime) {
+            return deposited;
+        }
+
+        // Get the current oracle price using try-catch. Because users may not always use Chainlink oracles, we do not
+        // check for the staleness of the price.
+        try unlockParams.oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
+            // If the oracle price is at or above the target price, return the deposited amount.
+            if (price > 0 && uint256(price).toUint128() >= unlockParams.targetPrice) {
+                return deposited;
+            }
+            // Otherwise, return 0.
+            return 0;
+        } catch {
+            // If the oracle call fails, return 0.
+            return 0;
         }
     }
 

@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { ChainlinkOracleMock } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 
 import { BatchLockup } from "../../src/types/BatchLockup.sol";
 import { Lockup } from "../../src/types/Lockup.sol";
 import { LockupDynamic } from "../../src/types/LockupDynamic.sol";
 import { LockupLinear } from "../../src/types/LockupLinear.sol";
+import { LockupPriceGated } from "../../src/types/LockupPriceGated.sol";
 import { LockupTranched } from "../../src/types/LockupTranched.sol";
 import { ArrayBuilder } from "./ArrayBuilder.sol";
 import { BatchLockupBuilder } from "./BatchLockupBuilder.sol";
@@ -20,12 +23,17 @@ contract Defaults is Constants {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    ChainlinkOracleMock private oracle;
     IERC20 private token;
     Users private users;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function setOracle(ChainlinkOracleMock oracle_) public {
+        oracle = oracle_;
+    }
 
     function setToken(IERC20 token_) public {
         token = token_;
@@ -38,6 +46,19 @@ contract Defaults is Constants {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function unlockParams() public view returns (LockupPriceGated.UnlockParams memory) {
+        return unlockParams(LPG_TARGET_PRICE);
+    }
+
+    function unlockParams(uint128 targetPrice) public view returns (LockupPriceGated.UnlockParams memory) {
+        return
+            LockupPriceGated.UnlockParams({ oracle: AggregatorV3Interface(address(oracle)), targetPrice: targetPrice });
+    }
+
+    function unlockParams(address oracle_) public pure returns (LockupPriceGated.UnlockParams memory) {
+        return LockupPriceGated.UnlockParams({ oracle: AggregatorV3Interface(oracle_), targetPrice: LPG_TARGET_PRICE });
+    }
 
     function durations() public pure returns (LockupLinear.Durations memory) {
         return LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });

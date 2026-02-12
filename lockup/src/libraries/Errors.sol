@@ -119,11 +119,11 @@ library Errors {
     /// @notice Thrown when trying to allow to hook an address with no code.
     error SablierLockup_AllowToHookZeroCodeSize(address recipient);
 
-    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
-    error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
-
     /// @notice Thrown when the fee transfer fails.
     error SablierLockup_FeeTransferFailed(address comptroller, uint256 feeAmount);
+
+    /// @notice Thrown when trying to withdraw with a fee amount less than the minimum fee.
+    error SablierLockup_InsufficientFeePayment(uint256 feePaid, uint256 minFeeWei);
 
     /// @notice Thrown when the hook does not return the correct selector.
     error SablierLockup_InvalidHookSelector(address recipient);
@@ -151,6 +151,10 @@ library Errors {
 
     /// @notice Thrown when trying to cancel or renounce a settled stream.
     error SablierLockup_StreamSettled(uint256 streamId);
+
+    /// @notice Thrown when trying to create a price-gated stream with a target price not greater than the current
+    /// oracle price.
+    error SablierLockup_TargetPriceTooLow(uint128 targetPrice, uint128 latestPrice);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierLockup_Unauthorized(uint256 streamId, address caller);

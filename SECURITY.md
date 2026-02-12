@@ -57,3 +57,4 @@ Sablier Lockup has been developed with the following additional assumptions:
 - When withdrawing from multiple streams either using `batch` or `withdrawMultiple` function, the minimum fee required
   to execute the transaction is equal to the minimum fee required to withdraw from a single stream. This is intentional
   and expected behavior.
+- In case of price-gated streams, there should be a certain level of trust between the sender and the recipient regarding the oracle address being used. For example, when a price-gated stream is created, it is not checked if the oracle returns the price for the deposited token or some other token.

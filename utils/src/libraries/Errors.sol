@@ -69,4 +69,18 @@ library Errors {
 
     /// @notice Thrown if `caller` is missing the `neededRole` and is not the admin.
     error UnauthorizedAccess(address caller, bytes32 neededRole);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   SAFE-ORACLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when an oracle does not return 8 decimals.
+    error SafeOracle_DecimalsNotEight(address oracle, uint8 decimals);
+
+    /// @notice Thrown when an oracle does not implement the expected
+    /// interface.
+    error SafeOracle_MissesInterface(address oracle);
+
+    /// @notice Thrown when an oracle returns a negative price.
+    error SafeOracle_NegativePrice(address oracle);
 }

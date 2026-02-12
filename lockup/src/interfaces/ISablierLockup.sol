@@ -12,6 +12,7 @@ import { Lockup } from "../types/Lockup.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 import { ISablierLockupDynamic } from "./ISablierLockupDynamic.sol";
 import { ISablierLockupLinear } from "./ISablierLockupLinear.sol";
+import { ISablierLockupPriceGated } from "./ISablierLockupPriceGated.sol";
 import { ISablierLockupTranched } from "./ISablierLockupTranched.sol";
 
 /// @title ISablierLockup
@@ -23,6 +24,7 @@ interface ISablierLockup is
     IERC721Metadata, // 2 inherited components
     ISablierLockupDynamic, // 1 inherited component
     ISablierLockupLinear, // 1 inherited component
+    ISablierLockupPriceGated, // 1 inherited component
     ISablierLockupTranched // 1 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////

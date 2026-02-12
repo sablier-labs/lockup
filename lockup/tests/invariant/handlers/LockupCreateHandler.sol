@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierLockup } from "src/interfaces/ISablierLockup.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
 import { LockupLinear } from "src/types/LockupLinear.sol";
+import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 import { LockupTranched } from "src/types/LockupTranched.sol";
 
 import { Calculations } from "tests/utils/Calculations.sol";
@@ -20,13 +22,22 @@ contract LockupCreateHandler is BaseHandler, Calculations {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    AggregatorV3Interface public oracle;
     Store public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 token_, Store store_, ISablierLockup lockup_) BaseHandler(token_, lockup_) {
+    constructor(
+        IERC20 token_,
+        Store store_,
+        ISablierLockup lockup_,
+        AggregatorV3Interface oracle_
+    )
+        BaseHandler(token_, lockup_)
+    {
+        oracle = oracle_;
         store = store_;
     }
 
@@ -109,6 +120,46 @@ contract LockupCreateHandler is BaseHandler, Calculations {
         uint256 gasBefore = gasleft();
         uint256 streamId = lockup.createWithDurationsLL(params, unlockAmounts, granularity, durations);
 
+        store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
+
+        // Store the stream ID.
+        store.pushStreamId(streamId, params.sender, params.recipient);
+    }
+
+    function createWithDurationsLPG(
+        uint256 timeJumpSeed,
+        Lockup.CreateWithDurations memory params,
+        uint40 duration,
+        uint128 targetPrice
+    )
+        public
+        instrument("createWithDurationsLPG")
+        adjustTimestamp(timeJumpSeed)
+        checkUsers(params.sender, params.recipient)
+        useNewSender(params.sender)
+    {
+        // We don't want to create more than a certain number of streams.
+        vm.assume(store.lastStreamId() <= MAX_STREAM_COUNT);
+
+        // Bound the input parameters.
+        params.depositAmount = boundUint128(params.depositAmount, 1, ONE_BILLION_DAI);
+        duration = boundUint40(duration, 2 seconds, 52 weeks);
+        targetPrice = _boundTargetPrice(targetPrice);
+
+        // Mint enough tokens to the Sender.
+        deal({ token: address(token), to: params.sender, give: params.depositAmount });
+
+        // Approve {SablierLockup} to spend the tokens.
+        token.approve({ spender: address(lockup), value: params.depositAmount });
+
+        // Create the stream.
+        params.token = token;
+        params.shape = "Price-gated Stream";
+
+        uint256 gasBefore = gasleft();
+        uint256 streamId = lockup.createWithDurationsLPG(
+            params, LockupPriceGated.UnlockParams({ oracle: oracle, targetPrice: targetPrice }), duration
+        );
         store.recordGasUsage({ streamId: streamId, action: StreamAction.CREATE, gas: gasBefore - gasleft() });
 
         // Store the stream ID.
@@ -356,5 +407,12 @@ contract LockupCreateHandler is BaseHandler, Calculations {
             : boundUint40(granularity, 1, params.timestamps.end - params.timestamps.start);
 
         return (cliffTime, granularity);
+    }
+
+    /// @dev Herlper function to bound the target price, avoiding stack too deep error.
+    function _boundTargetPrice(uint128 targetPrice) private view returns (uint128) {
+        (, int256 currentPrice,,,) = oracle.latestRoundData();
+        uint128 minTargetPrice = uint128(uint256(currentPrice)) + 1;
+        return boundUint128(targetPrice, minTargetPrice, minTargetPrice * 3);
     }
 }

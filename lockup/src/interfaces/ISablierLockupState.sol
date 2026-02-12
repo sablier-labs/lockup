@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Lockup } from "../types/Lockup.sol";
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 import { ILockupNFTDescriptor } from "./ILockupNFTDescriptor.sol";
 
@@ -47,6 +48,15 @@ interface ISablierLockupState {
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getLockupModel(uint256 streamId) external view returns (Lockup.Model lockupModel);
+
+    /// @notice Retrieves the unlock parameters of a price-gated stream.
+    /// @dev Reverts if `streamId` references either a null stream or a non-LPG stream.
+    /// @param streamId The stream ID for the query.
+    /// @return unlockParams See the documentation in {LockupPriceGated} type.
+    function getPriceGatedUnlockParams(uint256 streamId)
+        external
+        view
+        returns (LockupPriceGated.UnlockParams memory unlockParams);
 
     /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the token's
     /// decimals. This amount is always zero unless the stream was canceled.

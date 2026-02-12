@@ -1,8 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+
+import { SafeOracle } from "../libraries/SafeOracle.sol";
+
 /// @dev By default, Chainlink uses 8 decimals for non-ETH pairs: https://ethereum.stackexchange.com/q/92508/24693
 uint8 constant DEFAULT_DECIMALS = 8;
+
+/// @notice Mock contract to expose the internal SafeOracle library function.
+contract SafeOracleMock {
+    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128) {
+        return SafeOracle.safeOraclePrice(oracle);
+    }
+}
 
 /*//////////////////////////////////////////////////////////////////////////
                            NON-REVERTING-ORACLES
@@ -10,6 +21,8 @@ uint8 constant DEFAULT_DECIMALS = 8;
 
 /// @notice A mock Chainlink oracle that returns a $3000 price with 8 decimals.
 contract ChainlinkOracleMock {
+    int256 internal _price = 3000e8;
+
     function decimals() external pure returns (uint8) {
         return DEFAULT_DECIMALS;
     }
@@ -19,9 +32,16 @@ contract ChainlinkOracleMock {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        int256 answer_ = 3000e8;
         uint256 updatedAt_ = block.timestamp;
-        return (0, answer_, 0, updatedAt_, 0);
+        return (0, _price, 0, updatedAt_, 0);
+    }
+
+    function price() external view returns (int256) {
+        return _price;
+    }
+
+    function setPrice(uint256 newPrice) external {
+        _price = int256(newPrice);
     }
 }
 

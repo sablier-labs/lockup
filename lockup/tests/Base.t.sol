@@ -66,6 +66,7 @@ abstract contract Base_Test is Assertions, Calculations, DeployOptimized, Modifi
         // Deploy the defaults contract.
         defaults = new Defaults();
         defaults.setToken(dai);
+        defaults.setOracle(oracle);
 
         // Deploy the protocol.
         deployProtocolConditionally();

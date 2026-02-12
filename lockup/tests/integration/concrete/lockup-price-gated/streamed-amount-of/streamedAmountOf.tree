@@ -1,0 +1,14 @@
+StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test
+├── given depleted stream
+│  └── it should return the deposited
+└── given not depleted stream
+   ├── given canceled stream
+   │  └── it should return zero
+   └── given not canceled stream
+      ├── when latest price below target
+      │  ├── when end time in past
+      │  │  └── it should return the deposited amount
+      │  └── when end time not in past
+      │     └── it should return zero
+      └── when latest price not below target
+         └── it should return the deposited amount

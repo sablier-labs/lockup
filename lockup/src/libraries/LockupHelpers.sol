@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
+
 import { Lockup } from "../types/Lockup.sol";
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
+import { LockupPriceGated } from "../types/LockupPriceGated.sol";
 import { LockupTranched } from "../types/LockupTranched.sol";
 import { Errors } from "./Errors.sol";
 
@@ -118,6 +121,36 @@ library LockupHelpers {
 
         // Check: validate the user-provided timestamps.
         _checkTimestampsAndUnlockAmounts(cliffTime, depositAmount, granularity, timestamps, unlockAmounts);
+    }
+
+    /// @dev Checks the parameters of the {SablierLockup-_createLPG} function.
+    function checkCreateLPG(
+        address sender,
+        Lockup.Timestamps memory timestamps,
+        uint128 depositAmount,
+        address token,
+        address nativeToken,
+        string memory shape,
+        LockupPriceGated.UnlockParams memory unlockParams
+    )
+        public
+        view
+    {
+        // Check: validate the user-provided common parameters.
+        _checkCreateStream(sender, depositAmount, timestamps.start, token, nativeToken, shape);
+
+        // Check: the start time is strictly less than the end time.
+        if (timestamps.start >= timestamps.end) {
+            revert Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime(timestamps.start, timestamps.end);
+        }
+
+        // Check: validate that the oracle implements {AggregatorV3Interface} interface and returns the latest price.
+        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
+
+        // Check: the target price is greater than the latest price.
+        if (unlockParams.targetPrice <= latestPrice) {
+            revert Errors.SablierLockup_TargetPriceTooLow(unlockParams.targetPrice, latestPrice);
+        }
     }
 
     /// @dev Checks the parameters of the {SablierLockup-_createLT} function.

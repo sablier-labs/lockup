@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupDynamic } from "src/types/LockupDynamic.sol";
@@ -36,7 +37,12 @@ contract Invariant_Test is Base_Test, StdInvariant {
 
         // Deploy the Lockup handlers.
         comptrollerHandler = new LockupComptrollerHandler({ token_: dai, lockup_: lockup });
-        createHandler = new LockupCreateHandler({ token_: dai, store_: store, lockup_: lockup });
+        createHandler = new LockupCreateHandler({
+            token_: dai,
+            store_: store,
+            lockup_: lockup,
+            oracle_: AggregatorV3Interface(address(oracle))
+        });
         handler = new LockupHandler({ token_: dai, store_: store, lockup_: lockup });
 
         // Label the contracts.
@@ -342,9 +348,13 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 );
             } else if (previousStatus == Lockup.Status.SETTLED) {
                 assertNotEq(currentStatus, Lockup.Status.PENDING, "Invariant violation: settled stream turned pending");
-                assertNotEq(
-                    currentStatus, Lockup.Status.STREAMING, "Invariant violation: settled stream turned streaming"
-                );
+                // Note: For a price-gated stream, it is possible for a SETTLED stream to return to STREAMING if the
+                // price goes back below the target price when end time is not reached.
+                if (lockup.getLockupModel(streamId) != Lockup.Model.LOCKUP_PRICE_GATED) {
+                    assertNotEq(
+                        currentStatus, Lockup.Status.STREAMING, "Invariant violation: settled stream turned streaming"
+                    );
+                }
                 assertNotEq(
                     currentStatus, Lockup.Status.CANCELED, "Invariant violation: settled stream turned canceled"
                 );
@@ -492,6 +502,28 @@ contract Invariant_Test is Base_Test, StdInvariant {
                         tranches[j].timestamp, previousTimestamp, "Invariant violation: tranche timestamps not ordered"
                     );
                     previousTimestamp = tranches[j].timestamp;
+                }
+            }
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                LPG MODEL INVARIANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev For a canceled LPG stream, refunded amount must equal the deposited amount.
+    function invariant_CanceledLPGRefundedEqDeposited() external view {
+        uint256 lastStreamId = store.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = store.streamIds(i);
+            if (lockup.getLockupModel(streamId) == Lockup.Model.LOCKUP_PRICE_GATED) {
+                uint128 refunded = lockup.getRefundedAmount(streamId);
+                if (lockup.statusOf(streamId) == Lockup.Status.CANCELED) {
+                    assertEq(
+                        refunded,
+                        lockup.getDepositedAmount(streamId),
+                        "Invariant violation: canceled LPG stream refunded != deposited"
+                    );
                 }
             }
         }
