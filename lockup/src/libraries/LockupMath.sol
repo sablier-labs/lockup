@@ -238,9 +238,9 @@ library LockupMath {
     /// @dev The LPG streaming model uses all-or-nothing unlock based on price threshold:
     ///
     /// $$
-    ///        ⎧ deposited - refunded, block timestamp >= end time OR latest price >= target price
+    ///        ⎧ deposited, block timestamp >= end time OR latest price >= target price
     /// f(x) = ⎨
-    ///        ⎩ 0,                    otherwise
+    ///        ⎩ 0,         otherwise
     ///
     /// $$
     ///
