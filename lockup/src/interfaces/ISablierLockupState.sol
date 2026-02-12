@@ -49,7 +49,7 @@ interface ISablierLockupState {
     /// @param streamId The stream ID for the query.
     function getLockupModel(uint256 streamId) external view returns (Lockup.Model lockupModel);
 
-    /// @notice Retrieves the unlock parameters of a price gated stream.
+    /// @notice Retrieves the unlock parameters of a price-gated stream.
     /// @dev Reverts if `streamId` references either a null stream or a non-LPG stream.
     /// @param streamId The stream ID for the query.
     /// @return unlockParams See the documentation in {LockupPriceGated} type.

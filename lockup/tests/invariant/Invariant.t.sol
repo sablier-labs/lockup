@@ -342,7 +342,7 @@ contract Invariant_Test is Base_Test, StdInvariant {
                 );
             } else if (previousStatus == Lockup.Status.SETTLED) {
                 assertNotEq(currentStatus, Lockup.Status.PENDING, "Invariant violation: settled stream turned pending");
-                // Note: For a price gated stream, it is possible for a SETTLED stream to return to STREAMING if the
+                // Note: For a price-gated stream, it is possible for a SETTLED stream to return to STREAMING if the
                 // price goes back below the target price when end time is not reached.
                 if (lockup.getLockupModel(streamId) != Lockup.Model.LOCKUP_PRICE_GATED) {
                     assertNotEq(

@@ -60,7 +60,7 @@
     - CANCELED $`\not\to`$ { PENDING, STREAMING, SETTLED }
     - DEPLETED $`\to`$ DEPLETED
 
-    Note: For a price gated stream, it is possible for a SETTLED stream to return to STREAMING if the price goes back below the target price when end time is not reached.
+    Note: For a price-gated stream, it is possible for a SETTLED stream to return to STREAMING if the price goes back below the target price when end time is not reached.
 
 10. Gas usage:
 
@@ -78,4 +78,4 @@
 
 13. For a Tranched stream, tranche timestamps should be strictly increasing.
 
-14. For a canceled Price Gated stream, refunded amount must equal the deposited amount.
+14. For a canceled price-gated stream, refunded amount must equal the deposited amount.

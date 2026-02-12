@@ -261,12 +261,13 @@ library LockupMath {
             return 0;
         }
 
-        // If the stream has expired, return the deposited amount..
+        // If the stream has expired, return the deposited amount.
         if (block.timestamp >= endTime) {
             return deposited;
         }
 
-        // Get the current oracle price using try-catch.
+        // Get the current oracle price using try-catch. Because users may not always use Chainlink oracles, we do not
+        // check for the staleness of the price.
         try unlockParams.oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
             // If the oracle price is at or above the target price, return the deposited amount.
             if (price > 0 && uint256(price).toUint128() >= unlockParams.targetPrice) {

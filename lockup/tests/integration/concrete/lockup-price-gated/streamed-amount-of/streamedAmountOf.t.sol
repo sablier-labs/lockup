@@ -18,7 +18,17 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenExpiredStream() external givenNotDepletedStream whenLatestPriceBelowTarget {
+    function test_GivenCanceledStream() external givenNotDepletedStream {
+        // Cancel the stream.
+        lockup.cancel(ids.defaultStream);
+
+        // It should return zero.
+        uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
+        uint128 expectedStreamedAmount = 0;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
+    }
+
+    function test_WhenExpiredStream() external givenNotDepletedStream givenNotCanceledStream whenLatestPriceBelowTarget {
         // Forward time to the end time.
         vm.warp({ newTimestamp: getBlockTimestamp() + defaults.TOTAL_DURATION() + 1 });
 
@@ -28,14 +38,20 @@ contract StreamedAmountOf_Lockup_PriceGated_Integration_Concrete_Test is Lockup_
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenNotExpiredStream() external view givenNotDepletedStream whenLatestPriceBelowTarget {
+    function test_WhenNotExpiredStream()
+        external
+        view
+        givenNotDepletedStream
+        givenNotCanceledStream
+        whenLatestPriceBelowTarget
+    {
         // It should return zero.
         uint128 actualStreamedAmount = lockup.streamedAmountOf(ids.defaultStream);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmountOf");
     }
 
-    function test_WhenLatestPriceNotBelowTarget() external givenNotDepletedStream {
+    function test_WhenLatestPriceNotBelowTarget() external givenNotDepletedStream givenNotCanceledStream {
         // Set price at target.
         oracle.setPrice(defaults.LPG_TARGET_PRICE());
 

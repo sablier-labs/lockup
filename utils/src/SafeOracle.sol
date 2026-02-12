@@ -30,6 +30,8 @@ library SafeOracle {
 
         // Check: oracle returns a positive price when `latestRoundData()` is called.
         try oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
+            // Because users may not always use Chainlink oracles, we do not check for the staleness of the price.
+            // Check: oracle price is positive.
             if (price <= 0) {
                 revert Errors.SafeOracle_NegativePrice(address(oracle));
             }
