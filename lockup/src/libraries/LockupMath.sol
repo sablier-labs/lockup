@@ -245,22 +245,17 @@ library LockupMath {
     /// $$
     ///
     /// Assumptions:
-    /// 1. The oracle is assumed to be returning the correct price.
+    /// 1. The stream is not canceled.
+    /// 2. The oracle is assumed to be returning the correct price.
     function calculateStreamedAmountLPG(
         uint128 deposited,
         uint40 endTime,
-        bool wasCanceled,
         LockupPriceGated.UnlockParams memory unlockParams
     )
         external
         view
         returns (uint128)
     {
-        // If the stream was canceled, return 0.
-        if (wasCanceled) {
-            return 0;
-        }
-
         // If the current time is greater than or equal to the end time, return the deposited amount.
         if (block.timestamp >= endTime) {
             return deposited;

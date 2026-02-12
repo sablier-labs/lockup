@@ -476,7 +476,7 @@ contract SablierLockup is
         // Calculate the streamed amount for the LPG model.
         else if (stream.lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
             streamedAmount = LockupMath.calculateStreamedAmountLPG(
-                stream.amounts.deposited, stream.endTime, stream.wasCanceled, _priceGatedUnlockParams[streamId]
+                stream.amounts.deposited, stream.endTime, _priceGatedUnlockParams[streamId]
             );
         }
         // Calculate the streamed amount for the LT model.
