@@ -39,11 +39,11 @@ scripts/
 ## Commands
 
 ```bash
-just build airdrops         # Build
-just test airdrops          # Run tests
-just test-lite airdrops     # Fast tests (no optimizer)
-just coverage airdrops      # Coverage report
-just full-check airdrops    # All checks
+just airdrops::build         # Build
+just airdrops::test          # Run tests
+just airdrops::test-lite     # Fast tests (no optimizer)
+just airdrops::coverage      # Coverage report
+just airdrops::full-check    # All checks
 ```
 
 ## Key Concepts

@@ -32,7 +32,7 @@ Each package has its own `CLAUDE.md` with protocol-specific context.
 ## Development Workflow
 
 1. Base branch for PRs: `staging`
-2. Run `just full-check <package>` before committing
+2. Run `just <package>::full-check` before committing
 3. Generate BTT tests: `bulloak scaffold -wf path/to/file.tree`
 
 ## Security

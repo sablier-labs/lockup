@@ -46,11 +46,11 @@ scripts/
 ## Commands
 
 ```bash
-just build utils            # Build
-just test utils             # Run tests
-just test-lite utils        # Fast tests (no optimizer)
-just coverage utils         # Coverage report
-just full-check utils       # All checks
+just utils::build            # Build
+just utils::test             # Run tests
+just utils::test-lite        # Fast tests (no optimizer)
+just utils::coverage         # Coverage report
+just utils::full-check       # All checks
 ```
 
 ## Import Paths

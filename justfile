@@ -1,15 +1,20 @@
-# See https://github.com/sablier-labs/devkit/just/evm.just
+# See https://github.com/sablier-labs/devkit/just/base.just
 # Run just --list to see all available commands
-import "./node_modules/@sablier/devkit/just/evm.just"
+import "./node_modules/@sablier/devkit/just/base.just"
+
+# Modules, use like this: just lockup::<recipe>
+mod airdrops "airdrops"
+mod flow "flow"
+mod lockup "lockup"
+mod utils "utils"
 
 # ---------------------------------------------------------------------------- #
 #                                   ENV VARS                                   #
 # ---------------------------------------------------------------------------- #
 
-FOUNDRY_DISABLE_NIGHTLY_WARNING := "true"
+export FOUNDRY_DISABLE_NIGHTLY_WARNING := "true"
 # Generate fuzz seed that changes weekly to avoid burning through RPC allowance
-FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
-GLOBS_SOLIDITY := "**/*.sol"
+export FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
 
 # ---------------------------------------------------------------------------- #
 #                                    SCRIPTS                                   #
@@ -18,136 +23,76 @@ GLOBS_SOLIDITY := "**/*.sol"
 default:
   @just --list
 
-# Clean build artifacts in a specific package
-@clean package:
-    just {{ package }}/clean
-
-# Clean build artifacts in all packages
-@clean-all:
-    just for-each clean
-    rm -rf cache
-
-# Clear node_modules in each package
-@clean-modules package:
-    just {{ package }}/clean-modules
-
-# Clear node_modules in all packages
-@clean-modules-all:
-    just for-each clean-modules
-    rm -rf node_modules
-
-# Install dependencies in a specific package
-install package:
-    cd {{ package }} && ni
-
-# Install dependencies in all packages
-install-all:
-    for dir in airdrops flow lockup utils; do (cd $dir && ni); done
-
 # Setup script
-setup: setup-env install-all base::install-mdformat
+setup: setup-env install-all install-mdformat
 
 # ---------------------------------------------------------------------------- #
-#                                    LINTING                                   #
+#                                 ALL PACKAGES                                 #
 # ---------------------------------------------------------------------------- #
-
-# Run full check on a specific package
-full-check package:
-    just {{ package }}/full-check
-
-# Run full check on all packages
-full-check-all:
-    just for-each full-check
-
-# Run full write on a specific package
-full-write package:
-    just {{ package }}/full-write
-
-# Run full write on all packages
-full-write-all:
-    just for-each full-write
-
-# ---------------------------------------------------------------------------- #
-#                                    FOUNDRY                                   #
-# ---------------------------------------------------------------------------- #
-
-# Build a specific package
-[group("foundry")]
-build package:
-    just {{ package }}/build
 
 # Build all packages
-[group("foundry")]
+[group("all")]
 build-all:
     just for-each build
 
-# Build a specific package with optimized profile
-[group("foundry")]
-build-optimized package *args:
-    just {{ package }}/build-optimized {{ args }}
-
 # Build all packages with optimized profile
-[group("foundry")]
+[group("all")]
 build-optimized-all:
     just for-each build-optimized
 
-# Run coverage for a specific package
-[group("foundry")]
-coverage package:
-    just {{ package }}/coverage
+# Clean build artifacts in all packages
+[group("all")]
+clean-all:
+    just for-each clean
+    rm -rf cache
+
+# Clear node_modules in all packages
+[group("all")]
+clean-modules-all:
+    just for-each clean-modules
+    rm -rf node_modules
 
 # Run coverage for all packages
-[group("foundry")]
+[group("all")]
 coverage-all:
     just for-each coverage
 
-# Deploy package contracts
-[group("foundry")]
-deploy package *args:
-    just {{ package }}/deploy {{ args }}
-
 # Deploy all contracts for all packages
-[group("foundry")]
+[group("all")]
 deploy-all *args:
     just for-each deploy {{ args }}
 
-# Run tests for a specific package
-[group("foundry")]
-test package *args:
-    just {{ package }}/test {{ args }}
+# Run full check on all packages
+[group("all")]
+full-check-all:
+    just for-each full-check
+
+# Run full write on all packages
+[group("all")]
+full-write-all:
+    just for-each full-write
+
+# Install dependencies in all packages
+install-all:
+    just for-each install
 
 # Run all tests
-[group("foundry")]
+[group("all")]
 test-all:
     just for-each test
 
-# Run bulloak tests for a specific package
-[group("foundry")]
-test-bulloak package:
-    just {{ package }}/test-bulloak
-
 # Run bulloak tests for all packages
-[group("foundry")]
+[group("all")]
 test-bulloak-all:
     just for-each test-bulloak
 
-# Run tests with lite profile for a specific package
-[group("foundry")]
-test-lite package *args:
-    just {{ package }}/test-lite {{ args }}
-
 # Run tests with lite profile for all packages
-[group("foundry")]
+[group("all")]
 test-lite-all:
     just for-each test-lite
 
-# Run tests with optimized profile for a specific package
-[group("foundry")]
-test-optimized package:
-    just {{ package }}/test-optimized
-
 # Run tests with optimized profile for all packages
-[group("foundry")]
+[group("all")]
 test-optimized-all:
     just for-each test-optimized
 
@@ -161,7 +106,7 @@ for-each recipe *args:
     #!/usr/bin/env bash
     set -euo pipefail
     for dir in airdrops flow lockup utils; do
-        just "$dir/{{ recipe }}" {{ args }}
+        just "$dir::{{ recipe }}" {{ args }}
     done
 
 # Setup .env and .prettierignore symlinks in all packages

@@ -39,11 +39,11 @@ scripts/
 ## Commands
 
 ```bash
-just build flow             # Build
-just test flow              # Run tests
-just test-lite flow         # Fast tests (no optimizer)
-just coverage flow          # Coverage report
-just full-check flow        # All checks
+just flow::build             # Build
+just flow::test              # Run tests
+just flow::test-lite         # Fast tests (no optimizer)
+just flow::coverage          # Coverage report
+just flow::full-check        # All checks
 ```
 
 ## Key Concepts
