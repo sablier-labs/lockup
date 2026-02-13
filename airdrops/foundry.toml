@@ -21,7 +21,7 @@
 
 [profile.optimized]
   extends = "../foundry.base.toml"
-  optimizer_runs = 1_000_000
+  optimizer_runs = 60_000
 
 [profile.test-optimized]
   extends = "../foundry.base.toml"
