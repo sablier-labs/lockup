@@ -59,9 +59,9 @@ just build-all
 To build a specific protocol:
 
 ```shell
-just build airdrops
-just build flow
-just build lockup
+just airdrops::build
+just flow::build
+just lockup::build
 ```
 
 Switch to the `staging` branch, where all development work should be done:

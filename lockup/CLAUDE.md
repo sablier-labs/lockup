@@ -34,11 +34,11 @@ scripts/
 ## Commands
 
 ```bash
-just build lockup           # Build
-just test lockup            # Run tests
-just test-lite lockup       # Fast tests (no optimizer)
-just coverage lockup        # Coverage report
-just full-check lockup      # All checks
+just lockup::build           # Build
+just lockup::test            # Run tests
+just lockup::test-lite       # Fast tests (no optimizer)
+just lockup::coverage        # Coverage report
+just lockup::full-check      # All checks
 ```
 
 ## Key Concepts

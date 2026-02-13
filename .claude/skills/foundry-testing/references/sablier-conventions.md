@@ -119,9 +119,9 @@ ______________________________________________________________________
 ## Commands
 
 ```bash
-just test lockup                              # All tests
-just test lockup --match-path "tests/fork/**" # Fork tests only
-just test-bulloak lockup                      # Verify BTT alignment
-just test-optimized lockup                    # Optimized profile
-just coverage lockup                          # Coverage report
+just lockup::test                              # All tests
+just lockup::test --match-path "tests/fork/**" # Fork tests only
+just lockup::test-bulloak                      # Verify BTT alignment
+just lockup::test-optimized                    # Optimized profile
+just lockup::coverage                          # Coverage report
 ```
