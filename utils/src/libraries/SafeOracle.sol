@@ -31,7 +31,12 @@ library SafeOracle {
                 return 0;
             }
 
-            price = uint256(_price).toUint128();
+            // If the price is greater than max `uint128`, return zero.
+            if (uint256(_price) > type(uint128).max) {
+                return 0;
+            }
+
+            price = uint128(uint256(_price));
             updatedAt = _updatedAt;
         } catch {
             // If the oracle call fails, return 0.
