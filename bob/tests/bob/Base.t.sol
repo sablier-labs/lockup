@@ -183,8 +183,16 @@ abstract contract Base_Test is Assertions, Modifiers {
 
     /// @dev Deploys the real SablierLidoAdapter.
     function deployAdapter() internal {
-        adapter =
-            new SablierLidoAdapter(address(comptroller), address(bob), DEFAULT_SLIPPAGE_TOLERANCE, DEFAULT_YIELD_FEE);
+        adapter = new SablierLidoAdapter({
+            initialComptroller: address(comptroller),
+            sablierBob_: address(bob),
+            curvePool_: address(curvePool),
+            stETH_: address(steth),
+            wETH_: address(weth),
+            wstETH_: address(wsteth),
+            initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
+            initialYieldFee: DEFAULT_YIELD_FEE
+        });
         vm.label({ account: address(adapter), newLabel: "SablierLidoAdapter" });
         defaults.setAdapter(ISablierLidoAdapter(address(adapter)));
     }

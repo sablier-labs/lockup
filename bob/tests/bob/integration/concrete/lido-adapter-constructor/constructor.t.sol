@@ -42,6 +42,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         new SablierLidoAdapter({
             initialComptroller: address(comptroller),
             sablierBob_: address(bob),
+            curvePool_: address(curvePool),
+            stETH_: address(steth),
+            wETH_: address(weth),
+            wstETH_: address(wsteth),
             initialSlippageTolerance: excessiveSlippage,
             initialYieldFee: DEFAULT_YIELD_FEE
         });
@@ -62,6 +66,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         new SablierLidoAdapter({
             initialComptroller: address(comptroller),
             sablierBob_: address(bob),
+            curvePool_: address(curvePool),
+            stETH_: address(steth),
+            wETH_: address(weth),
+            wstETH_: address(wsteth),
             initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
             initialYieldFee: excessiveFee
         });
@@ -72,6 +80,10 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         SablierLidoAdapter newAdapter = new SablierLidoAdapter({
             initialComptroller: address(comptroller),
             sablierBob_: address(bob),
+            curvePool_: address(curvePool),
+            stETH_: address(steth),
+            wETH_: address(weth),
+            wstETH_: address(wsteth),
             initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
             initialYieldFee: DEFAULT_YIELD_FEE
         });

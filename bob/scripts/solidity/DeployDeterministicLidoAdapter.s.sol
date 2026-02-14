@@ -7,9 +7,11 @@ import { BaseScript } from "@sablier/evm-utils/src/tests/BaseScript.sol";
 import { ISablierBob } from "../../src/interfaces/ISablierBob.sol";
 import { SablierLidoAdapter } from "../../src/SablierLidoAdapter.sol";
 
+import { LidoAdapterConstants } from "./LidoAdapterConstants.s.sol";
+
 /// @notice Deploys {SablierLidoAdapter} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployDeterministicLidoAdapter is BaseScript {
+contract DeployDeterministicLidoAdapter is BaseScript, LidoAdapterConstants {
     function run(
         ISablierBob sablierBob,
         UD60x18 initialSlippageTolerance,
@@ -19,8 +21,15 @@ contract DeployDeterministicLidoAdapter is BaseScript {
         broadcast
         returns (SablierLidoAdapter lidoAdapter)
     {
-        lidoAdapter = new SablierLidoAdapter{ salt: SALT }(
-            getComptroller(), address(sablierBob), initialSlippageTolerance, initialYieldFee
-        );
+        lidoAdapter = new SablierLidoAdapter{ salt: SALT }({
+            initialComptroller: getComptroller(),
+            sablierBob_: address(sablierBob),
+            curvePool_: getCurvePool(),
+            stETH_: getStETH(),
+            wETH_: getWETH(),
+            wstETH_: getWSTETH(),
+            initialSlippageTolerance: initialSlippageTolerance,
+            initialYieldFee: initialYieldFee
+        });
     }
 }

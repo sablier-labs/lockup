@@ -36,7 +36,7 @@ contract SablierLidoAdapter is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierLidoAdapter
-    address public constant override CURVE_POOL = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
+    address public immutable override CURVE_POOL;
 
     /// @inheritdoc ISablierBobAdapter
     UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.2e18);
@@ -45,13 +45,13 @@ contract SablierLidoAdapter is
     UD60x18 public constant override MAX_SLIPPAGE_TOLERANCE = UD60x18.wrap(0.05e18);
 
     /// @inheritdoc ISablierLidoAdapter
-    address public constant override STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
+    address public immutable override STETH;
 
     /// @inheritdoc ISablierLidoAdapter
-    address public constant override WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public immutable override WETH;
 
     /// @inheritdoc ISablierLidoAdapter
-    address public constant override WSTETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+    address public immutable override WSTETH;
 
     /// @inheritdoc ISablierBobAdapter
     address public immutable override SABLIER_BOB;
@@ -94,6 +94,10 @@ contract SablierLidoAdapter is
     constructor(
         address initialComptroller,
         address sablierBob_,
+        address curvePool_,
+        address stETH_,
+        address wETH_,
+        address wstETH_,
         UD60x18 initialSlippageTolerance,
         UD60x18 initialYieldFee
     )
@@ -113,6 +117,11 @@ contract SablierLidoAdapter is
         }
 
         SABLIER_BOB = sablierBob_;
+
+        CURVE_POOL = curvePool_;
+        STETH = stETH_;
+        WETH = wETH_;
+        WSTETH = wstETH_;
 
         // Effect: set the initial slippage tolerance.
         slippageTolerance = initialSlippageTolerance;
@@ -264,10 +273,13 @@ contract SablierLidoAdapter is
         IWETH9(WETH).withdraw(amount);
 
         // Interaction: Stake ETH to get stETH.
-        uint256 stETHAmount = IStETH(STETH).submit{ value: amount }({ referral: address(comptroller) });
+        IStETH(STETH).submit{ value: amount }({ referral: address(comptroller) });
+
+        // Get the balance of stETH held by the adapter.
+        uint256 stETHBalance = IStETH(STETH).balanceOf(address(this));
 
         // Interaction: Wrap stETH into wstETH.
-        uint128 wstETHAmount = IWstETH(WSTETH).wrap(stETHAmount).toUint128();
+        uint128 wstETHAmount = IWstETH(WSTETH).wrap(stETHBalance).toUint128();
 
         // Effect: track user's wstETH.
         _userWstETH[vaultId][user] += wstETHAmount;
