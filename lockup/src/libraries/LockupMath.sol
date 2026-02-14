@@ -5,6 +5,7 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 
 import { LockupDynamic } from "../types/LockupDynamic.sol";
 import { LockupLinear } from "../types/LockupLinear.sol";
@@ -261,19 +262,15 @@ library LockupMath {
             return deposited;
         }
 
-        // Get the current oracle price using try-catch. Because users may not always use Chainlink oracles, we do not
-        // check for the staleness of the price.
-        try unlockParams.oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
-            // If the oracle price is at or above the target price, return the deposited amount.
-            if (price > 0 && uint256(price).toUint128() >= unlockParams.targetPrice) {
-                return deposited;
-            }
-            // Otherwise, return 0.
-            return 0;
-        } catch {
-            // If the oracle call fails, return 0.
-            return 0;
+        // Get the latest price from the oracle with safety checks.
+        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
+
+        // If the oracle price is at or above the target price, return the deposited amount.
+        if (latestPrice > 0 && latestPrice >= unlockParams.targetPrice) {
+            return deposited;
         }
+
+        return 0;
     }
 
     /// @notice Calculates the streamed amount of LT streams.

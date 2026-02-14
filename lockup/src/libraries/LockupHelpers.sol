@@ -145,7 +145,7 @@ library LockupHelpers {
         }
 
         // Check: validate that the oracle implements {AggregatorV3Interface} interface and returns the latest price.
-        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
+        uint128 latestPrice = SafeOracle.validateOracle(unlockParams.oracle);
 
         // Check: the target price is greater than the latest price.
         if (unlockParams.targetPrice <= latestPrice) {
