@@ -13,6 +13,10 @@ contract SafeOracleMock {
     function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128) {
         return SafeOracle.safeOraclePrice(oracle);
     }
+
+    function validateOracle(AggregatorV3Interface oracle) external view returns (uint128) {
+        return SafeOracle.validateOracle(oracle);
+    }
 }
 
 /*//////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,20 @@
+SafeOraclePrice_Concrete_Test
+├── when oracle address zero
+│  └── it should return zero
+└── when oracle address not zero
+   ├── when latest round call fails
+   │  └── it should return zero
+   └── when latest round call not fail
+      ├── when oracle price negative
+      │  └── it should return zero
+      └── when oracle price not negative
+         ├── when oracle updated time in future
+         │  └── it should return zero
+         └── when oracle updated time not in future
+            ├── when oracle price outdated
+            │  └── it should return zero
+            └── when oracle price not outdated
+               ├── when oracle price zero
+               │  └── it should return zero
+               └── when oracle price not zero
+                  └── it should return the latest price

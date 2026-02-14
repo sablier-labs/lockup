@@ -10,6 +10,7 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { IComptrollerable } from "./interfaces/IComptrollerable.sol";
 import { ISablierComptroller } from "./interfaces/ISablierComptroller.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { SafeOracle } from "./libraries/SafeOracle.sol";
 import { RoleAdminable } from "./RoleAdminable.sol";
 
 /*
@@ -429,37 +430,12 @@ contract SablierComptroller is
             return 0;
         }
 
-        uint256 price;
-        uint256 updatedAt;
+        // Get the latest price from the oracle.
+        uint256 price = SafeOracle.safeOraclePrice(AggregatorV3Interface(oracle));
 
-        // Interactions: query the oracle price and the time at which it was updated.
-        try AggregatorV3Interface(oracle).latestRoundData() returns (
-            uint80, int256 _price, uint256, uint256 _updatedAt, uint80
-        ) {
-            // If the price is not greater than 0, skip the calculations.
-            if (_price <= 0) {
-                return 0;
-            }
-
-            price = uint256(_price);
-            updatedAt = _updatedAt;
-        } catch {
-            // If the oracle call fails, return 0.
+        // If the price is 0, skip the calculations.
+        if (price == 0) {
             return 0;
-        }
-
-        // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp that is in the future. In
-        // this case, we ignore the price and return 0.
-        if (block.timestamp < updatedAt) {
-            return 0;
-        }
-
-        // If the oracle hasn't been updated in the last 24 hours, we ignore the price and return 0. This is a safety
-        // check to avoid using outdated prices.
-        unchecked {
-            if (block.timestamp - updatedAt > 24 hours) {
-                return 0;
-            }
         }
 
         uint8 oracleDecimals;
