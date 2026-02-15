@@ -191,31 +191,14 @@ abstract contract Integration_Test is Base_Test {
         );
     }
 
-    /// @dev Expects a revert when the oracle is invalid.
-    function expectRevert_InvalidOracle(bytes memory callData, address oracleAddress) internal {
+    /// @dev Expects a revert when the target price is zero.
+    function expectRevert_TargetPriceZero(bytes memory callData) internal {
         (bool success, bytes memory returnData) = address(bob).call(callData);
-        assertFalse(success, "invalid oracle call success");
+        assertFalse(success, "target price zero call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierBob_InvalidOracle.selector, oracleAddress),
-            "invalid oracle call return data"
-        );
-    }
-
-    /// @dev Expects a revert when the oracle returns invalid decimals (not 8).
-    function expectRevert_InvalidOracleDecimals(
-        bytes memory callData,
-        address oracleAddress,
-        uint8 decimalsValue
-    )
-        internal
-    {
-        (bool success, bytes memory returnData) = address(bob).call(callData);
-        assertFalse(success, "invalid oracle decimals call success");
-        assertEq(
-            returnData,
-            abi.encodeWithSelector(Errors.SablierBob_InvalidOracleDecimals.selector, oracleAddress, decimalsValue),
-            "invalid oracle decimals call return data"
+            abi.encodeWithSelector(Errors.SablierBob_TargetPriceZero.selector),
+            "target price zero call return data"
         );
     }
 

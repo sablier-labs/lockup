@@ -19,8 +19,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: expectedName,
             symbol_: "WETH-100-1792790393-1",
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.name(), expectedName, "name");
@@ -29,7 +29,7 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
     /// @dev Tests name with empty string.
     function test_Name_EmptyString() external {
         BobVaultShare shareToken =
-            new BobVaultShare({ name_: "", symbol_: "TST", decimals_: 18, sablierBob_: address(bob), vaultId_: 1 });
+            new BobVaultShare({ name_: "", symbol_: "TST", decimals_: 18, sablierBob: address(bob), vaultId: 1 });
 
         assertEq(shareToken.name(), "", "name should be empty string");
     }
@@ -39,13 +39,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
         string memory longName =
             "This is a very long token name that exceeds normal expectations for ERC20 token names but should still work";
 
-        BobVaultShare shareToken = new BobVaultShare({
-            name_: longName,
-            symbol_: "TST",
-            decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
-        });
+        BobVaultShare shareToken =
+            new BobVaultShare({ name_: longName, symbol_: "TST", decimals_: 18, sablierBob: address(bob), vaultId: 1 });
 
         assertEq(shareToken.name(), longName, "name should match long string");
     }
@@ -58,8 +53,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: specialName,
             symbol_: "TST",
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.name(), specialName, "name should match special characters");
@@ -77,8 +72,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: expectedSymbol,
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.symbol(), expectedSymbol, "symbol");
@@ -93,8 +88,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Sablier Bob POL Vault #12",
             symbol_: expectedSymbol,
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 12
+            sablierBob: address(bob),
+            vaultId: 12
         });
 
         assertEq(shareToken.symbol(), expectedSymbol, "symbol should follow standard format");
@@ -106,8 +101,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "",
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.symbol(), "", "symbol should be empty string");
@@ -119,8 +114,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "T",
             decimals_: 18,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.symbol(), "T", "symbol should be single character");
@@ -138,8 +133,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "TST",
             decimals_: expectedDecimals,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.decimals(), expectedDecimals, "decimals");
@@ -151,8 +146,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "TST",
             decimals_: 6,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.decimals(), 6, "decimals should be 6");
@@ -164,8 +159,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "TST",
             decimals_: 8,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.decimals(), 8, "decimals should be 8");
@@ -177,8 +172,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "TST",
             decimals_: 0,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.decimals(), 0, "decimals should be 0");
@@ -191,8 +186,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Token",
             symbol_: "TST",
             decimals_: 12,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         // ERC20 default is 18, but our override should return 12.
@@ -214,8 +209,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: expectedName,
             symbol_: expectedSymbol,
             decimals_: expectedDecimals,
-            sablierBob_: address(bob),
-            vaultId_: 42
+            sablierBob: address(bob),
+            vaultId: 42
         });
 
         assertEq(shareToken.name(), expectedName, "name");
@@ -234,8 +229,8 @@ contract Metadata_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: expectedName,
             symbol_: expectedSymbol,
             decimals_: expectedDecimals,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
 
         assertEq(shareToken.name(), expectedName, "name");

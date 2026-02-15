@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
@@ -10,6 +10,7 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Batch } from "@sablier/evm-utils/src/Batch.sol";
+import { SafeOracle } from "@sablier/evm-utils/src/libraries/SafeOracle.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 import { ISablierComptroller } from "@sablier/evm-utils/src/interfaces/ISablierComptroller.sol";
 
@@ -86,8 +87,13 @@ contract SablierBob is
             revert Errors.SablierBob_ExpiryInPast(expiry, currentTimestamp);
         }
 
+        // Check: target price is not zero.
+        if (targetPrice == 0) {
+            revert Errors.SablierBob_TargetPriceZero();
+        }
+
         // Check: oracle implements the Chainlink {AggregatorV3Interface} interface.
-        uint128 latestPrice = _validateOracle(oracle);
+        uint128 latestPrice = SafeOracle.validateOracle(oracle);
 
         // Check: target price is greater than latest oracle price.
         if (targetPrice <= latestPrice) {
@@ -119,12 +125,12 @@ contract SablierBob is
                 vaultId.toString()
             ),
             decimals_: tokenDecimals,
-            sablierBob_: address(this),
-            vaultId_: vaultId
+            sablierBob: address(this),
+            vaultId: vaultId
         });
 
         // Copy the adapter from storage to memory.
-        ISablierBobAdapter adapter = defaultAdapter[token];
+        ISablierBobAdapter adapter = defaultAdapters[token];
 
         // Effect: create the vault.
         _vaults[vaultId] = Bob.Vault({
@@ -150,7 +156,15 @@ contract SablierBob is
 
     /// @inheritdoc ISablierBob
     function enter(uint256 vaultId, uint128 amount) external override nonReentrant notNull(vaultId) {
-        // Check: the vault is not settled.
+        // Check: the vault is not already settled (e.g. via expiry or a previous sync).
+        if (_statusOf(vaultId) == Bob.Status.SETTLED) {
+            revert Errors.SablierBob_VaultSettled(vaultId);
+        }
+
+        // Effect: sync the oracle price.
+        _syncPriceFromOracle(vaultId);
+
+        // Check: the vault has not become settled after the sync.
         if (_statusOf(vaultId) == Bob.Status.SETTLED) {
             revert Errors.SablierBob_VaultSettled(vaultId);
         }
@@ -161,14 +175,11 @@ contract SablierBob is
         }
 
         // Load the vault from storage.
-        Bob.Vault storage vault = _vaults[vaultId];
+        Bob.Vault memory vault = _vaults[vaultId];
 
-        // Effect: fetch the latest oracle price from oracle and update it in the storage.
-        _syncPriceFromOracle(vaultId, vault);
-
-        // Effect: set depositedAt on the first deposit for grace period tracking.
-        if (_depositedAt[vaultId][msg.sender] == 0) {
-            _depositedAt[vaultId][msg.sender] = uint40(block.timestamp);
+        // Effect: set `_firstDepositTimes` on the first deposit for grace period tracking.
+        if (_firstDepositTimes[vaultId][msg.sender] == 0) {
+            _firstDepositTimes[vaultId][msg.sender] = uint40(block.timestamp);
         }
 
         // Interaction: transfer tokens from caller to this contract or the adapter.
@@ -209,23 +220,23 @@ contract SablierBob is
         }
 
         // Retrieve the timestamp when the caller made the first deposit in this vault.
-        uint40 depositedAt = _depositedAt[vaultId][msg.sender];
+        uint40 firstDepositTime = _firstDepositTimes[vaultId][msg.sender];
 
         // Check: the caller is a depositor and does not hold shares because of a transfer.
-        if (depositedAt == 0) {
+        if (firstDepositTime == 0) {
             revert Errors.SablierBob_CallerNotDepositor(vaultId, msg.sender);
         }
 
         // Calculate the grace period end time.
-        uint40 gracePeriodEndsAt = depositedAt + GRACE_PERIOD;
+        uint40 gracePeriodEndsAt = firstDepositTime + GRACE_PERIOD;
 
         // Check: the current timestamp is within the grace period.
         if (block.timestamp >= gracePeriodEndsAt) {
-            revert Errors.SablierBob_GracePeriodExpired(vaultId, msg.sender, depositedAt, gracePeriodEndsAt);
+            revert Errors.SablierBob_GracePeriodExpired(vaultId, msg.sender, firstDepositTime, gracePeriodEndsAt);
         }
 
         // Effect: clear the deposit record.
-        delete _depositedAt[vaultId][msg.sender];
+        delete _firstDepositTimes[vaultId][msg.sender];
 
         // Effect: burn share tokens from the caller.
         vault.shareToken.burn(msg.sender, amount);
@@ -253,7 +264,13 @@ contract SablierBob is
     {
         // Check: the vault is settled.
         if (_statusOf(vaultId) != Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultNotSettled(vaultId);
+            // Effect: sync the oracle price.
+            _syncPriceFromOracle(vaultId);
+
+            // If it's still not settled after the sync, revert.
+            if (_statusOf(vaultId) != Bob.Status.SETTLED) {
+                revert Errors.SablierBob_VaultNotSettled(vaultId);
+            }
         }
 
         // Load the vault from storage.
@@ -331,7 +348,7 @@ contract SablierBob is
         }
 
         // Effect: set the default adapter for the token.
-        defaultAdapter[token] = newAdapter;
+        defaultAdapters[token] = newAdapter;
 
         // Log the adapter change.
         emit SetDefaultAdapter(token, newAdapter);
@@ -344,11 +361,8 @@ contract SablierBob is
             revert Errors.SablierBob_VaultSettled(vaultId);
         }
 
-        // Load the vault from storage.
-        Bob.Vault storage vault = _vaults[vaultId];
-
         // Effect: sync the oracle price.
-        latestPrice = _syncPriceFromOracle(vaultId, vault);
+        latestPrice = _syncPriceFromOracle(vaultId);
     }
 
     /// @inheritdoc ISablierBob
@@ -362,7 +376,13 @@ contract SablierBob is
 
         // Check: the vault is settled.
         if (_statusOf(vaultId) != Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultNotSettled(vaultId);
+            // Effect: sync the oracle price.
+            _syncPriceFromOracle(vaultId);
+
+            // If it's still not settled after the sync, revert.
+            if (_statusOf(vaultId) != Bob.Status.SETTLED) {
+                revert Errors.SablierBob_VaultNotSettled(vaultId);
+            }
         }
 
         // Check: the vault has an adapter.
@@ -398,16 +418,14 @@ contract SablierBob is
         external
         override
     {
-        Bob.Vault storage vault = _vaults[vaultId];
-
         // Check: caller is the share token for this vault.
-        if (msg.sender != address(vault.shareToken)) {
+        if (msg.sender != address(_vaults[vaultId].shareToken)) {
             revert Errors.SablierBob_CallerNotShareToken(vaultId, msg.sender);
         }
 
-        if (address(vault.adapter) != address(0)) {
+        if (address(_vaults[vaultId].adapter) != address(0)) {
             // Interaction: update staked token holding of the user in the adapter.
-            vault.adapter.updateStakedTokenBalance(vaultId, from, to, amount, fromBalanceBefore);
+            _vaults[vaultId].adapter.updateStakedTokenBalance(vaultId, from, to, amount, fromBalanceBefore);
         }
     }
 
@@ -417,26 +435,19 @@ contract SablierBob is
 
     /// @dev Internal function to fetch the latest oracle price and update it in the vault storage.
     /// @param vaultId The ID of the vault.
-    /// @param vault The vault storage reference.
     /// @return latestPrice The latest price from the oracle.
-    function _syncPriceFromOracle(uint256 vaultId, Bob.Vault storage vault) internal returns (uint128 latestPrice) {
-        // Fetch the latest price from oracle.
-        (, int256 oraclePrice,, uint256 updatedAt,) = vault.oracle.latestRoundData();
+    function _syncPriceFromOracle(uint256 vaultId) internal returns (uint128 latestPrice) {
+        AggregatorV3Interface oracleAddress = _vaults[vaultId].oracle;
 
-        // Check: the oracle must return a positive price.
-        if (oraclePrice <= 0) {
-            revert Errors.SablierBob_OraclePriceInvalid(vaultId, oraclePrice);
-        }
-
-        // Cast the oracle price to `uint128`.
-        latestPrice = uint256(oraclePrice).toUint128();
+        // Get the latest price from the oracle with safety checks.
+        latestPrice = SafeOracle.safeOraclePrice(oracleAddress);
 
         // Effect: update the last synced price and timestamp.
-        vault.lastSyncedPrice = latestPrice;
-        vault.lastSyncedAt = uint40(updatedAt);
+        _vaults[vaultId].lastSyncedPrice = latestPrice;
+        _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
 
         // Log the event.
-        emit SyncPriceFromOracle(vaultId, vault.oracle, latestPrice, uint40(updatedAt));
+        emit SyncPriceFromOracle(vaultId, oracleAddress, latestPrice, uint40(block.timestamp));
     }
 
     /// @dev Internal function to unstake all tokens using the adapter.
@@ -453,38 +464,5 @@ contract SablierBob is
 
         // Log the event.
         emit UnstakeFromAdapter(vaultId, vault.adapter, amountStakedViaAdapter, amountReceivedFromAdapter);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            PRIVATE READ-ONLY FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Validates that the oracle implements the Chainlink {AggregatorV3Interface} interface and returns 8
-    /// decimals.
-    /// @return latestPrice The latest price returned by the oracle.
-    function _validateOracle(AggregatorV3Interface oracle) private view returns (uint128 latestPrice) {
-        // Check: oracle is not the zero address.
-        if (address(oracle) == address(0)) {
-            revert Errors.SablierBob_InvalidOracle(address(oracle));
-        }
-
-        // Check: oracle returns 8 decimals when `decimals()` is called.
-        try oracle.decimals() returns (uint8 oracleDecimals) {
-            if (oracleDecimals != 8) {
-                revert Errors.SablierBob_InvalidOracleDecimals(address(oracle), oracleDecimals);
-            }
-        } catch {
-            revert Errors.SablierBob_InvalidOracle(address(oracle));
-        }
-
-        // Check: oracle returns a positive price when `latestRoundData()` is called.
-        try oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
-            if (price <= 0) {
-                revert Errors.SablierBob_InvalidOracle(address(oracle));
-            }
-            latestPrice = uint256(price).toUint128();
-        } catch {
-            revert Errors.SablierBob_InvalidOracle(address(oracle));
-        }
     }
 }

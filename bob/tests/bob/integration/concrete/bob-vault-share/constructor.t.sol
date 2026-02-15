@@ -25,8 +25,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(bob),
-            vaultId_: TEST_VAULT_ID
+            sablierBob: address(bob),
+            vaultId: TEST_VAULT_ID
         });
 
         // Check SABLIER_BOB is set correctly.
@@ -67,8 +67,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
             decimals_: 6,
-            sablierBob_: address(bob),
-            vaultId_: TEST_VAULT_ID
+            sablierBob: address(bob),
+            vaultId: TEST_VAULT_ID
         });
         assertEq(shareToken6.decimals(), 6, "decimals should be 6");
 
@@ -77,8 +77,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
             decimals_: 8,
-            sablierBob_: address(bob),
-            vaultId_: TEST_VAULT_ID
+            sablierBob: address(bob),
+            vaultId: TEST_VAULT_ID
         });
         assertEq(shareToken8.decimals(), 8, "decimals should be 8");
     }
@@ -89,8 +89,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(bob),
-            vaultId_: 1
+            sablierBob: address(bob),
+            vaultId: 1
         });
         assertEq(shareToken.VAULT_ID(), 1, "VAULT_ID should be 1");
     }
@@ -103,8 +103,8 @@ contract Constructor_BobVaultShare_Integration_Concrete_Test is Integration_Test
             name_: TEST_NAME,
             symbol_: TEST_SYMBOL,
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(bob),
-            vaultId_: largeVaultId
+            sablierBob: address(bob),
+            vaultId: largeVaultId
         });
         assertEq(shareToken.VAULT_ID(), largeVaultId, "VAULT_ID should be max uint256");
     }

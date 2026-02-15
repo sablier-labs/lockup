@@ -8,15 +8,16 @@ import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
 import { SablierBob } from "src/SablierBob.sol";
 import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
+import {
+    ChainlinkOracleMock,
+    ChainlinkOracleWith18Decimals,
+    ChainlinkOracleWithRevertingDecimals,
+    ChainlinkOracleWithRevertingPrice,
+    ChainlinkOracleZeroPrice
+} from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
+
 import { MockAdapterInvalidInterface } from "./mocks/MockAdapter.sol";
 import { MockCurvePool, MockStETH, MockWETH9, MockWstETH } from "./mocks/MockLido.sol";
-import {
-    MockOracle,
-    MockOracleInvalidDecimals,
-    MockOracleInvalidPrice,
-    MockOracleReverting,
-    MockOracleRevertingOnLatestRoundData
-} from "./mocks/MockOracle.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
@@ -37,11 +38,11 @@ abstract contract Base_Test is Assertions, Modifiers {
     ISablierBob internal bob;
     SablierLidoAdapter internal adapter;
     MockAdapterInvalidInterface internal mockAdapterInvalid;
-    MockOracle internal mockOracle;
-    MockOracleInvalidDecimals internal mockOracleInvalidDecimals;
-    MockOracleInvalidPrice internal mockOracleInvalidPrice;
-    MockOracleReverting internal mockOracleReverting;
-    MockOracleRevertingOnLatestRoundData internal mockOracleRevertingOnLatestRoundData;
+    ChainlinkOracleMock internal mockOracle;
+    ChainlinkOracleWith18Decimals internal mockOracleInvalidDecimals;
+    ChainlinkOracleZeroPrice internal mockOracleInvalidPrice;
+    ChainlinkOracleWithRevertingDecimals internal mockOracleReverting;
+    ChainlinkOracleWithRevertingPrice internal mockOracleRevertingOnLatestRoundData;
 
     // External protocol mocks (Lido ecosystem).
     MockWETH9 internal weth;
@@ -57,20 +58,21 @@ abstract contract Base_Test is Assertions, Modifiers {
         EvmBase.setUp();
 
         // Deploy mock oracles.
-        mockOracle = new MockOracle(50e8); // Initial price: $50
-        mockOracleInvalidDecimals = new MockOracleInvalidDecimals(18); // 18 decimals instead of 8
-        mockOracleInvalidPrice = new MockOracleInvalidPrice(0);
-        mockOracleReverting = new MockOracleReverting();
-        mockOracleRevertingOnLatestRoundData = new MockOracleRevertingOnLatestRoundData();
+        mockOracle = new ChainlinkOracleMock();
+        mockOracle.setPrice(uint256(INITIAL_PRICE));
+        mockOracleInvalidDecimals = new ChainlinkOracleWith18Decimals();
+        mockOracleInvalidPrice = new ChainlinkOracleZeroPrice();
+        mockOracleReverting = new ChainlinkOracleWithRevertingDecimals();
+        mockOracleRevertingOnLatestRoundData = new ChainlinkOracleWithRevertingPrice();
 
         // Label the mock oracles.
-        vm.label({ account: address(mockOracle), newLabel: "MockOracle" });
-        vm.label({ account: address(mockOracleInvalidDecimals), newLabel: "MockOracleInvalidDecimals" });
-        vm.label({ account: address(mockOracleInvalidPrice), newLabel: "MockOracleInvalidPrice" });
-        vm.label({ account: address(mockOracleReverting), newLabel: "MockOracleReverting" });
+        vm.label({ account: address(mockOracle), newLabel: "ChainlinkOracleMock" });
+        vm.label({ account: address(mockOracleInvalidDecimals), newLabel: "ChainlinkOracleWith18Decimals" });
+        vm.label({ account: address(mockOracleInvalidPrice), newLabel: "ChainlinkOracleZeroPrice" });
+        vm.label({ account: address(mockOracleReverting), newLabel: "ChainlinkOracleWithRevertingDecimals" });
         vm.label({
             account: address(mockOracleRevertingOnLatestRoundData),
-            newLabel: "MockOracleRevertingOnLatestRoundData"
+            newLabel: "ChainlinkOracleWithRevertingPrice"
         });
 
         // Deploy the defaults contract.
@@ -185,11 +187,11 @@ abstract contract Base_Test is Assertions, Modifiers {
     function deployAdapter() internal {
         adapter = new SablierLidoAdapter({
             initialComptroller: address(comptroller),
-            sablierBob_: address(bob),
-            curvePool_: address(curvePool),
-            stETH_: address(steth),
-            wETH_: address(weth),
-            wstETH_: address(wsteth),
+            sablierBob: address(bob),
+            curvePool: address(curvePool),
+            stETH: address(steth),
+            wETH: address(weth),
+            wstETH: address(wsteth),
             initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
             initialYieldFee: DEFAULT_YIELD_FEE
         });

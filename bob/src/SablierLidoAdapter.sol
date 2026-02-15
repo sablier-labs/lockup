@@ -88,16 +88,16 @@ contract SablierLidoAdapter is
 
     /// @notice Deploys the Lido adapter.
     /// @param initialComptroller The address of the initial comptroller contract.
-    /// @param sablierBob_ The address of the SablierBob contract.
+    /// @param sablierBob The address of the SablierBob contract.
     /// @param initialSlippageTolerance The initial slippage tolerance for Curve swaps as UD60x18.
     /// @param initialYieldFee The initial yield fee as UD60x18.
     constructor(
         address initialComptroller,
-        address sablierBob_,
-        address curvePool_,
-        address stETH_,
-        address wETH_,
-        address wstETH_,
+        address sablierBob,
+        address curvePool,
+        address stETH,
+        address wETH,
+        address wstETH,
         UD60x18 initialSlippageTolerance,
         UD60x18 initialYieldFee
     )
@@ -116,12 +116,12 @@ contract SablierLidoAdapter is
             revert Errors.SablierLidoAdapter_YieldFeeTooHigh(initialYieldFee.unwrap(), MAX_FEE.unwrap());
         }
 
-        SABLIER_BOB = sablierBob_;
+        SABLIER_BOB = sablierBob;
 
-        CURVE_POOL = curvePool_;
-        STETH = stETH_;
-        WETH = wETH_;
-        WSTETH = wstETH_;
+        CURVE_POOL = curvePool;
+        STETH = stETH;
+        WETH = wETH;
+        WSTETH = wstETH;
 
         // Effect: set the initial slippage tolerance.
         slippageTolerance = initialSlippageTolerance;

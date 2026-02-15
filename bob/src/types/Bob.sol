@@ -11,7 +11,7 @@ import { ISablierBobAdapter } from "../interfaces/ISablierBobAdapter.sol";
 library Bob {
     /// @notice Enum representing the different statuses of a vault.
     /// @custom:value0 ACTIVE Vault is open for deposits.
-    /// @custom:value1 SETTLED Vault is settled; either target price reached or vault has expired.
+    /// @custom:value1 SETTLED Vault is settled, either target price reached or vault has expired.
     enum Status {
         ACTIVE,
         SETTLED

@@ -45,8 +45,8 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
             name_: "Test Share",
             symbol_: "TST-100-12345-1",
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(mockBob),
-            vaultId_: testVaultId
+            sablierBob: address(mockBob),
+            vaultId: testVaultId
         });
     }
 

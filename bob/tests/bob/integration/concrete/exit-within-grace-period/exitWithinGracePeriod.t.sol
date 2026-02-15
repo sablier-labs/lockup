@@ -25,7 +25,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         bob.syncPriceFromOracle(vaultId);
 
         // Verify we're still within the grace period.
-        uint40 depositedAt = bob.getDepositedAt(vaultId, users.depositor);
+        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
         uint40 gracePeriodEnd = depositedAt + 4 hours;
         assertTrue(block.timestamp < gracePeriodEnd, "should still be in grace period");
 
@@ -140,7 +140,7 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         assertEq(shareBalanceAfter, 0, "share balance should be zero after exit");
 
         // Assert the deposit record was cleared.
-        uint40 depositedAt = bob.getDepositedAt(vaultId, users.depositor);
+        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
         assertEq(depositedAt, 0, "depositedAt should be cleared");
 
         // Assert tokens were returned.

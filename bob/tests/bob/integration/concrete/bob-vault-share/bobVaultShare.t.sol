@@ -20,8 +20,8 @@ contract BobVaultShare is Integration_Test {
             name_: "Test Share Token",
             symbol_: "TST-100-12345-1",
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(bob),
-            vaultId_: TEST_VAULT_ID
+            sablierBob: address(bob),
+            vaultId: TEST_VAULT_ID
         });
     }
 

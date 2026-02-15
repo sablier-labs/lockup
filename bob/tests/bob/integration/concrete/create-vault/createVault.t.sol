@@ -31,86 +31,12 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_RevertWhen_OracleZeroAddress() external whenTokenAddressNotZero whenExpiryInFuture {
+    function test_RevertWhen_TargetPriceZero() external whenTokenAddressNotZero whenExpiryInFuture {
         // It should revert.
-        expectRevert_InvalidOracle(
+        expectRevert_TargetPriceZero(
             abi.encodeCall(
-                bob.createVault, (IERC20(address(dai)), AggregatorV3Interface(address(0)), EXPIRY, TARGET_PRICE)
-            ),
-            address(0)
-        );
-    }
-
-    function test_RevertWhen_OracleRevertsOnDecimals()
-        external
-        whenTokenAddressNotZero
-        whenExpiryInFuture
-        whenOracleNotZeroAddress
-    {
-        // It should revert when oracle reverts on decimals() call.
-        expectRevert_InvalidOracle(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracleReverting)), EXPIRY, TARGET_PRICE)
-            ),
-            address(mockOracleReverting)
-        );
-    }
-
-    function test_RevertWhen_OracleReturnsInvalidDecimals()
-        external
-        whenTokenAddressNotZero
-        whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleDoesNotRevertOnDecimals
-    {
-        // It should revert when oracle returns non-8 decimals (e.g., 18).
-        expectRevert_InvalidOracleDecimals(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracleInvalidDecimals)), EXPIRY, TARGET_PRICE)
-            ),
-            address(mockOracleInvalidDecimals),
-            18
-        );
-    }
-
-    function test_RevertWhen_OracleRevertsOnLatestRoundData()
-        external
-        whenTokenAddressNotZero
-        whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleReturnsEightDecimals
-    {
-        // It should revert.
-        expectRevert_InvalidOracle(
-            abi.encodeCall(
-                bob.createVault,
-                (
-                    IERC20(address(dai)),
-                    AggregatorV3Interface(address(mockOracleRevertingOnLatestRoundData)),
-                    EXPIRY,
-                    TARGET_PRICE
-                )
-            ),
-            address(mockOracleRevertingOnLatestRoundData)
-        );
-    }
-
-    function test_RevertWhen_OracleReturnsInvalidPrice()
-        external
-        whenTokenAddressNotZero
-        whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleDoesNotRevert
-    {
-        // It should revert.
-        expectRevert_InvalidOracle(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracleInvalidPrice)), EXPIRY, TARGET_PRICE)
-            ),
-            address(mockOracleInvalidPrice)
+                bob.createVault, (IERC20(address(dai)), AggregatorV3Interface(address(mockOracle)), EXPIRY, 0)
+            )
         );
     }
 
@@ -118,9 +44,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         external
         whenTokenAddressNotZero
         whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleDoesNotRevert
-        whenOracleReturnsValidPrice
+        whenTargetPriceNotZero
     {
         // Test with target price equal to current price.
         uint128 targetPriceEqualToCurrent = INITIAL_PRICE;
@@ -149,9 +73,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         external
         whenTokenAddressNotZero
         whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleDoesNotRevert
-        whenOracleReturnsValidPrice
+        whenTargetPriceNotZero
         whenTargetPriceAboveCurrentPrice
     {
         // It should create the vault without adapter.
@@ -191,9 +113,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         external
         whenTokenAddressNotZero
         whenExpiryInFuture
-        whenOracleNotZeroAddress
-        whenOracleDoesNotRevert
-        whenOracleReturnsValidPrice
+        whenTargetPriceNotZero
         whenTargetPriceAboveCurrentPrice
     {
         // It should create the vault with adapter.

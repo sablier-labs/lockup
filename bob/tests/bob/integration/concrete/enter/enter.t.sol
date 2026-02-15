@@ -59,7 +59,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(shareBalanceAfter - shareBalanceBefore, amount, "shares minted");
 
         // Assert depositedAt was set.
-        uint40 depositedAt = bob.getDepositedAt(vaultId, users.depositor);
+        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
         assertEq(depositedAt, uint40(block.timestamp), "depositedAt should be set on first deposit");
     }
 
@@ -90,7 +90,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(shareBalance, firstAmount + secondAmount, "share balance should be cumulative");
 
         // Assert depositedAt was NOT changed on subsequent deposit.
-        uint40 depositedAt = bob.getDepositedAt(vaultId, users.depositor);
+        uint40 depositedAt = bob.getFirstDepositTime(vaultId, users.depositor);
         assertEq(depositedAt, firstDepositedAt, "depositedAt should NOT change on subsequent deposit");
     }
 

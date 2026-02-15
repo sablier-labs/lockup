@@ -92,10 +92,10 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// - `token` must not be the zero address.
     /// - `token` must implement `symbol()` and `decimals()` functions.
     /// - `expiry` must be in the future.
-    /// - `oracle` must implement the Chainlink {AggregatorV3Interface} interface.
+    /// - `oracle` must implement the Chainlink's {AggregatorV3Interface} interface.
     /// - `oracle` must return a positive price when `latestRoundData()` is called.
     /// - `oracle` must return 8 when `decimals()` is called.
-    /// - `targetPrice` must be greater than the current price returned by the provided oracle.
+    /// - `targetPrice` must not be zero or greater than the current price returned by the provided oracle.
     ///
     /// @param token The address of the ERC-20 token that will be accepted for deposits.
     /// @param oracle The address of the price feed oracle for the deposit token.
@@ -149,7 +149,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// @param vaultId The ID of the vault to exit from.
     function exitWithinGracePeriod(uint256 vaultId) external;
 
-    /// @notice Redeem deposited tokens  from a settled vault by burning shares.
+    /// @notice Redeem deposited tokens from a settled vault by burning shares.
     ///
     /// @dev Emits a {Redeem} event.
     ///

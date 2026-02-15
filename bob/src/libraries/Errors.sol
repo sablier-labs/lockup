@@ -54,6 +54,9 @@ library Errors {
     /// @notice Thrown when the oracle does not return a positive price.
     error SablierBob_OraclePriceInvalid(uint256 vaultId, int256 oraclePrice);
 
+    /// @notice Thrown when trying to create a vault with a zero target price.
+    error SablierBob_TargetPriceZero();
+
     /// @notice Thrown when trying to create a vault with a target price that is not greater than the latest price
     /// returned by the oracle.
     error SablierBob_TargetPriceTooLow(uint128 targetPrice, uint128 currentPrice);

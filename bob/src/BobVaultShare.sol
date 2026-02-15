@@ -50,20 +50,20 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     /// @param name_ The name of the token (e.g., "Sablier Bob WETH Vault #1").
     /// @param symbol_ The symbol of the token (e.g., "WETH-100-1792790393-1").
     /// @param decimals_ The number of decimals.
-    /// @param sablierBob_ The address of the SablierBob contract.
-    /// @param vaultId_ The ID of the vault this share token represents.
+    /// @param sablierBob The address of the SablierBob contract.
+    /// @param vaultId The ID of the vault this share token represents.
     constructor(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
-        address sablierBob_,
-        uint256 vaultId_
+        address sablierBob,
+        uint256 vaultId
     )
         ERC20(name_, symbol_)
     {
         _DECIMALS = decimals_;
-        SABLIER_BOB = sablierBob_;
-        VAULT_ID = vaultId_;
+        SABLIER_BOB = sablierBob;
+        VAULT_ID = vaultId;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
