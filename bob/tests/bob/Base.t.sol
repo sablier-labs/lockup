@@ -3,11 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
-import { ISablierBob } from "src/interfaces/ISablierBob.sol";
-import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
-import { SablierBob } from "src/SablierBob.sol";
-import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 import {
     ChainlinkOracleMock,
     ChainlinkOracleWith18Decimals,
@@ -15,7 +10,11 @@ import {
     ChainlinkOracleWithRevertingPrice,
     ChainlinkOracleZeroPrice
 } from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
-
+import { BaseTest as EvmBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
+import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { SablierBob } from "src/SablierBob.sol";
+import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 import { MockAdapterInvalidInterface } from "./mocks/MockAdapter.sol";
 import { MockCurvePool, MockStETH, MockWETH9, MockWstETH } from "./mocks/MockLido.sol";
 import { Assertions } from "./utils/Assertions.sol";

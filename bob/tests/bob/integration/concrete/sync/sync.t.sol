@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { Bob } from "src/types/Bob.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
