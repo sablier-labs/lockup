@@ -130,7 +130,7 @@ contract SablierBob is
         });
 
         // Copy the adapter from storage to memory.
-        ISablierBobAdapter adapter = defaultAdapters[token];
+        ISablierBobAdapter adapter = _defaultAdapters[token];
 
         // Effect: create the vault.
         _vaults[vaultId] = Bob.Vault({
@@ -348,7 +348,7 @@ contract SablierBob is
         }
 
         // Effect: set the default adapter for the token.
-        defaultAdapters[token] = newAdapter;
+        _defaultAdapters[token] = newAdapter;
 
         // Log the adapter change.
         emit SetDefaultAdapter(token, newAdapter);

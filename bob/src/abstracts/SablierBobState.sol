@@ -17,8 +17,8 @@ abstract contract SablierBobState is ISablierBobState {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierBobState
-    mapping(IERC20 token => ISablierBobAdapter adapter) public override defaultAdapters;
+    /// @dev Default adapters mapped by token address.
+    mapping(IERC20 token => ISablierBobAdapter adapter) internal _defaultAdapters;
 
     /// @inheritdoc ISablierBobState
     uint256 public override nextVaultId;
@@ -56,6 +56,11 @@ abstract contract SablierBobState is ISablierBobState {
     /// @inheritdoc ISablierBobState
     function getAdapter(uint256 vaultId) external view override notNull(vaultId) returns (ISablierBobAdapter adapter) {
         adapter = _vaults[vaultId].adapter;
+    }
+
+    /// @inheritdoc ISablierBobState
+    function getDefaultAdapterFor(IERC20 token) external view override returns (ISablierBobAdapter adapter) {
+        adapter = _defaultAdapters[token];
     }
 
     /// @inheritdoc ISablierBobState

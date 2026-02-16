@@ -192,6 +192,8 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// Notes:
     /// - Oracle staleness is not validated on-chain when calling this function. Any price returned by the oracle is
     /// accepted.
+    /// - Useful for locking in a price target hit even if depositors are unavailable to call {redeem}. Anyone can call
+    /// this to settle the vault so that depositors can redeem later, even if the price drops back below the target.
     ///
     /// Requirements:
     /// - The vault must have ACTIVE status.

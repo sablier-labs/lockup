@@ -15,13 +15,15 @@ interface ISablierBobState {
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Returns the default adapter for a given token.
-    /// @dev Zero address means no adapter is set.
-    function defaultAdapters(IERC20 token) external view returns (ISablierBobAdapter adapter);
-
     /// @notice Returns the adapter configured for a specific vault.
     /// @dev Reverts if `vaultId` references a null vault.
     function getAdapter(uint256 vaultId) external view returns (ISablierBobAdapter adapter);
+
+    /// @notice Returns the default adapter for a given token.
+    /// @dev Zero address means no adapter is set.
+    /// @param token The ERC-20 token to query the default adapter for.
+    /// @return adapter The default adapter for the token.
+    function getDefaultAdapterFor(IERC20 token) external view returns (ISablierBobAdapter adapter);
 
     /// @notice Returns the timestamp when the vault expires.
     /// @dev Reverts if `vaultId` references a null vault.
