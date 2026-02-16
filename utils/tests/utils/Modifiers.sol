@@ -154,7 +154,7 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenOraclePriceNotZero() {
+    modifier whenSafeOraclePriceNotZero() {
         _;
     }
 
