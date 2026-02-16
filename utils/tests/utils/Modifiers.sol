@@ -146,6 +146,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenOraclePriceNotExceedUint128Max() {
+        _;
+    }
+
     modifier whenOraclePriceNotNegative() {
         _;
     }

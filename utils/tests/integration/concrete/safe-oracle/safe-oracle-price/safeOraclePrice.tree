@@ -8,13 +8,16 @@ SafeOraclePrice_Concrete_Test
       ├── when oracle price negative
       │  └── it should return zero
       └── when oracle price not negative
-         ├── when oracle updated time in future
+         ├── when oracle price exceeds uint128 max
          │  └── it should return zero
-         └── when oracle updated time not in future
-            ├── when oracle price outdated
+         └── when oracle price not exceed uint128 max
+            ├── when oracle updated time in future
             │  └── it should return zero
-            └── when oracle price not outdated
-               ├── when oracle price zero
+            └── when oracle updated time not in future
+               ├── when oracle price outdated
                │  └── it should return zero
-               └── when oracle price not zero
-                  └── it should return the latest price
+               └── when oracle price not outdated
+                  ├── when oracle price zero
+                  │  └── it should return zero
+                  └── when oracle price not zero
+                     └── it should return the latest price

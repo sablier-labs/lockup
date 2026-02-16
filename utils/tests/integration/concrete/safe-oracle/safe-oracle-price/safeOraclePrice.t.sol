@@ -8,6 +8,7 @@ import {
     ChainlinkOracleMock,
     ChainlinkOracleNegativePrice,
     ChainlinkOracleOutdatedPrice,
+    ChainlinkOracleOverflowPrice,
     ChainlinkOracleWithRevertingPrice,
     ChainlinkOracleZeroPrice,
     SafeOracleMock
@@ -45,11 +46,25 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
         assertEq(price, 0, "negative price");
     }
 
+    function test_WhenOraclePriceExceedsUint128Max()
+        external
+        whenOracleAddressNotZero
+        whenLatestRoundCallNotFail
+        whenOraclePriceNotNegative
+    {
+        ChainlinkOracleOverflowPrice oracle = new ChainlinkOracleOverflowPrice();
+
+        // It should return zero.
+        uint128 price = safeOracleMock.safeOraclePrice(AggregatorV3Interface(address(oracle)));
+        assertEq(price, 0, "overflow price");
+    }
+
     function test_WhenOracleUpdatedTimeInFuture()
         external
         whenOracleAddressNotZero
         whenLatestRoundCallNotFail
         whenOraclePriceNotNegative
+        whenOraclePriceNotExceedUint128Max
     {
         ChainlinkOracleFutureDatedPrice oracle = new ChainlinkOracleFutureDatedPrice();
 
@@ -63,6 +78,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
         whenOracleAddressNotZero
         whenLatestRoundCallNotFail
         whenOraclePriceNotNegative
+        whenOraclePriceNotExceedUint128Max
         whenOracleUpdatedTimeNotInFuture
     {
         ChainlinkOracleOutdatedPrice oracle = new ChainlinkOracleOutdatedPrice();
@@ -77,6 +93,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
         whenOracleAddressNotZero
         whenLatestRoundCallNotFail
         whenOraclePriceNotNegative
+        whenOraclePriceNotExceedUint128Max
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
     {
@@ -92,6 +109,7 @@ contract SafeOraclePrice_Concrete_Test is Base_Test {
         whenOracleAddressNotZero
         whenLatestRoundCallNotFail
         whenOraclePriceNotNegative
+        whenOraclePriceNotExceedUint128Max
         whenOracleUpdatedTimeNotInFuture
         whenOraclePriceNotOutdated
     {
