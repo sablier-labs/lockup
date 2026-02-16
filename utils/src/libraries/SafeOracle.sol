@@ -11,9 +11,13 @@ import { Errors } from "./Errors.sol";
 library SafeOracle {
     using SafeCast for uint256;
 
-    /// @dev Fetches the latest price from the oracle without reverting. Returns 0 if the oracle address is zero, the
-    /// call fails, the price is non-positive, the `updatedAt` timestamp is in the future, or the price is outdated
-    /// (older than 24 hours).
+    /// @dev Fetches the latest price from the oracle without reverting. Returns 0 if any of the following conditions
+    /// are met:
+    /// - Oracle address is zero.
+    /// - Call to `latestRoundData()` fails.
+    /// - Oracle price is not positive.
+    /// - `updatedAt` timestamp is in the future.
+    /// - Price is outdated (older than 24 hours).
     function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 price) {
         // If the oracle is not set, return 0.
         if (address(oracle) == address(0)) {
@@ -58,8 +62,10 @@ library SafeOracle {
         }
     }
 
-    /// @dev Validates the oracle address by checking that it is not zero, implements the `decimals()` function
-    /// returning 8, and returns a positive price via `latestRoundData()`. Reverts on any validation failure.
+    /// @dev Validates the oracle address and reverts if any of the following conditions are met:
+    /// - Oracle address is zero.
+    /// - Oracle does not implement the `decimals()` function or returns a non-8 decimals.
+    /// - Oracle does not return a positive price when `latestRoundData()` is called.
     function validateOracle(AggregatorV3Interface oracle) internal view returns (uint128 price) {
         // Check: oracle address is not zero. This is needed because calling a function on address(0) succeeds but
         // returns empty data, which causes the ABI decoder to fail.
