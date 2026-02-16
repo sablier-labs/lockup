@@ -53,8 +53,8 @@ contract SablierEscrow is
 
     /// @inheritdoc ISablierEscrow
     function cancelOrder(uint256 orderId) external override notNull(orderId) {
-        // Load the order from storage.
-        Escrow.Order storage order = _orders[orderId];
+        // Load the order from storage into memory.
+        Escrow.Order memory order = _orders[orderId];
 
         // Check: the caller is the seller.
         if (msg.sender != order.seller) {
@@ -75,7 +75,7 @@ contract SablierEscrow is
         uint128 sellAmount = order.sellAmount;
 
         // Effect: mark the order as canceled.
-        order.wasCanceled = true;
+        _orders[orderId].wasCanceled = true;
 
         // Interaction: transfer sell tokens to caller.
         order.sellToken.safeTransfer(msg.sender, sellAmount);
@@ -158,15 +158,13 @@ contract SablierEscrow is
     /// @inheritdoc ISablierEscrow
     function fillOrder(uint256 orderId, uint128 buyAmount) external override notNull(orderId) {
         // Check: the order is open.
-        {
-            Escrow.Status status = _statusOf(orderId);
-            if (status != Escrow.Status.OPEN) {
-                revert Errors.SablierEscrow_OrderNotOpen(orderId, status);
-            }
+        Escrow.Status status = _statusOf(orderId);
+        if (status != Escrow.Status.OPEN) {
+            revert Errors.SablierEscrow_OrderNotOpen(orderId, status);
         }
 
         // Load the order from storage.
-        Escrow.Order storage order = _orders[orderId];
+        Escrow.Order memory order = _orders[orderId];
 
         // Check: if the order has buyer specified, the caller must be the buyer.
         if (order.buyer != address(0) && msg.sender != order.buyer) {
@@ -178,27 +176,21 @@ contract SablierEscrow is
             revert Errors.SablierEscrow_InsufficientBuyAmount(buyAmount, order.minBuyAmount);
         }
 
-        // Load values from storage into memory.
-        IERC20 buyToken = order.buyToken;
-        address seller = order.seller;
-        IERC20 sellToken = order.sellToken;
-        uint128 sellAmount = order.sellAmount;
-
         // Effect: mark the order as filled.
-        order.wasFilled = true;
+        _orders[orderId].wasFilled = true;
 
         // Get the trade fee from storage.
         UD60x18 currentTradeFee = tradeFee;
 
         uint128 amountToTransferToSeller = buyAmount;
-        uint128 amountToTransferToBuyer = sellAmount;
+        uint128 amountToTransferToBuyer = order.sellAmount;
         uint128 feeDeductedFromBuyerAmount;
         uint128 feeDeductedFromSellerAmount;
 
         // If the fee is non-zero, deduct the fee from both sides.
         if (currentTradeFee.unwrap() > 0) {
             // Calculate the fee on the sell amount.
-            feeDeductedFromBuyerAmount = ud(sellAmount).mul(currentTradeFee).intoUint128();
+            feeDeductedFromBuyerAmount = ud(order.sellAmount).mul(currentTradeFee).intoUint128();
             amountToTransferToBuyer -= feeDeductedFromBuyerAmount;
 
             // Calculate the fee on the buy amount.
@@ -209,21 +201,21 @@ contract SablierEscrow is
             address feeRecipient = address(comptroller);
 
             // Interaction: transfer fees to the fee recipient.
-            buyToken.safeTransferFrom(msg.sender, feeRecipient, feeDeductedFromSellerAmount);
-            sellToken.safeTransfer(feeRecipient, feeDeductedFromBuyerAmount);
+            order.buyToken.safeTransferFrom(msg.sender, feeRecipient, feeDeductedFromSellerAmount);
+            order.sellToken.safeTransfer(feeRecipient, feeDeductedFromBuyerAmount);
         }
 
         // Interaction: transfer buy token to the seller.
-        buyToken.safeTransferFrom(msg.sender, seller, amountToTransferToSeller);
+        order.buyToken.safeTransferFrom(msg.sender, order.seller, amountToTransferToSeller);
 
         // Interaction: transfer sell tokens to the buyer.
-        sellToken.safeTransfer(msg.sender, amountToTransferToBuyer);
+        order.sellToken.safeTransfer(msg.sender, amountToTransferToBuyer);
 
         // Log the event.
         emit FillOrder({
             orderId: orderId,
             buyer: msg.sender,
-            seller: seller,
+            seller: order.seller,
             sellAmount: amountToTransferToBuyer,
             buyAmount: amountToTransferToSeller,
             feeDeductedFromBuyerAmount: feeDeductedFromBuyerAmount,

@@ -112,7 +112,7 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
     /// @dev Emits a {SetTradeFee} event.
     ///
     /// Requirements:
-    /// - The caller must be the comptroller admin.
+    /// - The caller must be the comptroller.
     /// - `newTradeFee` must not exceed the maximum trade fee.
     ///
     /// @param newTradeFee The new trade fee to set, denominated in UD60x18, where 1e18 = 100%.

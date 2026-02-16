@@ -128,6 +128,7 @@ abstract contract SablierEscrowState is ISablierEscrowState {
         if (order.expireAt != 0 && block.timestamp >= order.expireAt) {
             return Escrow.Status.EXPIRED;
         }
+
         return Escrow.Status.OPEN;
     }
 

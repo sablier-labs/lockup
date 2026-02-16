@@ -36,12 +36,6 @@ library Errors {
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);
 
-    /// @notice Thrown when oracle validation fails.
-    error SablierBob_InvalidOracle(address oracle);
-
-    /// @notice Thrown when oracle does not return 8 decimals during validation.
-    error SablierBob_InvalidOracleDecimals(address oracle, uint8 decimals);
-
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
 
@@ -50,9 +44,6 @@ library Errors {
 
     /// @notice Thrown when trying to exit or redeem with zero share balance.
     error SablierBob_NoSharesToRedeem(uint256 vaultId, address user);
-
-    /// @notice Thrown when the oracle does not return a positive price.
-    error SablierBob_OraclePriceInvalid(uint256 vaultId, int256 oraclePrice);
 
     /// @notice Thrown when trying to create a vault with a zero target price.
     error SablierBob_TargetPriceZero();

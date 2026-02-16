@@ -355,7 +355,13 @@ contract SablierBob is
     }
 
     /// @inheritdoc ISablierBob
-    function syncPriceFromOracle(uint256 vaultId) external override notNull(vaultId) returns (uint128 latestPrice) {
+    function syncPriceFromOracle(uint256 vaultId)
+        external
+        override
+        nonReentrant
+        notNull(vaultId)
+        returns (uint128 latestPrice)
+    {
         // Check: the vault is not already settled.
         if (_statusOf(vaultId) == Bob.Status.SETTLED) {
             revert Errors.SablierBob_VaultSettled(vaultId);
@@ -369,6 +375,7 @@ contract SablierBob is
     function unstakeTokensViaAdapter(uint256 vaultId)
         external
         override
+        nonReentrant
         notNull(vaultId)
         returns (uint128 amountReceivedFromAdapter)
     {
@@ -442,9 +449,11 @@ contract SablierBob is
         // Get the latest price from the oracle with safety checks.
         latestPrice = SafeOracle.safeOraclePrice(oracleAddress);
 
-        // Effect: update the last synced price and timestamp.
-        _vaults[vaultId].lastSyncedPrice = latestPrice;
-        _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
+        // Effect: update the last synced price and timestamp if the latest price is greater than zero.
+        if (latestPrice > 0) {
+            _vaults[vaultId].lastSyncedPrice = latestPrice;
+            _vaults[vaultId].lastSyncedAt = uint40(block.timestamp);
+        }
 
         // Log the event.
         emit SyncPriceFromOracle(vaultId, oracleAddress, latestPrice, uint40(block.timestamp));
