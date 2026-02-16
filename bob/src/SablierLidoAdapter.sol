@@ -26,9 +26,6 @@ contract SablierLidoAdapter is
     ISablierLidoAdapter // 2 inherited components
 {
     using SafeERC20 for IERC20;
-    using SafeERC20 for IWETH9;
-    using SafeERC20 for IStETH;
-    using SafeERC20 for IWstETH;
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -164,10 +161,10 @@ contract SablierLidoAdapter is
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
         // Get wstETH allocated to the user before unstaking.
-        uint128 userWstETH = _userWstETH[vaultId][user];
+        uint256 userWstETH = _userWstETH[vaultId][user];
 
         // Get total amount of wstETH in the vault before unstaking.
-        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
+        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
 
         // Get total amount of WETH received after unstaking all tokens in the vault.
         uint256 totalWeth = _wethReceivedAfterUnstaking[vaultId];
@@ -302,7 +299,7 @@ contract SablierLidoAdapter is
         uint128 wethReceived = _wstETHToWeth(userWstETH);
 
         // Interaction: Transfer WETH to the user.
-        IWETH9(WETH).safeTransfer(user, wethReceived);
+        IERC20(WETH).safeTransfer(user, wethReceived);
 
         // Log the event.
         emit UnstakeForUserWithinGracePeriod(vaultId, user, userWstETH, wethReceived);
@@ -325,7 +322,7 @@ contract SablierLidoAdapter is
         _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
 
         // Interaction: Transfer WETH to SablierBob for distribution.
-        IWETH9(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
+        IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.
         emit UnstakeFullAmount(vaultId, totalWstETH, amountReceivedFromUnstaking);
