@@ -69,7 +69,7 @@ contract ValidateOracle_Concrete_Test is Base_Test {
         ChainlinkOracleNegativePrice oracle = new ChainlinkOracleNegativePrice();
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NegativePrice.selector, address(oracle)));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NotPositivePrice.selector, address(oracle)));
         safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
     }
 
@@ -83,7 +83,7 @@ contract ValidateOracle_Concrete_Test is Base_Test {
         ChainlinkOracleZeroPrice oracle = new ChainlinkOracleZeroPrice();
 
         // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NegativePrice.selector, address(oracle)));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_NotPositivePrice.selector, address(oracle)));
         safeOracleMock.validateOracle(AggregatorV3Interface(address(oracle)));
     }
 

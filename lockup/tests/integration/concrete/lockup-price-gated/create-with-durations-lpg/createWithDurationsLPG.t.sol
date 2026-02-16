@@ -102,7 +102,7 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
 
         // It should revert.
         vm.expectRevert(
-            abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_NegativePrice.selector, address(oracleNegativePrice))
+            abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_NotPositivePrice.selector, address(oracleNegativePrice))
         );
         lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }

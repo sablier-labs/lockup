@@ -86,7 +86,7 @@ library SafeOracle {
         try oracle.latestRoundData() returns (uint80, int256 _price, uint256, uint256, uint80) {
             // Because users may not always use Chainlink oracles, we do not check for the staleness of the price.
             if (_price <= 0) {
-                revert Errors.SafeOracle_NegativePrice(address(oracle));
+                revert Errors.SafeOracle_NotPositivePrice(address(oracle));
             }
             price = uint256(_price).toUint128();
         } catch {
