@@ -34,18 +34,18 @@ contract BobVaultShare is ERC20, IBobVaultShare {
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Reverts if caller is not the Bob contract.
-    modifier onlySablierBob() {
-        if (msg.sender != SABLIER_BOB) {
-            revert Errors.BobVaultShare_OnlySablierBob(msg.sender, SABLIER_BOB);
-        }
-        _;
-    }
-
     /// @dev Reverts if the provided vault ID does not match this share token's vault.
     modifier matchesVaultId(uint256 vaultId) {
         if (vaultId != VAULT_ID) {
             revert Errors.BobVaultShare_VaultIdMismatch(vaultId, VAULT_ID);
+        }
+        _;
+    }
+
+    /// @dev Reverts if caller is not the Bob contract.
+    modifier onlySablierBob() {
+        if (msg.sender != SABLIER_BOB) {
+            revert Errors.BobVaultShare_OnlySablierBob(msg.sender, SABLIER_BOB);
         }
         _;
     }
@@ -89,12 +89,26 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IBobVaultShare
-    function mint(uint256 vaultId, address to, uint256 amount) external override onlySablierBob matchesVaultId(vaultId) {
+    function mint(uint256 vaultId, address to, uint256 amount)
+        external
+        override
+        onlySablierBob
+        matchesVaultId(vaultId)
+    {
         _mint(to, amount);
     }
 
     /// @inheritdoc IBobVaultShare
-    function burn(uint256 vaultId, address from, uint256 amount) external override onlySablierBob matchesVaultId(vaultId) {
+    function burn(
+        uint256 vaultId,
+        address from,
+        uint256 amount
+    )
+        external
+        override
+        onlySablierBob
+        matchesVaultId(vaultId)
+    {
         _burn(from, amount);
     }
 

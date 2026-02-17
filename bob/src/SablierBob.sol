@@ -140,7 +140,7 @@ contract SablierBob is
             shareToken: shareToken,
             oracle: oracle,
             adapter: adapter,
-            isStakedWithAdapter: true,
+            isStakedInTheAdapter: false,
             targetPrice: targetPrice,
             lastSyncedPrice: latestPrice
         });
@@ -148,6 +148,9 @@ contract SablierBob is
         // Interaction: register the vault with the adapter.
         if (address(adapter) != address(0)) {
             adapter.registerVault(vaultId);
+
+            // Effect: mark the vault as staked in the adapter.
+            _vaults[vaultId].isStakedInTheAdapter = true;
         }
 
         // Log the event.
@@ -156,17 +159,17 @@ contract SablierBob is
 
     /// @inheritdoc ISablierBob
     function enter(uint256 vaultId, uint128 amount) external override nonReentrant notNull(vaultId) {
-        // Check: the vault is not already settled (e.g. via expiry or a previous sync).
-        if (_statusOf(vaultId) == Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultSettled(vaultId);
+        // Check: the vault is active.
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
         }
 
         // Effect: sync the oracle price.
         _syncPriceFromOracle(vaultId);
 
         // Check: the vault has not become settled after the sync.
-        if (_statusOf(vaultId) == Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultSettled(vaultId);
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
         }
 
         // Check: the deposit amount is not zero.
@@ -203,9 +206,9 @@ contract SablierBob is
 
     /// @inheritdoc ISablierBob
     function exitWithinGracePeriod(uint256 vaultId) external override nonReentrant notNull(vaultId) {
-        // Check: the vault is not settled.
-        if (_statusOf(vaultId) == Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultSettled(vaultId);
+        // Check: the vault is active.
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
         }
 
         // Load the vault from storage.
@@ -263,13 +266,13 @@ contract SablierBob is
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
         // Check: the vault is settled.
-        if (_statusOf(vaultId) != Bob.Status.SETTLED) {
+        if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
             // Effect: sync the oracle price.
             _syncPriceFromOracle(vaultId);
 
-            // If it's still not settled after the sync, revert.
-            if (_statusOf(vaultId) != Bob.Status.SETTLED) {
-                revert Errors.SablierBob_VaultNotSettled(vaultId);
+            // If it's still active after the sync, revert.
+            if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
+                revert Errors.SablierBob_VaultStillActive(vaultId);
             }
         }
 
@@ -290,13 +293,13 @@ contract SablierBob is
         // Check if the vault has an adapter.
         if (address(vault.adapter) != address(0)) {
             // Check: the deposit token is staked with the adapter.
-            if (vault.isStakedWithAdapter) {
+            if (vault.isStakedInTheAdapter) {
                 // Interaction: unstake all tokens via the adapter.
                 // TODO: transfer entire fee to comptroller admin instead of transferring when user redeems.
                 _unstakeFullAmountViaAdapter(vaultId);
 
-                // Effect: set isStakedWithAdapter to false.
-                vault.isStakedWithAdapter = false;
+                // Effect: set isStakedInTheAdapter to false.
+                vault.isStakedInTheAdapter = false;
             }
 
             // Calculate the amount to transfer and the fee.
@@ -362,9 +365,9 @@ contract SablierBob is
         notNull(vaultId)
         returns (uint128 latestPrice)
     {
-        // Check: the vault is not already settled.
-        if (_statusOf(vaultId) == Bob.Status.SETTLED) {
-            revert Errors.SablierBob_VaultSettled(vaultId);
+        // Check: the vault is not active.
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
         }
 
         // Effect: sync the oracle price.
@@ -381,14 +384,14 @@ contract SablierBob is
     {
         Bob.Vault storage vault = _vaults[vaultId];
 
-        // Check: the vault is settled.
-        if (_statusOf(vaultId) != Bob.Status.SETTLED) {
+        // Check: the vault is not active.
+        if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
             // Effect: sync the oracle price.
             _syncPriceFromOracle(vaultId);
 
-            // If it's still not settled after the sync, revert.
-            if (_statusOf(vaultId) != Bob.Status.SETTLED) {
-                revert Errors.SablierBob_VaultNotSettled(vaultId);
+            // If it's still active after the sync, revert.
+            if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
+                revert Errors.SablierBob_VaultStillActive(vaultId);
             }
         }
 
@@ -398,7 +401,7 @@ contract SablierBob is
         }
 
         // Check: the vault has not already been unstaked.
-        if (!vault.isStakedWithAdapter) {
+        if (!vault.isStakedInTheAdapter) {
             revert Errors.SablierBob_VaultAlreadyUnstaked(vaultId);
         }
 
@@ -408,7 +411,7 @@ contract SablierBob is
         }
 
         // Effect: mark the vault as not staked with the adapter.
-        _vaults[vaultId].isStakedWithAdapter = false;
+        _vaults[vaultId].isStakedInTheAdapter = false;
 
         // Interaction: unstake all tokens via the adapter.
         amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId);
@@ -488,7 +491,7 @@ contract SablierBob is
         }
     }
 
-    /// @dev Internal function to fetch the latest oracle price and update it in the vault storage.
+    /// @dev Private function to fetch the latest oracle price and update it in the vault storage.
     /// @param vaultId The ID of the vault.
     /// @return latestPrice The latest price from the oracle.
     function _syncPriceFromOracle(uint256 vaultId) private returns (uint128 latestPrice) {
@@ -507,7 +510,7 @@ contract SablierBob is
         emit SyncPriceFromOracle(vaultId, oracleAddress, latestPrice, uint40(block.timestamp));
     }
 
-    /// @dev Internal function to unstake all tokens using the adapter.
+    /// @dev Private function to unstake all tokens using the adapter.
     /// @param vaultId The ID of the vault.
     /// @return amountReceivedFromAdapter The amount of tokens received from the adapter after unstaking.
     function _unstakeFullAmountViaAdapter(uint256 vaultId) private returns (uint128 amountReceivedFromAdapter) {

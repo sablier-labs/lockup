@@ -135,11 +135,11 @@ abstract contract SablierBobState is ISablierBobState {
 
     /// @dev Retrieves the vault's status without performing a null check.
     function _statusOf(uint256 vaultId) internal view returns (Bob.Status) {
-        Bob.Vault storage vault = _vaults[vaultId];
+        Bob.Vault memory vault = _vaults[vaultId];
 
-        // Return SETTLED if the vault has expired.
+        // Return EXPIRED if the vault has expired.
         if (block.timestamp >= vault.expiry) {
-            return Bob.Status.SETTLED;
+            return Bob.Status.EXPIRED;
         }
 
         // Return SETTLED if the last synced price is greater than or equal to the target price.

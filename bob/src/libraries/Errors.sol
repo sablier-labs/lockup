@@ -45,6 +45,9 @@ library Errors {
     /// @notice Thrown when the new adapter does not implement the required interface.
     error SablierBob_NewAdapterMissesInterface(address adapter);
 
+    /// @notice Thrown when trying to perform an unauthorized action on a non-active vault.
+    error SablierBob_VaultNotActive(uint256 vaultId);
+
     /// @notice Thrown when trying to exit or redeem with zero share balance.
     error SablierBob_NoSharesToRedeem(uint256 vaultId, address user);
 
@@ -67,11 +70,8 @@ library Errors {
     /// @notice Thrown when trying to unstake from a vault that has no adapter configured.
     error SablierBob_VaultHasNoAdapter(uint256 vaultId);
 
-    /// @notice Thrown when trying to perform an unauthorized action on a non-settled vault.
-    error SablierBob_VaultNotSettled(uint256 vaultId);
-
-    /// @notice Thrown when trying to perform an unauthorized action on a settled vault.
-    error SablierBob_VaultSettled(uint256 vaultId);
+    /// @notice Thrown when trying to perform an unauthorized action on an active vault.
+    error SablierBob_VaultStillActive(uint256 vaultId);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER BOB STATE

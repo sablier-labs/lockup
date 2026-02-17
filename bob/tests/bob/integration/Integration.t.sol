@@ -85,7 +85,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "settled vault call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierBob_VaultSettled.selector, settledVaultId),
+            abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, settledVaultId),
             "settled vault call return data"
         );
     }
@@ -96,7 +96,7 @@ abstract contract Integration_Test is Base_Test {
         assertFalse(success, "not settled vault call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierBob_VaultNotSettled.selector, vaultId),
+            abi.encodeWithSelector(Errors.SablierBob_VaultStillActive.selector, vaultId),
             "not settled vault call return data"
         );
     }
