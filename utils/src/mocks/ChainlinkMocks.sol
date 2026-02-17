@@ -10,7 +10,7 @@ uint8 constant DEFAULT_DECIMALS = 8;
 
 /// @notice Mock contract to expose the internal SafeOracle library function.
 contract SafeOracleMock {
-    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128) {
+    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128, uint256) {
         return SafeOracle.safeOraclePrice(oracle);
     }
 

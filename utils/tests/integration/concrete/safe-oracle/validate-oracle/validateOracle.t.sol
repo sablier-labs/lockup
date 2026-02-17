@@ -10,20 +10,12 @@ import {
     ChainlinkOracleWith18Decimals,
     ChainlinkOracleWithRevertingDecimals,
     ChainlinkOracleWithRevertingPrice,
-    ChainlinkOracleZeroPrice,
-    SafeOracleMock
+    ChainlinkOracleZeroPrice
 } from "src/mocks/ChainlinkMocks.sol";
 
 import { Base_Test } from "../../../../Base.t.sol";
 
 contract ValidateOracle_Concrete_Test is Base_Test {
-    SafeOracleMock internal safeOracleMock;
-
-    function setUp() public override {
-        Base_Test.setUp();
-        safeOracleMock = new SafeOracleMock();
-    }
-
     function test_RevertWhen_OracleAddressZero() external {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SafeOracle_MissesInterface.selector, address(0)));

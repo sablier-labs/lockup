@@ -15,50 +15,39 @@ library SafeOracle {
     /// are met:
     /// - Oracle address is zero.
     /// - Call to `latestRoundData()` fails.
-    /// - Oracle price is not positive.
-    /// - `updatedAt` timestamp is in the future.
-    /// - Price is outdated (older than 24 hours).
-    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 price) {
-        // If the oracle is not set, return 0.
+    /// - The price is not positive.
+    /// - The price exceeds `uint128` max.
+    /// - The `updatedAt` timestamp is in the future.
+    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 price, uint256 updatedAt) {
+        // If the oracle is not set, return 0 for both price and updated timestamp.
         if (address(oracle) == address(0)) {
-            return 0;
+            return (0, 0);
         }
-
-        uint256 updatedAt;
 
         // Interactions: query the oracle price and the time at which it was updated.
         try AggregatorV3Interface(oracle).latestRoundData() returns (
             uint80, int256 _price, uint256, uint256 _updatedAt, uint80
         ) {
-            // If the price is not greater than 0, skip the calculations.
+            // If the price is not greater than 0, return 0 for price.
             if (_price <= 0) {
-                return 0;
+                return (0, _updatedAt);
             }
 
-            // If the price is greater than max `uint128`, return zero.
+            // If the price is greater than max `uint128`, return 0 for price.
             if (uint256(_price) > type(uint128).max) {
-                return 0;
+                return (0, _updatedAt);
+            }
+
+            // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp in the future.
+            if (block.timestamp < _updatedAt) {
+                return (0, _updatedAt);
             }
 
             price = uint128(uint256(_price));
             updatedAt = _updatedAt;
         } catch {
-            // If the oracle call fails, return 0.
-            return 0;
-        }
-
-        // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp that is in the future. In
-        // this case, we ignore the price and return 0.
-        if (block.timestamp < updatedAt) {
-            return 0;
-        }
-
-        // If the oracle hasn't been updated in the last 24 hours, we ignore the price and return 0. This is a safety
-        // check to avoid using outdated prices.
-        unchecked {
-            if (block.timestamp - updatedAt > 24 hours) {
-                return 0;
-            }
+            // If the oracle call fails, return 0 for both price and updated timestamp.
+            return (0, 0);
         }
     }
 

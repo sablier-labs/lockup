@@ -86,10 +86,6 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenFlowCallNotRevert() {
-        _;
-    }
-
     modifier whenFunctionExists() {
         _;
     }
@@ -150,19 +146,19 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenOraclePriceNotNegative() {
-        _;
-    }
-
     modifier whenOraclePriceNotOutdated() {
         _;
     }
 
-    modifier whenSafeOraclePriceNotZero() {
+    modifier whenOraclePricePositive() {
         _;
     }
 
     modifier whenOracleUpdatedTimeNotInFuture() {
+        _;
+    }
+
+    modifier whenSafeOraclePriceNotZero() {
         _;
     }
 

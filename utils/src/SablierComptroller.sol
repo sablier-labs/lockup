@@ -430,11 +430,13 @@ contract SablierComptroller is
             return 0;
         }
 
-        // Get the latest price from the oracle.
-        uint256 price = SafeOracle.safeOraclePrice(AggregatorV3Interface(oracle));
+        // Get the latest price and feed updated timestamp from the oracle.
+        (uint256 price, uint256 updatedAt) = SafeOracle.safeOraclePrice(AggregatorV3Interface(oracle));
 
-        // If the price is 0, skip the calculations.
-        if (price == 0) {
+        // Skip the calculations if any of the following conditions are met:
+        // - The price is 0.
+        // - The oracle hasn't been updated in the last 24 hours. This is a safety check to avoid using outdated prices.
+        if (price == 0 || block.timestamp > 24 hours + updatedAt) {
             return 0;
         }
 

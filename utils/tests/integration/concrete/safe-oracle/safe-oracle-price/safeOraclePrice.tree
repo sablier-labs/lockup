@@ -1,23 +1,19 @@
 SafeOraclePrice_Concrete_Test
 ├── when oracle address zero
-│  └── it should return zero
+│  └── it should return zero for both price and updatedAt
 └── when oracle address not zero
    ├── when latest round call fails
-   │  └── it should return zero
+   │  └── it should return zero for both price and updatedAt
    └── when latest round call not fail
       ├── when oracle price negative
-      │  └── it should return zero
-      └── when oracle price not negative
+      │  └── it should return zero for price
+      ├── when oracle price zero
+      │  └── it should return zero for price
+      └── when oracle price positive
          ├── when oracle price exceeds uint128 max
-         │  └── it should return zero
+         │  └── it should return zero for price
          └── when oracle price not exceed uint128 max
             ├── when oracle updated time in future
-            │  └── it should return zero
+            │  └── it should return zero for price
             └── when oracle updated time not in future
-               ├── when oracle price outdated
-               │  └── it should return zero
-               └── when oracle price not outdated
-                  ├── when oracle price zero
-                  │  └── it should return zero
-                  └── when oracle price not zero
-                     └── it should return the latest price
+               └── it should return the latest price and updatedAt

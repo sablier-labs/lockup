@@ -263,7 +263,7 @@ library LockupMath {
         }
 
         // Get the latest price from the oracle with safety checks.
-        uint128 latestPrice = SafeOracle.safeOraclePrice(unlockParams.oracle);
+        (uint128 latestPrice,) = SafeOracle.safeOraclePrice(unlockParams.oracle);
 
         // If the oracle price is at or above the target price, return the deposited amount.
         if (latestPrice > 0 && latestPrice >= unlockParams.targetPrice) {
