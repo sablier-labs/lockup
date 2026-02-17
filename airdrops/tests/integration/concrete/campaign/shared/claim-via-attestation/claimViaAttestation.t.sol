@@ -5,6 +5,7 @@ import { Noop } from "@sablier/evm-utils/src/mocks/Noop.sol";
 
 import { ISablierMerkleSignature } from "src/interfaces/ISablierMerkleSignature.sol";
 import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -15,7 +16,20 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         setMsgSender(users.recipient);
     }
 
-    function test_RevertWhen_ToAddressZero() external {
+    function test_RevertGiven_NotAttestClaimType() external {
+        // Point merkleBaseAttest to the default campaign so that `claimViaAttestation` is called on the default
+        // campaign.
+        merkleBaseAttest = merkleBase;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.ATTEST, ClaimType.DEFAULT
+            )
+        );
+        claimViaAttestation();
+    }
+
+    function test_RevertWhen_ToAddressZero() external givenAttestClaimType {
         // It should revert.
         vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
         claimViaAttestation({
@@ -28,7 +42,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertGiven_AttestorZero() external whenToAddressNotZero {
+    function test_RevertGiven_AttestorZero() external givenAttestClaimType whenToAddressNotZero {
         // Set the default attestor to the zero address.
         setMsgSender(admin);
         comptroller.setAttestor(address(0));
@@ -50,6 +64,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
     function test_RevertWhen_AttestationInvalid()
         external
+        givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
         givenAttestorIsEOA
@@ -71,7 +86,14 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
     /// @dev Since the implementation of `claimViaAttestation()` differs in each Merkle campaign, we declare this
     /// virtual dummy test. The child contracts implement it.
-    function test_WhenAttestationValid() external virtual whenToAddressNotZero givenAttestorNotZero givenAttestorIsEOA {
+    function test_WhenAttestationValid()
+        external
+        virtual
+        givenAttestClaimType
+        whenToAddressNotZero
+        givenAttestorNotZero
+        givenAttestorIsEOA
+    {
         // The child contract must check that the claim event is emitted.
         // It should mark the index as claimed.
         // It should transfer the fee from the caller address to the comptroller.
@@ -79,6 +101,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
     function test_RevertWhen_AttestorNotImplementIERC1271Interface()
         external
+        givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
         givenAttestorIsContract
@@ -88,7 +111,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
 
         // Set the attestor to the contract without IERC1271.
         setMsgSender(users.campaignCreator);
-        ISablierMerkleSignature(address(merkleBase)).setAttestor(smartAttestorWithoutIERC1271);
+        ISablierMerkleSignature(address(merkleBaseAttest)).setAttestor(smartAttestorWithoutIERC1271);
 
         // Change caller back to the recipient.
         setMsgSender(users.recipient);
@@ -109,6 +132,7 @@ abstract contract ClaimViaAttestation_Integration_Test is Integration_Test {
     function test_WhenAttestorImplementsIERC1271Interface()
         external
         virtual
+        givenAttestClaimType
         whenToAddressNotZero
         givenAttestorNotZero
         givenAttestorIsContract

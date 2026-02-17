@@ -2,11 +2,22 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
 abstract contract Claim_Integration_Test is Integration_Test {
-    function test_RevertGiven_CampaignStartTimeInFuture() external {
+    function test_RevertGiven_NotDefaultClaimType() external virtual {
+        merkleBase = merkleBaseAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claim();
+    }
+
+    function test_RevertGiven_CampaignStartTimeInFuture() external givenDefaultClaimType {
         uint40 warpTime = CAMPAIGN_START_TIME - 1 seconds;
         vm.warp({ newTimestamp: warpTime });
 
@@ -16,7 +27,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
         claim();
     }
 
-    function test_RevertGiven_CampaignExpired() external givenCampaignStartTimeNotInFuture {
+    function test_RevertGiven_CampaignExpired() external givenDefaultClaimType givenCampaignStartTimeNotInFuture {
         uint40 warpTime = EXPIRATION + 1 seconds;
         vm.warp({ newTimestamp: warpTime });
 
@@ -24,7 +35,12 @@ abstract contract Claim_Integration_Test is Integration_Test {
         claim();
     }
 
-    function test_RevertGiven_MsgValueLessThanFee() external givenCampaignStartTimeNotInFuture givenCampaignNotExpired {
+    function test_RevertGiven_MsgValueLessThanFee()
+        external
+        givenDefaultClaimType
+        givenCampaignStartTimeNotInFuture
+        givenCampaignNotExpired
+    {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierMerkleBase_InsufficientFeePayment.selector, 0, AIRDROP_MIN_FEE_WEI)
         );
@@ -39,6 +55,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
     function test_RevertGiven_RecipientClaimed()
         external
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -51,6 +68,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
     function test_RevertWhen_IndexNotValid()
         external
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -70,6 +88,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
     function test_RevertWhen_RecipientNotEligible()
         external
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -92,6 +111,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
     function test_RevertWhen_AmountNotValid()
         external
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -113,6 +133,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
 
     function test_RevertWhen_MerkleProofNotValid()
         external
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee
@@ -136,6 +157,7 @@ abstract contract Claim_Integration_Test is Integration_Test {
     function test_WhenMerkleProofValid()
         external
         virtual
+        givenDefaultClaimType
         givenCampaignStartTimeNotInFuture
         givenCampaignNotExpired
         givenMsgValueNotLessThanFee

@@ -3,6 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
+import { ISablierMerkleBase } from "src/interfaces/ISablierMerkleBase.sol";
 import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol";
 import { ISablierMerkleInstant } from "src/interfaces/ISablierMerkleInstant.sol";
 import { ISablierMerkleLL } from "src/interfaces/ISablierMerkleLL.sol";
@@ -25,11 +26,8 @@ abstract contract Integration_Test is Base_Test {
     /// @dev Type of the campaign, e.g., "execute", "instant", "ll", "lt", or "vca".
     string internal campaignType;
 
-    /// @dev Campaigns with ClaimType.ATTEST for testing claim type restrictions.
-    ISablierMerkleInstant internal merkleInstantAttest;
-    ISablierMerkleLL internal merkleLLAttest;
-    ISablierMerkleLT internal merkleLTAttest;
-    ISablierMerkleVCA internal merkleVCAAttest;
+    /// @dev Variable to store a campaign deployed with {ClaimType.ATTEST}.
+    ISablierMerkleBase internal merkleBaseAttest;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -47,12 +45,6 @@ abstract contract Integration_Test is Base_Test {
         merkleLL = createMerkleLL();
         merkleLT = createMerkleLT();
         merkleVCA = createMerkleVCA();
-
-        // Create campaigns with ClaimType.ATTEST.
-        merkleInstantAttest = createMerkleInstantAttest();
-        merkleLLAttest = createMerkleLLAttest();
-        merkleLTAttest = createMerkleLTAttest();
-        merkleVCAAttest = createMerkleVCAAttest();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -147,9 +139,8 @@ abstract contract Integration_Test is Base_Test {
         bytes memory attestation
     )
         internal
-        virtual
     {
-        address campaignAddr = address(merkleBase);
+        address campaignAddr = address(merkleBaseAttest);
         ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
             index, to, amount, merkleProof, attestation
         );
@@ -198,7 +189,7 @@ abstract contract Integration_Test is Base_Test {
     function generateAttestation() internal view returns (bytes memory) {
         return generateAttestationSignature({
             signerPrivateKey: attestorPrivateKey,
-            merkleContract: address(merkleBase),
+            merkleContract: address(merkleBaseAttest),
             recipient: users.recipient
         });
     }

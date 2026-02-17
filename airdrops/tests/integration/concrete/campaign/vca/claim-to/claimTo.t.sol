@@ -40,17 +40,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         setMsgSender(users.recipient);
     }
 
-    function test_RevertGiven_ClaimTypeATTEST() external {
-        merkleBase = merkleVCAAttest;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
-            )
-        );
-        claimTo();
-    }
-
-    function test_RevertWhen_VestingStartTimeInFuture() external whenMerkleProofValid givenClaimTypeNotAttest {
+    function test_RevertWhen_VestingStartTimeInFuture() external givenDefaultClaimType whenMerkleProofValid {
         // Create a new campaign with vesting start time in the future.
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp() + 1 seconds;
@@ -69,7 +59,7 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         });
     }
 
-    function test_WhenVestingStartTimeInPresent() external whenMerkleProofValid givenClaimTypeNotAttest {
+    function test_WhenVestingStartTimeInPresent() external givenDefaultClaimType whenMerkleProofValid {
         // Create a new campaign with vesting start time in the present.
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.vestingStartTime = getBlockTimestamp();
@@ -85,8 +75,8 @@ contract ClaimTo_MerkleVCA_Integration_Test is
 
     function test_WhenVestingEndTimeInFuture()
         external
+        givenDefaultClaimType
         whenMerkleProofValid
-        givenClaimTypeNotAttest
         whenVestingStartTimeInPast
     {
         _test_ClaimTo({
@@ -98,8 +88,8 @@ contract ClaimTo_MerkleVCA_Integration_Test is
 
     function test_GivenRedistributionNotEnabled()
         external
+        givenDefaultClaimType
         whenMerkleProofValid
-        givenClaimTypeNotAttest
         whenVestingStartTimeInPast
         whenVestingEndTimeNotInFuture
     {
@@ -111,8 +101,8 @@ contract ClaimTo_MerkleVCA_Integration_Test is
 
     function test_GivenRedistributionEnabled()
         external
+        givenDefaultClaimType
         whenMerkleProofValid
-        givenClaimTypeNotAttest
         whenVestingStartTimeInPast
         whenVestingEndTimeNotInFuture
     {
@@ -214,6 +204,21 @@ contract ClaimTo_MerkleVCA_Integration_Test is
         address campaignAddr = address(merkleVCA);
 
         ISablierMerkleVCA(campaignAddr).claimTo{ value: msgValue }(index, recipient, amount, merkleProof);
+    }
+
+    /// @dev Overrides the {test_RevertGiven_NotDefaultClaimType} function defined in both {ClaimTo_Integration_Test}
+    /// and {Claim_Integration_Test}.
+    function test_RevertGiven_NotDefaultClaimType()
+        external
+        override(ClaimTo_Integration_Test, Claim_Integration_Test)
+    {
+        merkleBase = merkleBaseAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claimTo();
     }
 
     /// @dev Overrides the {test_WhenMerkleProofValid} function defined in both {ClaimTo_Integration_Test} and
