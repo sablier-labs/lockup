@@ -195,7 +195,7 @@ contract SablierBob is
         }
 
         // Interaction: mint share tokens to the caller.
-        vault.shareToken.mint(msg.sender, amount);
+        vault.shareToken.mint(vaultId, msg.sender, amount);
 
         // Log the deposit.
         emit Enter(vaultId, msg.sender, amount, amount);
@@ -239,7 +239,7 @@ contract SablierBob is
         delete _firstDepositTimes[vaultId][msg.sender];
 
         // Effect: burn share tokens from the caller.
-        vault.shareToken.burn(msg.sender, amount);
+        vault.shareToken.burn(vaultId, msg.sender, amount);
 
         // Interaction: return tokens to the caller.
         if (address(vault.adapter) != address(0)) {
@@ -285,7 +285,7 @@ contract SablierBob is
         }
 
         // Effect: burn share tokens from the caller.
-        vault.shareToken.burn(msg.sender, shareBalance);
+        vault.shareToken.burn(vaultId, msg.sender, shareBalance);
 
         // Check if the vault has an adapter.
         if (address(vault.adapter) != address(0)) {
@@ -481,7 +481,7 @@ contract SablierBob is
         if (bytes(symbol).length > 30) {
             return "Long Symbol";
         } else {
-            if (!isAllowedCharacter(symbol)) {
+            if (!_isAllowedCharacter(symbol)) {
                 return "Unsupported Symbol";
             }
             return symbol;

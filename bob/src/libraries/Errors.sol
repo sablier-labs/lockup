@@ -14,6 +14,9 @@ library Errors {
     /// @notice Thrown when a function is called by an address other than SablierBob.
     error BobVaultShare_OnlySablierBob(address caller, address expectedCaller);
 
+    /// @notice Thrown when the provided vault ID does not match the share token's vault ID.
+    error BobVaultShare_VaultIdMismatch(uint256 providedVaultId, uint256 expectedVaultId);
+
     /*//////////////////////////////////////////////////////////////////////////
                                      SABLIER BOB
     //////////////////////////////////////////////////////////////////////////*/
@@ -86,6 +89,9 @@ library Errors {
 
     /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
     error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
+
+    /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
+    error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
 
     /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
     error SablierLidoAdapter_SlippageToleranceTooHigh(uint256 tolerance, uint256 maxTolerance);

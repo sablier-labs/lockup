@@ -61,7 +61,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint tokens to depositor (onShareTransfer should NOT be called for mint).
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         // Reset the mock state.
         mockBob.reset();
@@ -88,7 +88,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint initial tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, initialBalance);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, initialBalance);
 
         mockBob.reset();
 
@@ -109,7 +109,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint initial tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, initialBalance);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, initialBalance);
 
         // First transfer: 30 tokens.
         mockBob.reset();
@@ -145,7 +145,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint tokens (from = address(0)).
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         // Verify onShareTransfer was NOT called.
         assertFalse(mockBob.wasOnShareTransferCalled(), "onShareTransfer should NOT be called on mint");
@@ -155,21 +155,21 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
     function test_Update_Mint_MultipleMints_DoesNotCallOnShareTransfer() external {
         // First mint.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, 50e18);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, 50e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "first mint: onShareTransfer should NOT be called");
 
         mockBob.reset();
 
         // Second mint.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, 30e18);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, 30e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "second mint: onShareTransfer should NOT be called");
 
         mockBob.reset();
 
         // Mint to different user.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.alice, 20e18);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.alice, 20e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "mint to different user: onShareTransfer should NOT be called");
     }
 
@@ -184,14 +184,14 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // First mint tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         // Reset mock state.
         mockBob.reset();
 
         // Burn tokens (to = address(0)).
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).burn(users.depositor, burnAmount);
+        BobVaultShare(address(shareToken)).burn(testVaultId, users.depositor, burnAmount);
 
         // Verify onShareTransfer was NOT called.
         assertFalse(mockBob.wasOnShareTransferCalled(), "onShareTransfer should NOT be called on burn");
@@ -201,20 +201,20 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
     function test_Update_Burn_MultipleBurns_DoesNotCallOnShareTransfer() external {
         // Mint tokens first.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, 100e18);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, 100e18);
 
         mockBob.reset();
 
         // First burn.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).burn(users.depositor, 30e18);
+        BobVaultShare(address(shareToken)).burn(testVaultId, users.depositor, 30e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "first burn: onShareTransfer should NOT be called");
 
         mockBob.reset();
 
         // Second burn.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).burn(users.depositor, 20e18);
+        BobVaultShare(address(shareToken)).burn(testVaultId, users.depositor, 20e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "second burn: onShareTransfer should NOT be called");
     }
 
@@ -226,7 +226,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
     function test_Update_MintTransferBurn_SelectiveCallback() external {
         // Step 1: Mint - should NOT call onShareTransfer.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, 100e18);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, 100e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "mint: should NOT call onShareTransfer");
 
         mockBob.reset();
@@ -240,7 +240,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Step 3: Burn from alice - should NOT call onShareTransfer.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).burn(users.alice, 10e18);
+        BobVaultShare(address(shareToken)).burn(testVaultId, users.alice, 10e18);
         assertFalse(mockBob.wasOnShareTransferCalled(), "burn: should NOT call onShareTransfer");
 
         mockBob.reset();
@@ -262,7 +262,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         // Approve alice to spend depositor's tokens.
         vm.prank(users.depositor);
@@ -295,7 +295,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         mockBob.reset();
 
@@ -322,7 +322,7 @@ contract Update_BobVaultShare_Integration_Concrete_Test is Integration_Test {
 
         // Mint tokens.
         vm.prank(address(mockBob));
-        BobVaultShare(address(shareToken)).mint(users.depositor, mintAmount);
+        BobVaultShare(address(shareToken)).mint(testVaultId, users.depositor, mintAmount);
 
         mockBob.reset();
 

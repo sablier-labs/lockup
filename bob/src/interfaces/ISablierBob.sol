@@ -103,7 +103,8 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// @param token The address of the ERC-20 token that will be accepted for deposits.
     /// @param oracle The address of the price feed oracle for the deposit token.
     /// @param expiry The Unix timestamp when the vault expires.
-    /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
+    /// @param targetPrice The target price at which the vault settles, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
     /// @return vaultId The ID of the newly created vault.
     function createVault(
         IERC20 token,
@@ -203,7 +204,8 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// - The oracle must return a positive price.
     ///
     /// @param vaultId The ID of the vault to sync.
-    /// @return latestPrice The latest price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
+    /// @return latestPrice The latest price fetched from the oracle, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
     function syncPriceFromOracle(uint256 vaultId) external returns (uint128 latestPrice);
 
     /// @notice Unstake all tokens from the adapter for a given vault.
