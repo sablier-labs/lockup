@@ -7,12 +7,55 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title SafeOracle
-/// @notice Library with helper functions for validating oracle addresses.
+/// @notice Library with helper functions for fetching and validating oracle prices.
 library SafeOracle {
     using SafeCast for uint256;
 
-    /// @dev Validates the oracle address and returns the latest price.
-    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 latestPrice) {
+    /// @dev Fetches the latest price from the oracle without reverting. Returns 0 if any of the following conditions
+    /// are met:
+    /// - Oracle address is zero.
+    /// - Call to `latestRoundData()` fails.
+    /// - The price is not positive.
+    /// - The price exceeds `uint128` max.
+    /// - The `updatedAt` timestamp is in the future.
+    function safeOraclePrice(AggregatorV3Interface oracle) internal view returns (uint128 price, uint256 updatedAt) {
+        // If the oracle is not set, return 0 for both price and updated timestamp.
+        if (address(oracle) == address(0)) {
+            return (0, 0);
+        }
+
+        // Interactions: query the oracle price and the time at which it was updated.
+        try AggregatorV3Interface(oracle).latestRoundData() returns (
+            uint80, int256 _price, uint256, uint256 _updatedAt, uint80
+        ) {
+            // If the price is not greater than 0, return 0 for price.
+            if (_price <= 0) {
+                return (0, _updatedAt);
+            }
+
+            // If the price is greater than max `uint128`, return 0 for price.
+            if (uint256(_price) > type(uint128).max) {
+                return (0, _updatedAt);
+            }
+
+            // Due to reorgs and latency issues, the oracle can have an `updatedAt` timestamp in the future.
+            if (block.timestamp < _updatedAt) {
+                return (0, _updatedAt);
+            }
+
+            price = uint128(uint256(_price));
+            updatedAt = _updatedAt;
+        } catch {
+            // If the oracle call fails, return 0 for both price and updated timestamp.
+            return (0, 0);
+        }
+    }
+
+    /// @dev Validates the oracle address and reverts if any of the following conditions are met:
+    /// - Oracle address is zero.
+    /// - Oracle does not implement the `decimals()` function or returns a non-8 decimals.
+    /// - Oracle does not return a positive price when `latestRoundData()` is called.
+    function validateOracle(AggregatorV3Interface oracle) internal view returns (uint128 price) {
         // Check: oracle address is not zero. This is needed because calling a function on address(0) succeeds but
         // returns empty data, which causes the ABI decoder to fail.
         if (address(oracle) == address(0)) {
@@ -29,12 +72,12 @@ library SafeOracle {
         }
 
         // Check: oracle returns a positive price when `latestRoundData()` is called.
-        try oracle.latestRoundData() returns (uint80, int256 price, uint256, uint256, uint80) {
+        try oracle.latestRoundData() returns (uint80, int256 _price, uint256, uint256, uint80) {
             // Because users may not always use Chainlink oracles, we do not check for the staleness of the price.
-            if (price <= 0) {
-                revert Errors.SafeOracle_NegativePrice(address(oracle));
+            if (_price <= 0) {
+                revert Errors.SafeOracle_NotPositivePrice(address(oracle));
             }
-            latestPrice = uint256(price).toUint128();
+            price = uint256(_price).toUint128();
         } catch {
             revert Errors.SafeOracle_MissesInterface(address(oracle));
         }

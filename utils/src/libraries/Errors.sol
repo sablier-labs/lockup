@@ -81,6 +81,6 @@ library Errors {
     /// interface.
     error SafeOracle_MissesInterface(address oracle);
 
-    /// @notice Thrown when an oracle returns a negative price.
-    error SafeOracle_NegativePrice(address oracle);
+    /// @notice Thrown when the price returned by the oracle is not positive.
+    error SafeOracle_NotPositivePrice(address oracle);
 }

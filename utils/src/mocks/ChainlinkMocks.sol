@@ -10,8 +10,12 @@ uint8 constant DEFAULT_DECIMALS = 8;
 
 /// @notice Mock contract to expose the internal SafeOracle library function.
 contract SafeOracleMock {
-    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128) {
+    function safeOraclePrice(AggregatorV3Interface oracle) external view returns (uint128, uint256) {
         return SafeOracle.safeOraclePrice(oracle);
+    }
+
+    function validateOracle(AggregatorV3Interface oracle) external view returns (uint128) {
+        return SafeOracle.validateOracle(oracle);
     }
 }
 
@@ -73,6 +77,23 @@ contract ChainlinkOracleNegativePrice {
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
         int256 answer_ = -3000e8; // Negative price
+        uint256 updatedAt_ = block.timestamp;
+        return (0, answer_, 0, updatedAt_, 0);
+    }
+}
+
+/// @notice A mock Chainlink oracle that returns a price exceeding `type(uint128).max`.
+contract ChainlinkOracleOverflowPrice {
+    function decimals() external pure returns (uint8) {
+        return DEFAULT_DECIMALS;
+    }
+
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+    {
+        int256 answer_ = int256(uint256(type(uint128).max) + 1);
         uint256 updatedAt_ = block.timestamp;
         return (0, answer_, 0, updatedAt_, 0);
     }

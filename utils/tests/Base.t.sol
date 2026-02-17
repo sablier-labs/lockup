@@ -7,6 +7,7 @@ import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 import { ISablierComptroller } from "src/interfaces/ISablierComptroller.sol";
 import { AdminableMock } from "src/mocks/AdminableMock.sol";
 import { BatchMock } from "src/mocks/BatchMock.sol";
+import { SafeOracleMock } from "src/mocks/ChainlinkMocks.sol";
 import { ComptrollerableMock } from "src/mocks/ComptrollerableMock.sol";
 import { NoDelegateCallMock } from "src/mocks/NoDelegateCallMock.sol";
 import { RoleAdminableMock } from "src/mocks/RoleAdminableMock.sol";
@@ -41,6 +42,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
     MerkleMock internal merkleMock;
     NoDelegateCallMock internal noDelegateCallMock;
     RoleAdminableMock internal roleAdminableMock;
+    SafeOracleMock internal safeOracleMock;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        SET-UP
@@ -64,6 +66,7 @@ abstract contract Base_Test is BaseTest, Modifiers, StdAssertions, Utils {
         merkleMock = new MerkleMock();
         noDelegateCallMock = new NoDelegateCallMock();
         roleAdminableMock = new RoleAdminableMock(admin);
+        safeOracleMock = new SafeOracleMock();
 
         // Set the admin as the msg.sender.
         setMsgSender(admin);
