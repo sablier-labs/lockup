@@ -14,12 +14,12 @@ CreateOrder_Integration_Concrete_Test
             ├── when min buy amount zero
             │  └── it should revert
             └── when min buy amount not zero
-               ├── when expire at in past
+               ├── when expiry time in past
                │  └── it should revert
-               └── when expire at valid or zero
+               └── when expiry time valid or zero
                   ├── given no designated buyer
                   │  └── it should create the order open to anyone
                   ├── given designated buyer specified
                   │  └── it should create the order with buyer restriction
-                  └── given expire at is zero
+                  └── given expiry time is zero
                      └── it should create the order that never expires

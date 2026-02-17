@@ -34,7 +34,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
         // It should return correct buy token.
         assertEq(escrow.getBuyToken(orderIds.defaultOrder), buyToken, "buyToken");
 
-        // It should return correct expire at.
+        // It should return correct expiry time.
         assertEq(escrow.getExpiryTime(orderIds.defaultOrder), EXPIRY, "expiryTime");
 
         // It should return correct min buy amount.
