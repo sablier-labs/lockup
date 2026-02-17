@@ -55,7 +55,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_RevertWhen_ExpireAtInPast()
+    function test_RevertWhen_ExpiryTimeInPast()
         external
         whenSellTokenNotZero
         whenBuyTokenNotZero
@@ -65,7 +65,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     {
         // It should revert.
         uint40 pastExpiry = uint40(block.timestamp - 1);
-        expectRevert_ExpireAtInPast(
+        expectRevert_ExpiryTimeInPast(
             abi.encodeCall(
                 escrow.createOrder, (sellToken, SELL_AMOUNT, buyToken, MIN_BUY_AMOUNT, address(0), pastExpiry)
             ),
@@ -81,7 +81,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero
-        whenExpireAtValidOrZero
+        whenExpiryTimeValidOrZero
     {
         // It should create the order open to anyone.
         uint256 expectedOrderId = escrow.nextOrderId();
@@ -98,7 +98,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             sellAmount: SELL_AMOUNT,
             minBuyAmount: MIN_BUY_AMOUNT,
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Create the order.
@@ -108,7 +108,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Assert the order ID matches expected.
@@ -121,7 +121,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         assertEq(escrow.getBuyToken(orderId), buyToken, "order.buyToken");
         assertEq(escrow.getSellAmount(orderId), SELL_AMOUNT, "order.sellAmount");
         assertEq(escrow.getMinBuyAmount(orderId), MIN_BUY_AMOUNT, "order.minBuyAmount");
-        assertEq(escrow.getExpireAt(orderId), EXPIRY, "order.expireAt");
+        assertEq(escrow.getExpiryTime(orderId), EXPIRY, "order.expiryTime");
         assertEq(escrow.statusOf(orderId), Escrow.Status.OPEN, "order.status");
         assertFalse(escrow.wasCanceled(orderId), "order.wasCanceled");
         assertFalse(escrow.wasFilled(orderId), "order.wasFilled");
@@ -141,7 +141,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero
-        whenExpireAtValidOrZero
+        whenExpiryTimeValidOrZero
     {
         // It should create the order with buyer restriction.
         uint256 expectedOrderId = escrow.nextOrderId();
@@ -156,7 +156,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             sellAmount: SELL_AMOUNT,
             minBuyAmount: MIN_BUY_AMOUNT,
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Create the order with designated buyer.
@@ -166,7 +166,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: users.buyer,
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Assert the order was created with designated buyer.
@@ -174,7 +174,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         assertEq(escrow.statusOf(orderId), Escrow.Status.OPEN, "order.status");
     }
 
-    function test_GivenExpireAtIsZero()
+    function test_GivenExpiryTimeIsZero()
         external
         whenSellTokenNotZero
         whenBuyTokenNotZero
@@ -195,7 +195,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             sellAmount: SELL_AMOUNT,
             minBuyAmount: MIN_BUY_AMOUNT,
-            expireAt: ZERO_EXPIRY
+            expiryTime: ZERO_EXPIRY
         });
 
         // Create the order that never expires.
@@ -205,11 +205,11 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: ZERO_EXPIRY
+            expiryTime: ZERO_EXPIRY
         });
 
         // Assert the order was created with zero expiry.
-        assertEq(escrow.getExpireAt(orderId), 0, "order.expireAt should be zero");
+        assertEq(escrow.getExpiryTime(orderId), 0, "order.expiryTime should be zero");
         assertEq(escrow.statusOf(orderId), Escrow.Status.OPEN, "order.status");
 
         // Warp far into the future and verify it's still open.

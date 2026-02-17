@@ -33,7 +33,7 @@ interface ISablierEscrowState {
     /// @notice Retrieves the time when the order expires and can no longer be filled. Zero is sentinel for orders that
     /// never expire.
     /// @dev Reverts if `orderId` references a null order.
-    function getExpireAt(uint256 orderId) external view returns (uint40 expireAt);
+    function getExpiryTime(uint256 orderId) external view returns (uint40 expiryTime);
 
     /// @notice Retrieves the minimum amount of buy token the seller is willing to accept.
     /// @dev Reverts if `orderId` references a null order.

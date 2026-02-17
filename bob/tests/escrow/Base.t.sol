@@ -100,7 +100,7 @@ abstract contract Base_Test is Assertions, Modifiers {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0), // Any buyer
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
     }
 
@@ -112,7 +112,7 @@ abstract contract Base_Test is Assertions, Modifiers {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: designatedBuyer,
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
     }
 
@@ -125,14 +125,14 @@ abstract contract Base_Test is Assertions, Modifiers {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Warp past expiry to make it expired.
         vm.warp({ newTimestamp: EXPIRY + 1 });
     }
 
-    /// @dev Creates an order that never expires (expireAt = 0).
+    /// @dev Creates an order that never expires (expiryTime = 0).
     function createNonExpiringOrder() internal returns (uint256 orderId) {
         orderId = escrow.createOrder({
             sellToken: sellToken,
@@ -140,7 +140,7 @@ abstract contract Base_Test is Assertions, Modifiers {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: ZERO_EXPIRY // Never expires
+            expiryTime: ZERO_EXPIRY // Never expires
         });
     }
 

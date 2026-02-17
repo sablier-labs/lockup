@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { Batch } from "@sablier/evm-utils/src/Batch.sol";
 import { Comptrollerable } from "@sablier/evm-utils/src/Comptrollerable.sol";
 
 import { SablierEscrowState } from "./abstracts/SablierEscrowState.sol";
@@ -26,7 +25,6 @@ import { Escrow } from "./types/Escrow.sol";
 /// @title SablierEscrow
 /// @notice See the documentation in {ISablierEscrow}.
 contract SablierEscrow is
-    Batch, // 1 inherited component
     Comptrollerable, // 1 inherited component
     ISablierEscrow, // 2 inherited components
     SablierEscrowState // 1 inherited component
@@ -91,7 +89,7 @@ contract SablierEscrow is
         IERC20 buyToken,
         uint128 minBuyAmount,
         address buyer,
-        uint40 expireAt
+        uint40 expiryTime
     )
         external
         override
@@ -122,9 +120,9 @@ contract SablierEscrow is
             revert Errors.SablierEscrow_MinBuyAmountZero();
         }
 
-        // Check: expireAt is in the future. Zero is sentinel for orders that never expire.
-        if (expireAt > 0 && expireAt <= block.timestamp) {
-            revert Errors.SablierEscrow_ExpireAtInPast(expireAt, uint40(block.timestamp));
+        // Check: expiryTime is in the future. Zero is sentinel for orders that never expire.
+        if (expiryTime > 0 && expiryTime <= block.timestamp) {
+            revert Errors.SablierEscrow_ExpiryTimeInPast(expiryTime, uint40(block.timestamp));
         }
 
         // Use the current next order ID as this order's ID.
@@ -143,7 +141,7 @@ contract SablierEscrow is
             buyToken: buyToken,
             sellAmount: sellAmount,
             minBuyAmount: minBuyAmount,
-            expireAt: expireAt,
+            expiryTime: expiryTime,
             wasCanceled: false,
             wasFilled: false
         });
@@ -152,11 +150,24 @@ contract SablierEscrow is
         sellToken.safeTransferFrom(msg.sender, address(this), sellAmount);
 
         // Log the event.
-        emit CreateOrder(orderId, msg.sender, buyer, sellToken, buyToken, sellAmount, minBuyAmount, expireAt);
+        emit CreateOrder(orderId, msg.sender, buyer, sellToken, buyToken, sellAmount, minBuyAmount, expiryTime);
     }
 
     /// @inheritdoc ISablierEscrow
-    function fillOrder(uint256 orderId, uint128 buyAmount) external override notNull(orderId) {
+    function fillOrder(
+        uint256 orderId,
+        uint128 buyAmount
+    )
+        external
+        override
+        notNull(orderId)
+        returns (
+            uint128 amountToTransferToSeller,
+            uint128 amountToTransferToBuyer,
+            uint128 feeDeductedFromBuyerAmount,
+            uint128 feeDeductedFromSellerAmount
+        )
+    {
         // Check: the order is open.
         Escrow.Status status = _statusOf(orderId);
         if (status != Escrow.Status.OPEN) {
@@ -182,10 +193,8 @@ contract SablierEscrow is
         // Get the trade fee from storage.
         UD60x18 currentTradeFee = tradeFee;
 
-        uint128 amountToTransferToSeller = buyAmount;
-        uint128 amountToTransferToBuyer = order.sellAmount;
-        uint128 feeDeductedFromBuyerAmount;
-        uint128 feeDeductedFromSellerAmount;
+        amountToTransferToSeller = buyAmount;
+        amountToTransferToBuyer = order.sellAmount;
 
         // If the fee is non-zero, deduct the fee from both sides.
         if (currentTradeFee.unwrap() > 0) {

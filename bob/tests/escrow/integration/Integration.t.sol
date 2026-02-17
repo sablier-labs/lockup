@@ -182,13 +182,13 @@ abstract contract Integration_Test is Base_Test {
         );
     }
 
-    /// @dev Expects a revert when expireAt is in the past.
-    function expectRevert_ExpireAtInPast(bytes memory callData, uint40 expireAt, uint40 currentTime) internal {
+    /// @dev Expects a revert when expiryTime is in the past.
+    function expectRevert_ExpiryTimeInPast(bytes memory callData, uint40 expiryTime, uint40 currentTime) internal {
         (bool success, bytes memory returnData) = address(escrow).call(callData);
         assertFalse(success, "expire at in past call success");
         assertEq(
             returnData,
-            abi.encodeWithSelector(Errors.SablierEscrow_ExpireAtInPast.selector, expireAt, currentTime),
+            abi.encodeWithSelector(Errors.SablierEscrow_ExpiryTimeInPast.selector, expiryTime, currentTime),
             "expire at in past return data"
         );
     }

@@ -3,14 +3,13 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { IBatch } from "@sablier/evm-utils/src/interfaces/IBatch.sol";
 import { IComptrollerable } from "@sablier/evm-utils/src/interfaces/IComptrollerable.sol";
 
 import { ISablierEscrowState } from "./ISablierEscrowState.sol";
 
 /// @title ISablierEscrow
-/// @notice Interface for the Sablier Escrow protocol.
-interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
+/// @notice A peer-to-peer token swap protocol that allows users to swap ERC-20 tokens with each other.
+interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -27,7 +26,7 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
         IERC20 buyToken,
         uint128 sellAmount,
         uint128 minBuyAmount,
-        uint40 expireAt
+        uint40 expiryTime
     );
 
     /// @notice Emitted when an order is filled.
@@ -70,7 +69,7 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
     /// - `sellToken` and `buyToken` must not be the same token.
     /// - `sellAmount` must be greater than zero.
     /// - `minBuyAmount` must be greater than zero.
-    /// - If `expireAt` is non-zero, it must be in the future. Zero is sentinel for orders that never expire.
+    /// - If `expiryTime` is non-zero, it must be in the future. Zero is sentinel for orders that never expire.
     /// - The caller must have approved this contract to transfer atleast `sellAmount` of `sellToken`.
     ///
     /// @param sellToken The address of the ERC-20 token to sell.
@@ -79,7 +78,7 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
     /// @param minBuyAmount The minimum amount of buy token to fill this trade.
     /// @param buyer The designated counterparty address specified by the seller. If its zero address, the order can be
     /// filled by anyone.
-    /// @param expireAt The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
+    /// @param expiryTime The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
     /// @return orderId The order ID of the newly created order.
     function createOrder(
         IERC20 sellToken,
@@ -87,7 +86,7 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
         IERC20 buyToken,
         uint128 minBuyAmount,
         address buyer,
-        uint40 expireAt
+        uint40 expiryTime
     )
         external
         returns (uint256 orderId);
@@ -105,7 +104,21 @@ interface ISablierEscrow is IBatch, IComptrollerable, ISablierEscrowState {
     ///
     /// @param orderId The order ID to fill.
     /// @param buyAmount The amount of buy token to exchange.
-    function fillOrder(uint256 orderId, uint128 buyAmount) external;
+    /// @return amountToTransferToSeller The amount of buy token to transfer to the seller after deducting fees.
+    /// @return amountToTransferToBuyer The amount of sell token to transfer to the buyer after deducting fees.
+    /// @return feeDeductedFromBuyerAmount The amount of buy token deducted from the buyer as fees.
+    /// @return feeDeductedFromSellerAmount The amount of sell token deducted from the seller as fees.
+    function fillOrder(
+        uint256 orderId,
+        uint128 buyAmount
+    )
+        external
+        returns (
+            uint128 amountToTransferToSeller,
+            uint128 amountToTransferToBuyer,
+            uint128 feeDeductedFromBuyerAmount,
+            uint128 feeDeductedFromSellerAmount
+        );
 
     /// @notice Sets the fee to apply on each trade.
     ///

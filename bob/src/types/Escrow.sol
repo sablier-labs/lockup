@@ -27,13 +27,13 @@ library Escrow {
     /// @param buyToken The ERC-20 token the seller wants to receive.
     /// @param sellAmount The amount of sell token that the seller is willing to exchange.
     /// @param minBuyAmount The minimum amount of buy token that the seller is willing to accept.
-    /// @param expireAt The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
+    /// @param expiryTime The Unix timestamp when the order expires. Zero is sentinel for orders that never expire.
     /// @param wasCanceled Boolean indicating if the order was canceled.
     /// @param wasFilled Boolean indicating if the order was filled.
     struct Order {
         // slot 0
         address seller;
-        uint40 expireAt;
+        uint40 expiryTime;
         bool wasCanceled;
         bool wasFilled;
         // slot 1

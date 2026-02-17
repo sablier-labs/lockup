@@ -11,8 +11,10 @@ import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
 import { ISablierBobState } from "./ISablierBobState.sol";
 
 /// @title ISablierBob
-/// @notice Interface for the Sablier Bob protocol.
-interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
+/// @notice Price-gated vaults that unlock deposited tokens based on a target price set or the expiry time. If a vault
+/// is configured with an adapter, the protocol will automatically stake the tokens and earn yield on behalf of the
+/// users.
+interface ISablierBob is IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -86,7 +88,8 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// - A new ERC-20 share token is deployed for each vault to represent user's share of deposits in the vault.
     /// - The default adapter for the token is copied as the vault adapter. Any change in the default adapter does not
     /// affect existing vaults.
-    /// - Vault creator is responsible for choosing a valid oracle. Using Chainlink oracles are highly recommended.
+    /// - Vault creator is responsible for choosing a valid oracle. They should use Chainlink oracles, as the
+    /// integration is based on their API.
     ///
     /// Requirements:
     /// - `token` must not be the zero address.

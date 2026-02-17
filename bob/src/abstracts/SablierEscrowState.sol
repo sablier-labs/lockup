@@ -70,8 +70,8 @@ abstract contract SablierEscrowState is ISablierEscrowState {
     }
 
     /// @inheritdoc ISablierEscrowState
-    function getExpireAt(uint256 orderId) external view override notNull(orderId) returns (uint40 expireAt) {
-        expireAt = _orders[orderId].expireAt;
+    function getExpiryTime(uint256 orderId) external view override notNull(orderId) returns (uint40 expiryTime) {
+        expiryTime = _orders[orderId].expiryTime;
     }
 
     /// @inheritdoc ISablierEscrowState
@@ -115,7 +115,7 @@ abstract contract SablierEscrowState is ISablierEscrowState {
 
     /// @dev Return the order status without performing a null check.
     function _statusOf(uint256 orderId) internal view returns (Escrow.Status) {
-        Escrow.Order storage order = _orders[orderId];
+        Escrow.Order memory order = _orders[orderId];
 
         if (order.wasFilled) {
             return Escrow.Status.FILLED;
@@ -125,7 +125,7 @@ abstract contract SablierEscrowState is ISablierEscrowState {
         }
 
         // Return EXPIRED if the order has an expiry timestamp and it has expired.
-        if (order.expireAt != 0 && block.timestamp >= order.expireAt) {
+        if (order.expiryTime != 0 && block.timestamp >= order.expiryTime) {
             return Escrow.Status.EXPIRED;
         }
 

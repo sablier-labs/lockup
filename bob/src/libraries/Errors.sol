@@ -104,7 +104,7 @@ library Errors {
     error SablierEscrow_CallerNotAuthorized(uint256 orderId, address caller, address expectedCaller);
 
     /// @notice Thrown when trying to create an order with an expiration timestamp in the past.
-    error SablierEscrow_ExpireAtInPast(uint40 expireAt, uint40 currentTime);
+    error SablierEscrow_ExpiryTimeInPast(uint40 expiryTime, uint40 currentTime);
 
     /// @notice Thrown when trying to accept an order with a buy amount that is below the minimum amount required.
     error SablierEscrow_InsufficientBuyAmount(uint128 buyAmount, uint128 minBuyAmount);
