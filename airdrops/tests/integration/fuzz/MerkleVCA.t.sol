@@ -172,7 +172,7 @@ contract MerkleVCA_Fuzz_Test is Shared_Fuzz_Test {
         whenUnlockPercentageNotGreaterThan100
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
-        whenNotZeroExpiration
+        whenExpirationNotZero
         whenExpirationExceedsOneWeekFromVestingEndTime
     {
         // Bound vesting start time to be in the past.

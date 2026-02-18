@@ -159,10 +159,6 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenNotZeroExpiration() {
-        _;
-    }
-
     modifier whenPercentagesSumNot100Pct() {
         _;
     }

@@ -26,28 +26,7 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
         givenAttestorNotZero
         givenAttestorIsEOA
     {
-        uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
-        uint256 previousFeeAccrued = address(comptroller).balance;
-        uint256 index = getIndexInMerkleTree();
-
-        vm.expectEmit({ emitter: address(merkleBaseAttest) });
-        emit ISablierMerkleVCA.ClaimVCA({
-            index: index,
-            recipient: users.recipient,
-            claimAmount: VCA_CLAIM_AMOUNT,
-            forgoneAmount: forgoneAmount,
-            to: users.eve,
-            viaSig: false
-        });
-
-        expectCallToTransfer({ to: users.eve, value: VCA_CLAIM_AMOUNT });
-        claimViaAttestation();
-
-        assertTrue(ISablierMerkleVCA(address(merkleBaseAttest)).hasClaimed(index), "not claimed");
-        assertEq(
-            ISablierMerkleVCA(address(merkleBaseAttest)).totalForgoneAmount(), forgoneAmount, "total forgone amount"
-        );
-        assertEq(address(comptroller).balance, previousFeeAccrued + AIRDROP_MIN_FEE_WEI, "fee collected");
+        _test_ClaimViaAttestation();
     }
 
     function test_WhenAttestorImplementsIERC1271Interface()
@@ -66,6 +45,10 @@ contract ClaimViaAttestation_MerkleVCA_Integration_Test is
         ISablierMerkleSignature(address(merkleBaseAttest)).setAttestor(smartAttestor);
         setMsgSender(users.recipient);
 
+        _test_ClaimViaAttestation();
+    }
+
+    function _test_ClaimViaAttestation() private {
         uint128 forgoneAmount = VCA_FULL_AMOUNT - VCA_CLAIM_AMOUNT;
         uint256 previousFeeAccrued = address(comptroller).balance;
         uint256 index = getIndexInMerkleTree();

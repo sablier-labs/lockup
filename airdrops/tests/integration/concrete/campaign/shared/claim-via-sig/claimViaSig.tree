@@ -13,7 +13,7 @@ ClaimViaSig_Integration_Test
       │     │  └── it should revert
       │     └── when signer same as recipient
       │        ├── when signature validity timestamp in future
-      │        │ └── it should revert
+      │        │  └── it should revert
       │        └── when signature validity timestamp not in future
       │          ├── it should mark the index as Claimed
       │          ├── it should transfer the ETH to the comptroller

@@ -141,6 +141,8 @@ abstract contract Integration_Test is Base_Test {
         internal
     {
         address campaignAddr = address(merkleBaseAttest);
+        // Call the function using the `ISablierMerkleInstant` interface which is compatible with all other Merkle
+        // contracts.
         ISablierMerkleInstant(campaignAddr).claimViaAttestation{ value: msgValue }(
             index, to, amount, merkleProof, attestation
         );
