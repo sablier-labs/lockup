@@ -15,21 +15,23 @@ interface ISablierBobState {
                           USER-FACING READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Returns the default adapter for a given token.
-    /// @dev Zero address means no adapter is set.
-    function defaultAdapter(IERC20 token) external view returns (ISablierBobAdapter adapter);
-
     /// @notice Returns the adapter configured for a specific vault.
     /// @dev Reverts if `vaultId` references a null vault.
     function getAdapter(uint256 vaultId) external view returns (ISablierBobAdapter adapter);
 
-    /// @notice Returns the timestamp when a user first deposited into a vault.
-    /// @dev Reverts if `vaultId` references a null vault.
-    function getDepositedAt(uint256 vaultId, address user) external view returns (uint40 depositedAt);
+    /// @notice Returns the default adapter for a given token.
+    /// @dev Zero address means no adapter is set.
+    /// @param token The ERC-20 token to query the default adapter for.
+    /// @return adapter The default adapter for the token.
+    function getDefaultAdapterFor(IERC20 token) external view returns (ISablierBobAdapter adapter);
 
     /// @notice Returns the timestamp when the vault expires.
     /// @dev Reverts if `vaultId` references a null vault.
     function getExpiry(uint256 vaultId) external view returns (uint40 expiry);
+
+    /// @notice Returns the timestamp when a user first deposited into a vault.
+    /// @dev Reverts if `vaultId` references a null vault.
+    function getFirstDepositTime(uint256 vaultId, address user) external view returns (uint40 depositedAt);
 
     /// @notice Returns the timestamp when the oracle price was last synced for a vault.
     /// @dev Reverts if `vaultId` references a null vault.

@@ -185,7 +185,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         bob.enter(vaultId, amount);
 
         // Warp past expiry to settle the vault.
-        vm.warp(EXPIRY + 1);
+        vm.warp(bob.getExpiry(vaultId) + 1);
 
         // Manually unstake all first.
         bob.unstakeTokensViaAdapter(vaultId);

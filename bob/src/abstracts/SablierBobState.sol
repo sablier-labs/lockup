@@ -17,14 +17,14 @@ abstract contract SablierBobState is ISablierBobState {
                                   STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierBobState
-    mapping(IERC20 token => ISablierBobAdapter adapter) public override defaultAdapter;
+    /// @dev Default adapters mapped by token address.
+    mapping(IERC20 token => ISablierBobAdapter adapter) internal _defaultAdapters;
 
     /// @inheritdoc ISablierBobState
     uint256 public override nextVaultId;
 
     /// @dev Timestamp of first deposit for each user in each vault, used for grace period calculation.
-    mapping(uint256 vaultId => mapping(address user => uint40 depositedAt)) internal _depositedAt;
+    mapping(uint256 vaultId => mapping(address user => uint40 depositedAt)) internal _firstDepositTimes;
 
     /// @dev Vaults mapped by unsigned integers.
     mapping(uint256 vaultId => Bob.Vault vault) internal _vaults;
@@ -59,7 +59,17 @@ abstract contract SablierBobState is ISablierBobState {
     }
 
     /// @inheritdoc ISablierBobState
-    function getDepositedAt(
+    function getDefaultAdapterFor(IERC20 token) external view override returns (ISablierBobAdapter adapter) {
+        adapter = _defaultAdapters[token];
+    }
+
+    /// @inheritdoc ISablierBobState
+    function getExpiry(uint256 vaultId) external view override notNull(vaultId) returns (uint40 expiry) {
+        expiry = _vaults[vaultId].expiry;
+    }
+
+    /// @inheritdoc ISablierBobState
+    function getFirstDepositTime(
         uint256 vaultId,
         address user
     )
@@ -69,12 +79,7 @@ abstract contract SablierBobState is ISablierBobState {
         notNull(vaultId)
         returns (uint40 depositedAt)
     {
-        depositedAt = _depositedAt[vaultId][user];
-    }
-
-    /// @inheritdoc ISablierBobState
-    function getExpiry(uint256 vaultId) external view override notNull(vaultId) returns (uint40 expiry) {
-        expiry = _vaults[vaultId].expiry;
+        depositedAt = _firstDepositTimes[vaultId][user];
     }
 
     /// @inheritdoc ISablierBobState
@@ -130,11 +135,11 @@ abstract contract SablierBobState is ISablierBobState {
 
     /// @dev Retrieves the vault's status without performing a null check.
     function _statusOf(uint256 vaultId) internal view returns (Bob.Status) {
-        Bob.Vault storage vault = _vaults[vaultId];
+        Bob.Vault memory vault = _vaults[vaultId];
 
-        // Return SETTLED if the vault has expired.
+        // Return EXPIRED if the vault has expired.
         if (block.timestamp >= vault.expiry) {
-            return Bob.Status.SETTLED;
+            return Bob.Status.EXPIRED;
         }
 
         // Return SETTLED if the last synced price is greater than or equal to the target price.

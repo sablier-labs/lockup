@@ -4,7 +4,7 @@ Getters_Integration_Concrete_Test
 └── given not null order
    ├── it should return correct buyer
    ├── it should return correct buy token
-   ├── it should return correct expire at
+   ├── it should return correct expiry time
    ├── it should return correct min buy amount
    ├── it should return correct sell amount
    ├── it should return correct seller

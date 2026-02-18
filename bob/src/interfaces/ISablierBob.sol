@@ -11,7 +11,10 @@ import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
 import { ISablierBobState } from "./ISablierBobState.sol";
 
 /// @title ISablierBob
-/// @notice Interface for the Sablier Bob protocol.
+/// @notice Price-gated vaults that unlock deposited tokens when the price returned by the oracle is greater than or
+/// equal to the target price set by the vault creator. The tokens are also unlocked if the vault expires. When a vault
+/// is configured with a adapter, the protocol automatically stakes the tokens via adapter and earns yield on the
+/// deposit amount.
 interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
@@ -86,21 +89,23 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// - A new ERC-20 share token is deployed for each vault to represent user's share of deposits in the vault.
     /// - The default adapter for the token is copied as the vault adapter. Any change in the default adapter does not
     /// affect existing vaults.
-    /// - Vault creator is responsible for choosing a valid oracle. Using Chainlink oracles are highly recommended.
+    /// - Vault creator is responsible for choosing a valid oracle. They should use Chainlink oracles, as the
+    /// integration is based on their API.
     ///
     /// Requirements:
     /// - `token` must not be the zero address.
     /// - `token` must implement `symbol()` and `decimals()` functions.
     /// - `expiry` must be in the future.
-    /// - `oracle` must implement the Chainlink {AggregatorV3Interface} interface.
+    /// - `oracle` must implement the Chainlink's {AggregatorV3Interface} interface.
     /// - `oracle` must return a positive price when `latestRoundData()` is called.
     /// - `oracle` must return 8 when `decimals()` is called.
-    /// - `targetPrice` must be greater than the current price returned by the provided oracle.
+    /// - `targetPrice` must not be zero or greater than the current price returned by the provided oracle.
     ///
     /// @param token The address of the ERC-20 token that will be accepted for deposits.
     /// @param oracle The address of the price feed oracle for the deposit token.
     /// @param expiry The Unix timestamp when the vault expires.
-    /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
+    /// @param targetPrice The target price at which the vault settles, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
     /// @return vaultId The ID of the newly created vault.
     function createVault(
         IERC20 token,
@@ -149,7 +154,7 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// @param vaultId The ID of the vault to exit from.
     function exitWithinGracePeriod(uint256 vaultId) external;
 
-    /// @notice Redeem deposited tokens  from a settled vault by burning shares.
+    /// @notice Redeem deposited tokens from a settled vault by burning shares.
     ///
     /// @dev Emits a {Redeem} event.
     ///
@@ -192,13 +197,16 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// Notes:
     /// - Oracle staleness is not validated on-chain when calling this function. Any price returned by the oracle is
     /// accepted.
+    /// - Useful for syncing the price from oracle without calling {redeem} or {enter}. This function can be called by
+    /// anyone to settle vault when the price is above the target price.
     ///
     /// Requirements:
     /// - The vault must have ACTIVE status.
     /// - The oracle must return a positive price.
     ///
     /// @param vaultId The ID of the vault to sync.
-    /// @return latestPrice The latest price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
+    /// @return latestPrice The latest price fetched from the oracle, denominated in Chainlink's 8-decimal format for
+    /// USD prices, where 1e8 is $1.
     function syncPriceFromOracle(uint256 vaultId) external returns (uint128 latestPrice);
 
     /// @notice Unstake all tokens from the adapter for a given vault.

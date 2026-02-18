@@ -44,9 +44,9 @@ Over-the-counter (OTC) token swap protocol that allows users to swap ERC-20 toke
 ## Commands
 
 ```bash
-just build              # Build
-just full-check         # All checks
-just test               # Run tests
-just test-bulloak       # Verify BTT structure
-just coverage           # Coverage report
+just bob::build              # Build
+just bob::full-check         # All checks
+just bob::test               # Run tests
+just bob::test-bulloak       # Verify BTT structure
+just bob::coverage           # Coverage report
 ```

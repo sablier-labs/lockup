@@ -14,23 +14,15 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         expectRevert_NullVault(abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultIds.nullVault)), vaultIds.nullVault);
     }
 
-    function test_RevertGiven_VaultNotSettled() external givenNotNullVault {
+    function test_RevertGiven_VaultHasNoAdapter() external givenNotNullVault givenVaultHasNoAdapter {
         // It should revert.
-        // The adapterVault is not settled, so unstakeFullAmount should revert.
-        expectRevert_VaultNotSettled(
-            abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultIds.adapterVault)), vaultIds.adapterVault
-        );
-    }
-
-    function test_RevertGiven_VaultHasNoAdapter() external givenNotNullVault givenVaultSettled {
-        // It should revert.
-        // settledVault has no adapter.
+        // defaultVault has no adapter.
         expectRevert_VaultHasNoAdapter(
-            abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultIds.settledVault)), vaultIds.settledVault
+            abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultIds.defaultVault)), vaultIds.defaultVault
         );
     }
 
-    function test_RevertGiven_VaultAlreadyUnstaked() external givenNotNullVault givenVaultSettled givenVaultHasAdapter {
+    function test_RevertGiven_VaultAlreadyUnstaked() external givenNotNullVault givenVaultHasAdapter {
         // It should revert.
         // Create a vault with adapter and deposit.
         uint256 vaultId = createVaultWithAdapter();
@@ -53,7 +45,6 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
     function test_RevertGiven_NothingToUnstake()
         external
         givenNotNullVault
-        givenVaultSettled
         givenVaultHasAdapter
         givenVaultNotUnstaked
         givenNothingToUnstake
@@ -70,13 +61,31 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
         bob.unstakeTokensViaAdapter(vaultId);
     }
 
-    function test_RevertWhen_SlippageExceeded()
+    function test_RevertGiven_VaultNotSettled()
         external
         givenNotNullVault
-        givenVaultSettled
         givenVaultHasAdapter
         givenVaultNotUnstaked
         givenSomethingToUnstake
+        givenVaultNotSettled
+    {
+        // It should revert.
+        // Create a vault with adapter and deposit tokens so there's something to unstake.
+        uint256 vaultId = createVaultWithAdapter();
+        uint128 amount = WETH_DEPOSIT_AMOUNT;
+        bob.enter(vaultId, amount);
+
+        // The vault is still active (not settled), so unstakeFullAmount should revert.
+        expectRevert_VaultNotSettled(abi.encodeCall(bob.unstakeTokensViaAdapter, (vaultId)), vaultId);
+    }
+
+    function test_RevertWhen_SlippageExceeded()
+        external
+        givenNotNullVault
+        givenVaultHasAdapter
+        givenVaultNotUnstaked
+        givenSomethingToUnstake
+        givenVaultSettled
         whenSlippageExceeded
     {
         // It should revert when Curve returns less ETH than the minimum acceptable.
@@ -118,10 +127,10 @@ contract UnstakeFullAmount_Integration_Concrete_Test is Integration_Test {
     function test_WhenSlippageWithinTolerance()
         external
         givenNotNullVault
-        givenVaultSettled
         givenVaultHasAdapter
         givenVaultNotUnstaked
         givenSomethingToUnstake
+        givenVaultSettled
         whenSlippageWithinTolerance
     {
         // It should unstake all tokens.

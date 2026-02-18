@@ -41,11 +41,11 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // Attempt to deploy with excessive slippage tolerance.
         new SablierLidoAdapter({
             initialComptroller: address(comptroller),
-            sablierBob_: address(bob),
-            curvePool_: address(curvePool),
-            stETH_: address(steth),
-            wETH_: address(weth),
-            wstETH_: address(wsteth),
+            sablierBob: address(bob),
+            curvePool: address(curvePool),
+            stETH: address(steth),
+            wETH: address(weth),
+            wstETH: address(wsteth),
             initialSlippageTolerance: excessiveSlippage,
             initialYieldFee: DEFAULT_YIELD_FEE
         });
@@ -65,11 +65,11 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // Attempt to deploy with excessive yield fee.
         new SablierLidoAdapter({
             initialComptroller: address(comptroller),
-            sablierBob_: address(bob),
-            curvePool_: address(curvePool),
-            stETH_: address(steth),
-            wETH_: address(weth),
-            wstETH_: address(wsteth),
+            sablierBob: address(bob),
+            curvePool: address(curvePool),
+            stETH: address(steth),
+            wETH: address(weth),
+            wstETH: address(wsteth),
             initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
             initialYieldFee: excessiveFee
         });
@@ -79,11 +79,11 @@ contract Constructor_LidoAdapter_Integration_Concrete_Test is Integration_Test {
         // Deploy adapter with valid parameters.
         SablierLidoAdapter newAdapter = new SablierLidoAdapter({
             initialComptroller: address(comptroller),
-            sablierBob_: address(bob),
-            curvePool_: address(curvePool),
-            stETH_: address(steth),
-            wETH_: address(weth),
-            wstETH_: address(wsteth),
+            sablierBob: address(bob),
+            curvePool: address(curvePool),
+            stETH: address(steth),
+            wETH: address(weth),
+            wstETH: address(wsteth),
             initialSlippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
             initialYieldFee: DEFAULT_YIELD_FEE
         });

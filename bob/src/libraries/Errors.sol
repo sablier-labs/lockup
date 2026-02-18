@@ -14,6 +14,9 @@ library Errors {
     /// @notice Thrown when a function is called by an address other than SablierBob.
     error BobVaultShare_OnlySablierBob(address caller, address expectedCaller);
 
+    /// @notice Thrown when the provided vault ID does not match the share token's vault ID.
+    error BobVaultShare_VaultIdMismatch(uint256 providedVaultId, uint256 expectedVaultId);
+
     /*//////////////////////////////////////////////////////////////////////////
                                      SABLIER BOB
     //////////////////////////////////////////////////////////////////////////*/
@@ -36,23 +39,20 @@ library Errors {
     /// @notice Thrown when trying to redeem with `msg.value` less than the minimum fee required.
     error SablierBob_InsufficientFeePayment(uint256 feePaid, uint256 feeRequired);
 
-    /// @notice Thrown when oracle validation fails.
-    error SablierBob_InvalidOracle(address oracle);
-
-    /// @notice Thrown when oracle does not return 8 decimals during validation.
-    error SablierBob_InvalidOracleDecimals(address oracle, uint8 decimals);
-
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
 
     /// @notice Thrown when the new adapter does not implement the required interface.
     error SablierBob_NewAdapterMissesInterface(address adapter);
 
+    /// @notice Thrown when trying to perform an unauthorized action on a non-active vault.
+    error SablierBob_VaultNotActive(uint256 vaultId);
+
     /// @notice Thrown when trying to exit or redeem with zero share balance.
     error SablierBob_NoSharesToRedeem(uint256 vaultId, address user);
 
-    /// @notice Thrown when the oracle does not return a positive price.
-    error SablierBob_OraclePriceInvalid(uint256 vaultId, int256 oraclePrice);
+    /// @notice Thrown when trying to create a vault with a zero target price.
+    error SablierBob_TargetPriceZero();
 
     /// @notice Thrown when trying to create a vault with a target price that is not greater than the latest price
     /// returned by the oracle.
@@ -70,11 +70,8 @@ library Errors {
     /// @notice Thrown when trying to unstake from a vault that has no adapter configured.
     error SablierBob_VaultHasNoAdapter(uint256 vaultId);
 
-    /// @notice Thrown when trying to perform an unauthorized action on a non-settled vault.
-    error SablierBob_VaultNotSettled(uint256 vaultId);
-
-    /// @notice Thrown when trying to perform an unauthorized action on a settled vault.
-    error SablierBob_VaultSettled(uint256 vaultId);
+    /// @notice Thrown when trying to perform an unauthorized action on an active vault.
+    error SablierBob_VaultStillActive(uint256 vaultId);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER BOB STATE
@@ -93,6 +90,9 @@ library Errors {
     /// @notice Thrown when the Curve swap output is below the minimum acceptable amount.
     error SablierLidoAdapter_SlippageExceeded(uint256 expected, uint256 actual);
 
+    /// @notice Thrown when trying to update staked token balance but the user's balance is zero.
+    error SablierLidoAdapter_UserBalanceZero(uint256 vaultId, address user);
+
     /// @notice Thrown when trying to set a slippage that exceeds the maximum allowed.
     error SablierLidoAdapter_SlippageToleranceTooHigh(uint256 tolerance, uint256 maxTolerance);
 
@@ -110,7 +110,7 @@ library Errors {
     error SablierEscrow_CallerNotAuthorized(uint256 orderId, address caller, address expectedCaller);
 
     /// @notice Thrown when trying to create an order with an expiration timestamp in the past.
-    error SablierEscrow_ExpireAtInPast(uint40 expireAt, uint40 currentTime);
+    error SablierEscrow_ExpiryTimeInPast(uint40 expiryTime, uint40 currentTime);
 
     /// @notice Thrown when trying to accept an order with a buy amount that is below the minimum amount required.
     error SablierEscrow_InsufficientBuyAmount(uint128 buyAmount, uint128 minBuyAmount);

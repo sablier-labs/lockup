@@ -5,24 +5,13 @@ CreateVault_Integration_Concrete_Test
    ├── when expiry in past
    │  └── it should revert
    └── when expiry in future
-      ├── when oracle zero address
+      ├── when target price zero
       │  └── it should revert
-      └── when oracle not zero address
-         ├── when oracle reverts on decimals
+      └── when target price not zero
+         ├── when target price at or below current price
          │  └── it should revert
-         ├── when oracle returns invalid decimals
-         │  └── it should revert
-         └── when oracle returns eight decimals
-            ├── when oracle reverts on latestRoundData
-            │  └── it should revert
-            └── when oracle does not revert
-               ├── when oracle returns invalid price
-               │  └── it should revert
-               └── when oracle returns valid price
-                  ├── when target price at or below current price
-                  │  └── it should revert
-                  └── when target price above current price
-                     ├── given no default adapter for token
-                     │  └── it should create the vault without adapter
-                     └── given default adapter for token
-                        └── it should create the vault with adapter
+         └── when target price above current price
+            ├── given no default adapter for token
+            │  └── it should create the vault without adapter
+            └── given default adapter for token
+               └── it should create the vault with adapter

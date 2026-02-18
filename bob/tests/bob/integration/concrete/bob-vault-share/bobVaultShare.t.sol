@@ -20,8 +20,8 @@ contract BobVaultShare is Integration_Test {
             name_: "Test Share Token",
             symbol_: "TST-100-12345-1",
             decimals_: TEST_DECIMALS,
-            sablierBob_: address(bob),
-            vaultId_: TEST_VAULT_ID
+            sablierBob: address(bob),
+            vaultId: TEST_VAULT_ID
         });
     }
 
@@ -43,7 +43,7 @@ contract BobVaultShare is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob))
         );
-        shareToken.mint(users.depositor, 100e18);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
     }
 
     function test_Mint_WhenCallerIsSablierBob() external {
@@ -54,7 +54,7 @@ contract BobVaultShare is Integration_Test {
         // Stop existing prank and prank as SablierBob to mint.
         vm.stopPrank();
         vm.prank(address(bob));
-        shareToken.mint(users.depositor, amount);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, amount);
 
         uint256 balanceAfter = shareToken.balanceOf(users.depositor);
         assertEq(balanceAfter - balanceBefore, amount, "mint amount");
@@ -68,14 +68,14 @@ contract BobVaultShare is Integration_Test {
         // First mint some tokens.
         vm.stopPrank();
         vm.prank(address(bob));
-        shareToken.mint(users.depositor, 100e18);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, 100e18);
 
         // It should revert.
         vm.prank(users.depositor);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.BobVaultShare_OnlySablierBob.selector, users.depositor, address(bob))
         );
-        shareToken.burn(users.depositor, 100e18);
+        shareToken.burn(TEST_VAULT_ID, users.depositor, 100e18);
     }
 
     function test_Burn_WhenCallerIsSablierBob() external {
@@ -83,13 +83,13 @@ contract BobVaultShare is Integration_Test {
         uint256 amount = 100e18;
         vm.stopPrank();
         vm.prank(address(bob));
-        shareToken.mint(users.depositor, amount);
+        shareToken.mint(TEST_VAULT_ID, users.depositor, amount);
 
         uint256 balanceBefore = shareToken.balanceOf(users.depositor);
 
         // It should burn tokens.
         vm.prank(address(bob));
-        shareToken.burn(users.depositor, amount);
+        shareToken.burn(TEST_VAULT_ID, users.depositor, amount);
 
         uint256 balanceAfter = shareToken.balanceOf(users.depositor);
         assertEq(balanceBefore - balanceAfter, amount, "burn amount");

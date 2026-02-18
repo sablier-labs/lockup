@@ -26,9 +26,6 @@ contract SablierLidoAdapter is
     ISablierLidoAdapter // 2 inherited components
 {
     using SafeERC20 for IERC20;
-    using SafeERC20 for IWETH9;
-    using SafeERC20 for IStETH;
-    using SafeERC20 for IWstETH;
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -88,16 +85,16 @@ contract SablierLidoAdapter is
 
     /// @notice Deploys the Lido adapter.
     /// @param initialComptroller The address of the initial comptroller contract.
-    /// @param sablierBob_ The address of the SablierBob contract.
+    /// @param sablierBob The address of the SablierBob contract.
     /// @param initialSlippageTolerance The initial slippage tolerance for Curve swaps as UD60x18.
     /// @param initialYieldFee The initial yield fee as UD60x18.
     constructor(
         address initialComptroller,
-        address sablierBob_,
-        address curvePool_,
-        address stETH_,
-        address wETH_,
-        address wstETH_,
+        address sablierBob,
+        address curvePool,
+        address stETH,
+        address wETH,
+        address wstETH,
         UD60x18 initialSlippageTolerance,
         UD60x18 initialYieldFee
     )
@@ -116,12 +113,12 @@ contract SablierLidoAdapter is
             revert Errors.SablierLidoAdapter_YieldFeeTooHigh(initialYieldFee.unwrap(), MAX_FEE.unwrap());
         }
 
-        SABLIER_BOB = sablierBob_;
+        SABLIER_BOB = sablierBob;
 
-        CURVE_POOL = curvePool_;
-        STETH = stETH_;
-        WETH = wETH_;
-        WSTETH = wstETH_;
+        CURVE_POOL = curvePool;
+        STETH = stETH;
+        WETH = wETH;
+        WSTETH = wstETH;
 
         // Effect: set the initial slippage tolerance.
         slippageTolerance = initialSlippageTolerance;
@@ -164,10 +161,10 @@ contract SablierLidoAdapter is
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
         // Get wstETH allocated to the user before unstaking.
-        uint128 userWstETH = _userWstETH[vaultId][user];
+        uint256 userWstETH = _userWstETH[vaultId][user];
 
         // Get total amount of wstETH in the vault before unstaking.
-        uint128 totalWstETH = _vaultTotalWstETH[vaultId];
+        uint256 totalWstETH = _vaultTotalWstETH[vaultId];
 
         // Get total amount of WETH received after unstaking all tokens in the vault.
         uint256 totalWeth = _wethReceivedAfterUnstaking[vaultId];
@@ -302,7 +299,7 @@ contract SablierLidoAdapter is
         uint128 wethReceived = _wstETHToWeth(userWstETH);
 
         // Interaction: Transfer WETH to the user.
-        IWETH9(WETH).safeTransfer(user, wethReceived);
+        IERC20(WETH).safeTransfer(user, wethReceived);
 
         // Log the event.
         emit UnstakeForUserWithinGracePeriod(vaultId, user, userWstETH, wethReceived);
@@ -325,7 +322,7 @@ contract SablierLidoAdapter is
         _wethReceivedAfterUnstaking[vaultId] = amountReceivedFromUnstaking;
 
         // Interaction: Transfer WETH to SablierBob for distribution.
-        IWETH9(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
+        IERC20(WETH).safeTransfer(SABLIER_BOB, amountReceivedFromUnstaking);
 
         // Log the event.
         emit UnstakeFullAmount(vaultId, totalWstETH, amountReceivedFromUnstaking);
@@ -345,6 +342,11 @@ contract SablierLidoAdapter is
     {
         // Calculate proportional wstETH to transfer.
         uint256 fromWstETH = _userWstETH[vaultId][from];
+
+        // Check: the user's balance is not zero.
+        if (userShareBalanceBeforeTransfer == 0) {
+            revert Errors.SablierLidoAdapter_UserBalanceZero(vaultId, from);
+        }
 
         // Calculate the portion of wstETH to transfer.
         uint128 wstETHToTransfer = (fromWstETH * shareAmountTransferred / userShareBalanceBeforeTransfer).toUint128();

@@ -16,7 +16,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
         // It should revert for all getters.
         expectRevert_NullOrder(abi.encodeCall(escrow.getBuyer, (orderIds.nullOrder)), orderIds.nullOrder);
         expectRevert_NullOrder(abi.encodeCall(escrow.getBuyToken, (orderIds.nullOrder)), orderIds.nullOrder);
-        expectRevert_NullOrder(abi.encodeCall(escrow.getExpireAt, (orderIds.nullOrder)), orderIds.nullOrder);
+        expectRevert_NullOrder(abi.encodeCall(escrow.getExpiryTime, (orderIds.nullOrder)), orderIds.nullOrder);
         expectRevert_NullOrder(abi.encodeCall(escrow.getMinBuyAmount, (orderIds.nullOrder)), orderIds.nullOrder);
         expectRevert_NullOrder(abi.encodeCall(escrow.getSellAmount, (orderIds.nullOrder)), orderIds.nullOrder);
         expectRevert_NullOrder(abi.encodeCall(escrow.getSeller, (orderIds.nullOrder)), orderIds.nullOrder);
@@ -34,8 +34,8 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
         // It should return correct buy token.
         assertEq(escrow.getBuyToken(orderIds.defaultOrder), buyToken, "buyToken");
 
-        // It should return correct expire at.
-        assertEq(escrow.getExpireAt(orderIds.defaultOrder), EXPIRY, "expireAt");
+        // It should return correct expiry time.
+        assertEq(escrow.getExpiryTime(orderIds.defaultOrder), EXPIRY, "expiryTime");
 
         // It should return correct min buy amount.
         assertEq(escrow.getMinBuyAmount(orderIds.defaultOrder), MIN_BUY_AMOUNT, "minBuyAmount");
@@ -103,18 +103,18 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
                                     GET EXPIRE AT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_GetExpireAt_RevertGiven_NullOrder() external {
+    function test_getExpiryTime_RevertGiven_NullOrder() external {
         // It should revert.
-        expectRevert_NullOrder(abi.encodeCall(escrow.getExpireAt, (orderIds.nullOrder)), orderIds.nullOrder);
+        expectRevert_NullOrder(abi.encodeCall(escrow.getExpiryTime, (orderIds.nullOrder)), orderIds.nullOrder);
     }
 
-    function test_GetExpireAt() external view givenNotNullOrder {
-        // It should return the expireAt timestamp.
-        uint40 expireAt = escrow.getExpireAt(orderIds.defaultOrder);
-        assertEq(expireAt, EXPIRY, "expireAt");
+    function test_getExpiryTime() external view givenNotNullOrder {
+        // It should return the expiryTime timestamp.
+        uint40 expiryTime = escrow.getExpiryTime(orderIds.defaultOrder);
+        assertEq(expiryTime, EXPIRY, "expiryTime");
     }
 
-    function test_GetExpireAt_WhenZero() external givenNotNullOrder {
+    function test_getExpiryTime_WhenZero() external givenNotNullOrder {
         // Create an order that never expires.
         setMsgSender(users.seller);
         uint256 orderId = escrow.createOrder({
@@ -123,12 +123,12 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: ZERO_EXPIRY
+            expiryTime: ZERO_EXPIRY
         });
 
         // It should return zero.
-        uint40 expireAt = escrow.getExpireAt(orderId);
-        assertEq(expireAt, 0, "expireAt should be zero");
+        uint40 expiryTime = escrow.getExpiryTime(orderId);
+        assertEq(expiryTime, 0, "expiryTime should be zero");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -222,7 +222,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Warp past expiry.
@@ -247,7 +247,7 @@ contract Getters_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: ZERO_EXPIRY
+            expiryTime: ZERO_EXPIRY
         });
 
         // Warp far into the future.

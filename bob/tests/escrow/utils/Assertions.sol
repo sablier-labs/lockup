@@ -37,7 +37,7 @@ abstract contract Assertions is PRBMathAssertions {
         IERC20 expectedBuyToken,
         uint128 expectedSellAmount,
         uint128 expectedMinBuyAmount,
-        uint40 expectedExpireAt
+        uint40 expectedExpiryTime
     )
         internal
         view
@@ -48,7 +48,7 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(escrow.getBuyToken(orderId), expectedBuyToken, "order.buyToken");
         assertEq(escrow.getSellAmount(orderId), expectedSellAmount, "order.sellAmount");
         assertEq(escrow.getMinBuyAmount(orderId), expectedMinBuyAmount, "order.minBuyAmount");
-        assertEq(escrow.getExpireAt(orderId), expectedExpireAt, "order.expireAt");
+        assertEq(escrow.getExpiryTime(orderId), expectedExpiryTime, "order.expiryTime");
     }
 
     /// @dev Asserts that an order has the expected status.

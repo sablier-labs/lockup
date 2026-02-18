@@ -4,7 +4,6 @@ pragma solidity >=0.8.22 <0.9.0;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
-import { Errors } from "src/libraries/Errors.sol";
 import { Bob } from "src/types/Bob.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
@@ -22,37 +21,12 @@ contract Sync_Integration_Concrete_Test is Integration_Test {
         );
     }
 
-    function test_RevertWhen_OracleReturnsNegativePrice() external givenNotNullVault givenVaultNotSettled {
-        // It should revert.
-        uint256 vaultId = vaultIds.defaultVault;
-
-        // Set oracle to return negative price.
-        int256 negativePrice = -1;
-        mockOracle.setPrice(negativePrice);
-
-        // Expect revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_OraclePriceInvalid.selector, vaultId, negativePrice));
-        bob.syncPriceFromOracle(vaultId);
-    }
-
-    function test_RevertWhen_OracleReturnsZeroPrice() external givenNotNullVault givenVaultNotSettled {
-        // It should revert.
-        uint256 vaultId = vaultIds.defaultVault;
-
-        // Set oracle to return zero price.
-        mockOracle.setPrice(uint128(0));
-
-        // Expect revert.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_OraclePriceInvalid.selector, vaultId, int256(0)));
-        bob.syncPriceFromOracle(vaultId);
-    }
-
     function test_WhenSyncedPriceBelowTarget() external givenNotNullVault givenVaultNotSettled {
         // It should sync without settling.
         uint256 vaultId = vaultIds.defaultVault;
 
         // Set oracle price below target.
-        mockOracle.setPrice(INITIAL_PRICE);
+        mockOracle.setPrice(uint256(INITIAL_PRICE));
 
         // Expect the Sync event.
         vm.expectEmit({ emitter: address(bob) });
@@ -79,7 +53,7 @@ contract Sync_Integration_Concrete_Test is Integration_Test {
         uint256 vaultId = vaultIds.defaultVault;
 
         // Set oracle price at target.
-        mockOracle.setPrice(SETTLED_PRICE);
+        mockOracle.setPrice(uint256(SETTLED_PRICE));
 
         // Expect the Sync event.
         vm.expectEmit({ emitter: address(bob) });

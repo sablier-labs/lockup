@@ -68,11 +68,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenExpireAtInPast() {
+    modifier whenExpiryTimeInPast() {
         _;
     }
 
-    modifier whenExpireAtValidOrZero() {
+    modifier whenExpiryTimeValidOrZero() {
         _;
     }
 

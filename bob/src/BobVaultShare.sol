@@ -31,7 +31,7 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     uint8 internal immutable _DECIMALS;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      MODIFIERS
+                                     MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Reverts if caller is not the Bob contract.
@@ -42,28 +42,37 @@ contract BobVaultShare is ERC20, IBobVaultShare {
         _;
     }
 
+    /// @dev Reverts if the vault ID is not equal to {VAULT_ID}.
+    modifier onlyVault(uint256 vaultId) {
+        if (vaultId != VAULT_ID) {
+            revert Errors.BobVaultShare_VaultIdMismatch(vaultId, VAULT_ID);
+        }
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Deploys the vault share token.
     /// @param name_ The name of the token (e.g., "Sablier Bob WETH Vault #1").
-    /// @param symbol_ The symbol of the token (e.g., "WETH-100-1792790393-1").
+    /// @param symbol_ The symbol of the token (e.g., "WETH-500000000000-1792790393-1" with $5000 target price) with the
+    /// first number being the target price denominated in Chainlink's 8-decimal format, where 1e8 is $1.
     /// @param decimals_ The number of decimals.
-    /// @param sablierBob_ The address of the SablierBob contract.
-    /// @param vaultId_ The ID of the vault this share token represents.
+    /// @param sablierBob The address of the SablierBob contract.
+    /// @param vaultId The ID of the vault this share token represents.
     constructor(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
-        address sablierBob_,
-        uint256 vaultId_
+        address sablierBob,
+        uint256 vaultId
     )
         ERC20(name_, symbol_)
     {
         _DECIMALS = decimals_;
-        SABLIER_BOB = sablierBob_;
-        VAULT_ID = vaultId_;
+        SABLIER_BOB = sablierBob;
+        VAULT_ID = vaultId;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -80,12 +89,12 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IBobVaultShare
-    function mint(address to, uint256 amount) external override onlySablierBob {
+    function mint(uint256 vaultId, address to, uint256 amount) external override onlySablierBob onlyVault(vaultId) {
         _mint(to, amount);
     }
 
     /// @inheritdoc IBobVaultShare
-    function burn(address from, uint256 amount) external override onlySablierBob {
+    function burn(uint256 vaultId, address from, uint256 amount) external override onlySablierBob onlyVault(vaultId) {
         _burn(from, amount);
     }
 

@@ -22,11 +22,11 @@ contract DeployLidoAdapter is BaseScript, LidoAdapterConstants {
     {
         lidoAdapter = new SablierLidoAdapter({
             initialComptroller: getComptroller(),
-            sablierBob_: address(sablierBob),
-            curvePool_: getCurvePool(),
-            stETH_: getStETH(),
-            wETH_: getWETH(),
-            wstETH_: getWSTETH(),
+            sablierBob: address(sablierBob),
+            curvePool: getCurvePool(),
+            stETH: getStETH(),
+            wETH: getWETH(),
+            wstETH: getWSTETH(),
             initialSlippageTolerance: initialSlippageTolerance,
             initialYieldFee: initialYieldFee
         });

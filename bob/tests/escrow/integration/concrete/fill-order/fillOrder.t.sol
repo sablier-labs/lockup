@@ -46,7 +46,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Warp past expiry.
@@ -73,7 +73,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: users.buyer, // Designated buyer
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Try to fill with a different buyer.
@@ -99,7 +99,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: users.buyer,
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Fill with designated buyer.
@@ -141,7 +141,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Try to fill with insufficient buy amount.
@@ -178,7 +178,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Record balances before fill.
@@ -234,7 +234,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Record balances before fill.
@@ -309,7 +309,7 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Fill with exact min buy amount.

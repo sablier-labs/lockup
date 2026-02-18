@@ -55,7 +55,7 @@ abstract contract Assertions is PRBMathAssertions {
         internal
         view
     {
-        uint40 depositedAt = bob.getDepositedAt(vaultId, user);
+        uint40 depositedAt = bob.getFirstDepositTime(vaultId, user);
         uint256 shareBalance = bob.getShareToken(vaultId).balanceOf(user);
         assertEq(shareBalance, expectedAmount, "shareToken.balanceOf");
         assertEq(depositedAt, expectedDepositedAt, "depositedAt");

@@ -22,7 +22,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Try to cancel as buyer (not the seller).
@@ -42,7 +42,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         setMsgSender(users.buyer);
@@ -63,7 +63,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         escrow.cancelOrder(orderId);
@@ -82,7 +82,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Record balance before cancel.
@@ -116,7 +116,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: EXPIRY
+            expiryTime: EXPIRY
         });
 
         // Warp past expiry.
@@ -153,7 +153,7 @@ contract CancelOrder_Integration_Concrete_Test is Integration_Test {
             buyToken: buyToken,
             minBuyAmount: MIN_BUY_AMOUNT,
             buyer: address(0),
-            expireAt: ZERO_EXPIRY // Never expires
+            expiryTime: ZERO_EXPIRY // Never expires
         });
 
         // Warp far into the future.
