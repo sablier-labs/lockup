@@ -498,7 +498,7 @@ contract SablierBob is
         AggregatorV3Interface oracleAddress = _vaults[vaultId].oracle;
 
         // Get the latest price from the oracle with safety checks.
-        latestPrice = SafeOracle.safeOraclePrice(oracleAddress);
+        (latestPrice,) = SafeOracle.safeOraclePrice(oracleAddress);
 
         // Effect: update the last synced price and timestamp if the latest price is greater than zero.
         if (latestPrice > 0) {
