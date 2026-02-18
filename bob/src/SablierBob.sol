@@ -54,6 +54,16 @@ contract SablierBob is
     uint40 public constant override GRACE_PERIOD = 4 hours;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Modifier to check that the vault is active.
+    modifier onlyActive(uint256 vaultId) {
+        _revertIfSettledOrExpired(vaultId);
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -140,7 +150,7 @@ contract SablierBob is
             shareToken: shareToken,
             oracle: oracle,
             adapter: adapter,
-            isStakedInTheAdapter: false,
+            isStakedInAdapter: false,
             targetPrice: targetPrice,
             lastSyncedPrice: latestPrice
         });
@@ -150,7 +160,7 @@ contract SablierBob is
             adapter.registerVault(vaultId);
 
             // Effect: mark the vault as staked in the adapter.
-            _vaults[vaultId].isStakedInTheAdapter = true;
+            _vaults[vaultId].isStakedInAdapter = true;
         }
 
         // Log the event.
@@ -158,19 +168,18 @@ contract SablierBob is
     }
 
     /// @inheritdoc ISablierBob
-    function enter(uint256 vaultId, uint128 amount) external override nonReentrant notNull(vaultId) {
-        // Check: the vault is active.
-        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
-            revert Errors.SablierBob_VaultNotActive(vaultId);
-        }
-
-        // Effect: sync the oracle price.
+    function enter(uint256 vaultId, uint128 amount)
+        external
+        override
+        nonReentrant
+        notNull(vaultId)
+        onlyActive(vaultId)
+    {
+        // Effect: sync the price from oracle.
         _syncPriceFromOracle(vaultId);
 
-        // Check: the vault has not become settled after the sync.
-        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
-            revert Errors.SablierBob_VaultNotActive(vaultId);
-        }
+        // Check: the vault is still active after the price sync.
+        _revertIfSettledOrExpired(vaultId);
 
         // Check: the deposit amount is not zero.
         if (amount == 0) {
@@ -205,12 +214,13 @@ contract SablierBob is
     }
 
     /// @inheritdoc ISablierBob
-    function exitWithinGracePeriod(uint256 vaultId) external override nonReentrant notNull(vaultId) {
-        // Check: the vault is active.
-        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
-            revert Errors.SablierBob_VaultNotActive(vaultId);
-        }
-
+    function exitWithinGracePeriod(uint256 vaultId)
+        external
+        override
+        nonReentrant
+        notNull(vaultId)
+        onlyActive(vaultId)
+    {
         // Load the vault from storage.
         Bob.Vault storage vault = _vaults[vaultId];
 
@@ -265,15 +275,17 @@ contract SablierBob is
         notNull(vaultId)
         returns (uint128 amountToTransfer, uint128 feeAmount)
     {
-        // Check: the vault is settled.
+        // If the vault is active, sync the price from the oracle to update the status.
         if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
-            // Effect: sync the oracle price.
+            // Effect: sync the price from oracle.
             _syncPriceFromOracle(vaultId);
 
             // If it's still active after the sync, revert.
             if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
                 revert Errors.SablierBob_VaultStillActive(vaultId);
             }
+
+            // Otherwise, the vault has been settled.
         }
 
         // Load the vault from storage.
@@ -293,13 +305,13 @@ contract SablierBob is
         // Check if the vault has an adapter.
         if (address(vault.adapter) != address(0)) {
             // Check: the deposit token is staked with the adapter.
-            if (vault.isStakedInTheAdapter) {
+            if (vault.isStakedInAdapter) {
                 // Interaction: unstake all tokens via the adapter.
                 // TODO: transfer entire fee to comptroller admin instead of transferring when user redeems.
                 _unstakeFullAmountViaAdapter(vaultId);
 
-                // Effect: set isStakedInTheAdapter to false.
-                vault.isStakedInTheAdapter = false;
+                // Effect: set isStakedInAdapter to false.
+                vault.isStakedInAdapter = false;
             }
 
             // Calculate the amount to transfer and the fee.
@@ -363,14 +375,10 @@ contract SablierBob is
         override
         nonReentrant
         notNull(vaultId)
+        onlyActive(vaultId)
         returns (uint128 latestPrice)
     {
-        // Check: the vault is not active.
-        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
-            revert Errors.SablierBob_VaultNotActive(vaultId);
-        }
-
-        // Effect: sync the oracle price.
+        // Effect: sync the price from oracle.
         latestPrice = _syncPriceFromOracle(vaultId);
     }
 
@@ -384,24 +392,13 @@ contract SablierBob is
     {
         Bob.Vault storage vault = _vaults[vaultId];
 
-        // Check: the vault is not active.
-        if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
-            // Effect: sync the oracle price.
-            _syncPriceFromOracle(vaultId);
-
-            // If it's still active after the sync, revert.
-            if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
-                revert Errors.SablierBob_VaultStillActive(vaultId);
-            }
-        }
-
         // Check: the vault has an adapter.
         if (address(vault.adapter) == address(0)) {
             revert Errors.SablierBob_VaultHasNoAdapter(vaultId);
         }
 
         // Check: the vault has not already been unstaked.
-        if (!vault.isStakedInTheAdapter) {
+        if (!vault.isStakedInAdapter) {
             revert Errors.SablierBob_VaultAlreadyUnstaked(vaultId);
         }
 
@@ -410,8 +407,21 @@ contract SablierBob is
             revert Errors.SablierBob_UnstakeAmountZero(vaultId);
         }
 
+        // If the vault is active, sync the price from the oracle to update the status.
+        if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
+            // Effect: sync the price from oracle.
+            _syncPriceFromOracle(vaultId);
+
+            // If it's still active after the sync, revert.
+            if (_statusOf(vaultId) == Bob.Status.ACTIVE) {
+                revert Errors.SablierBob_VaultStillActive(vaultId);
+            }
+
+            // Otherwise, the vault has been settled.
+        }
+
         // Effect: mark the vault as not staked with the adapter.
-        _vaults[vaultId].isStakedInTheAdapter = false;
+        _vaults[vaultId].isStakedInAdapter = false;
 
         // Interaction: unstake all tokens via the adapter.
         amountReceivedFromAdapter = _unstakeFullAmountViaAdapter(vaultId);
@@ -464,6 +474,13 @@ contract SablierBob is
             }
         }
         return true;
+    }
+
+    /// @notice Private function that reverts if the vault is settled or expired.
+    function _revertIfSettledOrExpired(uint256 vaultId) private view {
+        if (_statusOf(vaultId) != Bob.Status.ACTIVE) {
+            revert Errors.SablierBob_VaultNotActive(vaultId);
+        }
     }
 
     /// @notice Retrieves the token's symbol safely, defaulting to a hard-coded value if an error occurs.

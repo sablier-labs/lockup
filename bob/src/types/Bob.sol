@@ -11,8 +11,8 @@ import { ISablierBobAdapter } from "../interfaces/ISablierBobAdapter.sol";
 library Bob {
     /// @notice Enum representing the different statuses of a vault.
     /// @custom:value0 ACTIVE Vault is open for deposits.
-    /// @custom:value1 EXPIRED Vault has expired.
-    /// @custom:value2 SETTLED Target price has been reached.
+    /// @custom:value1 EXPIRED Vault has end time less than or equal to current timestamp.
+    /// @custom:value2 SETTLED Vault has target price less than or equal to last synced price.
     enum Status {
         ACTIVE,
         EXPIRED,
@@ -27,7 +27,7 @@ library Bob {
     /// @param shareToken The address of ERC-20 token representing shares in this vault.
     /// @param oracle The address of the price oracle for the deposit token, provided by the vault creator.
     /// @param adapter The adapter set for this vault, can be used to take action on the deposit token.
-    /// @param isStakedInTheAdapter Whether the deposit token is staked with the adapter or not.
+    /// @param isStakedInAdapter Whether the deposit token is staked with the adapter or not.
     /// @param targetPrice The target price at which the vault settles, denoted in 8 decimals where 1e8 is $1.
     /// @param lastSyncedPrice The most recent price fetched from the oracle, denoted in 8 decimals where 1e8 is $1.
     struct Vault {
@@ -41,7 +41,7 @@ library Bob {
         AggregatorV3Interface oracle;
         // slot 3
         ISablierBobAdapter adapter;
-        bool isStakedInTheAdapter;
+        bool isStakedInAdapter;
         // slot 4
         uint128 targetPrice;
         uint128 lastSyncedPrice;

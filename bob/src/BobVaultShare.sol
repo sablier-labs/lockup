@@ -31,21 +31,21 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     uint8 internal immutable _DECIMALS;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      MODIFIERS
+                                     MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Reverts if the provided vault ID does not match this share token's vault.
-    modifier matchesVaultId(uint256 vaultId) {
-        if (vaultId != VAULT_ID) {
-            revert Errors.BobVaultShare_VaultIdMismatch(vaultId, VAULT_ID);
-        }
-        _;
-    }
 
     /// @dev Reverts if caller is not the Bob contract.
     modifier onlySablierBob() {
         if (msg.sender != SABLIER_BOB) {
             revert Errors.BobVaultShare_OnlySablierBob(msg.sender, SABLIER_BOB);
+        }
+        _;
+    }
+
+    /// @dev Reverts if the vault ID is not equal to {VAULT_ID}.
+    modifier onlyVault(uint256 vaultId) {
+        if (vaultId != VAULT_ID) {
+            revert Errors.BobVaultShare_VaultIdMismatch(vaultId, VAULT_ID);
         }
         _;
     }
@@ -56,8 +56,8 @@ contract BobVaultShare is ERC20, IBobVaultShare {
 
     /// @notice Deploys the vault share token.
     /// @param name_ The name of the token (e.g., "Sablier Bob WETH Vault #1").
-    /// @param symbol_ The symbol of the token (e.g., "WETH-500000000000-1792790393-1"). Where the first number is the
-    /// target price denominated in Chainlink's 8-decimal format for USD prices, where 1e8 is $1.
+    /// @param symbol_ The symbol of the token (e.g., "WETH-500000000000-1792790393-1" with $5000 target price) with the
+    /// first number being the target price denominated in Chainlink's 8-decimal format, where 1e8 is $1.
     /// @param decimals_ The number of decimals.
     /// @param sablierBob The address of the SablierBob contract.
     /// @param vaultId The ID of the vault this share token represents.
@@ -89,26 +89,12 @@ contract BobVaultShare is ERC20, IBobVaultShare {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IBobVaultShare
-    function mint(uint256 vaultId, address to, uint256 amount)
-        external
-        override
-        onlySablierBob
-        matchesVaultId(vaultId)
-    {
+    function mint(uint256 vaultId, address to, uint256 amount) external override onlySablierBob onlyVault(vaultId) {
         _mint(to, amount);
     }
 
     /// @inheritdoc IBobVaultShare
-    function burn(
-        uint256 vaultId,
-        address from,
-        uint256 amount
-    )
-        external
-        override
-        onlySablierBob
-        matchesVaultId(vaultId)
-    {
+    function burn(uint256 vaultId, address from, uint256 amount) external override onlySablierBob onlyVault(vaultId) {
         _burn(from, amount);
     }
 

@@ -11,10 +11,11 @@ import { ISablierBobAdapter } from "./ISablierBobAdapter.sol";
 import { ISablierBobState } from "./ISablierBobState.sol";
 
 /// @title ISablierBob
-/// @notice Price-gated vaults that unlock deposited tokens based on a target price set or the expiry time. If a vault
-/// is configured with an adapter, the protocol will automatically stake the tokens and earn yield on behalf of the
-/// users.
-interface ISablierBob is IComptrollerable, ISablierBobState {
+/// @notice Price-gated vaults that unlock deposited tokens when the price returned by the oracle is greater than or
+/// equal to the target price set by the vault creator. The tokens are also unlocked if the vault expires. When a vault
+/// is configured with a adapter, the protocol automatically stakes the tokens via adapter and earns yield on the
+/// deposit amount.
+interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -196,8 +197,8 @@ interface ISablierBob is IComptrollerable, ISablierBobState {
     /// Notes:
     /// - Oracle staleness is not validated on-chain when calling this function. Any price returned by the oracle is
     /// accepted.
-    /// - Useful for locking in a price target hit even if depositors are unavailable to call {redeem}. Anyone can call
-    /// this to settle the vault so that depositors can redeem later, even if the price drops back below the target.
+    /// - Useful for syncing the price from oracle without calling {redeem} or {enter}. This function can be called by
+    /// anyone to settle vault when the price is above the target price.
     ///
     /// Requirements:
     /// - The vault must have ACTIVE status.
