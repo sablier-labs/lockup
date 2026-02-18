@@ -9,42 +9,27 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/Lockup.sol";
 import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 
-import { Lockup_PriceGated_Integration_Concrete_Test } from "../LockupPriceGated.t.sol";
+import {
+    CreateWithTimestamps_Integration_Concrete_Test,
+    Integration_Test
+} from "../../lockup/create-with-timestamps/createWithTimestamps.t.sol";
 
-contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_Integration_Concrete_Test {
-    Lockup.CreateWithTimestamps internal createParams;
-
+contract CreateWithTimestampsLPG_Integration_Concrete_Test is CreateWithTimestamps_Integration_Concrete_Test {
     function setUp() public override {
-        Lockup_PriceGated_Integration_Concrete_Test.setUp();
-        createParams = Lockup.CreateWithTimestamps({
-            sender: _defaultParams.createWithTimestamps.sender,
-            recipient: _defaultParams.createWithTimestamps.recipient,
-            depositAmount: _defaultParams.createWithTimestamps.depositAmount,
-            token: _defaultParams.createWithTimestamps.token,
-            cancelable: _defaultParams.createWithTimestamps.cancelable,
-            transferable: _defaultParams.createWithTimestamps.transferable,
-            timestamps: Lockup.Timestamps({
-                start: getBlockTimestamp(),
-                end: getBlockTimestamp() + defaults.TOTAL_DURATION()
-            }),
-            shape: _defaultParams.createWithTimestamps.shape
-        });
-    }
-
-    function test_RevertWhen_DelegateCall() external {
-        expectRevert_DelegateCall({
-            callData: abi.encodeCall(lockup.createWithTimestampsLPG, (createParams, defaults.unlockParams()))
-        });
+        Integration_Test.setUp();
+        lockupModel = Lockup.Model.LOCKUP_PRICE_GATED;
     }
 
     function test_RevertWhen_TargetPriceNotExceedCurrentPrice()
         external
         whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-        whenOracleDecimals8
-        whenOracleNotMissLatestRoundData
-        whenOraclePricePositive
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
     {
         uint128 currentOraclePrice = uint128(uint256(oracle.price()));
         LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(currentOraclePrice);
@@ -55,43 +40,19 @@ contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_
                 Errors.SablierLockup_TargetPriceTooLow.selector, currentOraclePrice, currentOraclePrice
             )
         );
-        lockup.createWithTimestampsLPG(createParams, unlockParams);
+        lockup.createWithTimestampsLPG(_defaultParams.createWithTimestamps, unlockParams);
     }
 
-    function test_RevertWhen_StartTimeNotLessThanEndTime()
+    function test_WhenTargetPriceExceedsCurrentPrice()
         external
         whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-        whenOracleDecimals8
-        whenOracleNotMissLatestRoundData
-        whenOraclePricePositive
-        whenTargetPriceExceedsCurrentPrice
-    {
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams();
-
-        // Set start == end to trigger the revert.
-        createParams.timestamps = Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() });
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime.selector,
-                getBlockTimestamp(),
-                getBlockTimestamp()
-            )
-        );
-        lockup.createWithTimestampsLPG(createParams, unlockParams);
-    }
-
-    function test_WhenStartTimeLessThanEndTime()
-        external
-        whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-        whenOracleDecimals8
-        whenOracleNotMissLatestRoundData
-        whenOraclePricePositive
+        whenShapeNotExceed32Bytes
+        whenSenderNotZeroAddress
+        whenRecipientNotZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
+        whenTokenNotNativeToken
+        whenTokenContract
         whenTargetPriceExceedsCurrentPrice
     {
         uint256 expectedStreamId = lockup.nextStreamId();
@@ -110,10 +71,10 @@ contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_
         });
 
         // Create the stream.
-        uint256 streamId = lockup.createWithTimestampsLPG(createParams, defaults.unlockParams());
+        uint256 streamId = lockup.createWithTimestampsLPG(_defaultParams.createWithTimestamps, defaults.unlockParams());
 
         // It should create the stream.
-        assertEq(lockup.getEndTime(streamId), createParams.timestamps.end, "endTime");
+        assertEq(lockup.getEndTime(streamId), _defaultParams.createWithTimestamps.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
         assertTrue(lockup.isStream(streamId), "isStream");
@@ -121,19 +82,9 @@ contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_PRICE_GATED);
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
-        assertEq(lockup.getStartTime(streamId), createParams.timestamps.start, "startTime");
+        assertEq(lockup.getStartTime(streamId), _defaultParams.createWithTimestamps.timestamps.start, "startTime");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
-
-        // It should store the unlock params.
-        LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(streamId);
-        assertEq(address(unlockParams.oracle), address(oracle), "oracle");
-        assertEq(unlockParams.targetPrice, defaults.LPG_TARGET_PRICE(), "targetPrice");
-
-        // Assert that the stream's status is "STREAMING".
-        Lockup.Status actualStatus = lockup.statusOf(streamId);
-        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
-        assertEq(actualStatus, expectedStatus);
 
         // It should bump the next stream ID.
         uint256 actualNextStreamId = lockup.nextStreamId();
@@ -144,5 +95,10 @@ contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
+
+        // It should store the unlock params.
+        LockupPriceGated.UnlockParams memory unlockParams = lockup.getPriceGatedUnlockParams(streamId);
+        assertEq(address(unlockParams.oracle), address(oracle), "oracle");
+        assertEq(unlockParams.targetPrice, defaults.LPG_TARGET_PRICE(), "targetPrice");
     }
 }

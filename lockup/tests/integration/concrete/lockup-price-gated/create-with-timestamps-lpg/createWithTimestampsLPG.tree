@@ -1,16 +1,10 @@
 CreateWithTimestampsLPG_Integration_Concrete_Test
-├── when delegate call
+├── when target price not exceed current price
 │  └── it should revert
-└── when no delegate call
-   ├── when target price not exceed current price
-   │  └── it should revert
-   └── when target price exceeds current price
-      ├── when start time not less than end time
-      │  └── it should revert
-      └── when start time less than end time
-         ├── it should create the stream
-         ├── it should bump the next stream ID
-         ├── it should store the unlock params
-         ├── it should mint the NFT
-         ├── it should perform the ERC-20 transfer
-         └── it should emit {CreateLockupPriceGatedStream} and {MetadataUpdate} events
+└── when target price exceeds current price
+   ├── it should create the stream
+   ├── it should bump the next stream ID
+   ├── it should store the unlock params
+   ├── it should mint the NFT
+   ├── it should perform the ERC-20 transfer
+   └── it should emit {CreateLockupPriceGatedStream} and {MetadataUpdate} events
