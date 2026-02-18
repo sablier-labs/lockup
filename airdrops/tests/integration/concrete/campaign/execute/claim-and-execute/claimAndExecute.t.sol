@@ -6,15 +6,23 @@ import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol"
 import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
 import { MockStakingReentrant, MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
-import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
+import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
+import { Integration_Test, MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
-contract ClaimAndExecute_MerkleExecute_Integration_Test is MerkleExecute_Integration_Shared_Test {
-    function setUp() public virtual override {
+contract ClaimAndExecute_MerkleExecute_Integration_Test is
+    Claim_Integration_Test,
+    MerkleExecute_Integration_Shared_Test
+{
+    function setUp() public virtual override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
 
         // Make the recipient the caller.
         setMsgSender(users.recipient);
     }
+
+    /// @dev This test is not applicable to {MerkleExecute} campaigns since they have {ClaimType.EXECUTE} claim type by
+    /// default.
+    function test_RevertGiven_NotDefaultClaimType() external pure override { }
 
     function test_RevertWhen_TargetTransferAmountOverdraws() external whenMerkleProofValid {
         uint128 overdrawAmount = CLAIM_AMOUNT + 1;
