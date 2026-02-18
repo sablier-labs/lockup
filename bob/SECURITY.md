@@ -23,3 +23,9 @@ The Lido adapter relies on the Curve stETH/ETH pool for converting stETH back to
   less than their original deposit.
 - **Extreme market conditions**: In extreme market conditions, unstaking may fail due to excessive slippage or
   insufficient liquidity.
+
+### 3. Manual Settlement
+
+When the oracle price goes above the target price, the vault does not settle by itself. A deliberate action is required
+to mark it as settled; until that step is taken, the vault remains active. If the price later falls back below the
+target, the vault still stays active and the user cannot redeem their tokens.
