@@ -36,19 +36,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                    VAULT STATUS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenVaultSettled() {
-        _;
-    }
-
-    modifier givenVaultExpired() {
-        _;
-    }
-
     modifier givenVaultActive() {
-        _;
-    }
-
-    modifier givenVaultNotSettled() {
         _;
     }
 
@@ -56,9 +44,33 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenVaultExpired() {
+        _;
+    }
+
+    modifier givenVaultNotSettled() {
+        _;
+    }
+
+    modifier givenVaultSettled() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    VAULT ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenNothingToUnstake() {
+        _;
+    }
+
+    modifier givenSomethingToUnstake() {
+        _;
+    }
+
+    modifier givenVaultAlreadyUnstaked() {
+        _;
+    }
 
     modifier givenVaultHasAdapter() {
         _;
@@ -68,19 +80,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenVaultAlreadyUnstaked() {
-        _;
-    }
-
     modifier givenVaultNotUnstaked() {
-        _;
-    }
-
-    modifier givenNothingToUnstake() {
-        _;
-    }
-
-    modifier givenSomethingToUnstake() {
         _;
     }
 
@@ -96,14 +96,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                     CREATE VAULT
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenTokenAddressNotZero() {
-        _;
-    }
-
-    modifier whenTokenAddressZero() {
-        _;
-    }
-
     modifier whenExpiryInFuture() {
         _;
     }
@@ -112,23 +104,15 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenOracleNotZeroAddress() {
-        _;
-    }
-
-    modifier whenOracleZeroAddress() {
-        _;
-    }
-
-    modifier whenOracleReturnsValidPrice() {
-        _;
-    }
-
-    modifier whenOracleReturnsInvalidPrice() {
-        _;
-    }
-
     modifier whenOracleDoesNotRevert() {
+        _;
+    }
+
+    modifier whenOracleDoesNotRevertOnDecimals() {
+        _;
+    }
+
+    modifier whenOracleNotZeroAddress() {
         _;
     }
 
@@ -140,19 +124,19 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenOracleReturnsInvalidPrice() {
+        _;
+    }
+
+    modifier whenOracleReturnsValidPrice() {
+        _;
+    }
+
     modifier whenOracleRevertsOnLatestRoundData() {
         _;
     }
 
-    modifier whenOracleDoesNotRevertOnDecimals() {
-        _;
-    }
-
-    modifier whenTargetPriceNotZero() {
-        _;
-    }
-
-    modifier whenTargetPriceZero() {
+    modifier whenOracleZeroAddress() {
         _;
     }
 
@@ -164,17 +148,25 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenTargetPriceNotZero() {
+        _;
+    }
+
+    modifier whenTargetPriceZero() {
+        _;
+    }
+
+    modifier whenTokenAddressNotZero() {
+        _;
+    }
+
+    modifier whenTokenAddressZero() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                        ENTER
     //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenAmountNotZero() {
-        _;
-    }
-
-    modifier whenAmountZero() {
-        _;
-    }
 
     modifier givenFirstDeposit() {
         _;
@@ -184,23 +176,19 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenAmountNotZero() {
+        _;
+    }
+
+    modifier whenAmountZero() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                EXIT WITHIN GRACE PERIOD
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenNoSharesToRedeem() {
-        _;
-    }
-
     modifier whenCallerHasShares() {
-        _;
-    }
-
-    modifier whenWithinGracePeriod() {
-        _;
-    }
-
-    modifier whenGracePeriodExpired() {
         _;
     }
 
@@ -212,15 +200,23 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenGracePeriodExpired() {
+        _;
+    }
+
+    modifier whenNoSharesToRedeem() {
+        _;
+    }
+
+    modifier whenWithinGracePeriod() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                        REDEEM
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenFeePaymentSufficient() {
-        _;
-    }
-
-    modifier whenFeePaymentInsufficient() {
+    modifier givenNoPositiveYield() {
         _;
     }
 
@@ -228,7 +224,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier givenNoPositiveYield() {
+    modifier whenFeePaymentInsufficient() {
+        _;
+    }
+
+    modifier whenFeePaymentSufficient() {
         _;
     }
 
@@ -236,11 +236,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                         SYNC
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenSyncedPriceBelowTarget() {
+    modifier whenSyncedPriceAtOrAboveTarget() {
         _;
     }
 
-    modifier whenSyncedPriceAtOrAboveTarget() {
+    modifier whenSyncedPriceBelowTarget() {
         _;
     }
 
@@ -248,12 +248,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                   SET DEFAULT ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCallerComptroller() {
-        setMsgSender(address(comptroller));
-        _;
-    }
-
-    modifier whenCallerNotComptroller() {
+    modifier whenAdapterDoesNotSupportInterface() {
         _;
     }
 
@@ -261,15 +256,20 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenAdapterZeroAddress() {
-        _;
-    }
-
     modifier whenAdapterSupportsInterface() {
         _;
     }
 
-    modifier whenAdapterDoesNotSupportInterface() {
+    modifier whenAdapterZeroAddress() {
+        _;
+    }
+
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
+        _;
+    }
+
+    modifier whenCallerNotComptroller() {
         _;
     }
 

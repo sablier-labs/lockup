@@ -36,15 +36,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                     ORDER STATUS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenOrderOpen() {
-        _;
-    }
-
     modifier givenOrderCanceled() {
-        _;
-    }
-
-    modifier givenOrderFilled() {
         _;
     }
 
@@ -52,21 +44,21 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier givenOrderFilled() {
+        _;
+    }
+
     modifier givenOrderNotOpen() {
+        _;
+    }
+
+    modifier givenOrderOpen() {
         _;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                    CREATE ORDER
     //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenSellTokenNotZero() {
-        _;
-    }
-
-    modifier whenSellTokenZero() {
-        _;
-    }
 
     modifier whenBuyTokenNotZero() {
         _;
@@ -76,19 +68,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenTokensNotSame() {
+    modifier whenExpireAtInPast() {
         _;
     }
 
-    modifier whenTokensSame() {
-        _;
-    }
-
-    modifier whenSellAmountNotZero() {
-        _;
-    }
-
-    modifier whenSellAmountZero() {
+    modifier whenExpireAtValidOrZero() {
         _;
     }
 
@@ -100,11 +84,27 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenExpireAtValidOrZero() {
+    modifier whenSellAmountNotZero() {
         _;
     }
 
-    modifier whenExpireAtInPast() {
+    modifier whenSellAmountZero() {
+        _;
+    }
+
+    modifier whenSellTokenNotZero() {
+        _;
+    }
+
+    modifier whenSellTokenZero() {
+        _;
+    }
+
+    modifier whenTokensNotSame() {
+        _;
+    }
+
+    modifier whenTokensSame() {
         _;
     }
 
@@ -112,27 +112,11 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                     FILL ORDER
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenBuyAmountSufficient() {
-        _;
-    }
-
-    modifier whenBuyAmountInsufficient() {
-        _;
-    }
-
     modifier givenOrderHasDesignatedBuyer() {
         _;
     }
 
     modifier givenOrderHasNoBuyer() {
-        _;
-    }
-
-    modifier whenCallerDesignatedBuyer() {
-        _;
-    }
-
-    modifier whenCallerNotDesignatedBuyer() {
         _;
     }
 
@@ -144,15 +128,31 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
+    modifier whenBuyAmountInsufficient() {
+        _;
+    }
+
+    modifier whenBuyAmountSufficient() {
+        _;
+    }
+
+    modifier whenCallerDesignatedBuyer() {
+        _;
+    }
+
+    modifier whenCallerNotDesignatedBuyer() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                    CANCEL ORDER
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenCallerSeller() {
+    modifier whenCallerNotSeller() {
         _;
     }
 
-    modifier whenCallerNotSeller() {
+    modifier whenCallerSeller() {
         _;
     }
 

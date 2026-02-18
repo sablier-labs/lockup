@@ -16,6 +16,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier givenTokenBalanceNotZero() {
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                         WHEN
     //////////////////////////////////////////////////////////////////////////*/
@@ -36,12 +40,16 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenCallerAdmin() {
-        setMsgSender(admin);
+    modifier whenAddressesImplementIComptrollerable() {
         _;
     }
 
-    modifier whenCallerNotAdmin() {
+    modifier whenCalledOnProxy() {
+        _;
+    }
+
+    modifier whenCallerAdmin() {
+        setMsgSender(admin);
         _;
     }
 
@@ -50,7 +58,7 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenCalledOnProxy() {
+    modifier whenCallerNotAdmin() {
         _;
     }
 
@@ -86,11 +94,11 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenFunctionExists() {
+    modifier whenFeeUSDNotZero() {
         _;
     }
 
-    modifier whenFeeUSDNotZero() {
+    modifier whenFunctionExists() {
         _;
     }
 
@@ -158,6 +166,10 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
+    modifier whenPayable() {
+        _;
+    }
+
     modifier whenRecipientNotZeroAddress() {
         _;
     }
@@ -166,23 +178,11 @@ abstract contract Modifiers is BaseTest {
         _;
     }
 
-    modifier whenPayable() {
-        _;
-    }
-
-    modifier whenAddressesImplementIComptrollerable() {
-        _;
-    }
-
     modifier whenStateChangingFunction() {
         _;
     }
 
     modifier whenTargetContract() {
-        _;
-    }
-
-    modifier givenTokenBalanceNotZero() {
         _;
     }
 }
