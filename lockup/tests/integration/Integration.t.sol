@@ -143,19 +143,10 @@ abstract contract Integration_Test is Base_Test {
             streamId = lockup.createWithTimestampsLL(
                 params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.cliffTime
             );
+        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
+            streamId = lockup.createWithTimestampsLPG(params, defaults.unlockParams());
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithTimestampsLT(params, _defaultParams.tranches);
-        } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            Lockup.CreateWithDurations memory params_ = Lockup.CreateWithDurations({
-                sender: params.sender,
-                recipient: params.recipient,
-                depositAmount: params.depositAmount,
-                token: params.token,
-                cancelable: params.cancelable,
-                transferable: params.transferable,
-                shape: params.shape
-            });
-            streamId = lockup.createWithDurationsLPG(params_, defaults.unlockParams(), defaults.TOTAL_DURATION());
         }
     }
 
@@ -190,7 +181,20 @@ abstract contract Integration_Test is Base_Test {
                 params, _defaultParams.unlockAmounts, _defaultParams.granularity, _defaultParams.durations
             );
         } else if (lockupModel == Lockup.Model.LOCKUP_PRICE_GATED) {
-            streamId = lockup.createWithDurationsLPG(params, defaults.unlockParams(), defaults.TOTAL_DURATION());
+            Lockup.CreateWithTimestamps memory timestampParams = Lockup.CreateWithTimestamps({
+                sender: params.sender,
+                recipient: params.recipient,
+                depositAmount: params.depositAmount,
+                token: params.token,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                timestamps: Lockup.Timestamps({
+                    start: uint40(block.timestamp),
+                    end: uint40(block.timestamp) + defaults.TOTAL_DURATION()
+                }),
+                shape: params.shape
+            });
+            streamId = lockup.createWithTimestampsLPG(timestampParams, defaults.unlockParams());
         } else if (lockupModel == Lockup.Model.LOCKUP_TRANCHED) {
             streamId = lockup.createWithDurationsLT(params, _defaultParams.tranchesWithDurations);
         }

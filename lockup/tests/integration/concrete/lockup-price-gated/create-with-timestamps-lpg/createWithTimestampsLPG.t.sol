@@ -3,13 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
-import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
-import {
-    ChainlinkOracleNegativePrice,
-    ChainlinkOracleWith18Decimals,
-    ChainlinkOracleWithRevertingDecimals,
-    ChainlinkOracleWithRevertingPrice
-} from "@sablier/evm-utils/src/mocks/ChainlinkMocks.sol";
 
 import { ISablierLockupPriceGated } from "src/interfaces/ISablierLockupPriceGated.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -18,93 +11,30 @@ import { LockupPriceGated } from "src/types/LockupPriceGated.sol";
 
 import { Lockup_PriceGated_Integration_Concrete_Test } from "../LockupPriceGated.t.sol";
 
-contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_Integration_Concrete_Test {
-    uint40 internal duration;
+contract CreateWithTimestampsLPG_Integration_Concrete_Test is Lockup_PriceGated_Integration_Concrete_Test {
+    Lockup.CreateWithTimestamps internal createParams;
 
     function setUp() public override {
         Lockup_PriceGated_Integration_Concrete_Test.setUp();
-        duration = defaults.TOTAL_DURATION();
+        createParams = Lockup.CreateWithTimestamps({
+            sender: _defaultParams.createWithTimestamps.sender,
+            recipient: _defaultParams.createWithTimestamps.recipient,
+            depositAmount: _defaultParams.createWithTimestamps.depositAmount,
+            token: _defaultParams.createWithTimestamps.token,
+            cancelable: _defaultParams.createWithTimestamps.cancelable,
+            transferable: _defaultParams.createWithTimestamps.transferable,
+            timestamps: Lockup.Timestamps({
+                start: getBlockTimestamp(),
+                end: getBlockTimestamp() + defaults.TOTAL_DURATION()
+            }),
+            shape: _defaultParams.createWithTimestamps.shape
+        });
     }
 
     function test_RevertWhen_DelegateCall() external {
         expectRevert_DelegateCall({
-            callData: abi.encodeCall(
-                lockup.createWithDurationsLPG,
-                (_defaultParams.createWithDurations, defaults.unlockParams(), defaults.TOTAL_DURATION())
-            )
+            callData: abi.encodeCall(lockup.createWithTimestampsLPG, (createParams, defaults.unlockParams()))
         });
-    }
-
-    function test_RevertWhen_OracleAddressZero() external whenNoDelegateCall {
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(0));
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(0)));
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
-    }
-
-    function test_RevertWhen_OracleMissesDecimals() external whenNoDelegateCall whenOracleAddressNotZero {
-        ChainlinkOracleWithRevertingDecimals oracle = new ChainlinkOracleWithRevertingDecimals();
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracle));
-
-        // It should revert.
-        vm.expectRevert(abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(oracle)));
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
-    }
-
-    function test_RevertWhen_OracleDecimalsNot8()
-        external
-        whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-    {
-        ChainlinkOracleWith18Decimals oracleWith18Decimals = new ChainlinkOracleWith18Decimals();
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleWith18Decimals));
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                EvmUtilsErrors.SafeOracle_DecimalsNotEight.selector, address(oracleWith18Decimals), 18
-            )
-        );
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
-    }
-
-    function test_RevertWhen_OracleMissesLatestRoundData()
-        external
-        whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-        whenOracleDecimals8
-    {
-        ChainlinkOracleWithRevertingPrice oracleWithRevertingPrice = new ChainlinkOracleWithRevertingPrice();
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleWithRevertingPrice));
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                EvmUtilsErrors.SafeOracle_MissesInterface.selector, address(oracleWithRevertingPrice)
-            )
-        );
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
-    }
-
-    function test_RevertWhen_OraclePriceNotPositive()
-        external
-        whenNoDelegateCall
-        whenOracleAddressNotZero
-        whenOracleNotMissDecimals
-        whenOracleDecimals8
-        whenOracleNotMissLatestRoundData
-    {
-        ChainlinkOracleNegativePrice oracleNegativePrice = new ChainlinkOracleNegativePrice();
-        LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams(address(oracleNegativePrice));
-
-        // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(EvmUtilsErrors.SafeOracle_NotPositivePrice.selector, address(oracleNegativePrice))
-        );
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
     }
 
     function test_RevertWhen_TargetPriceNotExceedCurrentPrice()
@@ -125,10 +55,10 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
                 Errors.SablierLockup_TargetPriceTooLow.selector, currentOraclePrice, currentOraclePrice
             )
         );
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, duration);
+        lockup.createWithTimestampsLPG(createParams, unlockParams);
     }
 
-    function test_RevertWhen_DurationZero()
+    function test_RevertWhen_StartTimeNotLessThanEndTime()
         external
         whenNoDelegateCall
         whenOracleAddressNotZero
@@ -140,18 +70,21 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
     {
         LockupPriceGated.UnlockParams memory unlockParams = defaults.unlockParams();
 
+        // Set start == end to trigger the revert.
+        createParams.timestamps = Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() });
+
         // It should revert.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierLockupHelpers_StartTimeNotLessThanEndTime.selector,
-                uint40(block.timestamp),
-                uint40(block.timestamp)
+                getBlockTimestamp(),
+                getBlockTimestamp()
             )
         );
-        lockup.createWithDurationsLPG(_defaultParams.createWithDurations, unlockParams, 0);
+        lockup.createWithTimestampsLPG(createParams, unlockParams);
     }
 
-    function test_WhenDurationNotZero()
+    function test_WhenStartTimeLessThanEndTime()
         external
         whenNoDelegateCall
         whenOracleAddressNotZero
@@ -162,9 +95,6 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         whenTargetPriceExceedsCurrentPrice
     {
         uint256 expectedStreamId = lockup.nextStreamId();
-
-        Lockup.Timestamps memory expectedTimestamps =
-            Lockup.Timestamps({ start: getBlockTimestamp(), end: getBlockTimestamp() + defaults.TOTAL_DURATION() });
 
         // It should perform the ERC-20 transfer.
         expectCallToTransferFrom({ from: users.sender, to: address(lockup), value: defaults.DEPOSIT_AMOUNT() });
@@ -180,12 +110,10 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         });
 
         // Create the stream.
-        uint256 streamId = lockup.createWithDurationsLPG(
-            _defaultParams.createWithDurations, defaults.unlockParams(), defaults.TOTAL_DURATION()
-        );
+        uint256 streamId = lockup.createWithTimestampsLPG(createParams, defaults.unlockParams());
 
         // It should create the stream.
-        assertEq(lockup.getEndTime(streamId), expectedTimestamps.end, "endTime");
+        assertEq(lockup.getEndTime(streamId), createParams.timestamps.end, "endTime");
         assertEq(lockup.isCancelable(streamId), true, "isCancelable");
         assertFalse(lockup.isDepleted(streamId), "isDepleted");
         assertTrue(lockup.isStream(streamId), "isStream");
@@ -193,7 +121,7 @@ contract CreateWithDurationsLPG_Integration_Concrete_Test is Lockup_PriceGated_I
         assertEq(lockup.getLockupModel(streamId), Lockup.Model.LOCKUP_PRICE_GATED);
         assertEq(lockup.getRecipient(streamId), users.recipient, "recipient");
         assertEq(lockup.getSender(streamId), users.sender, "sender");
-        assertEq(lockup.getStartTime(streamId), expectedTimestamps.start, "startTime");
+        assertEq(lockup.getStartTime(streamId), createParams.timestamps.start, "startTime");
         assertEq(lockup.getUnderlyingToken(streamId), dai, "underlyingToken");
         assertFalse(lockup.wasCanceled(streamId), "wasCanceled");
 
