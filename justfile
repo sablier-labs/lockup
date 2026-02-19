@@ -18,7 +18,7 @@ export FOUNDRY_DISABLE_NIGHTLY_WARNING := "true"
 export FOUNDRY_FUZZ_SEED := `echo $(($EPOCHSECONDS / 604800))`
 
 # All monorepo packages
-PACKAGES := "airdrops flow lockup utils"
+PACKAGES := "airdrops bob flow lockup utils"
 
 # ---------------------------------------------------------------------------- #
 #                                    SCRIPTS                                   #
