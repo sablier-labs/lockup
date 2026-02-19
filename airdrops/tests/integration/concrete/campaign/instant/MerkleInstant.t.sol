@@ -27,6 +27,9 @@ abstract contract MerkleInstant_Integration_Shared_Test is Integration_Test {
         // Cast the {MerkleInstant} contract as {ISablierMerkleBase}
         merkleBase = merkleInstant;
 
+        // Deploy a new ATTEST {MerkleInstant} contract.
+        merkleBaseAttest = createMerkleInstantAttest();
+
         // Set the campaign type.
         campaignType = "instant";
     }

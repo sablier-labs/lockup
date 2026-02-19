@@ -25,6 +25,9 @@ abstract contract MerkleVCA_Integration_Shared_Test is Integration_Test {
         // Cast the {MerkleVCA} contract as {ISablierMerkleBase}.
         merkleBase = merkleVCA;
 
+        // Deploy a new ATTEST {MerkleVCA} contract.
+        merkleBaseAttest = createMerkleVCAAttest();
+
         // Set the campaign type.
         campaignType = "vca";
     }

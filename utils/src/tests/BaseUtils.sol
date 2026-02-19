@@ -70,6 +70,19 @@ abstract contract BaseUtils is StdBase, StdUtils {
         }
     }
 
+    /// @dev Returns the admin address for the given token proxy. Returns `address(0)` if no proxy admin slot is found.
+    /// This only supports EIP-1967 and Old ZeppelinOS proxy implementations.
+    function getTokenProxyAdmin(address tokenProxy) internal view returns (address tokenAdmin) {
+        // Try EIP-1967 admin slot.
+        bytes32 adminSlot = bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1);
+        tokenAdmin = address(uint160(uint256(vm.load(tokenProxy, adminSlot))));
+        if (tokenAdmin == address(0)) {
+            // Fall back to the old OpenZeppelin admin slot.
+            adminSlot = keccak256("org.zeppelinos.proxy.admin");
+            tokenAdmin = address(uint160(uint256(vm.load(tokenProxy, adminSlot))));
+        }
+    }
+
     /// @dev Stops the active prank and sets a new one.
     function setMsgSender(address msgSender) internal {
         vm.stopPrank();

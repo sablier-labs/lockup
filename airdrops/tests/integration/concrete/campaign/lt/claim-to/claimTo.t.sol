@@ -4,12 +4,9 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Lockup } from "@sablier/lockup/src/types/Lockup.sol";
 
 import { ISablierMerkleLT } from "src/interfaces/ISablierMerkleLT.sol";
-import { Errors } from "src/libraries/Errors.sol";
-import { ClaimType } from "src/types/MerkleBase.sol";
 import { MerkleLT } from "src/types/MerkleLT.sol";
-
-import { ClaimTo_Integration_Test } from "../../shared/claim-to/claimTo.t.sol";
-import { MerkleLT_Integration_Shared_Test } from "../MerkleLT.t.sol";
+import { ClaimTo_Integration_Test } from "./../../shared/claim-to/claimTo.t.sol";
+import { MerkleLT_Integration_Shared_Test } from "./../MerkleLT.t.sol";
 
 contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT_Integration_Shared_Test {
     function setUp() public virtual override(MerkleLT_Integration_Shared_Test, ClaimTo_Integration_Test) {
@@ -17,17 +14,7 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
         ClaimTo_Integration_Test.setUp();
     }
 
-    function test_RevertGiven_ClaimTypeATTEST() external {
-        merkleBase = merkleLTAttest;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
-            )
-        );
-        claimTo();
-    }
-
-    function test_WhenVestingEndTimeNotExceedClaimTime() external whenMerkleProofValid givenClaimTypeNotAttest {
+    function test_WhenVestingEndTimeNotExceedClaimTime() external givenDefaultClaimType whenMerkleProofValid {
         // Forward in time to the end of the vesting period.
         vm.warp({ newTimestamp: VESTING_END_TIME });
 
@@ -54,8 +41,8 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
 
     function test_WhenVestingStartTimeZero()
         external
+        givenDefaultClaimType
         whenMerkleProofValid
-        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
     {
         MerkleLT.ConstructorParams memory params = merkleLTConstructorParams();
@@ -72,8 +59,8 @@ contract ClaimTo_MerkleLT_Integration_Test is ClaimTo_Integration_Test, MerkleLT
 
     function test_WhenVestingStartTimeNotZero()
         external
+        givenDefaultClaimType
         whenMerkleProofValid
-        givenClaimTypeNotAttest
         whenVestingEndTimeExceedsClaimTime
     {
         // It should create a ranged stream with provided start time.

@@ -1,14 +1,17 @@
 ClaimTo_Integration_Test
-├── when to address zero
+├── given not default claim type
 │  └── it should revert
-└── when to address not zero
-   ├── given caller claimed
+└── given default claim type
+   ├── when to address zero
    │  └── it should revert
-   └── given caller not claimed
-      ├── when caller not eligible
+   └── when to address not zero
+      ├── given caller claimed
       │  └── it should revert
-      └── when caller eligible
-         └── when merkle proof valid
-            ├── it should mark the index as Claimed
-            ├── it should transfer the ETH to the comptroller
-            └── it should emit claim event
+      └── given caller not claimed
+         ├── when caller not eligible
+         │  └── it should revert
+         └── when caller eligible
+            └── when merkle proof valid
+               ├── it should mark the index as Claimed
+               ├── it should transfer the ETH to the comptroller
+               └── it should emit claim event

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -11,7 +12,17 @@ abstract contract ClaimTo_Integration_Test is Integration_Test {
         setMsgSender(users.recipient);
     }
 
-    function test_RevertWhen_ToAddressZero() external {
+    function test_RevertGiven_NotDefaultClaimType() external virtual {
+        merkleBase = merkleBaseAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claimTo();
+    }
+
+    function test_RevertWhen_ToAddressZero() external givenDefaultClaimType {
         vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
         claimTo({
             msgValue: AIRDROP_MIN_FEE_WEI,
@@ -22,14 +33,19 @@ abstract contract ClaimTo_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertGiven_CallerClaimed() external whenToAddressNotZero {
+    function test_RevertGiven_CallerClaimed() external givenDefaultClaimType whenToAddressNotZero {
         claimTo();
 
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierMerkleBase_IndexClaimed.selector, getIndexInMerkleTree()));
         claimTo();
     }
 
-    function test_RevertWhen_CallerNotEligible() external whenToAddressNotZero givenCallerNotClaimed {
+    function test_RevertWhen_CallerNotEligible()
+        external
+        givenDefaultClaimType
+        whenToAddressNotZero
+        givenCallerNotClaimed
+    {
         setMsgSender(address(1337));
 
         vm.expectRevert(Errors.SablierMerkleBase_InvalidProof.selector);
@@ -41,6 +57,7 @@ abstract contract ClaimTo_Integration_Test is Integration_Test {
     function test_WhenMerkleProofValid()
         external
         virtual
+        givenDefaultClaimType
         whenToAddressNotZero
         givenCallerNotClaimed
         whenCallerEligible

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
+import { ClaimType } from "src/types/MerkleBase.sol";
 
 import { Integration_Test } from "../../../../Integration.t.sol";
 
@@ -11,7 +12,17 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         setMsgSender(users.campaignCreator);
     }
 
-    function test_RevertWhen_ToAddressZero() external {
+    function test_RevertGiven_NotDefaultClaimType() external {
+        merkleBase = merkleBaseAttest;
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierMerkleBase_UnsupportedClaimType.selector, ClaimType.DEFAULT, ClaimType.ATTEST
+            )
+        );
+        claimViaSig();
+    }
+
+    function test_RevertWhen_ToAddressZero() external givenDefaultClaimType {
         vm.expectRevert(Errors.SablierMerkleBase_ToZeroAddress.selector);
         claimViaSig({
             msgValue: AIRDROP_MIN_FEE_WEI,
@@ -25,7 +36,12 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_SignatureNotCompatible() external whenToAddressNotZero givenRecipientIsEOA {
+    function test_RevertWhen_SignatureNotCompatible()
+        external
+        givenDefaultClaimType
+        whenToAddressNotZero
+        givenRecipientIsEOA
+    {
         uint256 index = getIndexInMerkleTree();
 
         // Generate an incompatible signature.
@@ -47,6 +63,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
     function test_RevertWhen_SignerDifferentFromRecipient()
         external
+        givenDefaultClaimType
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
@@ -85,6 +102,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
     function test_RevertWhen_SignatureValidityTimestampInFuture()
         external
+        givenDefaultClaimType
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
@@ -129,6 +147,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
     function test_WhenSignatureValidityTimestampNotInFuture()
         external
         virtual
+        givenDefaultClaimType
         whenToAddressNotZero
         givenRecipientIsEOA
         whenSignatureCompatible
@@ -141,6 +160,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
 
     function test_RevertWhen_RecipientNotImplementIERC1271Interface()
         external
+        givenDefaultClaimType
         whenToAddressNotZero
         givenRecipientIsContract
     {
@@ -162,6 +182,7 @@ abstract contract ClaimViaSig_Integration_Test is Integration_Test {
     function test_WhenRecipientImplementsIERC1271Interface()
         external
         virtual
+        givenDefaultClaimType
         whenToAddressNotZero
         givenRecipientIsContract
     {

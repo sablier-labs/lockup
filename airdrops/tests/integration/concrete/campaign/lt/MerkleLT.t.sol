@@ -24,6 +24,9 @@ abstract contract MerkleLT_Integration_Shared_Test is Integration_Test {
         // Cast the {MerkleLT} contract as {ISablierMerkleBase}
         merkleBase = merkleLT;
 
+        // Deploy a new ATTEST {MerkleLT} contract.
+        merkleBaseAttest = createMerkleLTAttest();
+
         // Set the campaign type.
         campaignType = "lt";
     }

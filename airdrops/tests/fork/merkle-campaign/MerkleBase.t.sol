@@ -51,8 +51,16 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function preCreateCampaign(Params memory params) internal {
-        vm.assume(params.campaignCreator != address(0) && params.campaignCreator != address(factoryMerkleBase));
+        // Some tokens like USDC use a transparent proxy, and the proxy admin is not allowed to call implementation
+        // functions through the proxy. So we need to exclude it from both campaign creator and airdrop recipient.
+        address tokenAdmin = getTokenProxyAdmin(address(FORK_TOKEN));
+
+        vm.assume(
+            params.campaignCreator != address(0) && params.campaignCreator != address(factoryMerkleBase)
+                && params.campaignCreator != tokenAdmin
+        );
         vm.assume(params.leavesData.length > 0);
+
         assumeNoBlacklisted({ token: address(FORK_TOKEN), addr: params.campaignCreator });
         params.leafIndex = _bound(params.leafIndex, 0, params.leavesData.length - 1);
 
@@ -61,10 +69,11 @@ abstract contract MerkleBase_Fork_Test is Fork_Test {
             params.expiration = boundUint40(params.expiration, getBlockTimestamp() + 1 seconds, MAX_UNIX_TIMESTAMP);
         }
 
-        // Exclude the factory contract from being the recipient. Otherwise, the fee accrued may not be equal to the sum
-        // of all `msg.value`.
-        address[] memory excludedAddresses = new address[](1);
+        // Exclude the token admin and the factory contract from being the recipient. In case of factory contract,
+        // the fee accrued may not be equal to the sum of all `msg.value`.
+        address[] memory excludedAddresses = new address[](2);
         excludedAddresses[0] = address(factoryMerkleBase);
+        excludedAddresses[1] = tokenAdmin;
 
         // Fuzz the leaves data, construct the Merkle tree and compute the aggregate amount and Merkle root.
         (vars.aggregateAmount, vars.merkleRoot) =

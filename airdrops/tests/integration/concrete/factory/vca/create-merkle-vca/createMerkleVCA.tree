@@ -16,9 +16,9 @@ CreateMerkleVCA_Integration_Test
             ├── when vesting end time equals vesting start time
             │  └── it should revert
             └── when vesting end time greater than vesting start time
-               ├── when zero expiration
+               ├── when expiration zero
                │  └── it should revert
-               └── when not zero expiration
+               └── when expiration not zero
                   ├── when expiration not exceed one week from vesting end time
                   │  └── it should revert
                   └── when expiration exceeds one week from vesting end time

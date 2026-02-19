@@ -20,6 +20,10 @@ abstract contract Modifiers is EvmUtilsBase {
                                        GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenAttestClaimType() virtual {
+        _;
+    }
+
     modifier givenAttestorIsContract() {
         _;
     }
@@ -29,18 +33,6 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier givenAttestorNotZero() {
-        _;
-    }
-
-    modifier givenAttestorSet() {
-        _;
-    }
-
-    modifier givenClaimTypeNotAttest() {
-        _;
-    }
-
-    modifier givenClaimTypeNotDefault() {
         _;
     }
 
@@ -57,6 +49,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier givenCampaignStartTimeNotInFuture() {
+        _;
+    }
+
+    modifier givenDefaultClaimType() {
         _;
     }
 
@@ -104,17 +100,13 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenTargetTransferAmountNotOverdraw() {
+    modifier whenCallerCampaignCreator() {
+        setMsgSender(users.campaignCreator);
         _;
     }
 
     modifier whenCallerComptroller() {
         setMsgSender(address(comptroller));
-        _;
-    }
-
-    modifier whenCallerCampaignCreator() {
-        setMsgSender(users.campaignCreator);
         _;
     }
 
@@ -135,15 +127,15 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
+    modifier whenExpirationExceedsOneWeekFromVestingEndTime() {
+        _;
+    }
+
     modifier whenExpirationNotZero() {
         _;
     }
 
     modifier whenExpirationZero() {
-        _;
-    }
-
-    modifier whenExpirationExceedsOneWeekFromVestingEndTime() {
         _;
     }
 
@@ -167,19 +159,11 @@ abstract contract Modifiers is EvmUtilsBase {
         _;
     }
 
-    modifier whenNotZeroExpiration() {
-        _;
-    }
-
     modifier whenPercentagesSumNot100Pct() {
         _;
     }
 
     modifier whenProvidedAddressNotZero() {
-        _;
-    }
-
-    modifier whenRecipientAddressNotZero() {
         _;
     }
 
@@ -200,6 +184,10 @@ abstract contract Modifiers is EvmUtilsBase {
     }
 
     modifier whenTargetContract() {
+        _;
+    }
+
+    modifier whenTargetTransferAmountNotOverdraw() {
         _;
     }
 

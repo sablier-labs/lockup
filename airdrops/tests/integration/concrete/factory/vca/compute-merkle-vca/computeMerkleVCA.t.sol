@@ -83,7 +83,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         factoryMerkleVCA.computeMerkleVCA(users.campaignCreator, params);
     }
 
-    function test_RevertWhen_ZeroExpiration()
+    function test_RevertWhen_ExpirationZero()
         external
         whenNativeTokenNotFound
         whenAggregateAmountNotZero
@@ -104,7 +104,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
-        whenNotZeroExpiration
+        whenExpirationNotZero
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
         params.expiration = VESTING_END_TIME + 1 weeks - 1 seconds;
@@ -124,7 +124,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
-        whenNotZeroExpiration
+        whenExpirationNotZero
         whenExpirationExceedsOneWeekFromVestingEndTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();
@@ -146,7 +146,7 @@ contract ComputeMerkleVCA_Integration_Test is Integration_Test {
         whenAggregateAmountNotZero
         whenVestingStartTimeNotZero
         whenVestingEndTimeGreaterThanVestingStartTime
-        whenNotZeroExpiration
+        whenExpirationNotZero
         whenExpirationExceedsOneWeekFromVestingEndTime
     {
         MerkleVCA.ConstructorParams memory params = merkleVCAConstructorParams();

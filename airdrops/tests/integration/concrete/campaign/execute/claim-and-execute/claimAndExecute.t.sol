@@ -6,13 +6,12 @@ import { ISablierMerkleExecute } from "src/interfaces/ISablierMerkleExecute.sol"
 import { MerkleExecute } from "src/types/MerkleExecute.sol";
 
 import { MockStakingReentrant, MockStakingRevert } from "./../../../../../mocks/MockStaking.sol";
-import { Integration_Test } from "./../../../../Integration.t.sol";
 import { Claim_Integration_Test } from "./../../shared/claim/claim.t.sol";
-import { MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
+import { Integration_Test, MerkleExecute_Integration_Shared_Test } from "./../MerkleExecute.t.sol";
 
 contract ClaimAndExecute_MerkleExecute_Integration_Test is
-    MerkleExecute_Integration_Shared_Test,
-    Claim_Integration_Test
+    Claim_Integration_Test,
+    MerkleExecute_Integration_Shared_Test
 {
     function setUp() public virtual override(MerkleExecute_Integration_Shared_Test, Integration_Test) {
         MerkleExecute_Integration_Shared_Test.setUp();
@@ -21,17 +20,11 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         setMsgSender(users.recipient);
     }
 
-    function test_RevertWhen_TargetTransferAmountOverdraws()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenRecipientEligible
-        whenAmountValid
-        whenMerkleProofValid
-    {
+    /// @dev This test is not applicable to {MerkleExecute} campaigns since they have {ClaimType.EXECUTE} claim type by
+    /// default.
+    function test_RevertGiven_NotDefaultClaimType() external pure override { }
+
+    function test_RevertWhen_TargetTransferAmountOverdraws() external whenMerkleProofValid {
         uint128 overdrawAmount = CLAIM_AMOUNT + 1;
 
         // It should revert because the `claimAndExecute` function only approves the claim amount.
@@ -44,17 +37,7 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
         });
     }
 
-    function test_RevertWhen_TargetCallNotSucceed()
-        external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenAmountValid
-        whenMerkleProofValid
-        whenTargetTransferAmountNotOverdraw
-    {
+    function test_RevertWhen_TargetCallNotSucceed() external whenMerkleProofValid whenTargetTransferAmountNotOverdraw {
         // Deploy the reverting staking contract.
         MockStakingRevert mockStakingRevert = new MockStakingRevert();
 
@@ -77,12 +60,6 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
 
     function test_RevertWhen_Reentrancy()
         external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenAmountValid
         whenMerkleProofValid
         whenTargetTransferAmountNotOverdraw
         whenTargetCallSucceeds
@@ -115,13 +92,6 @@ contract ClaimAndExecute_MerkleExecute_Integration_Test is
 
     function test_WhenNoReentrancy()
         external
-        givenCampaignStartTimeNotInFuture
-        givenCampaignNotExpired
-        givenMsgValueNotLessThanFee
-        givenRecipientNotClaimed
-        whenIndexValid
-        whenRecipientEligible
-        whenAmountValid
         whenMerkleProofValid
         whenTargetTransferAmountNotOverdraw
         whenTargetCallSucceeds
