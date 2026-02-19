@@ -119,6 +119,13 @@ abstract contract SablierEscrowState is ISablierEscrowState {
                             INTERNAL READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Reverts if `newTradeFee` is greater than the maximum trade fee.
+    function _notTooHigh(UD60x18 newTradeFee) internal pure {
+        if (newTradeFee.gt(MAX_TRADE_FEE)) {
+            revert Errors.SablierEscrowState_NewTradeFeeTooHigh(newTradeFee, MAX_TRADE_FEE);
+        }
+    }
+
     /// @dev Return the order status without performing a null check.
     function _statusOf(uint256 orderId) internal view returns (Escrow.Status) {
         Escrow.Order memory order = _orders[orderId];
@@ -136,17 +143,6 @@ abstract contract SablierEscrowState is ISablierEscrowState {
         }
 
         return Escrow.Status.OPEN;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL READ-ONLY FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Reverts if `newTradeFee` is greater than the maximum trade fee.
-    function _notTooHigh(UD60x18 newTradeFee) internal pure {
-        if (newTradeFee.gt(MAX_TRADE_FEE)) {
-            revert Errors.SablierEscrowState_NewTradeFeeTooHigh(newTradeFee, MAX_TRADE_FEE);
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

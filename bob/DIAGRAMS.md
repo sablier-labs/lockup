@@ -2,7 +2,7 @@
 
 ## Contract Architecture
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                              SablierBob                                      │
 │                                                                              │
@@ -34,7 +34,7 @@
 
 ## Vault Lifecycle
 
-```
+```text
                               ┌─────────────┐
                               │   CREATE    │
                               │   VAULT     │
@@ -75,7 +75,7 @@
 
 ## User Flows
 
-```
+```text
                               USER INTERACTIONS
                               ═════════════════
 
@@ -153,7 +153,7 @@
 
 ## Adapter Flow (Yield-Bearing Vaults)
 
-```
+```text
                            ADAPTER INTEGRATION
                            ════════════════════
 
@@ -199,7 +199,7 @@
 
 ## Fee Model
 
-```
+```text
                               FEE STRUCTURE
                               ═════════════
 
@@ -238,7 +238,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## Contract Architecture
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                            SablierEscrow                                     │
 │                                                                              │
@@ -265,7 +265,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## Order Lifecycle
 
-```
+```text
                               ┌─────────────┐
                               │   CREATE    │
                               │   ORDER     │
@@ -311,7 +311,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## User Flows
 
-```
+```text
                               USER INTERACTIONS
                               ═════════════════
 
@@ -385,7 +385,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## Order Types
 
-```
+```text
                               ORDER TYPES
                               ═══════════
 
@@ -414,7 +414,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## Fee Model
 
-```
+```text
                               FEE STRUCTURE
                               ═════════════
 
@@ -448,7 +448,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 
 ## Trade Flow Example
 
-```
+```text
                            COMPLETE TRADE EXAMPLE
                            ══════════════════════
 

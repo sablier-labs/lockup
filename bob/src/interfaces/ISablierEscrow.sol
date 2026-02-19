@@ -73,7 +73,7 @@ interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
     /// - `sellAmount` must be greater than zero.
     /// - `minBuyAmount` must be greater than zero.
     /// - If `expiryTime` is non-zero, it must be in the future. Zero is sentinel for orders that never expire.
-    /// - The caller must have approved this contract to transfer atleast `sellAmount` of `sellToken`.
+    /// - The caller must have approved this contract to transfer at least `sellAmount` of `sellToken`.
     ///
     /// @param sellToken The address of the ERC-20 token to sell.
     /// @param sellAmount The amount of sell token to exchange.
@@ -103,14 +103,14 @@ interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
     /// - The order must be in OPEN status.
     /// - If the order has buyer specified, the caller must be the buyer.
     /// - `buyAmount` must be greater than or equal to the `minBuyAmount`.
-    /// - The caller must have approved this contract to transfer atleast `buyAmount` of `buyToken`.
+    /// - The caller must have approved this contract to transfer at least `buyAmount` of `buyToken`.
     ///
     /// @param orderId The order ID to fill.
     /// @param buyAmount The amount of buy token to exchange.
     /// @return amountToTransferToSeller The amount of buy token to transfer to the seller after deducting fees.
     /// @return amountToTransferToBuyer The amount of sell token to transfer to the buyer after deducting fees.
-    /// @return feeDeductedFromBuyerAmount The amount of buy token deducted from the buyer as fees.
-    /// @return feeDeductedFromSellerAmount The amount of sell token deducted from the seller as fees.
+    /// @return feeDeductedFromBuyerAmount The amount of sell token deducted from the buyer's amount as fees.
+    /// @return feeDeductedFromSellerAmount The amount of buy token deducted from the seller's amount as fees.
     function fillOrder(
         uint256 orderId,
         uint128 buyAmount

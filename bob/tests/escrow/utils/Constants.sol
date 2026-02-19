@@ -7,7 +7,7 @@ import { BaseConstants } from "@sablier/evm-utils/src/tests/BaseConstants.sol";
 abstract contract Constants is BaseConstants {
     // Amounts
     uint128 public constant MIN_BUY_AMOUNT = 900e6; // Representing USDC
-    uint128 public constant SELL_AMOUNT = 1000e18; // Representing WETH
+    uint128 public constant SELL_AMOUNT = 1000e18; // Representing DAI
 
     // Fees
     UD60x18 public constant DEFAULT_TRADE_FEE = UD60x18.wrap(0.01e18); // 1%

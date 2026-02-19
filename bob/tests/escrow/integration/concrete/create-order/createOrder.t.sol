@@ -245,7 +245,7 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         assertEq(escrow.getSellAmount(orderId), SELL_AMOUNT, "order.sellAmount");
         assertEq(escrow.getMinBuyAmount(orderId), MIN_BUY_AMOUNT, "order.minBuyAmount");
         assertEq(escrow.getExpiryTime(orderId), expiryTime, "order.expiryTime");
-        assertEq(escrow.tradeFee(), DEFAULT_TRADE_FEE, "order.tradeFee");
+        assertEq(escrow.tradeFee(), DEFAULT_TRADE_FEE, "escrow.tradeFee");
         assertFalse(escrow.wasCanceled(orderId), "order.wasCanceled");
         assertFalse(escrow.wasFilled(orderId), "order.wasFilled");
 

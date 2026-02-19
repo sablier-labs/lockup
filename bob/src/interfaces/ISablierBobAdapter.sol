@@ -115,7 +115,7 @@ interface ISablierBobAdapter is IComptrollerable, IERC165 {
     /// - The tokens must have been transferred to this contract.
     ///
     /// @param vaultId The ID of the vault.
-    /// @param user The address of the user depositing the tokens tokens.
+    /// @param user The address of the user depositing the tokens.
     /// @param amount The amount of tokens to stake.
     function stake(uint256 vaultId, address user, uint256 amount) external;
 
