@@ -31,9 +31,7 @@ contract SetNativeToken_Integration_Concrete_Test is Integration_Test {
         escrow.setNativeToken(firstNativeToken);
 
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierEscrow_NativeTokenAlreadySet.selector, firstNativeToken)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_NativeTokenAlreadySet.selector, firstNativeToken));
         escrow.setNativeToken(address(buyToken));
     }
 

@@ -32,9 +32,7 @@ contract SetNativeToken_Integration_Concrete_Test is Integration_Test {
         bob.setNativeToken(firstNativeToken);
 
         // It should revert.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierBob_NativeTokenAlreadySet.selector, firstNativeToken)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_NativeTokenAlreadySet.selector, firstNativeToken));
         bob.setNativeToken(address(weth));
     }
 

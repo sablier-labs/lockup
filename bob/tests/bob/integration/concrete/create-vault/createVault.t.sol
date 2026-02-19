@@ -51,7 +51,12 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_TargetPriceZero() external whenTokenAddressNotZero whenTokenNotNativeToken whenExpiryInFuture {
+    function test_RevertWhen_TargetPriceZero()
+        external
+        whenTokenAddressNotZero
+        whenTokenNotNativeToken
+        whenExpiryInFuture
+    {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_TargetPriceZero.selector));
         bob.createVault({
