@@ -1,0 +1,12 @@
+WithdrawERC20Token_Comptroller_Concrete_Test
+├── when caller not admin
+│  └── it should revert
+└── when caller admin
+   ├── when recipient zero address
+   │  └── it should revert
+   └── when recipient not zero address
+      ├── given token balance zero
+      │  └── it should revert
+      └── given token balance not zero
+         ├── it should transfer the entire balance to the recipient
+         └── it should emit a {WithdrawERC20Token} event

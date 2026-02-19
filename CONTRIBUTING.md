@@ -62,6 +62,7 @@ To build a specific protocol:
 just airdrops::build
 just flow::build
 just lockup::build
+just bob::build
 ```
 
 Switch to the `staging` branch, where all development work should be done:

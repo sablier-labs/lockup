@@ -1,0 +1,22 @@
+# See https://github.com/sablier-labs/devkit/blob/main/just/evm.just
+import "./node_modules/@sablier/devkit/just/evm.just"
+
+# Run just --list to see all available commands
+default:
+  @just --list
+
+deploy-bob *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployBob.s.sol \
+        -vvv --broadcast {{ args }}
+
+deploy-escrow *args:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployEscrow.s.sol \
+        -vvv --broadcast {{ args }}
+
+# Should only be called on Ethereum mainnet
+deploy-lido-adapter-mainnet:
+    FOUNDRY_PROFILE=optimized \
+        forge script scripts/solidity/DeployLidoAdapter.s.sol \
+        -vvv --broadcast --rpc-url ethereum

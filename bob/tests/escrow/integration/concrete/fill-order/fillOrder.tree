@@ -1,0 +1,30 @@
+FillOrder_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given canceled
+   │  └── it should revert
+   ├── given filled
+   │  └── it should revert
+   ├── given expired
+   │  └── it should revert
+   └── given open
+      ├── given order with designated buyer
+      │  ├── when caller not designated buyer
+      │  │  └── it should revert
+      │  └── when caller designated buyer
+      │     ├── it should perform the ERC-20 transfers
+      │     ├── it should emit a {FillOrder} event
+      │     └── it should update the order status to filled
+      └── given order without designated buyer
+         ├── when buy amount less than min buy amount
+         │  └── it should revert
+         └── when buy amount not less than min buy amount
+            ├── given trade fee zero
+            │  ├── it should perform the ERC-20 transfers
+            │  ├── it should emit a {FillOrder} event
+            │  └── it should update the order status to filled
+            └── given trade fee not zero
+               ├── it should perform the ERC-20 transfers
+               ├── it should emit a {FillOrder} event
+               └── it should update the order status to filled

@@ -4,6 +4,7 @@ import "./node_modules/@sablier/devkit/just/base.just"
 
 # Modules, use like this: just lockup::<recipe>
 mod airdrops "airdrops"
+mod bob "bob"
 mod flow "flow"
 mod lockup "lockup"
 mod utils "utils"
