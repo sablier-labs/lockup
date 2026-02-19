@@ -100,9 +100,19 @@ contract SablierEscrow is
             revert Errors.SablierEscrow_SellTokenZero();
         }
 
+        // Check: sell token is not the native token.
+        if (address(sellToken) == nativeToken) {
+            revert Errors.SablierEscrow_ForbidNativeToken(address(sellToken));
+        }
+
         // Check: buy token is not the zero address.
         if (address(buyToken) == address(0)) {
             revert Errors.SablierEscrow_BuyTokenZero();
+        }
+
+        // Check: buy token is not the native token.
+        if (address(buyToken) == nativeToken) {
+            revert Errors.SablierEscrow_ForbidNativeToken(address(buyToken));
         }
 
         // Check: sell and buy tokens are not the same.
@@ -230,6 +240,25 @@ contract SablierEscrow is
             feeDeductedFromBuyerAmount: feeDeductedFromBuyerAmount,
             feeDeductedFromSellerAmount: feeDeductedFromSellerAmount
         });
+    }
+
+    /// @inheritdoc ISablierEscrow
+    function setNativeToken(address newNativeToken) external override onlyComptroller {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierEscrow_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierEscrow_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit SetNativeToken({ comptroller: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierEscrow

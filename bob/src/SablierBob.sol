@@ -105,6 +105,11 @@ contract SablierBob is
             revert Errors.SablierBob_TokenAddressZero();
         }
 
+        // Check: token is not the native token.
+        if (address(token) == nativeToken) {
+            revert Errors.SablierBob_ForbidNativeToken(address(token));
+        }
+
         uint40 currentTimestamp = uint40(block.timestamp);
 
         // Check: expiry is in the future.
@@ -365,6 +370,25 @@ contract SablierBob is
 
         // Log the event.
         emit Redeem(vaultId, msg.sender, amountToTransfer, shareBalance, feeAmount);
+    }
+
+    /// @inheritdoc ISablierBob
+    function setNativeToken(address newNativeToken) external override onlyComptroller {
+        // Check: provided token is not zero address.
+        if (newNativeToken == address(0)) {
+            revert Errors.SablierBob_NativeTokenZeroAddress();
+        }
+
+        // Check: native token is not set.
+        if (nativeToken != address(0)) {
+            revert Errors.SablierBob_NativeTokenAlreadySet(nativeToken);
+        }
+
+        // Effect: set the native token.
+        nativeToken = newNativeToken;
+
+        // Log the update.
+        emit SetNativeToken({ comptroller: msg.sender, nativeToken: newNativeToken });
     }
 
     /// @inheritdoc ISablierBob

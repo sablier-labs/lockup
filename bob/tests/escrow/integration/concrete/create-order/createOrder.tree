@@ -2,29 +2,35 @@ CreateOrder_Integration_Concrete_Test
 ├── when sell token zero
 │  └── it should revert
 └── when sell token not zero
-   ├── when buy token zero
+   ├── when sell token is native token
    │  └── it should revert
-   └── when buy token not zero
-      ├── when tokens same
+   └── when sell token not native token
+      ├── when buy token zero
       │  └── it should revert
-      └── when tokens not same
-         ├── when sell amount zero
+      └── when buy token not zero
+         ├── when buy token is native token
          │  └── it should revert
-         └── when sell amount not zero
-            ├── when min buy amount zero
+         └── when buy token not native token
+            ├── when tokens same
             │  └── it should revert
-            └── when min buy amount not zero
-               ├── when expiry time zero
-               │  └── it should create the order with zero expiry
-               └── when expiry time not zero
-                  ├── when expiry time not in future
+            └── when tokens not same
+               ├── when sell amount zero
+               │  └── it should revert
+               └── when sell amount not zero
+                  ├── when min buy amount zero
                   │  └── it should revert
-                  └── when expiry time in future
-                     ├── when no designated buyer
-                     │  ├── it should perform the ERC-20 transfers
-                     │  ├── it should emit a {CreateOrder} event
-                     │  └── it should bump the next order ID
-                     └── when designated buyer
-                        ├── it should perform the ERC-20 transfers
-                        ├── it should emit a {CreateOrder} event
-                        └── it should bump the next order ID
+                  └── when min buy amount not zero
+                     ├── when expiry time zero
+                     │  └── it should create the order with zero expiry
+                     └── when expiry time not zero
+                        ├── when expiry time not in future
+                        │  └── it should revert
+                        └── when expiry time in future
+                           ├── when no designated buyer
+                           │  ├── it should perform the ERC-20 transfers
+                           │  ├── it should emit a {CreateOrder} event
+                           │  └── it should bump the next order ID
+                           └── when designated buyer
+                              ├── it should perform the ERC-20 transfers
+                              ├── it should emit a {CreateOrder} event
+                              └── it should bump the next order ID

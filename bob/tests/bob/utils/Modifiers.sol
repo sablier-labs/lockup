@@ -215,6 +215,26 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    SET NATIVE TOKEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenNativeTokenAlreadySet() {
+        _;
+    }
+
+    modifier givenNativeTokenNotSet() {
+        _;
+    }
+
+    modifier whenProvidedAddressNotZero() {
+        _;
+    }
+
+    modifier whenTokenNotNativeToken() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   SET DEFAULT ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 

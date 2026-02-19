@@ -23,7 +23,25 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_BuyTokenZero() external whenSellTokenNotZero {
+    function test_RevertWhen_SellTokenIsNativeToken() external whenSellTokenNotZero {
+        // Set the native token to the sell token.
+        setMsgSender(address(comptroller));
+        escrow.setNativeToken(address(sellToken));
+        setMsgSender(users.seller);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_ForbidNativeToken.selector, address(sellToken)));
+        escrow.createOrder({
+            sellToken: sellToken,
+            sellAmount: SELL_AMOUNT,
+            buyToken: buyToken,
+            minBuyAmount: MIN_BUY_AMOUNT,
+            buyer: users.buyer,
+            expiryTime: ORDER_EXPIRY_TIME
+        });
+    }
+
+    function test_RevertWhen_BuyTokenZero() external whenSellTokenNotZero whenSellTokenNotNativeToken {
         // It should revert.
         vm.expectRevert(Errors.SablierEscrow_BuyTokenZero.selector);
         escrow.createOrder({
@@ -36,7 +54,36 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_TokensSame() external whenSellTokenNotZero whenBuyTokenNotZero {
+    function test_RevertWhen_BuyTokenIsNativeToken()
+        external
+        whenSellTokenNotZero
+        whenSellTokenNotNativeToken
+        whenBuyTokenNotZero
+    {
+        // Set the native token to the buy token.
+        setMsgSender(address(comptroller));
+        escrow.setNativeToken(address(buyToken));
+        setMsgSender(users.seller);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_ForbidNativeToken.selector, address(buyToken)));
+        escrow.createOrder({
+            sellToken: sellToken,
+            sellAmount: SELL_AMOUNT,
+            buyToken: buyToken,
+            minBuyAmount: MIN_BUY_AMOUNT,
+            buyer: users.buyer,
+            expiryTime: ORDER_EXPIRY_TIME
+        });
+    }
+
+    function test_RevertWhen_TokensSame()
+        external
+        whenSellTokenNotZero
+        whenSellTokenNotNativeToken
+        whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
+    {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierEscrow_SameToken.selector, sellToken));
         escrow.createOrder({
@@ -49,7 +96,14 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_SellAmountZero() external whenSellTokenNotZero whenBuyTokenNotZero whenTokensNotSame {
+    function test_RevertWhen_SellAmountZero()
+        external
+        whenSellTokenNotZero
+        whenSellTokenNotNativeToken
+        whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
+        whenTokensNotSame
+    {
         // It should revert.
         vm.expectRevert(Errors.SablierEscrow_SellAmountZero.selector);
         escrow.createOrder({
@@ -65,7 +119,9 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_MinBuyAmountZero()
         external
         whenSellTokenNotZero
+        whenSellTokenNotNativeToken
         whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
         whenTokensNotSame
         whenSellAmountNotZero
     {
@@ -84,7 +140,9 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     function test_WhenExpiryTimeZero()
         external
         whenSellTokenNotZero
+        whenSellTokenNotNativeToken
         whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero
@@ -95,7 +153,9 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_ExpiryTimeNotInFuture()
         external
         whenSellTokenNotZero
+        whenSellTokenNotNativeToken
         whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero
@@ -120,7 +180,9 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     function test_WhenNoDesignatedBuyer()
         external
         whenSellTokenNotZero
+        whenSellTokenNotNativeToken
         whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero
@@ -133,7 +195,9 @@ contract CreateOrder_Integration_Concrete_Test is Integration_Test {
     function test_WhenDesignatedBuyer()
         external
         whenSellTokenNotZero
+        whenSellTokenNotNativeToken
         whenBuyTokenNotZero
+        whenBuyTokenNotNativeToken
         whenTokensNotSame
         whenSellAmountNotZero
         whenMinBuyAmountNotZero

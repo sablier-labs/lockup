@@ -21,6 +21,9 @@ abstract contract SablierBobState is ISablierBobState {
     mapping(IERC20 token => ISablierBobAdapter adapter) internal _defaultAdapters;
 
     /// @inheritdoc ISablierBobState
+    address public override nativeToken;
+
+    /// @inheritdoc ISablierBobState
     uint256 public override nextVaultId;
 
     /// @dev Timestamp of first deposit for each user in each vault, used for grace period calculation.

@@ -21,7 +21,23 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_ExpiryInPast() external whenTokenAddressNotZero {
+    function test_RevertWhen_TokenIsNativeToken() external whenTokenAddressNotZero {
+        // Set the native token.
+        setMsgSender(address(comptroller));
+        bob.setNativeToken(address(dai));
+        setMsgSender(users.depositor);
+
+        // It should revert.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_ForbidNativeToken.selector, address(dai)));
+        bob.createVault({
+            token: IERC20(address(dai)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: EXPIRY,
+            targetPrice: TARGET_PRICE
+        });
+    }
+
+    function test_RevertWhen_ExpiryInPast() external whenTokenAddressNotZero whenTokenNotNativeToken {
         // It should revert.
         uint40 pastExpiry = uint40(block.timestamp - 1);
         vm.expectRevert(
@@ -35,7 +51,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_TargetPriceZero() external whenTokenAddressNotZero whenExpiryInFuture {
+    function test_RevertWhen_TargetPriceZero() external whenTokenAddressNotZero whenTokenNotNativeToken whenExpiryInFuture {
         // It should revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_TargetPriceZero.selector));
         bob.createVault({
@@ -49,6 +65,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_TargetPriceAtOrBelowCurrentPrice()
         external
         whenTokenAddressNotZero
+        whenTokenNotNativeToken
         whenExpiryInFuture
         whenTargetPriceNotZero
     {
@@ -82,6 +99,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_GivenNoDefaultAdapterForToken()
         external
         whenTokenAddressNotZero
+        whenTokenNotNativeToken
         whenExpiryInFuture
         whenTargetPriceNotZero
         whenTargetPriceAboveCurrentPrice
@@ -122,6 +140,7 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_GivenDefaultAdapterForToken()
         external
         whenTokenAddressNotZero
+        whenTokenNotNativeToken
         whenExpiryInFuture
         whenTargetPriceNotZero
         whenTargetPriceAboveCurrentPrice

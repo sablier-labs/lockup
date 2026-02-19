@@ -51,6 +51,14 @@ interface ISablierEscrowState {
     /// @dev Reverts if `orderId` references a null order.
     function getSellToken(uint256 orderId) external view returns (IERC20 sellToken);
 
+    /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
+    /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token
+    /// is the native token and has an ERC-20 version at 0x0000000000000000000000000000000000001010. This means
+    /// that `address(this).balance` returns the same value as `balanceOf(address(this))`. To avoid any unintended
+    /// behavior, these tokens cannot be used in Sablier. As an alternative, users can use the Wrapped version of the
+    /// token, i.e. WMATIC, which is a standard ERC-20 token.
+    function nativeToken() external view returns (address);
+
     /// @notice Counter for order IDs. It's incremented every time a new order is created.
     function nextOrderId() external view returns (uint256);
 

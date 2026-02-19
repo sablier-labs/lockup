@@ -40,6 +40,9 @@ interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
         uint128 feeDeductedFromSellerAmount
     );
 
+    /// @notice Emitted when the native token address is set by the comptroller.
+    event SetNativeToken(address indexed comptroller, address nativeToken);
+
     /// @notice Emitted when the trade fee is updated.
     event SetTradeFee(address indexed caller, UD60x18 previousTradeFee, UD60x18 newTradeFee);
 
@@ -119,6 +122,18 @@ interface ISablierEscrow is IComptrollerable, ISablierEscrowState {
             uint128 feeDeductedFromBuyerAmount,
             uint128 feeDeductedFromSellerAmount
         );
+
+    /// @notice Sets the native token address. Once set, it cannot be changed.
+    /// @dev For more information, see the documentation for {nativeToken}.
+    ///
+    /// Emits a {SetNativeToken} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the comptroller.
+    /// - `newNativeToken` must not be zero address.
+    /// - The native token must not be already set.
+    /// @param newNativeToken The address of the native token.
+    function setNativeToken(address newNativeToken) external;
 
     /// @notice Sets the fee to apply on each trade.
     ///

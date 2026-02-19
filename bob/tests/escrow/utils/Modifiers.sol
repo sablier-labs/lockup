@@ -38,8 +38,28 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    SET NATIVE TOKEN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenNativeTokenAlreadySet() {
+        _;
+    }
+
+    modifier givenNativeTokenNotSet() {
+        _;
+    }
+
+    modifier whenProvidedAddressNotZero() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                         WHEN
     //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenBuyTokenNotNativeToken() {
+        _;
+    }
 
     modifier whenBuyAmountNotLessThanMinBuyAmount() {
         _;
@@ -72,6 +92,10 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
     }
 
     modifier whenSellAmountNotZero() {
+        _;
+    }
+
+    modifier whenSellTokenNotNativeToken() {
         _;
     }
 

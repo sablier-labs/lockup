@@ -34,6 +34,9 @@ library Errors {
     /// @notice Thrown when trying to create a vault with an expiry timestamp in the past.
     error SablierBob_ExpiryInPast(uint40 expiry, uint40 currentTime);
 
+    /// @notice Thrown when trying to create a vault with the native token.
+    error SablierBob_ForbidNativeToken(address nativeToken);
+
     /// @notice Thrown when trying to exit during the grace period but it has already expired.
     error SablierBob_GracePeriodExpired(uint256 vaultId, address user, uint40 depositedAt, uint40 gracePeriodEnd);
 
@@ -42,6 +45,12 @@ library Errors {
 
     /// @notice Thrown when the native token fee transfer to the comptroller fails.
     error SablierBob_NativeFeeTransferFailed();
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierBob_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierBob_NativeTokenZeroAddress();
 
     /// @notice Thrown when the new adapter does not implement the required interface.
     error SablierBob_NewAdapterMissesInterface(address adapter);
@@ -113,11 +122,20 @@ library Errors {
     /// @notice Thrown when trying to create an order with an expiration timestamp in the past.
     error SablierEscrow_ExpiryTimeInPast(uint40 expiryTime, uint40 currentTime);
 
+    /// @notice Thrown when trying to create an order with the native token.
+    error SablierEscrow_ForbidNativeToken(address nativeToken);
+
     /// @notice Thrown when trying to accept an order with a buy amount that is below the minimum amount required.
     error SablierEscrow_InsufficientBuyAmount(uint128 buyAmount, uint128 minBuyAmount);
 
     /// @notice Thrown when trying to create an order with a zero buy amount.
     error SablierEscrow_MinBuyAmountZero();
+
+    /// @notice Thrown when trying to set the native token address when it is already set.
+    error SablierEscrow_NativeTokenAlreadySet(address nativeToken);
+
+    /// @notice Thrown when trying to set zero address as native token.
+    error SablierEscrow_NativeTokenZeroAddress();
 
     /// @notice Thrown when trying to cancel an order that has already been canceled.
     error SablierEscrow_OrderCancelled(uint256 orderId);

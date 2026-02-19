@@ -23,6 +23,9 @@ abstract contract SablierEscrowState is ISablierEscrowState {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierEscrowState
+    address public override nativeToken;
+
+    /// @inheritdoc ISablierEscrowState
     uint256 public override nextOrderId;
 
     /// @inheritdoc ISablierEscrowState

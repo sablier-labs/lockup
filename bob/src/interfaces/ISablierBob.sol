@@ -61,6 +61,9 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// @notice Emitted when the comptroller sets a new default adapter for a token.
     event SetDefaultAdapter(IERC20 indexed token, ISablierBobAdapter indexed adapter);
 
+    /// @notice Emitted when the native token address is set by the comptroller.
+    event SetNativeToken(address indexed comptroller, address nativeToken);
+
     /// @notice Emitted when a vault's price is synced from the oracle.
     event SyncPriceFromOracle(
         uint256 indexed vaultId,
@@ -199,6 +202,18 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     /// @param token The token address to set the adapter for.
     /// @param newAdapter The address of the new adapter.
     function setDefaultAdapter(IERC20 token, ISablierBobAdapter newAdapter) external;
+
+    /// @notice Sets the native token address. Once set, it cannot be changed.
+    /// @dev For more information, see the documentation for {nativeToken}.
+    ///
+    /// Emits a {SetNativeToken} event.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the comptroller.
+    /// - `newNativeToken` must not be zero address.
+    /// - The native token must not be already set.
+    /// @param newNativeToken The address of the native token.
+    function setNativeToken(address newNativeToken) external;
 
     /// @notice Fetches the latest price from the oracle set for a vault and updates it in the vault storage.
     ///

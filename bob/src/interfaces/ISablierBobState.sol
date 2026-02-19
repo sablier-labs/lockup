@@ -57,6 +57,14 @@ interface ISablierBobState {
     /// @dev Reverts if `vaultId` references a null vault.
     function getUnderlyingToken(uint256 vaultId) external view returns (IERC20 token);
 
+    /// @notice Retrieves the address of the ERC-20 interface of the native token, if it exists.
+    /// @dev The native tokens on some chains have a dual interface as ERC-20. For example, on Polygon the $POL token
+    /// is the native token and has an ERC-20 version at 0x0000000000000000000000000000000000001010. This means
+    /// that `address(this).balance` returns the same value as `balanceOf(address(this))`. To avoid any unintended
+    /// behavior, these tokens cannot be used in Sablier. As an alternative, users can use the Wrapped version of the
+    /// token, i.e. WMATIC, which is a standard ERC-20 token.
+    function nativeToken() external view returns (address);
+
     /// @notice Counter for vault IDs, incremented every time a new vault is created.
     function nextVaultId() external view returns (uint256);
 
