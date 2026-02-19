@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Escrow } from "../types/Escrow.sol";
 
 /// @title Errors
@@ -136,12 +137,12 @@ library Errors {
     /// @notice Thrown when trying to create an order with a zero address for the sell token.
     error SablierEscrow_SellTokenZero();
 
-    /// @notice Thrown when trying to set a trade fee that exceeds the maximum allowed.
-    error SablierEscrow_TradeFeeExceedsMax(uint256 tradeFee, uint256 maxTradeFee);
-
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER ESCROW STATE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to set a trade fee that exceeds the maximum allowed.
+    error SablierEscrowState_NewTradeFeeTooHigh(UD60x18 newTradeFee, UD60x18 maxTradeFee);
 
     /// @notice Thrown when trying to interact with a non-existent order.
     error SablierEscrowState_Null(uint256 orderId);

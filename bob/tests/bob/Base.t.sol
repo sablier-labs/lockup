@@ -18,9 +18,8 @@ import { SablierLidoAdapter } from "src/SablierLidoAdapter.sol";
 import { MockAdapterInvalidInterface } from "./mocks/MockAdapter.sol";
 import { MockCurvePool, MockStETH, MockWETH9, MockWstETH } from "./mocks/MockLido.sol";
 import { Assertions } from "./utils/Assertions.sol";
-import { Defaults } from "./utils/Defaults.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
-import { VaultIds } from "./utils/Types.sol";
+import { Users, VaultIds } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Assertions, Modifiers {
@@ -28,6 +27,7 @@ abstract contract Base_Test is Assertions, Modifiers {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    Users internal users;
     VaultIds internal vaultIds;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -74,11 +74,6 @@ abstract contract Base_Test is Assertions, Modifiers {
             newLabel: "ChainlinkOracleWithRevertingPrice"
         });
 
-        // Deploy the defaults contract.
-        defaults = new Defaults();
-        defaults.setToken(dai);
-        defaults.setOracle(AggregatorV3Interface(address(mockOracle)));
-
         // Deploy the protocol.
         deployProtocol();
 
@@ -94,10 +89,6 @@ abstract contract Base_Test is Assertions, Modifiers {
 
         // Create test users.
         createTestUsers();
-        defaults.setUsers(users);
-
-        // Set the variables in the Modifiers contract.
-        setVariables(defaults, users);
 
         // Set depositor as the default caller for the tests.
         setMsgSender(users.depositor);
@@ -161,7 +152,6 @@ abstract contract Base_Test is Assertions, Modifiers {
         deployCodeTo("MockLido.sol:MockWETH9", wethMainnet);
         weth = MockWETH9(wethMainnet);
         vm.label({ account: wethMainnet, newLabel: "WETH" });
-        defaults.setWeth(IERC20(wethMainnet));
 
         // Deploy stETH mock at mainnet address.
         deployCodeTo("MockLido.sol:MockStETH", stethMainnet);
@@ -195,7 +185,6 @@ abstract contract Base_Test is Assertions, Modifiers {
             initialYieldFee: DEFAULT_YIELD_FEE
         });
         vm.label({ account: address(adapter), newLabel: "SablierLidoAdapter" });
-        defaults.setAdapter(ISablierLidoAdapter(address(adapter)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -275,25 +264,5 @@ abstract contract Base_Test is Assertions, Modifiers {
     function depositIntoVaultFrom(uint256 vaultId, uint128 amount, address user) internal {
         setMsgSender(user);
         bob.enter(vaultId, amount);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                COMMON-REVERT-TESTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Expects a revert for null vault operations.
-    function expectRevert_Null(bytes memory callData) internal {
-        (bool success, bytes memory returnData) = address(bob).call(callData);
-        assertFalse(success, "null call success");
-        // Check that it reverted with the expected error.
-        assertTrue(returnData.length > 0, "null call should revert");
-    }
-
-    /// @dev Expects a revert when caller is not comptroller.
-    function expectRevert_CallerNotComptroller(bytes memory callData) internal {
-        setMsgSender(users.eve);
-        (bool success, bytes memory returnData) = address(bob).call(callData);
-        assertFalse(success, "non-comptroller call success");
-        assertTrue(returnData.length > 0, "non-comptroller call should revert");
     }
 }

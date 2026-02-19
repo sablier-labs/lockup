@@ -4,24 +4,24 @@ pragma solidity >=0.8.22 <0.9.0;
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { Bob } from "src/types/Bob.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract Sync_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NullVault() external {
+    function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_NullVault(abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.nullVault)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.nullVault)), vaultIds.nullVault);
     }
 
-    function test_RevertGiven_VaultAlreadySettled() external givenNotNullVault {
+    function test_RevertGiven_AlreadySettled() external givenNotNull {
         // It should revert.
-        expectRevert_VaultSettled(
-            abi.encodeCall(bob.syncPriceFromOracle, (vaultIds.settledVault)), vaultIds.settledVault
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
+        bob.syncPriceFromOracle(vaultIds.settledVault);
     }
 
-    function test_WhenSyncedPriceBelowTarget() external givenNotNullVault givenVaultNotSettled {
+    function test_WhenSyncedPriceBelowTarget() external givenNotNull givenNotSettled {
         // It should sync without settling.
         uint256 vaultId = vaultIds.defaultVault;
 
@@ -48,7 +48,7 @@ contract Sync_Integration_Concrete_Test is Integration_Test {
         assertEq(bob.statusOf(vaultId), Bob.Status.ACTIVE, "status should be ACTIVE");
     }
 
-    function test_WhenSyncedPriceAtOrAboveTarget() external givenNotNullVault givenVaultNotSettled {
+    function test_WhenSyncedPriceAtOrAboveTarget() external givenNotNull givenNotSettled {
         // It should sync and settle vault.
         uint256 vaultId = vaultIds.defaultVault;
 

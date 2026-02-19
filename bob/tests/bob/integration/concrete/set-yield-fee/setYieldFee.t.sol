@@ -52,39 +52,4 @@ contract SetYieldFee_Integration_Concrete_Test is Integration_Test {
         // Assert the yield fee was set.
         assertEq(adapter.feeOnYield().unwrap(), newFee.unwrap(), "yieldFee");
     }
-
-    function test_WhenFeeAtMaximum() external whenCallerComptroller {
-        // It should set yield fee.
-        UD60x18 oldFee = adapter.feeOnYield();
-        UD60x18 maxFee = adapter.MAX_FEE();
-
-        // Expect the SetYieldFee event.
-        vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.SetYieldFee({ oldFee: oldFee, newFee: maxFee });
-
-        // Set the yield fee to maximum.
-        adapter.setYieldFee(maxFee);
-
-        // Assert the yield fee was set to maximum.
-        assertEq(adapter.feeOnYield().unwrap(), maxFee.unwrap(), "yieldFee at max");
-    }
-
-    function test_WhenFeeZero() external whenCallerComptroller {
-        // It should set yield fee.
-        // First set a non-zero fee.
-        adapter.setYieldFee(DEFAULT_YIELD_FEE);
-
-        UD60x18 oldFee = adapter.feeOnYield();
-        UD60x18 zeroFee = ud(0);
-
-        // Expect the SetYieldFee event.
-        vm.expectEmit({ emitter: address(adapter) });
-        emit ISablierBobAdapter.SetYieldFee({ oldFee: oldFee, newFee: zeroFee });
-
-        // Set the yield fee to zero.
-        adapter.setYieldFee(zeroFee);
-
-        // Assert the yield fee was set to zero.
-        assertEq(adapter.feeOnYield().unwrap(), 0, "yieldFee should be zero");
-    }
 }

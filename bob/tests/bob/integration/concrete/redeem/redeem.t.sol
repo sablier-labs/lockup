@@ -8,31 +8,33 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Integration_Test } from "./../../Integration.t.sol";
 
 contract Redeem_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NullVault() external {
+    function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_NullVault(abi.encodeCall(bob.redeem, (vaultIds.nullVault)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.redeem, (vaultIds.nullVault)), vaultIds.nullVault);
     }
 
-    function test_RevertGiven_VaultNotSettled() external givenNotNullVault {
+    function test_RevertGiven_NotSettled() external givenNotNull {
         // It should revert.
-        expectRevert_VaultNotSettled(abi.encodeCall(bob.redeem, (vaultIds.defaultVault)), vaultIds.defaultVault);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultStillActive.selector, vaultIds.defaultVault));
+        bob.redeem(vaultIds.defaultVault);
     }
 
-    function test_RevertWhen_NoSharesToRedeem() external givenNotNullVault givenVaultSettled {
+    function test_RevertWhen_NoSharesToRedeem() external givenNotNull givenSettled {
         // It should revert.
         // Use the settled vault but with a user who has no shares.
         setMsgSender(users.eve);
-        expectRevert_NoSharesToRedeem(
-            abi.encodeCall(bob.redeem, (vaultIds.settledVault)), vaultIds.settledVault, users.eve
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultIds.settledVault, users.eve)
         );
+        bob.redeem(vaultIds.settledVault);
     }
 
     function test_RevertWhen_FeePaymentInsufficient()
         external
-        givenNotNullVault
-        givenVaultSettled
+        givenNotNull
+        givenSettled
         whenCallerHasShares
-        givenVaultHasNoAdapter
+        givenNoAdapter
     {
         // It should revert.
         // Set a non-zero minimum fee for Bob protocol (1 USD = 1e8 in comptroller's 8-decimal format).
@@ -62,10 +64,10 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
 
     function test_WhenNativeFeeTransferredToComptroller()
         external
-        givenNotNullVault
-        givenVaultSettled
+        givenNotNull
+        givenSettled
         whenCallerHasShares
-        givenVaultHasNoAdapter
+        givenNoAdapter
     {
         // It should transfer the native fee to the comptroller address.
         // Create a fresh vault and deposit.
@@ -86,13 +88,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(comptrollerBalanceAfter - comptrollerBalanceBefore, 1 ether, "fee should be sent to comptroller");
     }
 
-    function test_WhenFeePaymentSufficient()
-        external
-        givenNotNullVault
-        givenVaultSettled
-        whenCallerHasShares
-        givenVaultHasNoAdapter
-    {
+    function test_WhenFeePaymentSufficient() external givenNotNull givenSettled whenCallerHasShares givenNoAdapter {
         // It should redeem with native fee.
         // Create a fresh vault and deposit.
         uint256 vaultId = createDefaultVault();
@@ -141,13 +137,7 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
         assertEq(adminEthAfter - adminEthBefore, minFee, "fee forwarded to admin");
     }
 
-    function test_GivenVaultNotUnstaked()
-        external
-        givenNotNullVault
-        givenVaultSettled
-        whenCallerHasShares
-        givenVaultHasAdapter
-    {
+    function test_GivenNotUnstaked() external givenNotNull givenSettled whenCallerHasShares givenAdapter {
         // It should unstake all and redeem.
         // Create a vault with adapter and deposit.
         uint256 vaultId = createVaultWithAdapter();
@@ -172,11 +162,11 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenNoPositiveYield()
         external
-        givenNotNullVault
-        givenVaultSettled
+        givenNotNull
+        givenSettled
         whenCallerHasShares
-        givenVaultHasAdapter
-        givenVaultAlreadyUnstaked
+        givenAdapter
+        givenAlreadyUnstaked
     {
         // It should redeem without fee.
         // Create a vault with adapter and deposit.
@@ -212,11 +202,11 @@ contract Redeem_Integration_Concrete_Test is Integration_Test {
 
     function test_GivenPositiveYield()
         external
-        givenNotNullVault
-        givenVaultSettled
+        givenNotNull
+        givenSettled
         whenCallerHasShares
-        givenVaultHasAdapter
-        givenVaultAlreadyUnstaked
+        givenAdapter
+        givenAlreadyUnstaked
     {
         // It should redeem with yield fee.
         // Create a vault with adapter and deposit.

@@ -5,39 +5,45 @@ import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/inte
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract CreateVault_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_TokenAddressZero() external {
         // It should revert.
-        expectRevert_TokenAddressZero(
-            abi.encodeCall(
-                bob.createVault, (IERC20(address(0)), AggregatorV3Interface(address(mockOracle)), EXPIRY, TARGET_PRICE)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_TokenAddressZero.selector));
+        bob.createVault({
+            token: IERC20(address(0)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: EXPIRY,
+            targetPrice: TARGET_PRICE
+        });
     }
 
     function test_RevertWhen_ExpiryInPast() external whenTokenAddressNotZero {
         // It should revert.
         uint40 pastExpiry = uint40(block.timestamp - 1);
-        expectRevert_ExpiryInPast(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracle)), pastExpiry, TARGET_PRICE)
-            ),
-            pastExpiry,
-            uint40(block.timestamp)
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_ExpiryInPast.selector, pastExpiry, uint40(block.timestamp))
         );
+        bob.createVault({
+            token: IERC20(address(dai)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: pastExpiry,
+            targetPrice: TARGET_PRICE
+        });
     }
 
     function test_RevertWhen_TargetPriceZero() external whenTokenAddressNotZero whenExpiryInFuture {
         // It should revert.
-        expectRevert_TargetPriceZero(
-            abi.encodeCall(
-                bob.createVault, (IERC20(address(dai)), AggregatorV3Interface(address(mockOracle)), EXPIRY, 0)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_TargetPriceZero.selector));
+        bob.createVault({
+            token: IERC20(address(dai)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: EXPIRY,
+            targetPrice: 0
+        });
     }
 
     function test_RevertWhen_TargetPriceAtOrBelowCurrentPrice()
@@ -48,25 +54,29 @@ contract CreateVault_Integration_Concrete_Test is Integration_Test {
     {
         // Test with target price equal to current price.
         uint128 targetPriceEqualToCurrent = INITIAL_PRICE;
-        expectRevert_TargetPriceTooLow(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracle)), EXPIRY, targetPriceEqualToCurrent)
-            ),
-            targetPriceEqualToCurrent,
-            INITIAL_PRICE
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierBob_TargetPriceTooLow.selector, targetPriceEqualToCurrent, INITIAL_PRICE
+            )
         );
+        bob.createVault({
+            token: IERC20(address(dai)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: EXPIRY,
+            targetPrice: targetPriceEqualToCurrent
+        });
 
         // Test with target price below current price.
         uint128 targetPriceBelowCurrent = INITIAL_PRICE - 1;
-        expectRevert_TargetPriceTooLow(
-            abi.encodeCall(
-                bob.createVault,
-                (IERC20(address(dai)), AggregatorV3Interface(address(mockOracle)), EXPIRY, targetPriceBelowCurrent)
-            ),
-            targetPriceBelowCurrent,
-            INITIAL_PRICE
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_TargetPriceTooLow.selector, targetPriceBelowCurrent, INITIAL_PRICE)
         );
+        bob.createVault({
+            token: IERC20(address(dai)),
+            oracle: AggregatorV3Interface(address(mockOracle)),
+            expiry: EXPIRY,
+            targetPrice: targetPriceBelowCurrent
+        });
     }
 
     function test_GivenNoDefaultAdapterForToken()

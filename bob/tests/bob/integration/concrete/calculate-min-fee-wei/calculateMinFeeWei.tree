@@ -1,0 +1,8 @@
+CalculateMinFeeWei_Integration_Concrete_Test
+├── given null
+│  └── it should revert
+└── given not null
+   ├── given adapter
+   │  └── it should return zero
+   └── given no adapter
+      └── it should return the minimum fee in wei

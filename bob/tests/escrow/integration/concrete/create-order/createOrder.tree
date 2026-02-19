@@ -14,12 +14,17 @@ CreateOrder_Integration_Concrete_Test
             ├── when min buy amount zero
             │  └── it should revert
             └── when min buy amount not zero
-               ├── when expiry time in past
-               │  └── it should revert
-               └── when expiry time valid or zero
-                  ├── given no designated buyer
-                  │  └── it should create the order open to anyone
-                  ├── given designated buyer specified
-                  │  └── it should create the order with buyer restriction
-                  └── given expiry time is zero
-                     └── it should create the order that never expires
+               ├── when expiry time zero
+               │  └── it should create the order with zero expiry
+               └── when expiry time not zero
+                  ├── when expiry time not in future
+                  │  └── it should revert
+                  └── when expiry time in future
+                     ├── when no designated buyer
+                     │  ├── it should perform the ERC-20 transfers
+                     │  ├── it should emit a {CreateOrder} event
+                     │  └── it should bump the next order ID
+                     └── when designated buyer
+                        ├── it should perform the ERC-20 transfers
+                        ├── it should emit a {CreateOrder} event
+                        └── it should bump the next order ID

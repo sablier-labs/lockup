@@ -1,6 +1,6 @@
 {
   "name": "@sablier/bob",
-  "description": "EVM smart contracts of the Sablier Bob price-gated vault protocol",
+  "description": "EVM smart contracts of the Sablier Bob and Sablier Escrow",
   "license": "SEE LICENSE IN LICENSE",
   "version": "1.0.0",
   "author": {

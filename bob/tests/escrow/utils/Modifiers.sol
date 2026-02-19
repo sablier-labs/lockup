@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { Constants } from "./Constants.sol";
-import { Defaults } from "./Defaults.sol";
 import { Users } from "./Types.sol";
 
 abstract contract Modifiers is Constants, EvmUtilsBase {
@@ -12,67 +11,59 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    Defaults internal defaults;
     Users internal users;
 
-    function setVariables(Defaults _defaults, Users memory _users) public {
-        defaults = _defaults;
+    function setVariables(Users memory _users) internal {
         users = _users;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   ORDER EXISTENCE
+                                       GIVEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenNotNullOrder() {
+    modifier givenNotNull() {
         _;
     }
 
-    modifier givenNullOrder() {
+    modifier givenOpen() {
+        _;
+    }
+
+    modifier givenOrderWithDesignatedBuyer() {
+        _;
+    }
+
+    modifier givenOrderWithoutDesignatedBuyer() {
         _;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    ORDER STATUS
+                                        WHEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenOrderCanceled() {
+    modifier whenBuyAmountNotLessThanMinBuyAmount() {
         _;
     }
-
-    modifier givenOrderExpired() {
-        _;
-    }
-
-    modifier givenOrderFilled() {
-        _;
-    }
-
-    modifier givenOrderNotOpen() {
-        _;
-    }
-
-    modifier givenOrderOpen() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   CREATE ORDER
-    //////////////////////////////////////////////////////////////////////////*/
 
     modifier whenBuyTokenNotZero() {
         _;
     }
 
-    modifier whenBuyTokenZero() {
+    modifier whenCallerComptroller() {
+        setMsgSender(address(comptroller));
         _;
     }
 
-    modifier whenExpiryTimeInPast() {
+    modifier whenCallerSeller() {
+        setMsgSender(users.seller);
         _;
     }
 
-    modifier whenExpiryTimeValidOrZero() {
+    modifier whenExpiryTimeInFuture() {
+        _;
+    }
+
+    modifier whenExpiryTimeNotZero() {
         _;
     }
 
@@ -80,15 +71,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenMinBuyAmountZero() {
-        _;
-    }
-
     modifier whenSellAmountNotZero() {
-        _;
-    }
-
-    modifier whenSellAmountZero() {
         _;
     }
 
@@ -96,84 +79,7 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenSellTokenZero() {
-        _;
-    }
-
     modifier whenTokensNotSame() {
-        _;
-    }
-
-    modifier whenTokensSame() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    FILL ORDER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenOrderHasDesignatedBuyer() {
-        _;
-    }
-
-    modifier givenOrderHasNoBuyer() {
-        _;
-    }
-
-    modifier givenTradeFeeNonZero() {
-        _;
-    }
-
-    modifier givenTradeFeeZero() {
-        _;
-    }
-
-    modifier whenBuyAmountInsufficient() {
-        _;
-    }
-
-    modifier whenBuyAmountSufficient() {
-        _;
-    }
-
-    modifier whenCallerDesignatedBuyer() {
-        _;
-    }
-
-    modifier whenCallerNotDesignatedBuyer() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   CANCEL ORDER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenCallerNotSeller() {
-        _;
-    }
-
-    modifier whenCallerSeller() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET TRADE FEE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenCallerComptroller() {
-        setMsgSender(address(comptroller));
-        _;
-    }
-
-    modifier whenCallerNotComptroller() {
-        _;
-    }
-
-    modifier whenFeeExceedsMax() {
-        _;
-    }
-
-    modifier whenFeeWithinLimit() {
         _;
     }
 }

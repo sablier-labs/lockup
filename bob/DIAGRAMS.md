@@ -48,29 +48,29 @@
 │  • Users can exit within grace period (refund)                               │
 │  • Price can be synced from oracle                                           │
 │                                                                              │
-│  Transitions to SETTLED when:                                                │
-│  • Price reaches target (via sync)                                           │
-│  • Expiry time passes                                                        │
+│  Transitions when:                                                           │
+│  • lastSyncedPrice >= targetPrice (after manual sync) → SETTLED              │
+│  • block.timestamp >= expiry → EXPIRED                                       │
 └───────────────────────────────────────────────────────────────────────────---┘
                                      │
            ┌─────────────────────────┴─────────────────────────┐
            │                                                   │
            ▼                                                   ▼
-    ┌──────────────┐                                 ┌──────────────┐
-    │ Price Target │                                 │    Expiry    │
-    │   Reached    │                                 │    Passed    │
-    └──────┬───────┘                                 └──────┬───────┘
-           │                                                │
-           └───────────────────┬────────────────────────────┘
-                               ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                               SETTLED                                        │
-│                                                                              │
-│  • Deposits blocked                                                          │
-│  • Users can redeem shares for tokens                                        │
-│  • For adapter vaults: unstaking converts yield tokens to deposit tokens     │
-│  • Grace period exits still allowed (if within window)                       │
-└──────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────┐                             ┌──────────────────────┐
+│       SETTLED        │                             │       EXPIRED        │
+│                      │                             │                      │
+│ Price target met     │                             │ Expiry time passed   │
+│ (via sync)           │                             │                      │
+│                      │                             │                      │
+│ • Deposits blocked   │                             │ • Deposits blocked   │
+│ • Users can redeem   │                             │ • Users can redeem   │
+│ • Permanent: stays   │                             │ • Grace period exits │
+│   SETTLED even if    │                             │   still allowed (if  │
+│   live price drops   │                             │   within window)     │
+│ • Grace period exits │                             └──────────────────────┘
+│   still allowed (if  │
+│   within window)     │
+└──────────────────────┘
 ```
 
 ## User Flows
@@ -112,12 +112,14 @@
          │            │                │                      ▼         │
          │            │  Burns shares, │              ┌──────────────┐  │
          │            │  returns       │              │   Adapter    │  │
-         │            │  tokens        │◄─────────────│              │  │
-         │            │                │  unstakes    │ Unstakes     │  │
-         │            │  NO FEE        │  user's      │ user portion │  │
-         │            └────────────────┘  portion     └──────────────┘  │
+         │            │  tokens        │              │              │  │
+         │            │                │              │ Unstakes     │  │
+         │            │  NO FEE        │              │ user portion,│  │
+         │            └────────────────┘              │ sends direct │  │
+         │                                            │ to user      │  │
+         │                                            └──────────────┘  │
          │                                                              │
-         ├─────────── REDEEM (after settlement) ────────────────────────┤
+         ├─────────── REDEEM (after settlement or expiry) ──────────────┤
          │                                                              │
          │            ┌────────────────┐                                │
          │            │  SablierBob    │                                │
@@ -249,12 +251,12 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
          │                              │                              │
          │                              │                              │
     sell tokens                    buy tokens                    trade fees
-    (escrowed)                    (from buyer)                   (to admin)
+    (escrowed)                    (from buyer)               (to comptroller)
          │                              │                              │
          ▼                              ▼                              ▼
 ┌─────────────────┐          ┌─────────────────┐          ┌─────────────────┐
 │ Seller's ERC20  │          │ Buyer's ERC20   │          │ Comptroller     │
-│                 │          │                 │          │ Admin           │
+│                 │          │                 │          │ (contract)      │
 │ Held in escrow  │          │ Transferred to  │          │                 │
 │ until order     │          │ seller when     │          │ Receives trade  │
 │ completion      │          │ order filled    │          │ fees (max 2%)   │
@@ -279,7 +281,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
 │  • Waiting for buyer to fill                                                 │
 │  • Seller can cancel at any time                                             │
 │  • Open order: anyone can fill                                               │
-│  • Private order: only designated buyer can fill                           │
+│  • Private order: only designated buyer can fill                             │
 │                                                                              │
 │  Transitions when:                                                           │
 │  • Buyer fills → FILLED                                                      │
@@ -332,7 +334,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
          │            │  • buyToken    │                                       │
          │            │  • minBuyAmt   │                                       │
          │            │  • buyer (opt) │                                       │
-         │            │  • expiry      │                                       │
+         │            │  • expiryTime  │                                       │
          │            └────────────────┘                                       │
          │                                                                     │
          ├─────────── CANCEL ORDER ────────────────────────────────────────────┤
@@ -366,9 +368,9 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
                       │                │                                       │
                       │  Executes:     │                                       │
                       │  ┌───────────────────────────────────────────┐         │
-                      │  │ sell tokens ──► buyer (minus fee)        │         │
-                      │  │ buy tokens  ──► seller (minus fee)       │         │
-                      │  │ trade fees  ──► comptroller admin        │         │
+                      │  │ sell tokens ──► buyer (minus fee)         │         │
+                      │  │ buy tokens  ──► seller (minus fee)        │         │
+                      │  │ trade fees  ──► comptroller (contract)    │         │
                       │  └───────────────────────────────────────────┘         │
                       │                │                                       │
                       │  Order status  │                                       │
@@ -421,16 +423,16 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
     │                                                                         │
     │    Applied when order is filled (atomic swap)                           │
     │                                                                         │
-    │    • Maximum: 2% (0.02e18 in UD60x18)                                    │
+    │    • Maximum: 2% (0.02e18 in UD60x18)                                   │
     │    • Set by comptroller admin via setTradeFee()                         │
     │    • Applied to both sell and buy amounts                               │
-    │    • Fees sent to comptroller admin                                     │
+    │    • Fees sent to comptroller (contract)                                │
     │                                                                         │
     │    Example (1% fee, 100 TOKEN_A for 200 TOKEN_B):                       │
     │    ┌───────────────────────────────────────────────────────────────┐    │
     │    │ Seller receives: 200 - 2 = 198 TOKEN_B                        │    │
     │    │ Buyer receives:  100 - 1 = 99 TOKEN_A                         │    │
-    │    │ Admin receives:  1 TOKEN_A + 2 TOKEN_B (fees)                 │    │
+    │    │ Comptroller receives: 1 TOKEN_A + 2 TOKEN_B (fees)            │    │
     │    └───────────────────────────────────────────────────────────────┘    │
     │                                                                         │
     └─────────────────────────────────────────────────────────────────────────┘
@@ -461,7 +463,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
     │      buyToken: WETH,                                                    │
     │      minBuyAmount: 0.5e18,    // 0.5 ETH minimum                        │
     │      buyer: address(0),       // open order                             │
-    │      expiry: block.timestamp + 1 days                                   │
+    │      expiryTime: block.timestamp + 1 days                               │
     │  )                                                                      │
     │                                                                         │
     │  → 1000 USDC transferred from Alice to Escrow                           │
@@ -478,7 +480,7 @@ High-level architectural overview of the SablierEscrow OTC token swap protocol.
     │  Assuming 1% trade fee:                                                 │
     │  → Alice receives: 0.6 ETH - 0.006 ETH = 0.594 ETH                      │
     │  → Bob receives: 1000 USDC - 10 USDC = 990 USDC                         │
-    │  → Admin receives: 0.006 ETH + 10 USDC                                  │
+    │  → Comptroller receives: 0.006 ETH + 10 USDC                            │
     │  → Order #1 status → FILLED                                             │
     └─────────────────────────────────────────────────────────────────────────┘
 ```

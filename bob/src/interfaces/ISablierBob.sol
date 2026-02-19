@@ -78,6 +78,16 @@ interface ISablierBob is IBatch, IComptrollerable, ISablierBobState {
     );
 
     /*//////////////////////////////////////////////////////////////////////////
+                          USER-FACING READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Calculates the minimum fee in wei required to redeem from the given vault ID. Returns 0 for vaults with
+    /// an adapter, since the fee is taken from yield generated.
+    /// @dev Reverts if `vaultId` references a null vault.
+    /// @param vaultId The vault ID for the query.
+    function calculateMinFeeWei(uint256 vaultId) external view returns (uint256 minFeeWei);
+
+    /*//////////////////////////////////////////////////////////////////////////
                         USER-FACING STATE-CHANGING FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

@@ -4,36 +4,31 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract Enter_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NullVault() external {
+    function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_NullVault(abi.encodeCall(bob.enter, (vaultIds.nullVault, DEPOSIT_AMOUNT)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.enter, (vaultIds.nullVault, DEPOSIT_AMOUNT)), vaultIds.nullVault);
     }
 
-    function test_RevertGiven_VaultSettled() external givenNotNullVault {
+    function test_RevertGiven_Settled() external givenNotNull {
         // It should revert.
-        expectRevert_VaultSettled(
-            abi.encodeCall(bob.enter, (vaultIds.settledVault, DEPOSIT_AMOUNT)), vaultIds.settledVault
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultIds.settledVault));
+        bob.enter(vaultIds.settledVault, DEPOSIT_AMOUNT);
+    }
+
+    function test_RevertWhen_AmountZero() external givenNotNull givenNotSettled {
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_DepositAmountZero.selector, vaultIds.defaultVault, users.depositor)
         );
+        bob.enter(vaultIds.defaultVault, 0);
     }
 
-    function test_RevertWhen_AmountZero() external givenNotNullVault givenVaultNotSettled {
-        // It should revert.
-        expectRevert_DepositAmountZero(
-            abi.encodeCall(bob.enter, (vaultIds.defaultVault, 0)), vaultIds.defaultVault, users.depositor
-        );
-    }
-
-    function test_GivenFirstDeposit()
-        external
-        givenNotNullVault
-        givenVaultNotSettled
-        whenAmountNotZero
-        givenVaultHasNoAdapter
-    {
+    function test_GivenFirstDeposit() external givenNotNull givenNotSettled whenAmountNotZero givenNoAdapter {
         // It should enter and set deposited at.
         uint256 vaultId = vaultIds.defaultVault;
         uint128 amount = DEPOSIT_AMOUNT;
@@ -63,13 +58,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(depositedAt, uint40(block.timestamp), "depositedAt should be set on first deposit");
     }
 
-    function test_GivenSubsequentDeposit()
-        external
-        givenNotNullVault
-        givenVaultNotSettled
-        whenAmountNotZero
-        givenVaultHasNoAdapter
-    {
+    function test_GivenSubsequentDeposit() external givenNotNull givenNotSettled whenAmountNotZero givenNoAdapter {
         // It should enter without updating deposited at.
         uint256 vaultId = vaultIds.defaultVault;
         uint128 firstAmount = DEPOSIT_AMOUNT;
@@ -94,7 +83,7 @@ contract Enter_Integration_Concrete_Test is Integration_Test {
         assertEq(depositedAt, firstDepositedAt, "depositedAt should NOT change on subsequent deposit");
     }
 
-    function test_GivenVaultHasAdapter() external givenNotNullVault givenVaultNotSettled whenAmountNotZero {
+    function test_GivenAdapter() external givenNotNull givenNotSettled whenAmountNotZero {
         // It should enter via adapter.
         uint256 vaultId = vaultIds.adapterVault;
         uint128 amount = WETH_DEPOSIT_AMOUNT;

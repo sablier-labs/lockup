@@ -1,53 +1,39 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { Errors } from "src/libraries/Errors.sol";
 import { SablierEscrow } from "src/SablierEscrow.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract Constructor_Integration_Concrete_Test is Integration_Test {
-    function test_WhenDeployed() external {
-        // Deploy a new instance with custom parameters.
-        UD60x18 customTradeFee = UD60x18.wrap(0.005e18); // 0.5%
-        SablierEscrow newEscrow = new SablierEscrow(address(comptroller), customTradeFee);
+    function test_RevertWhen_InitialTradeFeeTooHigh() external {
+        UD60x18 initialTradeFee = MAX_TRADE_FEE.add(ud(1));
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierEscrowState_NewTradeFeeTooHigh.selector, initialTradeFee, MAX_TRADE_FEE
+            )
+        );
+        new SablierEscrow(address(comptroller), initialTradeFee);
+    }
+
+    function test_Constructor() external {
+        SablierEscrow newEscrow = new SablierEscrow(address(comptroller), DEFAULT_TRADE_FEE);
 
         // It should set the comptroller.
         assertEq(address(newEscrow.comptroller()), address(comptroller), "comptroller");
 
         // It should set the initial trade fee.
-        assertEq(newEscrow.tradeFee().unwrap(), customTradeFee.unwrap(), "tradeFee");
+        assertEq(newEscrow.tradeFee(), DEFAULT_TRADE_FEE, "tradeFee");
 
         // It should set the next order ID to 1.
         assertEq(newEscrow.nextOrderId(), 1, "nextOrderId");
-    }
 
-    function test_WhenDeployedWithZeroTradeFee() external {
-        // Deploy with zero trade fee.
-        SablierEscrow newEscrow = new SablierEscrow(address(comptroller), ZERO_TRADE_FEE);
-
-        // It should set the comptroller.
-        assertEq(address(newEscrow.comptroller()), address(comptroller), "comptroller");
-
-        // It should set the trade fee to zero.
-        assertEq(newEscrow.tradeFee().unwrap(), 0, "tradeFee should be zero");
-
-        // It should set the next order ID to 1.
-        assertEq(newEscrow.nextOrderId(), 1, "nextOrderId");
-    }
-
-    function test_WhenDeployedWithMaxTradeFee() external {
-        // Deploy with max trade fee.
-        SablierEscrow newEscrow = new SablierEscrow(address(comptroller), MAX_TRADE_FEE);
-
-        // It should set the comptroller.
-        assertEq(address(newEscrow.comptroller()), address(comptroller), "comptroller");
-
-        // It should set the trade fee to max.
-        assertEq(newEscrow.tradeFee().unwrap(), MAX_TRADE_FEE.unwrap(), "tradeFee should be max");
-
-        // It should set the next order ID to 1.
-        assertEq(newEscrow.nextOrderId(), 1, "nextOrderId");
+        // It should set the maximum trade fee.
+        assertEq(newEscrow.MAX_TRADE_FEE(), MAX_TRADE_FEE, "MAX_TRADE_FEE");
     }
 }

@@ -235,9 +235,7 @@ contract SablierEscrow is
     /// @inheritdoc ISablierEscrow
     function setTradeFee(UD60x18 newTradeFee) external override onlyComptroller {
         // Check: the new trade fee does not exceed the maximum trade fee.
-        if (newTradeFee.gt(MAX_TRADE_FEE)) {
-            revert Errors.SablierEscrow_TradeFeeExceedsMax(newTradeFee.unwrap(), MAX_TRADE_FEE.unwrap());
-        }
+        _notTooHigh(newTradeFee);
 
         // Cache the current trade fee for the event.
         UD60x18 previousTradeFee = tradeFee;

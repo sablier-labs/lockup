@@ -4,17 +4,18 @@ pragma solidity >=0.8.22 <0.9.0;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NullVault() external {
+    function test_RevertGiven_Null() external {
         // It should revert.
-        expectRevert_NullVault(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)), vaultIds.nullVault);
+        expectRevert_Null(abi.encodeCall(bob.exitWithinGracePeriod, (vaultIds.nullVault)), vaultIds.nullVault);
     }
 
-    function test_RevertGiven_VaultSettled() external givenNotNullVault {
-        // It should revert when trying to exit a settled vault.
+    function test_RevertGiven_Settled() external givenNotNull {
+        // It should revert.
         // Create a vault and deposit.
         uint256 vaultId = createDefaultVault();
         uint128 amount = DEPOSIT_AMOUNT;
@@ -30,11 +31,12 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         assertTrue(block.timestamp < gracePeriodEnd, "should still be in grace period");
 
         // Attempt to exit should revert because vault is settled.
-        expectRevert_VaultSettled(abi.encodeCall(bob.exitWithinGracePeriod, (vaultId)), vaultId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultId));
+        bob.exitWithinGracePeriod(vaultId);
     }
 
-    function test_RevertGiven_VaultExpired() external givenNotNullVault {
-        // It should revert when trying to exit an expired vault.
+    function test_RevertGiven_Expired() external givenNotNull {
+        // It should revert.
         // Create a vault and deposit.
         uint256 vaultId = createDefaultVault();
         uint128 amount = DEPOSIT_AMOUNT;
@@ -44,21 +46,19 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         vm.warp(EXPIRY + 1);
 
         // Attempt to exit should revert because vault is expired.
-        expectRevert_VaultSettled(abi.encodeCall(bob.exitWithinGracePeriod, (vaultId)), vaultId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_VaultNotActive.selector, vaultId));
+        bob.exitWithinGracePeriod(vaultId);
     }
 
-    function test_RevertWhen_NoSharesToRedeem() external givenNotNullVault givenVaultActive {
+    function test_RevertWhen_NoSharesToRedeem() external givenNotNull givenActive {
         // It should revert.
         uint256 vaultId = vaultIds.defaultVault;
-        expectRevert_NoSharesToRedeem(abi.encodeCall(bob.exitWithinGracePeriod, (vaultId)), vaultId, users.depositor);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierBob_NoSharesToRedeem.selector, vaultId, users.depositor));
+        bob.exitWithinGracePeriod(vaultId);
     }
 
-    function test_RevertWhen_CallerNotOriginalDepositor()
-        external
-        givenNotNullVault
-        givenVaultActive
-        whenCallerHasShares
-    {
+    function test_RevertWhen_CallerNotOriginalDepositor() external givenNotNull givenActive whenCallerHasShares {
+        // It should revert.
         // User A deposits and transfers shares to User B.
         uint256 vaultId = vaultIds.defaultVault;
         uint128 amount = DEPOSIT_AMOUNT;
@@ -73,14 +73,16 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         vm.stopPrank();
         vm.startPrank(users.depositor2);
 
-        // It should revert.
-        expectRevert_CallerNotDepositor(abi.encodeCall(bob.exitWithinGracePeriod, (vaultId)), vaultId, users.depositor2);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_CallerNotDepositor.selector, vaultId, users.depositor2)
+        );
+        bob.exitWithinGracePeriod(vaultId);
     }
 
     function test_RevertWhen_GracePeriodExpired()
         external
-        givenNotNullVault
-        givenVaultActive
+        givenNotNull
+        givenActive
         whenCallerHasShares
         whenCallerIsOriginalDepositor
     {
@@ -96,15 +98,18 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         vm.warp(gracePeriodEnd + 1);
 
         // It should revert.
-        expectRevert_GracePeriodExpired(
-            abi.encodeCall(bob.exitWithinGracePeriod, (vaultId)), vaultId, users.depositor, depositedAt, gracePeriodEnd
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierBob_GracePeriodExpired.selector, vaultId, users.depositor, depositedAt, gracePeriodEnd
+            )
         );
+        bob.exitWithinGracePeriod(vaultId);
     }
 
-    function test_GivenVaultHasNoAdapter()
+    function test_GivenNoAdapter()
         external
-        givenNotNullVault
-        givenVaultActive
+        givenNotNull
+        givenActive
         whenCallerHasShares
         whenCallerIsOriginalDepositor
         whenWithinGracePeriod
@@ -148,10 +153,10 @@ contract ExitWithinGracePeriod_Integration_Concrete_Test is Integration_Test {
         assertEq(daiBalanceAfter - daiBalanceBefore, amount, "tokens returned");
     }
 
-    function test_GivenVaultHasAdapter()
+    function test_GivenAdapter()
         external
-        givenNotNullVault
-        givenVaultActive
+        givenNotNull
+        givenActive
         whenCallerHasShares
         whenCallerIsOriginalDepositor
         whenWithinGracePeriod

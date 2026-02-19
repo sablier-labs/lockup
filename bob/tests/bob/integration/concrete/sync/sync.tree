@@ -1,10 +1,10 @@
 Sync_Integration_Concrete_Test
-├── given null vault
+├── given null
 │  └── it should revert
-└── given not null vault
-   ├── given vault already settled
+└── given not null
+   ├── given already settled
    │  └── it should revert
-   └── given vault not settled
+   └── given not settled
       ├── when synced price below target
       │  └── it should sync without settling
       └── when synced price at or above target

@@ -55,7 +55,7 @@ contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenToleranceAtMaximum() external whenCallerComptroller {
-        // It should set the slippage tolerance to max.
+        // It should set to max.
         UD60x18 oldTolerance = adapter.slippageTolerance();
         UD60x18 maxTolerance = adapter.MAX_SLIPPAGE_TOLERANCE();
 
@@ -74,7 +74,7 @@ contract SetSlippageTolerance_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_WhenToleranceZero() external whenCallerComptroller {
-        // It should set the slippage tolerance to zero.
+        // It should set to zero.
         UD60x18 oldTolerance = adapter.slippageTolerance();
         UD60x18 zeroTolerance = ud(0);
 

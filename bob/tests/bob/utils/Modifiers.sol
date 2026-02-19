@@ -4,31 +4,13 @@ pragma solidity >=0.8.22;
 import { BaseTest as EvmUtilsBase } from "@sablier/evm-utils/src/tests/BaseTest.sol";
 
 import { Constants } from "./Constants.sol";
-import { Defaults } from "./Defaults.sol";
-import { Users } from "./Types.sol";
 
 abstract contract Modifiers is Constants, EvmUtilsBase {
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Defaults internal defaults;
-    Users internal users;
-
-    function setVariables(Defaults _defaults, Users memory _users) public {
-        defaults = _defaults;
-        users = _users;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                    VAULT EXISTENCE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenNotNullVault() {
-        _;
-    }
-
-    modifier givenNullVault() {
+    modifier givenNotNull() {
         _;
     }
 
@@ -36,23 +18,15 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                    VAULT STATUS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenVaultActive() {
+    modifier givenActive() {
         _;
     }
 
-    modifier givenVaultAlreadySettled() {
+    modifier givenNotSettled() {
         _;
     }
 
-    modifier givenVaultExpired() {
-        _;
-    }
-
-    modifier givenVaultNotSettled() {
-        _;
-    }
-
-    modifier givenVaultSettled() {
+    modifier givenSettled() {
         _;
     }
 
@@ -60,27 +34,27 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
                                    VAULT ADAPTER
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier givenAdapter() {
+        _;
+    }
+
+    modifier givenAlreadyUnstaked() {
+        _;
+    }
+
+    modifier givenNoAdapter() {
+        _;
+    }
+
     modifier givenNothingToUnstake() {
         _;
     }
 
+    modifier givenNotUnstaked() {
+        _;
+    }
+
     modifier givenSomethingToUnstake() {
-        _;
-    }
-
-    modifier givenVaultAlreadyUnstaked() {
-        _;
-    }
-
-    modifier givenVaultHasAdapter() {
-        _;
-    }
-
-    modifier givenVaultHasNoAdapter() {
-        _;
-    }
-
-    modifier givenVaultNotUnstaked() {
         _;
     }
 
@@ -196,10 +170,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
         _;
     }
 
-    modifier whenCallerNotOriginalDepositor() {
-        _;
-    }
-
     modifier whenGracePeriodExpired() {
         _;
     }
@@ -266,10 +236,6 @@ abstract contract Modifiers is Constants, EvmUtilsBase {
 
     modifier whenCallerComptroller() {
         setMsgSender(address(comptroller));
-        _;
-    }
-
-    modifier whenCallerNotComptroller() {
         _;
     }
 

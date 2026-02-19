@@ -2,28 +2,32 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Errors as EvmUtilsErrors } from "@sablier/evm-utils/src/libraries/Errors.sol";
 
 import { ISablierBob } from "src/interfaces/ISablierBob.sol";
 import { ISablierLidoAdapter } from "src/interfaces/ISablierLidoAdapter.sol";
+import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract SetDefaultAdapter_Integration_Concrete_Test is Integration_Test {
     function test_RevertWhen_CallerNotComptroller() external {
         // It should revert.
-        expectRevert_NotComptroller(
-            abi.encodeCall(bob.setDefaultAdapter, (IERC20(address(weth)), ISablierLidoAdapter(address(adapter))))
+        setMsgSender(users.eve);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                EvmUtilsErrors.Comptrollerable_CallerNotComptroller.selector, address(comptroller), users.eve
+            )
         );
+        bob.setDefaultAdapter(IERC20(address(weth)), ISablierLidoAdapter(address(adapter)));
     }
 
     function test_RevertWhen_AdapterDoesNotSupportInterface() external whenCallerComptroller whenAdapterNotZeroAddress {
         // It should revert.
-        expectRevert_NewAdapterMissesInterface(
-            abi.encodeCall(
-                bob.setDefaultAdapter, (IERC20(address(weth)), ISablierLidoAdapter(address(mockAdapterInvalid)))
-            ),
-            address(mockAdapterInvalid)
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierBob_NewAdapterMissesInterface.selector, address(mockAdapterInvalid))
         );
+        bob.setDefaultAdapter(IERC20(address(weth)), ISablierLidoAdapter(address(mockAdapterInvalid)));
     }
 
     function test_WhenAdapterSupportsInterface() external whenCallerComptroller whenAdapterNotZeroAddress {

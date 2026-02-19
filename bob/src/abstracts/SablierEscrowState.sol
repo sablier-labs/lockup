@@ -38,6 +38,9 @@ abstract contract SablierEscrowState is ISablierEscrowState {
     /// @notice Initializes the state variables.
     /// @param initialTradeFee The initial trade fee percentage.
     constructor(UD60x18 initialTradeFee) {
+        // Check: the trade fee is not greater than the maximum trade fee.
+        _notTooHigh(initialTradeFee);
+
         // Set the next order ID to 1.
         nextOrderId = 1;
 
@@ -133,12 +136,21 @@ abstract contract SablierEscrowState is ISablierEscrowState {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                            INTERNAL READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Reverts if `newTradeFee` is greater than the maximum trade fee.
+    function _notTooHigh(UD60x18 newTradeFee) internal pure {
+        if (newTradeFee.gt(MAX_TRADE_FEE)) {
+            revert Errors.SablierEscrowState_NewTradeFeeTooHigh(newTradeFee, MAX_TRADE_FEE);
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                             PRIVATE READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Reverts if `orderId` references a null order.
-    /// @dev A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers
-    /// into every function that uses them.
     function _notNull(uint256 orderId) private view {
         // An order is considered null if its seller address is zero.
         if (_orders[orderId].seller == address(0)) {

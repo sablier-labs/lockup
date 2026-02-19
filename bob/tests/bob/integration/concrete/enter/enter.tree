@@ -1,17 +1,17 @@
 Enter_Integration_Concrete_Test
-├── given null vault
+├── given null
 │  └── it should revert
-└── given not null vault
-   ├── given vault settled
+└── given not null
+   ├── given settled
    │  └── it should revert
-   └── given vault not settled
+   └── given not settled
       ├── when amount zero
       │  └── it should revert
       └── when amount not zero
-         ├── given vault has no adapter
+         ├── given no adapter
          │  ├── given first deposit
          │  │  └── it should enter and set deposited at
          │  └── given subsequent deposit
          │     └── it should enter without updating deposited at
-         └── given vault has adapter
+         └── given adapter
             └── it should enter via adapter

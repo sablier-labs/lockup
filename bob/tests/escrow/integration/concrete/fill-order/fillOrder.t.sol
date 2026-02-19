@@ -1,258 +1,150 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ud, UD60x18 } from "@prb/math/src/UD60x18.sol";
+import { ud, UD60x18, ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierEscrow } from "src/interfaces/ISablierEscrow.sol";
-import { SablierEscrow } from "src/SablierEscrow.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { Escrow } from "src/types/Escrow.sol";
 
 import { Integration_Test } from "../../Integration.t.sol";
 
 contract FillOrder_Integration_Concrete_Test is Integration_Test {
-    function test_RevertGiven_NullOrder() external {
-        // It should revert.
+    /// @dev Variable to store the order ID of an order without any buyer.
+    uint256 internal orderWithoutAnyBuyer;
+
+    function setUp() public override {
+        Integration_Test.setUp();
+
+        // Create an order without any buyer.
+        orderWithoutAnyBuyer = createDefaultOrder({ buyer: address(0) });
+
+        // Set the buyer as the default caller for the tests.
         setMsgSender(users.buyer);
-        expectRevert_NullOrder(abi.encodeCall(escrow.fillOrder, (orderIds.nullOrder, BUY_AMOUNT)), orderIds.nullOrder);
     }
 
-    function test_RevertGiven_OrderCanceled() external givenNotNullOrder {
+    function test_RevertGiven_Null() external {
         // It should revert.
-        setMsgSender(users.buyer);
-        expectRevert_OrderNotOpen(
-            abi.encodeCall(escrow.fillOrder, (orderIds.canceledOrder, BUY_AMOUNT)),
-            orderIds.canceledOrder,
-            Escrow.Status.CANCELLED
-        );
+        expectRevert_Null(abi.encodeCall(escrow.fillOrder, (nullOrderId, MIN_BUY_AMOUNT)), nullOrderId);
     }
 
-    function test_RevertGiven_OrderFilled() external givenNotNullOrder {
-        // It should revert.
-        setMsgSender(users.buyer);
-        expectRevert_OrderNotOpen(
-            abi.encodeCall(escrow.fillOrder, (orderIds.filledOrder, BUY_AMOUNT)),
-            orderIds.filledOrder,
-            Escrow.Status.FILLED
-        );
-    }
-
-    function test_RevertGiven_OrderExpired() external givenNotNullOrder {
-        // It should revert.
-        // Create an order and let it expire.
+    function test_RevertGiven_Canceled() external givenNotNull {
+        // Cancel the order.
         setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: address(0),
-            expiryTime: EXPIRY
-        });
+        escrow.cancelOrder(defaultOrderId);
 
+        // It should revert.
+        setMsgSender(users.buyer);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierEscrow_OrderNotOpen.selector, defaultOrderId, Escrow.Status.CANCELLED)
+        );
+        escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
+    }
+
+    function test_RevertGiven_Filled() external givenNotNull {
+        // Fill the order.
+        escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierEscrow_OrderNotOpen.selector, defaultOrderId, Escrow.Status.FILLED)
+        );
+        escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
+    }
+
+    function test_RevertGiven_Expired() external givenNotNull {
         // Warp past expiry.
-        vm.warp(EXPIRY + 1);
+        vm.warp(ORDER_EXPIRY_TIME + 1);
 
-        setMsgSender(users.buyer);
-        expectRevert_OrderNotOpen(
-            abi.encodeCall(escrow.fillOrder, (orderId, BUY_AMOUNT)), orderId, Escrow.Status.EXPIRED
-        );
-    }
-
-    function test_RevertWhen_CallerNotDesignatedBuyer()
-        external
-        givenNotNullOrder
-        givenOrderOpen
-        givenOrderHasDesignatedBuyer
-    {
         // It should revert.
-        // Create an order with designated buyer.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: users.buyer, // Designated buyer
-            expiryTime: EXPIRY
-        });
-
-        // Try to fill with a different buyer.
-        setMsgSender(users.buyer2);
-        expectRevert_CallerNotAuthorized(
-            abi.encodeCall(escrow.fillOrder, (orderId, BUY_AMOUNT)), orderId, users.buyer2, users.buyer
+        setMsgSender(users.buyer);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierEscrow_OrderNotOpen.selector, defaultOrderId, Escrow.Status.EXPIRED)
         );
+        escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
     }
 
-    function test_WhenCallerDesignatedBuyer()
-        external
-        givenNotNullOrder
-        givenOrderOpen
-        givenOrderHasDesignatedBuyer
-        whenCallerDesignatedBuyer
-    {
+    function test_RevertWhen_CallerNotDesignatedBuyer() external givenNotNull givenOpen givenOrderWithDesignatedBuyer {
+        setMsgSender(users.alice);
+
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierEscrow_CallerNotAuthorized.selector, defaultOrderId, users.alice, users.buyer
+            )
+        );
+        escrow.fillOrder(defaultOrderId, MIN_BUY_AMOUNT);
+    }
+
+    function test_WhenCallerDesignatedBuyer() external givenNotNull givenOpen givenOrderWithDesignatedBuyer {
         // It should fill the order.
-        // Create an order with designated buyer.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: users.buyer,
-            expiryTime: EXPIRY
-        });
-
-        // Fill with designated buyer.
-        setMsgSender(users.buyer);
-
-        // Get the current trade fee.
-        UD60x18 currentTradeFee = escrow.tradeFee();
-        uint128 feeFromSellAmount = ud(SELL_AMOUNT).mul(currentTradeFee).intoUint128();
-        uint128 feeFromBuyAmount = ud(BUY_AMOUNT).mul(currentTradeFee).intoUint128();
-        uint128 sellAmountAfterFee = SELL_AMOUNT - feeFromSellAmount;
-        uint128 buyAmountAfterFee = BUY_AMOUNT - feeFromBuyAmount;
-
-        // Expect the FillOrder event.
-        vm.expectEmit({ emitter: address(escrow) });
-        emit ISablierEscrow.FillOrder({
-            orderId: orderId,
-            buyer: users.buyer,
-            seller: users.seller,
-            sellAmount: sellAmountAfterFee,
-            buyAmount: buyAmountAfterFee,
-            feeDeductedFromBuyerAmount: feeFromSellAmount,
-            feeDeductedFromSellerAmount: feeFromBuyAmount
-        });
-
-        escrow.fillOrder(orderId, BUY_AMOUNT);
-
-        // Assert the order is now filled.
-        assertEq(escrow.statusOf(orderId), Escrow.Status.FILLED, "order.status");
-        assertTrue(escrow.wasFilled(orderId), "order.wasFilled");
+        _testFillOrder({ orderId: defaultOrderId, tradeFee: DEFAULT_TRADE_FEE });
     }
 
-    function test_RevertWhen_BuyAmountInsufficient() external givenNotNullOrder givenOrderOpen givenOrderHasNoBuyer {
-        // It should revert.
-        // Create an order.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: address(0),
-            expiryTime: EXPIRY
-        });
+    function test_RevertWhen_BuyAmountLessThanMinBuyAmount()
+        external
+        givenNotNull
+        givenOpen
+        givenOrderWithoutDesignatedBuyer
+    {
+        uint128 buyAmount = MIN_BUY_AMOUNT - 1;
 
-        // Try to fill with insufficient buy amount.
-        setMsgSender(users.buyer);
-        uint128 insufficientAmount = MIN_BUY_AMOUNT - 1;
-        expectRevert_InsufficientBuyAmount(
-            abi.encodeCall(escrow.fillOrder, (orderId, insufficientAmount)), insufficientAmount, MIN_BUY_AMOUNT
+        // It should revert.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierEscrow_InsufficientBuyAmount.selector, buyAmount, MIN_BUY_AMOUNT)
         );
+        escrow.fillOrder(orderWithoutAnyBuyer, buyAmount);
     }
 
     function test_GivenTradeFeeZero()
         external
-        givenNotNullOrder
-        givenOrderOpen
-        givenOrderHasNoBuyer
-        whenBuyAmountSufficient
+        givenNotNull
+        givenOpen
+        givenOrderWithoutDesignatedBuyer
+        whenBuyAmountNotLessThanMinBuyAmount
     {
-        // It should fill the order without fees.
-        // Deploy a new escrow with zero fee.
-        SablierEscrow zeroFeeEscrow = new SablierEscrow(address(comptroller), ZERO_TRADE_FEE);
+        // Set the trade fee to zero.
+        setMsgSender(address(comptroller));
+        escrow.setTradeFee(ZERO);
 
-        // Approve the new escrow.
-        setMsgSender(users.seller);
-        sellToken.approve(address(zeroFeeEscrow), type(uint256).max);
-
+        // It should fill the order.
         setMsgSender(users.buyer);
-        buyToken.approve(address(zeroFeeEscrow), type(uint256).max);
-
-        // Create an order.
-        setMsgSender(users.seller);
-        uint256 orderId = zeroFeeEscrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: address(0),
-            expiryTime: EXPIRY
-        });
-
-        // Record balances before fill.
-        uint256 sellerSellTokenBefore = sellToken.balanceOf(users.seller);
-        uint256 sellerBuyTokenBefore = buyToken.balanceOf(users.seller);
-        uint256 buyerSellTokenBefore = sellToken.balanceOf(users.buyer);
-        uint256 buyerBuyTokenBefore = buyToken.balanceOf(users.buyer);
-        uint256 comptrollerSellTokenBefore = sellToken.balanceOf(address(comptroller));
-        uint256 comptrollerBuyTokenBefore = buyToken.balanceOf(address(comptroller));
-
-        // Expect the FillOrder event with zero fees.
-        vm.expectEmit({ emitter: address(zeroFeeEscrow) });
-        emit ISablierEscrow.FillOrder({
-            orderId: orderId,
-            buyer: users.buyer,
-            seller: users.seller,
-            sellAmount: SELL_AMOUNT, // Full amount, no fee
-            buyAmount: BUY_AMOUNT, // Full amount, no fee
-            feeDeductedFromBuyerAmount: 0,
-            feeDeductedFromSellerAmount: 0
-        });
-
-        // Fill the order.
-        setMsgSender(users.buyer);
-        zeroFeeEscrow.fillOrder(orderId, BUY_AMOUNT);
-
-        // Assert the order is now filled.
-        assertEq(zeroFeeEscrow.statusOf(orderId), Escrow.Status.FILLED, "order.status");
-        assertTrue(zeroFeeEscrow.wasFilled(orderId), "order.wasFilled");
-
-        // Assert balances - full amounts transferred with no fees.
-        assertEq(sellToken.balanceOf(users.seller), sellerSellTokenBefore, "seller sell token unchanged");
-        assertEq(buyToken.balanceOf(users.seller), sellerBuyTokenBefore + BUY_AMOUNT, "seller received buy tokens");
-        assertEq(sellToken.balanceOf(users.buyer), buyerSellTokenBefore + SELL_AMOUNT, "buyer received sell tokens");
-        assertEq(buyToken.balanceOf(users.buyer), buyerBuyTokenBefore - BUY_AMOUNT, "buyer sent buy tokens");
-        assertEq(sellToken.balanceOf(address(comptroller)), comptrollerSellTokenBefore, "comptroller no sell fee");
-        assertEq(buyToken.balanceOf(address(comptroller)), comptrollerBuyTokenBefore, "comptroller no buy fee");
+        _testFillOrder({ orderId: orderWithoutAnyBuyer, tradeFee: ZERO });
     }
 
-    function test_GivenTradeFeeNonzero()
+    function test_GivenTradeFeeNotZero()
         external
-        givenNotNullOrder
-        givenOrderOpen
-        givenOrderHasNoBuyer
-        whenBuyAmountSufficient
+        givenNotNull
+        givenOpen
+        givenOrderWithoutDesignatedBuyer
+        whenBuyAmountNotLessThanMinBuyAmount
     {
-        // It should fill the order and deduct fees.
-        // Create an order.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: address(0),
-            expiryTime: EXPIRY
-        });
+        _testFillOrder({ orderId: orderWithoutAnyBuyer, tradeFee: DEFAULT_TRADE_FEE });
+    }
 
-        // Record balances before fill.
-        uint256 sellerSellTokenBefore = sellToken.balanceOf(users.seller);
-        uint256 sellerBuyTokenBefore = buyToken.balanceOf(users.seller);
-        uint256 buyerSellTokenBefore = sellToken.balanceOf(users.buyer);
-        uint256 buyerBuyTokenBefore = buyToken.balanceOf(users.buyer);
-        uint256 comptrollerSellTokenBefore = sellToken.balanceOf(address(comptroller));
-        uint256 comptrollerBuyTokenBefore = buyToken.balanceOf(address(comptroller));
-
-        // Calculate expected fees (1% default trade fee).
-        UD60x18 currentTradeFee = escrow.tradeFee();
-        uint128 feeFromSellAmount = ud(SELL_AMOUNT).mul(currentTradeFee).intoUint128();
-        uint128 feeFromBuyAmount = ud(BUY_AMOUNT).mul(currentTradeFee).intoUint128();
+    /// @dev Private shared logic.
+    function _testFillOrder(uint256 orderId, UD60x18 tradeFee) private {
+        uint128 feeFromSellAmount = ud(SELL_AMOUNT).mul(tradeFee).intoUint128();
+        uint128 feeFromBuyAmount = ud(MIN_BUY_AMOUNT).mul(tradeFee).intoUint128();
         uint128 sellAmountAfterFee = SELL_AMOUNT - feeFromSellAmount;
-        uint128 buyAmountAfterFee = BUY_AMOUNT - feeFromBuyAmount;
+        uint128 buyAmountAfterFee = MIN_BUY_AMOUNT - feeFromBuyAmount;
 
-        // Expect the FillOrder event.
+        // It should perform the ERC-20 transfers.
+        if (feeFromSellAmount > 0) {
+            expectCallToTransfer({ token: sellToken, to: address(comptroller), value: feeFromSellAmount });
+        }
+        expectCallToTransfer({ token: sellToken, to: users.buyer, value: sellAmountAfterFee });
+        if (feeFromBuyAmount > 0) {
+            expectCallToTransferFrom({
+                token: buyToken,
+                from: users.buyer,
+                to: address(comptroller),
+                value: feeFromBuyAmount
+            });
+        }
+        expectCallToTransferFrom({ token: buyToken, from: users.buyer, to: users.seller, value: buyAmountAfterFee });
+
+        // It should emit a {FillOrder} event.
         vm.expectEmit({ emitter: address(escrow) });
         emit ISablierEscrow.FillOrder({
             orderId: orderId,
@@ -264,59 +156,9 @@ contract FillOrder_Integration_Concrete_Test is Integration_Test {
             feeDeductedFromSellerAmount: feeFromBuyAmount
         });
 
-        // Fill the order.
-        setMsgSender(users.buyer);
-        escrow.fillOrder(orderId, BUY_AMOUNT);
-
-        // Assert the order is now filled.
-        assertEq(escrow.statusOf(orderId), Escrow.Status.FILLED, "order.status");
-        assertTrue(escrow.wasFilled(orderId), "order.wasFilled");
-
-        // Assert balances with fees deducted.
-        assertEq(sellToken.balanceOf(users.seller), sellerSellTokenBefore, "seller sell token unchanged");
-        assertEq(
-            buyToken.balanceOf(users.seller), sellerBuyTokenBefore + buyAmountAfterFee, "seller received buy tokens"
-        );
-        assertEq(
-            sellToken.balanceOf(users.buyer), buyerSellTokenBefore + sellAmountAfterFee, "buyer received sell tokens"
-        );
-        assertEq(buyToken.balanceOf(users.buyer), buyerBuyTokenBefore - BUY_AMOUNT, "buyer sent buy tokens");
-        assertEq(
-            sellToken.balanceOf(address(comptroller)),
-            comptrollerSellTokenBefore + feeFromSellAmount,
-            "comptroller received sell fee"
-        );
-        assertEq(
-            buyToken.balanceOf(address(comptroller)),
-            comptrollerBuyTokenBefore + feeFromBuyAmount,
-            "comptroller received buy fee"
-        );
-    }
-
-    function test_FillOrderAtExactMinBuyAmount()
-        external
-        givenNotNullOrder
-        givenOrderOpen
-        givenOrderHasNoBuyer
-        whenBuyAmountSufficient
-    {
-        // It should fill the order when buy amount equals min buy amount.
-        // Create an order.
-        setMsgSender(users.seller);
-        uint256 orderId = escrow.createOrder({
-            sellToken: sellToken,
-            sellAmount: SELL_AMOUNT,
-            buyToken: buyToken,
-            minBuyAmount: MIN_BUY_AMOUNT,
-            buyer: address(0),
-            expiryTime: EXPIRY
-        });
-
-        // Fill with exact min buy amount.
-        setMsgSender(users.buyer);
         escrow.fillOrder(orderId, MIN_BUY_AMOUNT);
 
-        // Assert the order is now filled.
+        // It should update the order status to filled.
         assertEq(escrow.statusOf(orderId), Escrow.Status.FILLED, "order.status");
         assertTrue(escrow.wasFilled(orderId), "order.wasFilled");
     }
