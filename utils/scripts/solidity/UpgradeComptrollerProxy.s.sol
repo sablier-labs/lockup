@@ -4,8 +4,19 @@ pragma solidity >=0.8.22;
 import { Options, Upgrades } from "@openzeppelin/foundry-upgrades/src/Upgrades.sol";
 import { BaseScript } from "src/tests/BaseScript.sol";
 
-/// @notice Deploys a new Sablier Comptroller.
+/// @notice Upgrades the Sablier Comptroller.
 /// @dev The deployed Sablier Comptroller is set as the implementation of the existing proxy.
+///
+/// The following upgrade script runs a storage collision check between the new implementation contract and the previous
+/// version. The function requires access to the previous version of the contract. Therefore, to perform the upgrade,
+/// follow the steps below:
+/// 1. Flatten the previous version of the Comptroller contract. Current version is v1.0 which can be found at
+/// https://github.com/sablier-labs/evm-utils/blob/main/src/SablierComptroller.sol:
+/// - `forge flatten src/SablierComptroller.sol > SablierComptrollerV10.sol`
+/// 2. Place it in `src/legacy` directory in this repo.
+/// 3. Run the upgrade script from the `utils/` directory:
+///  - `just build`
+///  - `forge script scripts/solidity/UpgradeComptrollerProxy.s.sol:UpgradeComptrollerProxy --rpc-url <CHAIN>`
 contract UpgradeComptrollerProxy is BaseScript {
     function run() public broadcast returns (address implementation) {
         // Declare the constructor parameters of the implementation contract.
@@ -15,6 +26,9 @@ contract UpgradeComptrollerProxy is BaseScript {
         // Disable the constructor check for the implementation contract.
         // See https://docs.openzeppelin.com/upgrades-plugins/faq#how-can-i-disable-checks
         opts.unsafeAllow = "constructor";
+
+        // Set the reference contract for the storage layout comparison.
+        opts.referenceContract = "SablierComptrollerV10.sol:SablierComptroller";
 
         // Get comptroller proxy address.
         address comptrollerProxy = getComptroller();

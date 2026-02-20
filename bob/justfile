@@ -14,9 +14,3 @@ deploy-escrow *args:
     FOUNDRY_PROFILE=optimized \
         forge script scripts/solidity/DeployEscrow.s.sol \
         -vvv --broadcast {{ args }}
-
-# Should only be called on Ethereum mainnet
-deploy-lido-adapter-mainnet:
-    FOUNDRY_PROFILE=optimized \
-        forge script scripts/solidity/DeployLidoAdapter.s.sol \
-        -vvv --broadcast --rpc-url ethereum

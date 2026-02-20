@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { ChainId } from "@sablier/evm-utils/src/tests/ChainId.sol";
 
-/// @notice Lido-related address constants for deploy scripts.
-abstract contract LidoAdapterConstants {
+/// @notice Lido Adapter utility functions for deploy scripts.
+abstract contract LidoAdapterUtils {
+    UD60x18 internal constant INITIAL_SLIPPAGE_TOLERANCE = UD60x18.wrap(0.005e18); // 0.5%
+    UD60x18 internal constant INITIAL_YIELD_FEE = UD60x18.wrap(0.1e18); // 10%
+
     function getCurvePool() internal view returns (address curvePool) {
         if (block.chainid == ChainId.ETHEREUM) {
             curvePool = 0xDC24316b9AE028F1497c275EB9192a3Ea0f67022;
