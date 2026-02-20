@@ -10,9 +10,9 @@ import { BaseScript } from "src/tests/BaseScript.sol";
 /// The following upgrade script runs a storage collision check between the new implementation contract and the previous
 /// version. The function requires access to the previous version of the contract. Therefore, to perform the upgrade,
 /// follow the steps below:
-/// 1. Flatten the previous version of the Comptroller contract by using the following command on
+/// 1. Flatten the previous version of the Comptroller contract. Current version is v1.0 which can be found at
 /// https://github.com/sablier-labs/evm-utils/blob/main/src/SablierComptroller.sol:
-///  - `forge flatten src/SablierComptroller.sol > SablierComptrollerV1.sol`
+/// - `forge flatten src/SablierComptroller.sol > SablierComptrollerV10.sol`
 /// 2. Place it in `src/legacy` directory in this repo.
 /// 3. Run the upgrade script from the `utils/` directory:
 ///  - `just build`
@@ -28,7 +28,7 @@ contract UpgradeComptrollerProxy is BaseScript {
         opts.unsafeAllow = "constructor";
 
         // Set the reference contract for the storage layout comparison.
-        opts.referenceContract = "SablierComptrollerV1.sol:SablierComptroller";
+        opts.referenceContract = "SablierComptrollerV10.sol:SablierComptroller";
 
         // Get comptroller proxy address.
         address comptrollerProxy = getComptroller();
